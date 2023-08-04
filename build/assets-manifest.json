@@ -2,17 +2,10 @@
   "publicPath": "/",
   "entries": {
     "main": [
-      "js/framework.js",
-      "js/992.js",
       "css/main.css",
       "js/main.js"
     ]
   },
-  "pages": {
-    "index": [
-      "css/p_index.css",
-      "js/p_index.js"
-    ]
-  },
+  "pages": {},
   "assets": {}
 }

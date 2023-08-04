@@ -31,7 +31,7 @@ const render = (customOptions: Record<string, any> = {}) => {
     },
     createRoutes,
     basename: getRouterBasename(),
-    hydrate: true,
+    hydrate: false,
     memoryRouter: false,
     dataLoaderFetcher,
     dataLoaderDecorator,

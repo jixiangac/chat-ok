@@ -1,4 +1,6 @@
 import { createRouteLoader, WrapRouteComponent, RouteErrorComponent } from '@ice/runtime';
+import * as _ from '@/pages/index';
+
 export default ({
   requestContext,
   renderMode,
@@ -6,19 +8,19 @@ export default ({
   {
     path: '',
     async lazy() {
-      const componentModule = await import(/* webpackChunkName: "p_index" */ '@/pages/index');
+      ;
       return {
-        ...componentModule,
+        ..._,
         Component: () => WrapRouteComponent({
           routeId: '/',
           isLayout: false,
-          routeExports: componentModule,
+          routeExports: _,
         }),
         loader: createRouteLoader({
           routeId: '/',
           requestContext,
           renderMode,
-          module: componentModule,
+          module: _,
         }),
       };
     },

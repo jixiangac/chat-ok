@@ -1,6 +1,5 @@
 import './env.server';
 import * as runtime from '@ice/runtime/server';
-import { commons, statics } from './runtimeModules';
 import * as app from '@/app';
 import Document from '@/document';
 import type { RenderMode, DistType } from '@ice/runtime';
@@ -10,6 +9,9 @@ import assetsManifest from 'virtual:assets-manifest.json';
 import createRoutes from './routes';
 import routesConfig from './routes-config.bundle.mjs';
 
+// Do not inject runtime modules when render mode is document only.
+const commons = [];
+const statics = [];
 const runtimeModules = { commons, statics };
 
 const getRouterBasename = () => {

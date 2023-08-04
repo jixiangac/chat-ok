@@ -1,43 +1,50 @@
 import { useState } from 'react';
-import logo from '@/assets/logo.png';
 import styles from './index.module.css';
 
+import { Avatar, List, Space } from 'antd-mobile';
+
+const demoAvatarImages = [
+  'https://gw.alicdn.com/imgextra/i2/O1CN01fPz7p81auD8ECFNjZ_!!6000000003389-0-tps-886-1919.jpg',
+]
+
 export default function IndexPage() {
-  const [count, setCount] = useState(1);
-  const updateCount = () => setCount((c) => c + 1);
 
   return (
-    <div className={styles.app}>
-      <header>
-        <img src={logo} alt="logo" />
-        <p>
-          Hello ice.js 3
-        </p>
-      </header>
-      <main>
-        <button className={styles.button} type="button" onClick={updateCount}>
-          👍🏻 {count}
-        </button>
-        <p>
-          <a
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.link}
-          >
-            Learn React
-          </a>
-          {' | '}
-          <a
-            href="https://v3.ice.work/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.link}
-          >
-            Learn ice.js
-          </a>
-        </p>
-      </main>
+    <div className={styles.app} style={{
+      maxHeight: document.documentElement.clientHeight,
+      overflow: 'hidden'
+    }}>
+      <List>
+        <List.Item
+          prefix={<Avatar src={demoAvatarImages[0]} />}
+          description='量化机器人，嘻嘻'
+        >
+          冲鸭卡卡
+        </List.Item>
+      </List>
+      <div className={styles.container}>
+        <a className={styles.card} href="https://www.taobao.com" target='_blank'>
+          <div className={styles.content}>
+            <h3>申请录入</h3>
+            <span>录入api key / screct key / 密码短语，进行申请准入</span>
+            <div style={{flex:1}}></div>
+          </div>
+        </a>
+        <a className={styles.card} href="https://www.tmall.com" target='_blank'>
+          <div className={styles.content}>
+            <h3>查询录入进展</h3>
+            <span>通过api key查询进展</span>
+            <div style={{flex:1}}></div>
+          </div>
+        </a>
+        <a className={styles.card} href="https://tmall.jixiang.chat" target='_blank'>
+          <div className={styles.content}>
+            <h3>优秀实盘</h3>
+            <span>目前已接入的实盘</span>
+            <div style={{flex:1}}></div>
+          </div>
+        </a>
+      </div>
     </div>
   );
 }

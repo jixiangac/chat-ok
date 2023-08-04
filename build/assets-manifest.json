@@ -7,5 +7,7 @@
     ]
   },
   "pages": {},
-  "assets": {}
+  "assets": {
+    "src/assets/a.jpeg": "b4356bc5"
+  }
 }

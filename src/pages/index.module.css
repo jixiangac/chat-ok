@@ -1,7 +1,9 @@
 /*
  * Style in CSS Modules.
  */
-
+body{
+  user-select: none;
+}
  .app{
   /* background-color: #f0f2f5; */
   background-color: var(--ifm-color-area);

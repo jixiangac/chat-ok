@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import styles from './index.module.css';
-import logo from '@/assets/a.jpeg';
+// import logo from '@/assets/a.jpeg';
 import { Avatar, List, Space, Image } from 'antd-mobile';
 
 
@@ -64,7 +64,7 @@ export default function IndexPage() {
                 overflowY: 'auto',
                 margin: '10px 20px'
               }}>
-                <Image src={logo} />
+                <Image src="https://okx.jixiang.chat/build/assets/a.jpeg" />
               </div>
             });
         }}>

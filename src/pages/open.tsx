@@ -60,6 +60,7 @@ const popForm = (props)=>{
             </Popup>
 };
 
+let cls: any = null;
 
 function openFormDrawer(props: {
   children: any;
@@ -68,13 +69,16 @@ function openFormDrawer(props: {
   position?: string;
   beforeSubmit?: (formValue?: any) => Promise<boolean | void>;
 }) {
+    if ( cls ) {
+      clearTimeout(cls);
+    }
     return new Promise((resolve) => {
         const portalElement = React.createElement(popForm, {
           ...props,
           timeid: new Date().getTime(),
           onClose: (v) => {
             props.onClose && props.onClose(v);
-            setTimeout(function() {
+            cls = setTimeout(function() {
                 resolve(false);
                 unmountComponentAtNode(getAppendContainer());
             }, 100);

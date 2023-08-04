@@ -1,5 +1,7 @@
 import { createRouteLoader, WrapRouteComponent, RouteErrorComponent } from '@ice/runtime';
 import * as _ from '@/pages/index';
+import * as open from '@/pages/open';
+import * as pop from '@/pages/pop';
 
 export default ({
   requestContext,
@@ -28,6 +30,56 @@ export default ({
     componentName: 'index',
     index: true,
     id: '/',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'open',
+    async lazy() {
+      ;
+      return {
+        ...open,
+        Component: () => WrapRouteComponent({
+          routeId: 'open',
+          isLayout: false,
+          routeExports: open,
+        }),
+        loader: createRouteLoader({
+          routeId: 'open',
+          requestContext,
+          renderMode,
+          module: open,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'open',
+    index: undefined,
+    id: 'open',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'pop',
+    async lazy() {
+      ;
+      return {
+        ...pop,
+        Component: () => WrapRouteComponent({
+          routeId: 'pop',
+          isLayout: false,
+          routeExports: pop,
+        }),
+        loader: createRouteLoader({
+          routeId: 'pop',
+          requestContext,
+          renderMode,
+          module: pop,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'pop',
+    index: undefined,
+    id: 'pop',
     exact: true,
     exports: ["default"],
   },

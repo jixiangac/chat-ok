@@ -13,7 +13,7 @@
   margin: 0 auto;
   max-width: 1200px;
   overflow: hidden;
-  padding: 80px 24px 0 24px;
+  padding: 48px 24px 0 24px;
   .container{
     display: grid;
     gap: 28px;

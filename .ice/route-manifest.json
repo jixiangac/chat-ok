@@ -8,5 +8,25 @@
     "exports": [
       "default"
     ]
+  },
+  {
+    "path": "open",
+    "id": "open",
+    "file": "open.tsx",
+    "componentName": "open",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "pop",
+    "id": "pop",
+    "file": "pop.tsx",
+    "componentName": "pop",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
   }
 ]

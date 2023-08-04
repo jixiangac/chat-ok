@@ -81,7 +81,7 @@ function openFormDrawer(props: {
             cls = setTimeout(function() {
                 resolve(false);
                 unmountComponentAtNode(getAppendContainer());
-            }, 100);
+            }, 300);
           },
         });
         render(portalElement, getAppendContainer());

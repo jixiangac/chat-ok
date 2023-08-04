@@ -9,7 +9,8 @@ import {
     Image,
     Tag,
     Result,
-    Toast
+    Toast,
+    ImageViewer
 } from 'antd-mobile';
 
 import { SmileOutline, RedoOutline } from 'antd-mobile-icons';
@@ -25,6 +26,12 @@ const timeMap = {
   '30m': '30分钟K线'
 };
 
+
+const demoImages = [
+  'https://gw.alicdn.com/imgextra/i4/O1CN01AVuksB1Iz6H9dux5y_!!6000000000963-0-tps-592-1280.jpg',
+  'https://gw.alicdn.com/imgextra/i4/O1CN01m3GgVl1aa3hiq3Gei_!!6000000003345-0-tps-592-1280.jpg'
+];
+
 const ALGO_INTRO = {
     'dea-cross-upper-diff-long': 'MACD DEA线指标『金叉』，并且币价处于布林带『上轨』位置，可大概率做多',
     'dea-cross-upper-diff-short': 'MACD DEA线指标『死叉』，但整体币价仍处于『上轨』区间，有一定概率可做空',
@@ -37,8 +44,8 @@ const ALGO_INTRO = {
     'macd-cross-diff-short': '12日EMA均线『死叉』,有一定概率可做空',
     'td13': '当前处于迪马克指标13的位置，迪马克指标13意味着行情有较大可能反转',
     'td9': '当前处于迪马克指标9的位置，迪马克指标9意味着行情有一定可能反转',
-    'boll': '处于布林带的上下轨位置，有一定趋势延续性',
-    'DEA': 'DEA线的金叉死叉位置，有一定趋势延续性'
+    'boll': '处于布林带的上下轨位置，趋势有一定趋势延续性',
+    'DEA': '处于DEA线的上下位置，趋势有一定趋势延续性'
   };
 
 const imagelist = {
@@ -227,7 +234,7 @@ const AlgoList = (props)=>{
            <div 
             className={styles.wraplist}
             style={{
-                maxHeight: document.documentElement.clientHeight - 220,
+                maxHeight: document.documentElement.clientHeight - 300,
                 overflowY: 'auto',
                 margin: '10px 20px'
             }}>
@@ -283,7 +290,13 @@ const AlgoList = (props)=>{
                 ))}
             </List>
             </div>
-            </>
+            <div className={styles.wrapdiscord}>
+              <p>加入Discord频道：<a onClick={()=>{
+                   ImageViewer.Multi.show({ images: demoImages })
+              }}>(频道示例点此查看)</a></p>
+              <p><a href="https://discord.gg/8UPC9Hj5Mr" target="_blank">https://discord.gg/8UPC9Hj5Mr</a>，推送实时策略提醒</p>
+            </div>
+          </>
 };
 
 

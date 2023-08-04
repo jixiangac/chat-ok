@@ -6,6 +6,8 @@
     "@ice/runtime": "^1.0.0",
     "ant-mobile": "^0.0.0",
     "antd-mobile": "^5.32.0",
+    "axios": "^1.4.0",
+    "localforage": "^1.10.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },

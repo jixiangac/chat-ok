@@ -77,3 +77,32 @@ body{
   }
  }
 
+
+ .listicon{
+   position: relative;
+   :global(svg){
+      position: absolute;
+      right: 0;
+      top: 0;
+   }
+ }
+
+ .wraplist{
+   :global(.adm-list-item-content) {
+     position: relative;
+   }
+   :global(.adm-list-item){
+    min-height: 160px;
+    font-size: 12px;
+   }
+   .desx{
+     color: #999;
+     margin-left: 10px;
+   }
+   .des{
+    font-size: 12px;
+    position: absolute;
+    right: 0;
+    top: 0;
+   }
+ }

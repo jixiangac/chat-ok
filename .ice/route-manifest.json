@@ -1,5 +1,25 @@
 [
   {
+    "path": "aloglist",
+    "id": "aloglist",
+    "file": "aloglist.tsx",
+    "componentName": "aloglist",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "apply",
+    "id": "apply",
+    "file": "apply.tsx",
+    "componentName": "apply",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
     "index": true,
     "id": "/",
     "file": "index.tsx",

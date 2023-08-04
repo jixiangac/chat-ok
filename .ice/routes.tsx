@@ -1,4 +1,6 @@
 import { createRouteLoader, WrapRouteComponent, RouteErrorComponent } from '@ice/runtime';
+import * as aloglist from '@/pages/aloglist';
+import * as apply from '@/pages/apply';
 import * as _ from '@/pages/index';
 import * as open from '@/pages/open';
 import * as pop from '@/pages/pop';
@@ -8,6 +10,56 @@ export default ({
   renderMode,
 }) => ([
   {
+    path: 'aloglist',
+    async lazy() {
+      ;
+      return {
+        ...aloglist,
+        Component: () => WrapRouteComponent({
+          routeId: 'aloglist',
+          isLayout: false,
+          routeExports: aloglist,
+        }),
+        loader: createRouteLoader({
+          routeId: 'aloglist',
+          requestContext,
+          renderMode,
+          module: aloglist,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'aloglist',
+    index: undefined,
+    id: 'aloglist',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'apply',
+    async lazy() {
+      ;
+      return {
+        ...apply,
+        Component: () => WrapRouteComponent({
+          routeId: 'apply',
+          isLayout: false,
+          routeExports: apply,
+        }),
+        loader: createRouteLoader({
+          routeId: 'apply',
+          requestContext,
+          renderMode,
+          module: apply,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'apply',
+    index: undefined,
+    id: 'apply',
+    exact: true,
+    exports: ["default"],
+  },{
     path: '',
     async lazy() {
       ;

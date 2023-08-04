@@ -1,0 +1,12 @@
+[
+  {
+    "index": true,
+    "id": "/",
+    "file": "index.tsx",
+    "componentName": "index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  }
+]

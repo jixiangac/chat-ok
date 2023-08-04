@@ -7,10 +7,12 @@ import {
     SpinLoading,
     List,
     Image,
-    Tag
+    Tag,
+    Result,
+    Toast
 } from 'antd-mobile';
 
-import { ArrowDownCircleOutline } from 'antd-mobile-icons';
+import { SmileOutline, RedoOutline } from 'antd-mobile-icons';
 
 import localforage from 'localforage';
 
@@ -119,6 +121,8 @@ const imagelist = {
 };
 
 
+let clickIns = 0;
+
 const AlgoList = (props)=>{
 
 
@@ -129,12 +133,20 @@ const AlgoList = (props)=>{
         data: []
     });
 
-    const fetchData = async ()=>{
+    const fetchData = async (flag)=>{
 
         const adatas: any = await localforage.getItem('rtime');
-    
+        
+        if ( flag ) {
+          setApp({
+            isLoading: true,
+            loaded: false,
+            time: '',
+            data: []
+          });
+        }
 
-        if ( adatas ) {
+        if ( !flag && adatas ) {
            try{
              const datas = JSON.parse(adatas);
              const beforeTime = new Date(datas.time).getTime();
@@ -166,11 +178,18 @@ const AlgoList = (props)=>{
             time: pdatas.time,
             data: pdatas.onelist.concat(pdatas.twolist),
            });
+        } else {
+          setApp({
+            isLoading: false,
+            loaded: true,
+            time: '',
+            data: []
+           });
         }
     }
 
     useEffect(()=>{
-      fetchData();
+      fetchData(false);
     }, []);
 
 
@@ -184,13 +203,42 @@ const AlgoList = (props)=>{
     }
 
 
-    return <div 
+    return <>
+           <div className={styles.wraptime}>
+              最近更新时间：{app.time}
+              <RedoOutline style={{marginLeft: 20}} onClick={()=>{
+                 if ( clickIns === 0 ) {
+                    clickIns = new Date().getTime();
+                    fetchData(true);
+                 } else {
+                    const now = new Date().getTime();
+                    const dif = now - clickIns;
+                    if ( dif < 900000 ) {
+                      Toast.show({
+                        icon: 'fail',
+                        content: '刷新过于频繁，5分钟后再试试'
+                      });
+                    } else {
+                      fetchData(true);
+                    }
+                 }
+              }}/>
+           </div>
+           <div 
             className={styles.wraplist}
             style={{
-                maxHeight: document.documentElement.clientHeight - 120,
+                maxHeight: document.documentElement.clientHeight - 220,
                 overflowY: 'auto',
                 margin: '10px 20px'
             }}>
+            {
+              !(app?.data||[]).length ? <Result
+              icon={<SmileOutline />}
+              status='success'
+              title='Well done'
+              description='暂无策略'
+            /> : null
+            }
              <List>
                 {(app?.data||[]).map((user: any, index) => (
                     <List.Item
@@ -235,6 +283,7 @@ const AlgoList = (props)=>{
                 ))}
             </List>
             </div>
+            </>
 };
 
 

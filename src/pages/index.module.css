@@ -87,6 +87,11 @@ body{
    }
  }
 
+ .wraptime{
+   border: 1px dashed #eee;
+   padding: 10px 20px;
+   margin: 0 20px;
+ }
  .wraplist{
    :global(.adm-list-item-content) {
      position: relative;

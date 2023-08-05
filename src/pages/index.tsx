@@ -31,7 +31,12 @@ export default function IndexPage() {
       </List>
       <div className={styles.container}>
 
-      <a className={styles.card} onClick={()=>{
+      <a 
+         className={styles.card} 
+         style={{
+          height: 230
+         }}
+         onClick={()=>{
             openFormDrawer({
               title: '实时策略',
               children: <AlgoList />
@@ -39,7 +44,8 @@ export default function IndexPage() {
         }}>
           <div className={styles.content}>
             <h3>实时策略信息(beta)</h3>
-            <span>最近1小时/30分钟的币种有策略</span>
+            <span>该频道主要通过监控K线的MACD形态，布林形态，EMA均线形态，裸K形态（十字星，看涨看跌等蜡烛图形态），迪马克指标（td），综合分析币价在周期内的可能趋势，仅做分析参考。</span>
+            <span style={{color: 'rgb(178 121 121)', marginTop: 10}}>每半小时更新一次，每自然日可免费使用10次</span>
             <div style={{flex:1}}></div>
           </div>
         </a>
@@ -64,7 +70,8 @@ export default function IndexPage() {
                 overflowY: 'auto',
                 margin: '10px 20px'
               }}>
-                <Image src="https://okx.jixiang.chat/build/assets/a.jpeg" />
+                <div style={{marginBottom: 20}}>VX:  amuye1993</div>
+                <Image src="https://okx.jixiang.chat/src/assets/a.jpeg" />
               </div>
             });
         }}>

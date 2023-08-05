@@ -2,6 +2,8 @@
 import axios from 'axios';
 import * as qs from 'qs';
 
+import dayjs from 'dayjs';
+
 import {
     Space,
     SpinLoading,
@@ -10,16 +12,33 @@ import {
     Tag,
     Result,
     Toast,
-    ImageViewer
+    ImageViewer,
+    Form,
+    Input,
+    Button
 } from 'antd-mobile';
 
-import { SmileOutline, RedoOutline } from 'antd-mobile-icons';
+import { SmileOutline, RedoOutline, MailOpenOutline } from 'antd-mobile-icons';
 
 import localforage from 'localforage';
 
 import styles from './index.module.css';
 
 import { useEffect, useState } from 'react';
+
+const copyToClip = (url?: string) => {
+  if ( !url ) {
+    return false;
+  }
+  // 复制地址栏链接到剪贴板
+  const share = document.createElement('input');
+  share.setAttribute('value', url || '');
+  document.body.appendChild(share);
+  share.select();
+  document.execCommand('copy');
+  document.body.removeChild(share);
+  return true;
+};
 
 const timeMap = {
   '1H': '1小时K线',
@@ -133,6 +152,19 @@ let clickIns = 0;
 const AlgoList = (props)=>{
 
 
+    const today = dayjs();
+    const now_today = today.format('YYYY/MM/DD');
+    
+    const [count, setCount] = useState(0);
+
+    const [paycount, setPayCount] = useState(0);
+
+    const [show, setShow] = useState(false);
+
+    const [payLoading, setPayLoading] = useState(false);
+
+    const [form] = Form.useForm();
+
     const [app, setApp] = useState({
         isLoading: true,
         loaded: false,
@@ -140,10 +172,50 @@ const AlgoList = (props)=>{
         data: []
     });
 
-    const fetchData = async (flag)=>{
+
+
+    const initPayCounts = async ()=>{
+      const onedatas: any = await localforage.getItem('pay_counts');
+      if ( onedatas ) {
+        const datas = JSON.parse(onedatas);
+        setPayCount(datas.count || 0);
+      } 
+    };
+
+    const initCounts = async ()=>{
+
+      const onedatas: any = await localforage.getItem('rtime_counts');
+
+      const initDefaultCounts = async ()=>{
+        let default_counts = 2;
+        await localforage.setItem('rtime_counts', JSON.stringify({
+          count: default_counts,
+          date: now_today
+        }));
+        setCount(default_counts);
+        fetchData(false, default_counts);
+      }
+
+      if ( onedatas ) {
+        const datas = JSON.parse(onedatas);
+
+        if ( datas.date !== now_today ) {
+          await initDefaultCounts();
+        } else {
+          setCount(datas.count);
+          fetchData(false, datas.count);
+        }
+
+      } else {
+        await initDefaultCounts();
+      }
+      
+    };
+
+    const fetchData = async (flag?: boolean, counts?: number)=>{
 
         const adatas: any = await localforage.getItem('rtime');
-        
+
         if ( flag ) {
           setApp({
             isLoading: true,
@@ -166,6 +238,7 @@ const AlgoList = (props)=>{
                 time: datas.time,
                 data: datas.onelist.concat(datas.twolist),
                });
+               return;
              }
 
            }catch(e){}
@@ -185,6 +258,19 @@ const AlgoList = (props)=>{
             time: pdatas.time,
             data: pdatas.onelist.concat(pdatas.twolist),
            });
+           if ( count !== 0 ) {
+             const left_counts = counts !== undefined ? (counts - 1) : (count - 1);
+             await localforage.setItem('rtime_counts', JSON.stringify({
+               date: now_today,
+               count: left_counts
+             }));
+             setCount(left_counts);
+           } else if ( paycount !== 0 ) {
+             const left_pay_counts = paycount - 1;
+             await localforage.setItem('pay_counts', JSON.stringify({count: left_pay_counts}));
+             setPayCount(left_pay_counts);
+           }
+           
         } else {
           setApp({
             isLoading: false,
@@ -195,8 +281,86 @@ const AlgoList = (props)=>{
         }
     }
 
+    const checkErros = async (flag?: boolean)=>{
+
+      let errTititle = '';
+      try{
+        await form.validateFields();
+      }catch(e) {
+        if ( e?.errorFields.length ) {
+          for ( let i = 0, len = e?.errorFields.length; i < len ; i ++ ) {
+            const target = e?.errorFields[i];
+            if ( target.errors.length ) {
+              errTititle = target.errors[0];
+              break;
+            }
+          }
+        }
+      }
+      
+      if ( flag && errTititle ) {
+        Toast.show({
+          icon: 'fail',
+          content: errTititle,
+        });
+      }
+      return errTititle;
+    }
+
+    const onPay = async ()=>{
+      setPayLoading(true);
+      const error = await checkErros(true);
+      if ( error ) {
+        setPayLoading(false);
+        return;
+      }
+      const values = form.getFieldsValue();
+      const res = await axios(`https://api.jixiang.chat/api/btc/list?apitype=getDepositHistory&from=${values.account}`, {
+          method: 'get'
+      });
+      if ( res?.data?.success ) {
+
+        let olddatas: any = {
+          caches_hash: [],
+          count: 0,
+        }
+
+        try{
+          const d: any = await localforage.getItem('pay_counts');
+          if ( d ) {
+            olddatas = JSON.parse(d);
+          }
+        }catch(e){};
+
+        let usdts = 0;
+        let caches_hash: any = olddatas.caches_hash || [];
+
+        (res.data?.data || []).forEach((item: any)=>{
+           if ( caches_hash.indexOf(item.txId) === -1 ) {
+             usdts += (item.amt - 0);
+             caches_hash.push(item.txId);
+           }
+        });
+      
+        let xcounts = olddatas.count + Math.ceil(usdts/0.5);
+        await localforage.setItem('pay_counts', JSON.stringify({
+          caches_hash: caches_hash,
+          count: xcounts
+        }));
+        setPayCount(xcounts);
+
+      } else {
+        Toast.show({
+          icon: 'fail',
+          content: '操作失败，请重试'
+        });
+      }
+      setPayLoading(false);
+    };
+
     useEffect(()=>{
-      fetchData(false);
+      initPayCounts();
+      initCounts();
     }, []);
 
 
@@ -210,28 +374,33 @@ const AlgoList = (props)=>{
     }
 
 
-    return <>
-           <div className={styles.wraptime}>
-              最近更新时间：{app.time}
-              <RedoOutline style={{marginLeft: 20}} onClick={()=>{
-                 if ( clickIns === 0 ) {
-                    clickIns = new Date().getTime();
+    const cons: any = [];
+
+    if ( count > 0 || paycount > 0 ) {
+      cons.push(
+        <div className={styles.wraptime}>
+            最近更新时间：{app.time}
+            <span onClick={()=>{
+              if ( clickIns === 0 ) {
+                  clickIns = new Date().getTime();
+                  fetchData(true);
+              } else {
+                  const now = new Date().getTime();
+                  const dif = now - clickIns;
+                  if ( dif < 900000 ) {
+                    Toast.show({
+                      icon: 'fail',
+                      content: '刷新过于频繁，5分钟后再试试'
+                    });
+                  } else {
                     fetchData(true);
-                 } else {
-                    const now = new Date().getTime();
-                    const dif = now - clickIns;
-                    if ( dif < 900000 ) {
-                      Toast.show({
-                        icon: 'fail',
-                        content: '刷新过于频繁，5分钟后再试试'
-                      });
-                    } else {
-                      fetchData(true);
-                    }
-                 }
-              }}/>
-           </div>
-           <div 
+                  }
+              }
+            }}><RedoOutline style={{marginLeft: 20}}/><span style={{fontSize: 10}}>刷新</span></span>
+        </div>
+      );
+      cons.push(
+         <div 
             className={styles.wraplist}
             style={{
                 maxHeight: document.documentElement.clientHeight - 300,
@@ -290,12 +459,97 @@ const AlgoList = (props)=>{
                 ))}
             </List>
             </div>
-            <div className={styles.wrapdiscord}>
+      );
+      cons.push(
+        <div className={styles.wrapdiscord}>
+              <p style={{color: '#999'}}>本日免费使用次数剩余：<b style={{fontSize: 14, margin: '0 5px'}}>{count}</b> 次</p>
+              {
+                paycount ?
+                <p style={{color: '#999'}}>充值次数剩余：<b style={{fontSize: 14, margin: '0 5px'}}>{paycount}</b> 次</p> : null
+              }
               <p>加入Discord频道：<a onClick={()=>{
                    ImageViewer.Multi.show({ images: demoImages })
               }}>(频道示例点此查看)</a></p>
               <p><a href="https://discord.gg/8UPC9Hj5Mr" target="_blank">https://discord.gg/8UPC9Hj5Mr</a>，推送实时策略提醒</p>
             </div>
+      );
+    } else {
+
+      if ( !show ) {
+        cons.push(
+          <Result
+            icon={<SmileOutline />}
+            status='success'
+            title='今日免费次数已用尽，明天再来吧'
+            description={<p>付费增加永久使用次数，0.5U = 1次，<a onClick={()=>{setShow(true)}}>点此充值</a></p>}
+          />
+        );
+        cons.push(
+          <div className={styles.wrapdiscord}>
+            <p style={{color: '#999'}}>本日免费使用次数剩余：<b style={{fontSize: 14, margin: '0 5px'}}>{count}</b> 次</p>
+      
+            <p>加入Discord频道：<a onClick={()=>{
+                  ImageViewer.Multi.show({ images: demoImages })
+            }}>(频道示例点此查看)</a></p>
+            <p><a href="https://discord.gg/8UPC9Hj5Mr" target="_blank">https://discord.gg/8UPC9Hj5Mr</a>，推送实时策略提醒</p>
+          </div>
+        );
+      } else {
+        cons.push(
+          <div 
+              className={styles.wraplidst}
+              style={{
+                  maxHeight: document.documentElement.clientHeight - 300,
+                  overflowY: 'auto',
+                  margin: '10px 20px'
+              }}>
+            <Form
+                name='form'
+                form={form}
+                  footer={
+                  <Button 
+                    onClick={onPay}
+                    loading={payLoading}
+                    block 
+                    type='submit' 
+                    color='primary' 
+                    size='large'>
+                      我已转账，进行验证
+                  </Button>
+                  }>
+              <Form.Item label='转入账号'>
+                <p>1251223923@qq.com（<span onClick={()=>{
+                  if ( copyToClip('1251223923@qq.com') ) {
+                    Toast.show({
+                      icon: 'success',
+                      content: '复制成功'
+                    });
+                  }
+                }}><MailOpenOutline />复制</span>）</p>
+              </Form.Item>
+              <Form.Item name="account" label='OKX转出账号' rules={[{ required: true }]}>
+                <Input placeholder='请输入转账的OKX账号，手机或邮箱' />
+              </Form.Item>
+            </Form>
+          </div>
+        )
+        cons.push(
+          <div className={styles.wrapdiscord}>
+            <h5>支付流程</h5>
+            <p>注：0.5U = 1次，10U = 20次，按使用次数收费</p>
+            <ol className={styles.wrapol}>
+              <li>前往OKX，登陆需要转账的OKX账号</li>
+              <li>OKX『资产』页 → 提币 → 币种选择『USDT』→ 提现方式选择『内部转账』</li>
+              <li>填写收款账号1251223923@qq.com → 填写需要转账的数量</li>
+              <li>等待2 ~ 10分钟后，回到界面进行验证即可</li>
+            </ol>
+            </div>
+        );
+      }
+    }
+
+    return <>
+            {cons}
           </>
 };
 

@@ -113,6 +113,11 @@ body{
  }
  .wrapdiscord{
   border: 1px dashed #eee;
-    padding: 10px 20px;
-    margin: 10px 20px;
+    padding: 5px 20px;
+    margin: 5px 20px;
+ }
+ .wrapol{
+  padding: 0 10px;
+  color: #666;
+  line-height: 2;
  }

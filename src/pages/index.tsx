@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import styles from './index.module.css';
 // import logo from '@/assets/a.jpeg';
 import { Avatar, List, Space, Image } from 'antd-mobile';
 
-
+import localforage from 'localforage';
 
 import openFormDrawer from './open';
 
@@ -15,6 +15,36 @@ const demoAvatarImages = [
 ]
 
 export default function IndexPage() {
+
+
+  const [datas, setData] = useState({
+    isLoading: true,
+    loaded: false, 
+    list: []
+  });
+
+
+  const fetchData = async ()=>{
+    const onedatas: any = await localforage.getItem('robot_accout_list');
+    if ( onedatas ) {
+      const datas = JSON.parse(onedatas);
+      setData({
+        isLoading: false,
+        loaded: true,
+        list: datas?.list || [],
+      });
+      return;
+    }
+    setData({
+      isLoading: false,
+      loaded: true,
+      list: []
+    });
+  };
+
+  useEffect(()=>{
+    fetchData();
+  }, []);
 
   return (
     <div className={styles.app} style={{
@@ -50,18 +80,42 @@ export default function IndexPage() {
           </div>
         </a>
 
-        <a className={styles.card} onClick={()=>{
-            openFormDrawer({
-              title: '申请使用机器人',
-              children: <ApplyForm />
-            });
-        }}>
-          <div className={styles.content}>
-            <h3>申请使用机器人</h3>
-            <span>量化交易机器人，全自动化交易，交易实盘请在币COIN中搜搜『冲鸭卡卡』</span>
-            <div style={{flex:1}}></div>
-          </div>
-        </a>
+        {
+          datas.isLoading ? <a className={styles.card}>
+                              <div className={styles.content}>
+                                <div style={{flex:1}}></div>
+                                <div style={{flex:1}}></div>
+                                <div style={{flex:1}}></div>
+                              </div>
+                            </a> :
+          (
+          datas.list.length ? 
+            <a className={styles.card} onClick={()=>{
+                openFormDrawer({
+                  title: '账号列表',
+                  children: <ApplyForm list={datas.list}/>
+                });
+            }}>
+              <div className={styles.content}>
+                <h3>账号列表</h3>
+                <span>管理查看已在进行运行的账号</span>
+                <div style={{flex:1}}></div>
+              </div>
+            </a>
+            :
+            <a className={styles.card} onClick={()=>{
+              openFormDrawer({
+                title: '申请使用机器人',
+                children: <ApplyForm />
+              });
+          }}>
+            <div className={styles.content}>
+              <h3>申请使用机器人</h3>
+              <span>量化交易机器人，全自动化交易，交易实盘请在币COIN中搜搜『冲鸭卡卡』</span>
+              <div style={{flex:1}}></div>
+            </div>
+          </a>)
+        }
         <a className={styles.card} onClick={()=>{
             openFormDrawer({
               title: '加入群聊',

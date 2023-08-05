@@ -1,6 +1,5 @@
 
 import axios from 'axios';
-import * as qs from 'qs';
 
 import dayjs from 'dayjs';
 
@@ -39,6 +38,10 @@ const copyToClip = (url?: string) => {
   document.body.removeChild(share);
   return true;
 };
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 const timeMap = {
   '1H': '1小时K线',
@@ -149,6 +152,8 @@ const imagelist = {
 
 let clickIns = 0;
 
+let PAY_COUNTS = -1;
+
 const AlgoList = (props)=>{
 
 
@@ -179,6 +184,7 @@ const AlgoList = (props)=>{
       if ( onedatas ) {
         const datas = JSON.parse(onedatas);
         setPayCount(datas.count || 0);
+        PAY_COUNTS = datas.count || -1;
       } 
     };
 
@@ -187,7 +193,7 @@ const AlgoList = (props)=>{
       const onedatas: any = await localforage.getItem('rtime_counts');
 
       const initDefaultCounts = async ()=>{
-        let default_counts = 2;
+        let default_counts = 11;
         await localforage.setItem('rtime_counts', JSON.stringify({
           count: default_counts,
           date: now_today
@@ -231,7 +237,9 @@ const AlgoList = (props)=>{
              const beforeTime = new Date(datas.time).getTime();
              const nowTime = new Date().getTime();
              const diffTime = nowTime - beforeTime;
-             if ( diffTime < 1800000 ) {
+             const compareTime = 30*60*1000;
+            //  const compareTime = 10;
+             if ( diffTime < compareTime ) {
                setApp({
                 isLoading: false,
                 loaded: true,
@@ -251,23 +259,25 @@ const AlgoList = (props)=>{
         if ( res?.data?.success ) {
           const pdatas = res?.data?.data;
           await localforage.setItem('rtime', JSON.stringify(pdatas));
-        
           setApp({
             isLoading: false,
             loaded: true,
             time: pdatas.time,
             data: pdatas.onelist.concat(pdatas.twolist),
            });
-           if ( count !== 0 ) {
+           if ( counts !== undefined && counts !== 0 || count !== 0 ) {
              const left_counts = counts !== undefined ? (counts - 1) : (count - 1);
              await localforage.setItem('rtime_counts', JSON.stringify({
                date: now_today,
                count: left_counts
              }));
              setCount(left_counts);
-           } else if ( paycount !== 0 ) {
-             const left_pay_counts = paycount - 1;
-             await localforage.setItem('pay_counts', JSON.stringify({count: left_pay_counts}));
+           } else if ( PAY_COUNTS !== -1 && PAY_COUNTS > 0 || paycount !== 0 ) {
+             const left_pay_counts = PAY_COUNTS !== -1 ? PAY_COUNTS - 1 : paycount - 1;
+             await localforage.setItem('pay_counts', JSON.stringify({
+              count: left_pay_counts
+             }));
+             PAY_COUNTS = -1;
              setPayCount(left_pay_counts);
            }
            
@@ -342,7 +352,7 @@ const AlgoList = (props)=>{
            }
         });
       
-        let xcounts = olddatas.count + Math.ceil(usdts/0.5);
+        let xcounts = olddatas.count + Math.ceil(usdts/0.1);
         await localforage.setItem('pay_counts', JSON.stringify({
           caches_hash: caches_hash,
           count: xcounts
@@ -359,8 +369,11 @@ const AlgoList = (props)=>{
     };
 
     useEffect(()=>{
-      initPayCounts();
-      initCounts();
+      const init = async ()=>{
+        await initPayCounts();
+        await initCounts();
+      };
+      init();
     }, []);
 
 
@@ -403,7 +416,7 @@ const AlgoList = (props)=>{
          <div 
             className={styles.wraplist}
             style={{
-                maxHeight: document.documentElement.clientHeight - 300,
+                maxHeight: document.documentElement.clientHeight - 350,
                 overflowY: 'auto',
                 margin: '10px 20px'
             }}>
@@ -462,7 +475,7 @@ const AlgoList = (props)=>{
       );
       cons.push(
         <div className={styles.wrapdiscord}>
-              <p style={{color: '#999'}}>本日免费使用次数剩余：<b style={{fontSize: 14, margin: '0 5px'}}>{count}</b> 次</p>
+              <p style={{color: '#999'}}>本日免费使用次数剩余：<b style={{fontSize: 14, margin: '0 5px'}}>{count > 0 ? count-1 : 0}</b> 次</p>
               {
                 paycount ?
                 <p style={{color: '#999'}}>充值次数剩余：<b style={{fontSize: 14, margin: '0 5px'}}>{paycount}</b> 次</p> : null
@@ -470,7 +483,7 @@ const AlgoList = (props)=>{
               <p>加入Discord频道：<a onClick={()=>{
                    ImageViewer.Multi.show({ images: demoImages })
               }}>(频道示例点此查看)</a></p>
-              <p><a href="https://discord.gg/8UPC9Hj5Mr" target="_blank">https://discord.gg/8UPC9Hj5Mr</a>，推送实时策略提醒</p>
+              <p><a href="https://discord.gg/8UPC9Hj5Mr" target="_blank">https://discord.gg/8UPC9Hj5Mr</a>，免费实时策略提醒</p>
             </div>
       );
     } else {
@@ -481,12 +494,12 @@ const AlgoList = (props)=>{
             icon={<SmileOutline />}
             status='success'
             title='今日免费次数已用尽，明天再来吧'
-            description={<p>付费增加永久使用次数，0.5U = 1次，<a onClick={()=>{setShow(true)}}>点此充值</a></p>}
+            description={<p>付费增加永久使用次数，0.1U = 1次，<a onClick={()=>{setShow(true)}}>点此充值</a></p>}
           />
         );
         cons.push(
           <div className={styles.wrapdiscord}>
-            <p style={{color: '#999'}}>本日免费使用次数剩余：<b style={{fontSize: 14, margin: '0 5px'}}>{count}</b> 次</p>
+            <p style={{color: '#999'}}>本日免费使用次数剩余：<b style={{fontSize: 14, margin: '0 5px'}}>0</b> 次</p>
       
             <p>加入Discord频道：<a onClick={()=>{
                   ImageViewer.Multi.show({ images: demoImages })
@@ -536,7 +549,7 @@ const AlgoList = (props)=>{
         cons.push(
           <div className={styles.wrapdiscord}>
             <h5>支付流程</h5>
-            <p>注：0.5U = 1次，10U = 20次，按使用次数收费</p>
+            <p style={{lineHeight:1.8}}>注：避免白嫖按使用次数收费，0.1U = 1次，每日免费10次 ^_^，不想付费可以明日再来哦</p>
             <ol className={styles.wrapol}>
               <li>前往OKX，登陆需要转账的OKX账号</li>
               <li>OKX『资产』页 → 提币 → 币种选择『USDT』→ 提现方式选择『内部转账』</li>

@@ -21,7 +21,7 @@ body{
     gap: 28px;
     grid-template-columns: repeat(1,100%);
     margin-bottom: 40px;
-    margin-top: 60px;
+    margin-top: 20px;
     min-width: 100%;
     .card{
       color: var(--ifm-color-title);
@@ -121,3 +121,28 @@ body{
   color: #666;
   line-height: 2;
  }
+.rtimes{
+  position: absolute;
+    right: 18px;
+    color: #a27979;
+}
+.pos_list {
+  :global(.adm-tag) {
+    margin-right: 5px;
+    margin-bottom: 5px;
+  }
+  .pos_list_label{
+    font-style: normal;
+    border: 1px dashed #eee;
+    padding: 2px;
+  }
+  .pos_list_block{
+    display: inline-block;
+    max-width: 310px;
+    vertical-align: top;
+  }
+}
+.add{
+  margin-top: 40px;
+  font-size: 18px;
+}

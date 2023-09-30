@@ -13,5 +13,12 @@ export default defineConfig(() => ({
     onDemand: true,
     format: 'esm',
   },
+  proxy: {
+    '/api': {
+      target: 'http://127.0.0.1:7003',
+      changeOrigin: true,
+      // pathRewrite: { '^/api' : '' },
+    },
+  }
   // plugins: [def()],
 }));

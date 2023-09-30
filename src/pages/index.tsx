@@ -10,11 +10,14 @@ import openFormDrawer from './open';
 import ApplyForm from './apply';
 import AlgoList from './aloglist';
 
+import { getDeviceId } from '../utils'
+
 const demoAvatarImages = [
   'https://gw.alicdn.com/imgextra/i2/O1CN01fPz7p81auD8ECFNjZ_!!6000000003389-0-tps-886-1919.jpg',
 ]
 
 export default function IndexPage() {
+
 
 
   const [datas, setData] = useState({
@@ -26,6 +29,7 @@ export default function IndexPage() {
 
   const fetchData = async ()=>{
     const onedatas: any = await localforage.getItem('robot_accout_list');
+    debugger
     if ( onedatas ) {
       const datas = JSON.parse(onedatas);
       setData({
@@ -56,7 +60,7 @@ export default function IndexPage() {
           prefix={<Avatar src={demoAvatarImages[0]} />}
           description='一个量化交易者，欢迎一起交流学习合作~'
         >
-          冲鸭卡卡
+          冲鸭卡卡(uuid: {getDeviceId()})
         </List.Item>
       </List>
       <div className={styles.container}>

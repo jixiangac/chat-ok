@@ -4,6 +4,17 @@
 body{
   user-select: none;
 }
+:global(.adm-list-body){
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+:global(.adm-popup-body h4){
+  margin: 0;
+}
+
+
+
  .app{
   /* background-color: #f0f2f5; */
   background-color: var(--ifm-color-area);
@@ -138,7 +149,7 @@ body{
   }
   .pos_list_block{
     display: inline-block;
-    max-width: 310px;
+    max-width: 270px;
     vertical-align: top;
   }
 }

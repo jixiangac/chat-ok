@@ -11,7 +11,9 @@ import openFormDrawer from './open';
 import ApplyForm from './apply';
 import AlgoList from './aloglist';
 
-import { createFingerprint, getDeviceId } from '../utils'
+import { createFingerprint } from '../utils';
+
+import axios from 'axios';
 
 const demoAvatarImages = [
   'https://gw.alicdn.com/imgextra/i2/O1CN01fPz7p81auD8ECFNjZ_!!6000000003389-0-tps-886-1919.jpg',
@@ -52,35 +54,35 @@ export default function IndexPage() {
       });
       return;
     } else {
-      const namelist = await axios(`${prefix}/api/btc/list?apitype=getInfoByDeviceId`, {
-        params: {
-          uuid
-        },
-        method: 'get'
-      });
-      if ( namelist?.data?.success ) {
-        const _name = (namelist?.data?.data || '').split(',');
-        const accounts = await axios(`${prefix}/api/btc/list?apitype=getAccountByNames`, {
-          params: {
-            name: _name
-          },
-          method: 'get'
-        });
+      // const namelist = await axios(`${prefix}/api/btc/list?apitype=getInfoByDeviceId`, {
+      //   params: {
+      //     uuid
+      //   },
+      //   method: 'get'
+      // });
+      // if ( namelist?.data?.success ) {
+      //   const _name = (namelist?.data?.data || '').split(',');
+      //   const accounts = await axios(`${prefix}/api/btc/list?apitype=getAccountByNames`, {
+      //     params: {
+      //       name: _name
+      //     },
+      //     method: 'get'
+      //   });
 
-        if ( accounts?.data?.success ) {
-           let newlist = accounts?.data?.data;
-           await localforage.setItem('robot_accout_list', JSON.stringify({
-             time: new Date().getTime(),
-             list: newlist,
-           }));
-           setData({
-             isLoading: false,
-             loaded: true,
-             list: newlist,
-             uuid
-           });
-        }
-      }
+      //   if ( accounts?.data?.success ) {
+      //      let newlist = accounts?.data?.data;
+      //      await localforage.setItem('robot_accout_list', JSON.stringify({
+      //        time: new Date().getTime(),
+      //        list: newlist,
+      //      }));
+      //      setData({
+      //        isLoading: false,
+      //        loaded: true,
+      //        list: newlist,
+      //        uuid
+      //      });
+      //   }
+      // }
     }
 
     setData({

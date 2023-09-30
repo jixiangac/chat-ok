@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useEffect, useState } from 'react';
 import styles from './index.module.css';
 // import logo from '@/assets/a.jpeg';
@@ -10,44 +11,101 @@ import openFormDrawer from './open';
 import ApplyForm from './apply';
 import AlgoList from './aloglist';
 
-import { getDeviceId } from '../utils'
+import { createFingerprint, getDeviceId } from '../utils'
 
 const demoAvatarImages = [
   'https://gw.alicdn.com/imgextra/i2/O1CN01fPz7p81auD8ECFNjZ_!!6000000003389-0-tps-886-1919.jpg',
 ]
 
+const prefix = location.href.indexOf('localhost') !== '-1' ? '' : 'https://api.jixiang.chat';
+
 export default function IndexPage() {
-
-
 
   const [datas, setData] = useState({
     isLoading: true,
     loaded: false, 
-    list: []
+    list: [],
+    uuid: ''
   });
 
 
   const fetchData = async ()=>{
+
+    
+
+    let uuid = await localforage.getItem('robot_accout_id');
+
+    if ( !uuid ) {
+      uuid = await createFingerprint();
+      await localforage.setItem('robot_accout_id', uuid);
+    }
+
     const onedatas: any = await localforage.getItem('robot_accout_list');
-    debugger
+
     if ( onedatas ) {
       const datas = JSON.parse(onedatas);
       setData({
         isLoading: false,
         loaded: true,
         list: datas?.list || [],
+        uuid
       });
       return;
+    } else {
+      const namelist = await axios(`${prefix}/api/btc/list?apitype=getInfoByDeviceId`, {
+        params: {
+          uuid
+        },
+        method: 'get'
+      });
+      if ( namelist?.data?.success ) {
+        const _name = (namelist?.data?.data || '').split(',');
+        const accounts = await axios(`${prefix}/api/btc/list?apitype=getAccountByNames`, {
+          params: {
+            name: _name
+          },
+          method: 'get'
+        });
+
+        if ( accounts?.data?.success ) {
+           let newlist = accounts?.data?.data;
+           await localforage.setItem('robot_accout_list', JSON.stringify({
+             time: new Date().getTime(),
+             list: newlist,
+           }));
+           setData({
+             isLoading: false,
+             loaded: true,
+             list: newlist,
+             uuid
+           });
+        }
+      }
     }
+
     setData({
       isLoading: false,
       loaded: true,
-      list: []
+      list: [],
+      uuid
     });
   };
 
+
+  const initData = async ()=>{
+    if ( window.requestIdleCallback ) {
+      requestIdleCallback(() => {
+        fetchData();
+      });
+    } else {
+      setTimeout(() => {
+        fetchData();
+      }, 500);
+    }
+  }
+
   useEffect(()=>{
-    fetchData();
+    initData();
   }, []);
 
   return (
@@ -60,9 +118,10 @@ export default function IndexPage() {
           prefix={<Avatar src={demoAvatarImages[0]} />}
           description='一个量化交易者，欢迎一起交流学习合作~'
         >
-          冲鸭卡卡(uuid: {getDeviceId()})
+          冲鸭卡卡
         </List.Item>
       </List>
+      <p>uuid: {datas.uuid}</p>
       <div className={styles.container}>
 
       <a 

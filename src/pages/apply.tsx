@@ -134,7 +134,7 @@ const ApplyForm = (props)=>{
       setUpdateLoading(true);
       let newlist: any = [];
       const prefix = location.href.indexOf('localhost') !== '-1' ? '' : 'https://api.jixiang.chat';
-      debugger
+ 
       for ( let i = 0, len = list.length; i < len; i ++ ) {
         const axx = list[i];
         const ax = await axios(`${prefix}/api/btc/list?apitype=getAccountListByKey`, {
@@ -144,7 +144,6 @@ const ApplyForm = (props)=>{
           },
           method: 'get'
         });
-        debugger
    
         if ( ax?.data?.success ) {
           const pdatas = ax?.data?.data;

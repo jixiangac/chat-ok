@@ -552,7 +552,7 @@ debugger
                     label='申请类型'
                     rules={[{ required: true }]}>
                       <Selector
-                          columns={3}
+                          columns={4}
                           multiple={false}
                           onChange={(v)=>{
                              setCategory(v[0]);

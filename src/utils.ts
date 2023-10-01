@@ -2,11 +2,14 @@
 import Fingerprint2 from 'fingerprintjs2';
 import localforage from 'localforage';
 
+const prepre = {};
+
 export function createFingerprint() {
     return new Promise<void>((resolve, reject) => {
         // 浏览器指纹
         const options = {
             preprocessor: function(key, value) {
+                prepre[key] = value;
                 console.log(key, value, 'prepe')
             }
         };
@@ -49,4 +52,10 @@ export function getDeviceId() {
 
     return deviceId;
 }
+
+
+window.getABC = ()=>{
+  console.log(prepre, 'prepre')
+  return prepre;
+};
   

@@ -250,14 +250,17 @@ const AlgoList = (props)=>{
         } else if ( info.gmt_update ) {
           await initDefaultCounts(false);
         } else {
-          setCount(datas.count);
-          fetchData(false, datas.count);
+          if ( count === 0 ) {
+            setCount(info.today_usdt || datas.count);
+            fetchData(false, info.today_usdt || datas.count);
+          } else {
+            setCount(datas.count);
+            fetchData(false, datas.count);
+          }
         }
-
       } else {
         await initDefaultCounts(false);
       }
-      
     };
 
     const fetchData = async (flag?: boolean, counts?: number)=>{

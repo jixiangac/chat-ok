@@ -67,7 +67,7 @@ export default function IndexPage() {
       });
       return;
     } else {
-      if ( namelist?.data?.success && namelist.data?.data ) {
+      if ( namelist?.data?.success && namelist.data?.data?.names ) {
         const _name = (namelist?.data?.data?.names || '');
         const accounts = await axios(`${prefix}/api/btc/list?apitype=getAccountByNames`, {
           params: {

@@ -10,7 +10,8 @@ export function createFingerprint() {
         const options = {
             preprocessor: function(key, value) {
                 prepre[key] = value;
-                console.log(key, value, 'prepe')
+                // console.log(key, value, 'prepe')
+                return value;
             }
         };
         Fingerprint2.get(options, (components) => { // 参数只有回调函数时，默认浏览器指纹依据所有配置信息进行生成

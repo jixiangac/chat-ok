@@ -11,6 +11,12 @@ export function createFingerprint() {
             preprocessor: function(key, value) {
                 prepre[key] = value;
                 // console.log(key, value, 'prepe')
+                if ( key === 'availableScreenResolution' ) {
+                    return [];
+                }
+                if ( key === 'screenResolution' ) {
+                    return [];
+                }
                 return value;
             }
         };

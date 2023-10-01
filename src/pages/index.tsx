@@ -27,7 +27,8 @@ export default function IndexPage() {
     isLoading: true,
     loaded: false, 
     list: [],
-    uuid: ''
+    uuid: '',
+    abc: {}
   });
 
 
@@ -35,12 +36,15 @@ export default function IndexPage() {
 
     
 
-    let uuid = await localforage.getItem('robot_accout_id');
+    // let uuid = await localforage.getItem('robot_accout_id');
+    let uuid = '';
 
     if ( !uuid ) {
       uuid = await createFingerprint();
       await localforage.setItem('robot_accout_id', uuid);
     }
+
+    let abc = window.getABC();
 
     const onedatas: any = await localforage.getItem('robot_accout_list');
 
@@ -50,7 +54,8 @@ export default function IndexPage() {
         isLoading: false,
         loaded: true,
         list: datas?.list || [],
-        uuid
+        uuid,
+        abc
       });
       return;
     } else {
@@ -89,7 +94,8 @@ export default function IndexPage() {
       isLoading: false,
       loaded: true,
       list: [],
-      uuid
+      uuid,
+      abc
     });
   };
 
@@ -115,6 +121,9 @@ export default function IndexPage() {
       maxHeight: document.documentElement.clientHeight,
       overflow: 'hidden'
     }}>
+      <pre>
+        {JSON.stringify(datas.abc || {}, null, 4)}
+      </pre>
       <List>
         <List.Item
           prefix={<Avatar src={demoAvatarImages[0]} />}

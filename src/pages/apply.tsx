@@ -159,7 +159,7 @@ const ApplyForm = (props)=>{
           },
           method: 'get'
         });
-   
+  
         if ( ax?.data?.success ) {
           const pdatas = ax?.data?.data;
           if ( pdatas.list.length ) {
@@ -222,8 +222,7 @@ const ApplyForm = (props)=>{
 
       if ( type === 'old' || type === 'old-create' ) {
 
-        // const ajaxurl = '/api/btc/list?apitype=getAccountListByKey';
-        const ajaxurl = 'https://api.jixiang.chat/api/btc/list?apitype=getAccountListByKey';
+        const ajaxurl = `${prefix}/api/btc/list?apitype=getAccountListByKey`;
 
         const res = await axios(ajaxurl, {
           params: values,
@@ -247,7 +246,7 @@ const ApplyForm = (props)=>{
               names: oldlist.map(item=>item.name).join(',')
             });
           // }
-
+          form.resetFields();
           // setList(oldlist);
           onChange({
             list: oldlist
@@ -255,6 +254,7 @@ const ApplyForm = (props)=>{
           setError('');
           setForce(false);
           setSubLoading(false);
+          
           return;
         } else {
           if ( type !== 'old-create' ) {
@@ -310,7 +310,7 @@ const ApplyForm = (props)=>{
           />
         ),
         title: `确定删除账号『${name}』吗`,
-        content: `注：删除只删除展示，机器人仍会进行`,
+        content: `注：删除只删除本页展示，停用机器人请直接删除OKX里的API即可`,
         onConfirm: async () => {
           let newlist = list.filter(item=>{
             return !(item.name === name);
@@ -408,7 +408,7 @@ const ApplyForm = (props)=>{
                                 <div className={styles.listitem}>
                                   <div>账号已完成录入</div>
                                   <div>暂无数据，数据将在10分钟后同步完成</div>
-                                  <DeleteOutline onClick={async ()=>{
+                                  <DeleteOutline fontSize={18} color='#999' onClick={async ()=>{
                                      await onDelete(user.name);
                                   }}/>
                                 </div>
@@ -474,6 +474,9 @@ const ApplyForm = (props)=>{
                                       </span>
                                     </p>
                                   </div>
+                                  <DeleteOutline fontSize={18} color='#999' onClick={async ()=>{
+                                     await onDelete(user.name);
+                                  }}/>
                             </div>
                             }
                         >
@@ -549,7 +552,7 @@ const ApplyForm = (props)=>{
         </div>
       );
     } else {
-      // form.setFieldValue('name', '乐乐')
+      // form.setFieldValue('name', '乐乐002')
       // form.setFieldValue('accesskey', 'ab755572-a574-4614-8040-df4ed60b6391')
       // form.setFieldValue('parentKey', 'ab755572-a574-4614-8040-df4ed60b6391')
       // form.setFieldValue('accesskey', '1d95f874-5b3a-4df1-be82-b8c5af871dfc')
@@ -559,7 +562,9 @@ const ApplyForm = (props)=>{
       // form.setFieldValue('fromAccount', 'leleac656@163.com');
 
       if ( categroy === '1' ) {
-        form.setFieldValue('subtype', subtype)
+        form.setFieldValue('subtype', subtype);
+      } else {
+        form.setFieldValue('subtype', "1");
       }
 
       cons.push(
@@ -657,7 +662,7 @@ const ApplyForm = (props)=>{
                     </Form.Item> : null
                   }
                   {
-                    subtype === '2' ? 
+                    categroy === '1' && subtype === '2' ? 
                     <Form.Item 
                       name='parentKey' 
                       label='主账号的accesskey'

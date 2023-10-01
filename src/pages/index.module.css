@@ -111,12 +111,12 @@ body{
    }
  }
 
-.listitem{
+.listitem, .defs{
   position: relative;
   :global(.antd-mobile-icon) {
     position: absolute;
-    right: 12px;
-    top: 0;
+    right: 5px;
+    bottom: 0;
   }
 }
 

@@ -9,14 +9,21 @@ export function createFingerprint() {
         // 浏览器指纹
         const options = {
             preprocessor: function(key, value) {
-                prepre[key] = value;
+
+                if ( key !== 'canvas' && key !== 'webgl' ) {
+                  prepre[key] = value;
+                }
+
+                if ( key == "userAgent" ) {
+                   return '';
+                }
                 // console.log(key, value, 'prepe')
-                if ( key === 'availableScreenResolution' ) {
-                    return [];
-                }
-                if ( key === 'screenResolution' ) {
-                    return [];
-                }
+                // if ( key === 'availableScreenResolution' ) {
+                //     return [];
+                // }
+                // if ( key === 'screenResolution' ) {
+                //     return [];
+                // }
                 return value;
             }
         };

@@ -272,7 +272,7 @@ const ApplyForm = (props)=>{
 
         values.category = categroy;
 
-        const res2 = await axios(`${prefix}/api/btc/list?apitype=addNewRobotMan`, {
+        const res2 = await axios(`${prefix}/api/btc/list?apitype=submitNewRobotMan`, {
           params: values,
           method: 'get'
         });

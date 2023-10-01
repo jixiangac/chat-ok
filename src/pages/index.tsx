@@ -195,7 +195,7 @@ export default function IndexPage() {
           冲鸭卡卡
         </List.Item>
       </List>
-      {/* <p>uuid: {datas.uuid}</p> */}
+      <p>uuid: {datas.uuid}</p>
       <div className={styles.container}>
 
       <a 

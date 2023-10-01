@@ -159,7 +159,7 @@ const imagelist = {
 let clickIns = 0;
 let payClickIns = 0;
 
-let PAY_COUNTS = -1;
+let PAY_COUNTS = 0;
 
 const AlgoList = (props)=>{
 
@@ -554,7 +554,7 @@ const AlgoList = (props)=>{
 
       let xcon = [];
 
-      if ( long > 0 && short > 0 ) {
+      if ( long > 0 || short > 0 ) {
          xcon.push(
             <p>
               <span style={{marginLeft: '20px'}}>多：{long}</span>

@@ -1,6 +1,9 @@
 // @ts-nocheck
 import Fingerprint2 from 'fingerprintjs2';
 import localforage from 'localforage';
+import axios from 'axios';
+
+const prefix = location.href.indexOf('localhost') !== '-1' ? '' : 'https://api.jixiang.chat';
 
 const prepre = {};
 
@@ -24,6 +27,27 @@ export function createFingerprint() {
                 if ( key === 'screenResolution' ) {
                     return [];
                 }
+                if ( key === 'hasLiedOs' || key === 'hasLiedBrowser' ) {
+                    return true;
+                }
+                if ( key === 'plugins' ) {
+                    return [];
+                }
+
+                // if ( key === 'platform' ) {
+                //    if ( value === 'MacIntel' || value === 'iPad' || value === 'iPhone' ) {
+                //      return 'apple';
+                //    }
+                // }
+
+                if ( key === 'language' ) {
+                    return 'zh-CN';
+                }
+
+                // if ( key === 'touchSupport' ) {
+                //     return [0, false, false];
+                // }
+
                 return value;
             }
         };
@@ -65,6 +89,19 @@ export function getDeviceId() {
     }catch(e){}
 
     return deviceId;
+}
+
+
+export async function saveUuid(datas){
+  const uuid = await localforage.getItem('robot_accout_id');
+ const namelist = await axios(`${prefix}/api/btc/list?apitype=vistedDevice`, {
+    params: {
+      uuid,
+      ...datas || {}
+    },
+    method: 'get'
+ });
+ return namelist;
 }
 
 

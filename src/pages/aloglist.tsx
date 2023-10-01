@@ -1,4 +1,4 @@
-
+// @ts-nocheck
 import axios from 'axios';
 
 import dayjs from 'dayjs';
@@ -24,6 +24,9 @@ import localforage from 'localforage';
 import styles from './index.module.css';
 
 import { useEffect, useState } from 'react';
+import { saveUuid } from '@/utils';
+
+const prefix = location.href.indexOf('localhost') !== '-1' ? '' : 'https://api.jixiang.chat';
 
 const copyToClip = (url?: string) => {
   if ( !url ) {
@@ -151,6 +154,7 @@ const imagelist = {
 
 
 let clickIns = 0;
+let payClickIns = 0;
 
 let PAY_COUNTS = -1;
 
@@ -174,30 +178,66 @@ const AlgoList = (props)=>{
         isLoading: true,
         loaded: false,
         time: '',
-        data: []
+        data: [],
+        needPay: false,
     });
+
+    const {
+      info
+    } = props;
 
 
 
     const initPayCounts = async ()=>{
-      const onedatas: any = await localforage.getItem('pay_counts');
-      if ( onedatas ) {
-        const datas = JSON.parse(onedatas);
-        setPayCount(datas.count || 0);
-        PAY_COUNTS = datas.count || -1;
-      } 
+  
+      if ( info.left_usdt !== undefined ) {
+        setPayCount(info.left_usdt || 0);
+        PAY_COUNTS = info.left_usdt || 0;
+        await localforage.setItem('pay_counts', JSON.stringify({
+          count: PAY_COUNTS
+         }));
+      } else {
+        const onedatas: any = await localforage.getItem('pay_counts');
+        if ( onedatas ) {
+          const datas = JSON.parse(onedatas);
+          setPayCount(datas.count || 0);
+          PAY_COUNTS = datas.count || 0;
+        } 
+      }
     };
 
     const initCounts = async ()=>{
-
       const onedatas: any = await localforage.getItem('rtime_counts');
 
-      const initDefaultCounts = async ()=>{
-        let default_counts = 11;
+      const initDefaultCounts = async (refresh: boolean)=>{
+        let default_counts = refresh ? 11 : (info.today_usdt || 0);
+
+        if ( info.gmt_update ) {
+          await saveUuid({
+            gmt_update: 'null'
+          });
+        }
+
+        if ( default_counts <= 0 && PAY_COUNTS <= 0 ) {
+          setApp({
+            isLoading: false,
+            loaded: true,
+            time: '',
+            data: [],
+            needPay: true
+           });
+          return;
+        }
+
         await localforage.setItem('rtime_counts', JSON.stringify({
           count: default_counts,
           date: now_today
         }));
+        if ( refresh ) {
+          await saveUuid({
+            today_usdt: default_counts
+          });
+        }
         setCount(default_counts);
         fetchData(false, default_counts);
       }
@@ -206,14 +246,16 @@ const AlgoList = (props)=>{
         const datas = JSON.parse(onedatas);
 
         if ( datas.date !== now_today ) {
-          await initDefaultCounts();
+          await initDefaultCounts(true);
+        } else if ( info.gmt_update ) {
+          await initDefaultCounts(false);
         } else {
           setCount(datas.count);
           fetchData(false, datas.count);
         }
 
       } else {
-        await initDefaultCounts();
+        await initDefaultCounts(false);
       }
       
     };
@@ -222,12 +264,26 @@ const AlgoList = (props)=>{
 
         const adatas: any = await localforage.getItem('rtime');
 
+        const dconfirm = counts !== undefined ? counts === 0 && PAY_COUNTS === 0 : count === 0 && paycount === 0;
+
+        if ( dconfirm ) {
+          setApp({
+            isLoading: false,
+            loaded: true,
+            time: '',
+            data: [],
+            needPay: true
+           });
+          return;
+        }
+
         if ( flag ) {
           setApp({
             isLoading: true,
             loaded: false,
             time: '',
-            data: []
+            data: [],
+            needPay: false
           });
         }
 
@@ -245,6 +301,7 @@ const AlgoList = (props)=>{
                 loaded: true,
                 time: datas.time,
                 data: datas.onelist.concat(datas.twolist),
+                needPay: false
                });
                return;
              }
@@ -252,18 +309,19 @@ const AlgoList = (props)=>{
            }catch(e){}
         }
 
-        const res = await axios(`https://api.jixiang.chat/api/btc/list?apitype=recent-algo`, {
+        const res = await axios(`${prefix}/api/btc/list?apitype=recent-algo`, {
             method: 'get'
         });
 
         if ( res?.data?.success ) {
-          const pdatas = res?.data?.data;
-          await localforage.setItem('rtime', JSON.stringify(pdatas));
-          setApp({
+           const pdatas = res?.data?.data;
+           await localforage.setItem('rtime', JSON.stringify(pdatas));
+           setApp({
             isLoading: false,
             loaded: true,
             time: pdatas.time,
             data: pdatas.onelist.concat(pdatas.twolist),
+            needPay: false
            });
            if ( counts !== undefined && counts !== 0 || count !== 0 ) {
              const left_counts = counts !== undefined ? (counts - 1) : (count - 1);
@@ -271,12 +329,18 @@ const AlgoList = (props)=>{
                date: now_today,
                count: left_counts
              }));
+             await saveUuid({
+               today_usdt: left_counts
+             });
              setCount(left_counts);
            } else if ( PAY_COUNTS !== -1 && PAY_COUNTS > 0 || paycount !== 0 ) {
              const left_pay_counts = PAY_COUNTS !== -1 ? PAY_COUNTS - 1 : paycount - 1;
              await localforage.setItem('pay_counts', JSON.stringify({
               count: left_pay_counts
              }));
+             await saveUuid({
+              left_usdt: left_pay_counts
+             });
              PAY_COUNTS = -1;
              setPayCount(left_pay_counts);
            }
@@ -286,7 +350,8 @@ const AlgoList = (props)=>{
             isLoading: false,
             loaded: true,
             time: '',
-            data: []
+            data: [],
+            needPay: false
            });
         }
     }
@@ -318,6 +383,21 @@ const AlgoList = (props)=>{
     }
 
     const onPay = async ()=>{
+
+      if ( payClickIns === 0 ) {
+          payClickIns = new Date().getTime();
+      } else {
+          const now = new Date().getTime();
+          const dif = now - payClickIns;
+          if ( dif < 10*1000 ) {
+            Toast.show({
+              icon: 'fail',
+              content: `提交过于频繁, ${Math.ceil(dif/1000)}S后再试试`
+            });
+            return;
+          }
+      }
+
       setPayLoading(true);
       const error = await checkErros(true);
       if ( error ) {
@@ -325,44 +405,60 @@ const AlgoList = (props)=>{
         return;
       }
       const values = form.getFieldsValue();
-      const res = await axios(`https://api.jixiang.chat/api/btc/list?apitype=getDepositHistory&from=${values.account}`, {
-          method: 'get'
+      const res = await axios(`${prefix}/api/btc/list?apitype=getDepositHistory`, {
+          method: 'get',
+          params: {
+            from: values.account,
+            removeOld: true
+          },
       });
-      if ( res?.data?.success ) {
 
-        let olddatas: any = {
-          caches_hash: [],
-          count: 0,
+      if ( res?.data?.success && res?.data?.data?.length ) {
+
+        let usdts = 0;
+        let caches_hash = [];
+
+        const dep_list = res?.data?.data || [];
+
+        for ( let i = 0, len = dep_list.length; i < len; i ++ ) {
+          usdts += (dep_list[i].amt - 0);
+          caches_hash.push(
+            `${dep_list[i].txId}`
+          );
         }
 
         try{
-          const d: any = await localforage.getItem('pay_counts');
-          if ( d ) {
-            olddatas = JSON.parse(d);
+          if ( caches_hash.length ) {
+            await axios(`${prefix}/api/btc/list?apitype=saveDepositHash`, {
+              method: 'get',
+              params: {
+                datas: caches_hash.join(',')
+              },
+            });
           }
-        }catch(e){};
-
-        let usdts = 0;
-        let caches_hash: any = olddatas.caches_hash || [];
-
-        (res.data?.data || []).forEach((item: any)=>{
-           if ( caches_hash.indexOf(item.txId) === -1 ) {
-             usdts += (item.amt - 0);
-             caches_hash.push(item.txId);
-           }
-        });
+        }catch(e){}
       
-        let xcounts = olddatas.count + Math.ceil(usdts/0.1);
+        let xcounts = Math.ceil(usdts/0.1);
         await localforage.setItem('pay_counts', JSON.stringify({
           caches_hash: caches_hash,
           count: xcounts
         }));
+        await saveUuid({
+          left_usdt: xcounts
+        });
+        PAY_COUNTS = xcounts;
         setPayCount(xcounts);
-
+        props.onChange && props.onChange({
+          left_usdt: xcounts
+        });
+        setApp({
+          ...app || {},
+          needPay: false,
+        });
       } else {
         Toast.show({
           icon: 'fail',
-          content: '操作失败，请重试'
+          content: `没有收到${values.account}的转账信息`
         });
       }
       setPayLoading(false);
@@ -389,7 +485,7 @@ const AlgoList = (props)=>{
 
     const cons: any = [];
 
-    if ( count > 0 || paycount > 0 ) {
+    if ( !app.needPay ) {
       cons.push(
         <div className={styles.wraptime}>
             最近更新时间：{app.time}
@@ -424,8 +520,8 @@ const AlgoList = (props)=>{
               !(app?.data||[]).length ? <Result
               icon={<SmileOutline />}
               status='success'
-              title='Well done'
-              description='暂无策略'
+              title='充值成功'
+              description='刷新一下试试吧'
             /> : null
             }
              <List>
@@ -475,7 +571,7 @@ const AlgoList = (props)=>{
       );
       cons.push(
         <div className={styles.wrapdiscord}>
-              <p style={{color: '#999'}}>本日免费使用次数剩余：<b style={{fontSize: 14, margin: '0 5px'}}>{count > 0 ? count-1 : 0}</b> 次</p>
+              <p style={{color: '#999'}}>本日免费使用次数剩余：<b style={{fontSize: 14, margin: '0 5px'}}>{count > 0 ? count : 0}</b> 次</p>
               {
                 paycount ?
                 <p style={{color: '#999'}}>充值次数剩余：<b style={{fontSize: 14, margin: '0 5px'}}>{paycount}</b> 次</p> : null

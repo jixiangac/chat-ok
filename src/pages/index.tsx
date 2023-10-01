@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import styles from './index.module.css';
 // import logo from '@/assets/a.jpeg';
-import { Avatar, List, Space, Image } from 'antd-mobile';
+import { Avatar, List, Space, Image, SpinLoading } from 'antd-mobile';
 
 import localforage from 'localforage';
 
@@ -11,7 +11,7 @@ import openFormDrawer from './open';
 import ApplyForm from './apply';
 import AlgoList from './aloglist';
 
-import { createFingerprint } from '../utils';
+import { createFingerprint, saveUuid } from '../utils';
 
 import axios from 'axios';
 
@@ -28,7 +28,10 @@ export default function IndexPage() {
     loaded: false, 
     list: [],
     uuid: '',
-    abc: {}
+    abc: {},
+    left_usdt: 0,
+    today_usdt: 0,
+    gmt_update: ''
   });
 
 
@@ -36,8 +39,8 @@ export default function IndexPage() {
 
     
 
-    // let uuid = await localforage.getItem('robot_accout_id');
-    let uuid = '';
+    let uuid = await localforage.getItem('robot_accout_id');
+    // let uuid = '';
 
     if ( !uuid ) {
       uuid = await createFingerprint();
@@ -45,6 +48,8 @@ export default function IndexPage() {
     }
 
     let abc = window.getABC();
+
+    const namelist = await saveUuid();
 
     const onedatas: any = await localforage.getItem('robot_accout_list');
 
@@ -55,39 +60,41 @@ export default function IndexPage() {
         loaded: true,
         list: datas?.list || [],
         uuid,
-        abc
+        abc,
+        left_usdt: (namelist?.data?.data?.left_usdt - 0) || 0,
+        today_usdt: (namelist?.data?.data?.today_usdt -0) || 0,
+        gmt_update: namelist?.data?.data?.gmt_update || ''
       });
       return;
     } else {
-      // const namelist = await axios(`${prefix}/api/btc/list?apitype=getInfoByDeviceId`, {
-      //   params: {
-      //     uuid
-      //   },
-      //   method: 'get'
-      // });
-      // if ( namelist?.data?.success ) {
-      //   const _name = (namelist?.data?.data || '').split(',');
-      //   const accounts = await axios(`${prefix}/api/btc/list?apitype=getAccountByNames`, {
-      //     params: {
-      //       name: _name
-      //     },
-      //     method: 'get'
-      //   });
+      if ( namelist?.data?.success && namelist.data?.data ) {
+        const _name = (namelist?.data?.data?.names || '');
+        const accounts = await axios(`${prefix}/api/btc/list?apitype=getAccountByNames`, {
+          params: {
+            names: _name
+          },
+          method: 'get'
+        });
 
-      //   if ( accounts?.data?.success ) {
-      //      let newlist = accounts?.data?.data;
-      //      await localforage.setItem('robot_accout_list', JSON.stringify({
-      //        time: new Date().getTime(),
-      //        list: newlist,
-      //      }));
-      //      setData({
-      //        isLoading: false,
-      //        loaded: true,
-      //        list: newlist,
-      //        uuid
-      //      });
-      //   }
-      // }
+        if ( accounts?.data?.success ) {
+           let newlist = accounts?.data?.data?.list || [];
+           await localforage.setItem('robot_accout_list', JSON.stringify({
+             time: new Date().getTime(),
+             list: newlist,
+           }));
+           setData({
+             isLoading: false,
+             loaded: true,
+             list: newlist,
+             uuid,
+             abc,
+             left_usdt: (namelist?.data?.data?.left_usdt - 0) || 0,
+             today_usdt: (namelist?.data?.data?.today_usdt -0) || 0,
+             gmt_update: namelist?.data?.data?.gmt_update || ''
+           });
+           return;
+        }
+      }
     }
 
     setData({
@@ -95,7 +102,10 @@ export default function IndexPage() {
       loaded: true,
       list: [],
       uuid,
-      abc
+      abc,
+      left_usdt: (namelist?.data?.data?.left_usdt - 0) || 0,
+      today_usdt: (namelist?.data?.data?.today_usdt -0) || 0,
+      gmt_update: namelist?.data?.data?.gmt_update || ''
     });
   };
 
@@ -112,18 +122,71 @@ export default function IndexPage() {
     }
   }
 
+
+  const onChange = (datas)=>{
+    // const uuid = await localforage.getItem('robot_accout_id');
+    setData({
+      isLoading: false,
+      loaded: true,
+      list: datas.list,
+    });
+  }
+
+  const onAlgoChange = (app)=>{
+    setData({
+      ...datas || {},
+      ...app || {}
+    });
+  }
+
   useEffect(()=>{
     initData();
   }, []);
+
+
+  if ( datas.isLoading ) {
+    return <div className={styles.app} style={{
+              maxHeight: document.documentElement.clientHeight,
+              overflow: 'hidden'
+            }}>
+              <div className={styles.container}>
+                
+                <Space direction='horizontal' wrap block style={{ '--gap': '40px' }}>
+                  <SpinLoading style={{
+                    "--color": "#108ee9"
+                  }}/>
+                  <SpinLoading color='primary' />
+                  <SpinLoading style={{
+                    "--color": "#87d068"
+                  }}/>
+                  <SpinLoading style={{
+                    "--color": "#ff6430"
+                  }}/>
+                  <SpinLoading style={{
+                    "--color": "#2db7f5"
+                  }} />
+                </Space>
+                <a className={styles.card}>
+                  <div className={styles.content}>
+                    <div style={{flex:1}}></div>
+                    <div style={{flex:1}}>
+                      数据初始化中...
+                    </div>
+                    <div style={{flex:1}}></div>
+                  </div>
+                </a>
+              </div>
+            </div>
+  }
 
   return (
     <div className={styles.app} style={{
       maxHeight: document.documentElement.clientHeight,
       overflow: 'hidden'
     }}>
-      <pre>
+      {/* <pre>
         {JSON.stringify(datas.abc || {}, null, 4)}
-      </pre>
+      </pre> */}
       <List>
         <List.Item
           prefix={<Avatar src={demoAvatarImages[0]} />}
@@ -132,7 +195,7 @@ export default function IndexPage() {
           冲鸭卡卡
         </List.Item>
       </List>
-      <p>uuid: {datas.uuid}</p>
+      {/* <p>uuid: {datas.uuid}</p> */}
       <div className={styles.container}>
 
       <a 
@@ -143,7 +206,12 @@ export default function IndexPage() {
          onClick={()=>{
             openFormDrawer({
               title: '实时策略',
-              children: <AlgoList />
+              children: <AlgoList onChange={onAlgoChange} info={{
+                uuid: datas.uuid,
+                left_usdt: datas.left_usdt,
+                today_usdt: datas.today_usdt,
+                gmt_update: datas.gmt_update || ''
+              }}/>
             });
         }}>
           <div className={styles.content}>
@@ -167,7 +235,7 @@ export default function IndexPage() {
             <a className={styles.card} onClick={()=>{
                 openFormDrawer({
                   title: '账号列表',
-                  children: <ApplyForm list={datas.list}/>
+                  children: <ApplyForm list={datas.list} onChange={onChange}/>
                 });
             }}>
               <div className={styles.content}>
@@ -180,7 +248,7 @@ export default function IndexPage() {
             <a className={styles.card} onClick={()=>{
               openFormDrawer({
                 title: '申请使用机器人',
-                children: <ApplyForm />
+                children: <ApplyForm onChange={onChange}/>
               });
           }}>
             <div className={styles.content}>

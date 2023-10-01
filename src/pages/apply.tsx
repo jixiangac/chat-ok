@@ -10,7 +10,15 @@ import dayjs from 'dayjs';
 import { 
   RedoOutline,
   MailOpenOutline,
+  DeleteOutline,
+  ExclamationCircleFill
 } from 'antd-mobile-icons';
+
+import { Dialog } from 'antd-mobile';
+
+import { saveUuid } from '../utils';
+
+const prefix = location.href.indexOf('localhost') !== '-1' ? '' : 'https://api.jixiang.chat';
 
 
 const copyToClip = (url?: string) => {
@@ -103,6 +111,14 @@ const ApplyForm = (props)=>{
 
     const now = dayjs().format('YYYY-MM-DD');
 
+
+
+    const onChange = (datas)=>{
+      setList(datas.list);
+      props.onChange && props.onChange(datas);
+    }
+
+
     const checkErros = async (flag?: boolean)=>{
 
       let errTititle = '';
@@ -159,7 +175,10 @@ const ApplyForm = (props)=>{
         time: new Date().getTime(),
         list: newlist,
       }));
-      setList(newlist || []);
+      // setList(newlist || []);
+      onChange({
+        list: newlist || []
+      });
       setUpdateLoading(false);
     }
 
@@ -174,11 +193,10 @@ const ApplyForm = (props)=>{
             const now = new Date().getTime();
             const dif = now - submitClickIns;
             const limit = clickSubmitCount < 10 ? 10000 : Math.ceil(clickSubmitCount/5)*1000;
-            debugger
             if ( dif < limit ) {
               Toast.show({
                 icon: 'fail',
-                content: `提交过于频繁，${limit/1000}S后再试试`
+                content: `提交过于频繁，${Math.ceil(limit/1000)}S后再试试`
               });
               return;
             }
@@ -191,9 +209,9 @@ const ApplyForm = (props)=>{
        clickSubmitCount ++;
      }
 
-     if ( type === 'old-create' ) {
-      debugger
-     }
+    //  if ( type === 'old-create' ) {
+    //   debugger
+    //  }
 
       const error = await checkErros(true);
       if ( error ) {
@@ -205,19 +223,17 @@ const ApplyForm = (props)=>{
 
       if ( type === 'old' || type === 'old-create' ) {
 
-        const ajaxurl = '/api/btc/list?apitype=getAccountListByKey';
-        // const ajaxurl = 'https://api.jixiang.chat/api/btc/list?apitype=getAccountListByKey';
+        // const ajaxurl = '/api/btc/list?apitype=getAccountListByKey';
+        const ajaxurl = 'https://api.jixiang.chat/api/btc/list?apitype=getAccountListByKey';
 
         const res = await axios(ajaxurl, {
           params: values,
           method: 'get'
         });
 
-        if ( res?.data?.success ) {
+        if ( res?.data?.success && res?.data?.data?.list?.length ) {
           const pdatas = res?.data?.data;
 
-
-debugger
           let oldlist = list.slice();
 
           oldlist = oldlist.concat(pdatas?.list || []);
@@ -226,14 +242,29 @@ debugger
             time: new Date().getTime(),
             list: oldlist
           }));
-          setList(oldlist);
+          
+          // if ( type === 'old-create' ) {
+            await saveUuid({
+              names: oldlist.map(item=>item.name).join(',')
+            });
+          // }
+
+          // setList(oldlist);
+          onChange({
+            list: oldlist
+          });
           setError('');
+          setForce(false);
+          setSubLoading(false);
+          return;
         } else {
           if ( type !== 'old-create' ) {
             Toast.show({
               icon: 'fail',
-              content: res?.data?.errMsg || '报错了，请稍后再试'
+              content: res?.data?.errMsg || '没有找到账号'
             });
+            setSubLoading(false);
+            return;
           }
         }
       }
@@ -242,29 +273,64 @@ debugger
 
         values.category = categroy;
 
-        const res2 = await axios(`/api/btc/list?apitype=addNewRobotMan`, {
+        const res2 = await axios(`${prefix}/api/btc/list?apitype=addNewRobotMan`, {
           params: values,
           method: 'get'
         });
-debugger
+
         if ( !res2.data.success ) {
           if ( res2?.data?.errMsg ){
             setError(res2?.data?.errMsg);
           }
+          setSubLoading(false);
           Toast.show({
             icon: 'fail',
             content: res2?.data?.errMsg || '报错了，请稍后再试'
           });
+          return;
         } else {
           await onSubmit('old-create');
           setError('');
+          return;
         }
       }
     
      
-      
       setForce(false);
       setSubLoading(false);
+    }
+
+    const onDelete = async (name)=>{
+      Dialog.confirm({
+        header: (
+          <ExclamationCircleFill
+            style={{
+              fontSize: 64,
+              color: 'var(--adm-color-warning)',
+            }}
+          />
+        ),
+        title: `确定删除账号『${name}』吗`,
+        content: `注：删除只删除展示，机器人仍会进行`,
+        onConfirm: async () => {
+          let newlist = list.filter(item=>{
+            return !(item.name === name);
+          })
+          
+          await localforage.setItem('robot_accout_list', JSON.stringify({
+            time: new Date().getTime(),
+            list: newlist,
+          }));
+          
+          await saveUuid({
+            names: newlist.map(item=>item.name).join(',')
+          });
+          onChange({
+            list: newlist || []
+          });
+          // setList(newlist || []);
+        },
+      })
     }
 
 
@@ -314,7 +380,7 @@ debugger
       cons.push(
         <div className={styles.wraplist} 
               style={{
-                maxHeight: document.documentElement.clientHeight - 270,
+                height: document.documentElement.clientHeight - 270,
                 overflowY: 'auto',
                 margin: '10px 20px'
             }}>
@@ -340,10 +406,13 @@ debugger
                     return <List.Item
                               key={index}
                               description={
-                                <>
+                                <div className={styles.listitem}>
                                   <div>账号已完成录入</div>
                                   <div>暂无数据，数据将在10分钟后同步完成</div>
-                                </>
+                                  <DeleteOutline onClick={async ()=>{
+                                     await onDelete(user.name);
+                                  }}/>
+                                </div>
                               }
                           >
                             <b style={{fontSize: 14}}>{user.name}</b>
@@ -481,13 +550,14 @@ debugger
         </div>
       );
     } else {
-      // form.setFieldValue('name', '乐乐001')
+      form.setFieldValue('name', '乐乐002')
       // form.setFieldValue('accesskey', 'ab755572-a574-4614-8040-df4ed60b6391')
-      // form.setFieldValue('accesskey', '1d95f874-5b3a-4df1-be82-b8c5af871dfc')
+      form.setFieldValue('parentKey', 'ab755572-a574-4614-8040-df4ed60b6391')
+      form.setFieldValue('accesskey', '1d95f874-5b3a-4df1-be82-b8c5af871dfc')
       // form.setFieldValue('secret_key', '69F2062F5ACABAD01EE5864F03808F0A')
-      // form.setFieldValue('secret_key', '29225DFEBCF21EC32E24C00F45378C11')
-      // form.setFieldValue('passphrase', 'Jixiang656@')
-      // form.setFieldValue('fromAccount', 'leleac656@163.com');
+      form.setFieldValue('secret_key', '29225DFEBCF21EC32E24C00F45378C11')
+      form.setFieldValue('passphrase', 'Jixiang656@')
+      form.setFieldValue('fromAccount', 'leleac656@163.com');
 
       if ( categroy === '1' ) {
         form.setFieldValue('subtype', subtype)

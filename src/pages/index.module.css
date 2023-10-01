@@ -13,6 +13,12 @@ body{
   margin: 0;
 }
 
+.wraplist{
+  :global(.adm-list-body){
+    max-height: 500px;
+    overflow-y: auto;
+  }
+}
 
 
  .app{
@@ -104,6 +110,15 @@ body{
       top: 0;
    }
  }
+
+.listitem{
+  position: relative;
+  :global(.antd-mobile-icon) {
+    position: absolute;
+    right: 12px;
+    top: 0;
+  }
+}
 
  .wraptime{
    border: 1px dashed #eee;

@@ -18,12 +18,12 @@ export function createFingerprint() {
                    return '';
                 }
                 // console.log(key, value, 'prepe')
-                // if ( key === 'availableScreenResolution' ) {
-                //     return [];
-                // }
-                // if ( key === 'screenResolution' ) {
-                //     return [];
-                // }
+                if ( key === 'availableScreenResolution' ) {
+                    return [];
+                }
+                if ( key === 'screenResolution' ) {
+                    return [];
+                }
                 return value;
             }
         };

@@ -19,7 +19,7 @@ const demoAvatarImages = [
   'https://gw.alicdn.com/imgextra/i2/O1CN01fPz7p81auD8ECFNjZ_!!6000000003389-0-tps-886-1919.jpg',
 ]
 
-const prefix = location.href.indexOf('localhost') !== '-1' ? '' : 'https://api.jixiang.chat';
+const prefix = location.href.indexOf('localhost') !== -1 ? '' : 'https://api.jixiang.chat';
 
 export default function IndexPage() {
 

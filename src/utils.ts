@@ -3,7 +3,7 @@ import Fingerprint2 from 'fingerprintjs2';
 import localforage from 'localforage';
 import axios from 'axios';
 
-const prefix = location.href.indexOf('localhost') !== '-1' ? '' : 'https://api.jixiang.chat';
+const prefix = location.href.indexOf('localhost') !== -1 ? '' : 'https://api.jixiang.chat';
 
 const prepre = {};
 

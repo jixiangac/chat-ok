@@ -26,7 +26,7 @@ import styles from './index.module.css';
 import { useEffect, useState } from 'react';
 import { saveUuid } from '@/utils';
 
-const prefix = location.href.indexOf('localhost') !== '-1' ? '' : 'https://api.jixiang.chat';
+const prefix = location.href.indexOf('localhost') !== -1 ? '' : 'https://api.jixiang.chat';
 
 const copyToClip = (url?: string) => {
   if ( !url ) {

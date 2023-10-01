@@ -18,7 +18,7 @@ import { Dialog } from 'antd-mobile';
 
 import { saveUuid } from '../utils';
 
-const prefix = location.href.indexOf('localhost') !== '-1' ? '' : 'https://api.jixiang.chat';
+const prefix = location.href.indexOf('localhost') !== -1 ? '' : 'https://api.jixiang.chat';
 
 
 const copyToClip = (url?: string) => {
@@ -149,7 +149,6 @@ const ApplyForm = (props)=>{
     const updateList = async ()=>{
       setUpdateLoading(true);
       let newlist: any = [];
-      const prefix = location.href.indexOf('localhost') !== '-1' ? '' : 'https://api.jixiang.chat';
  
       for ( let i = 0, len = list.length; i < len; i ++ ) {
         const axx = list[i];

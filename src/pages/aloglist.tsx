@@ -14,7 +14,8 @@ import {
     ImageViewer,
     Form,
     Input,
-    Button
+    Button,
+    CapsuleTabs
 } from 'antd-mobile';
 
 import { SmileOutline, RedoOutline, MailOpenOutline } from 'antd-mobile-icons';
@@ -70,7 +71,9 @@ const ALGO_INTRO = {
     'td13': '当前处于迪马克指标13的位置，迪马克指标13意味着行情有较大可能反转',
     'td9': '当前处于迪马克指标9的位置，迪马克指标9意味着行情有一定可能反转',
     'boll': '处于布林带的上下轨位置，趋势有一定趋势延续性',
-    'DEA': '处于DEA线的上下位置，趋势有一定趋势延续性'
+    'DEA': '处于DEA线的上下位置，趋势有一定趋势延续性',
+    'trend_reverse_short': 'reverse_short，摸顶指标，大概率要下跌',
+    'trend_reverse_long': 'reverse_long，摸底指标，大概率要上涨'
   };
 
 const imagelist = {
@@ -190,12 +193,15 @@ const AlgoList = (props)=>{
 
     const initPayCounts = async ()=>{
   
-      if ( info.left_usdt !== undefined ) {
-        setPayCount(info.left_usdt || 0);
-        PAY_COUNTS = info.left_usdt || 0;
-        await localforage.setItem('pay_counts', JSON.stringify({
-          count: PAY_COUNTS
-         }));
+      if ( !getPageInfo('left_usdt') ) {
+        setPageInfo('left_usdt', 1);
+        if ( info.left_usdt !== undefined ) {
+          setPayCount(info.left_usdt || 0);
+          PAY_COUNTS = info.left_usdt || 0;
+          await localforage.setItem('pay_counts', JSON.stringify({
+            count: PAY_COUNTS
+          }));
+        }
       } else {
         const onedatas: any = await localforage.getItem('pay_counts');
         if ( onedatas ) {
@@ -451,9 +457,11 @@ const AlgoList = (props)=>{
           left_usdt: xcounts
         });
         PAY_COUNTS = xcounts;
+        clickIns = 0;
         setPayCount(xcounts);
         props.onChange && props.onChange({
-          left_usdt: xcounts
+          left_usdt: xcounts,
+          today_usdt: 0
         });
         setApp({
           ...app || {},
@@ -512,65 +520,162 @@ const AlgoList = (props)=>{
             }}><RedoOutline style={{marginLeft: 20}}/><span style={{fontSize: 10}}>刷新</span></span>
         </div>
       );
+
+      const tabList = [{
+        title: '全部',
+        taglist: []
+      },{
+        title: '主流币',
+        taglist: ['BTC-USDT-SWAP', 'ETH-USDT-SWAP', 'ADA-USDT-SWAP', 'SOL-USDT-SWAP']
+      },{
+        title: '大概率下跌',
+        taglist: ['trend_reverse_short']
+      },{
+        title: '大概率上涨',
+        taglist: ['trend_reverse_long']
+      },{
+        title: '看多',
+        taglist: ['long']
+      },{
+        title: '看空',
+        taglist: ['short']
+      }];
+
+      let long = 0, short = 0;
+
+      (app?.data||[]).forEach(item=>{
+         if ( item.pos_side === 'long' ) {
+           long ++;
+         }
+         if ( item.pos_side === 'short' ) {
+           short ++;
+         }
+      });
+
+      let xcon = [];
+
+      if ( long > 0 && short > 0 ) {
+         xcon.push(
+            <p>
+              <span style={{marginLeft: '20px'}}>多：{long}</span>
+              <span style={{marginLeft: '10px'}}>空：{short}</span>
+              <span style={{marginLeft: '20px'}}>{
+                long > short ? '当前上涨的币种较多' : '当前下跌的币种较多'
+              }</span>
+            </p>
+         );
+      }
+
+      let xindex = 0;
+      const x_tabList = tabList.map((item, index)=>{
+        const targetList = (app?.data||[]).filter(it=>{
+          if ( item.title === '全部' ) {
+            return true;
+          }
+          if ( item.title === '主流币'&& item.taglist.indexOf(it.inst_id) !== -1 ) {
+              return true;
+          }
+          if ( item.title === '大概率下跌' && item.taglist.indexOf(it.algo) !== -1 ) {
+            return true;
+          }
+          if ( item.title === '大概率下跌' && item.taglist.indexOf(it.algo) !== -1 ) {
+            return true;
+          }
+          if ( item.title === '看多' && it.pos_side === 'long' ) {
+            return true;
+          }
+          if ( item.title === '看空' && it.pos_side === 'short' ) {
+            return true;
+          }
+          return false;
+        })
+        item.list = targetList;
+        if ( xindex === 0 && targetList.length ) {
+           xindex = index;
+        }
+        return item;
+      });
+
       cons.push(
          <div 
             className={styles.wraplist}
             style={{
-                maxHeight: document.documentElement.clientHeight - 350,
+                // maxHeight: document.documentElement.clientHeight - 350,
                 overflowY: 'auto',
                 margin: '10px 20px'
             }}>
-            {
-              !(app?.data||[]).length ? <Result
-              icon={<SmileOutline />}
-              status='success'
-              title='充值成功'
-              description='刷新一下试试吧'
-            /> : null
-            }
-             <List>
-                {(app?.data||[]).map((user: any, index) => (
-                    <List.Item
-                        key={index}
-                        prefix={
-                            <div className={styles.listicon}>
-                                <Image
-                                    src={imagelist[user.inst_id]?.img}
-                                    style={{ borderRadius: 20 }}
-                                    fit='cover'
-                                    width={32}
-                                    height={32}
-                                />
-                            </div>
-                        }
-                        description={
-                            <div className={styles.defs}>
-                            <p>
-                                <label>方向：</label>
-                                <Tag color={user.pos_side === 'long' ? 'danger' : '#87d068'} fill='outline'>
-                                  {user.pos_side === 'long' ? '做多' : '做空'}
-                                </Tag>
-                            </p>
-                            <p>
-                                <label>周期：</label>
-                                <Tag color='primary' fill='outline'>
-                                  {timeMap[user.type]}
-                                </Tag>
-                            </p>
-                            <p>
-                                <label>策略：</label>
-                                <Tag color='primary' fill='outline'>
-                                  {user.algo}
-                                </Tag>
-                            </p>
-                            <p>{ALGO_INTRO[user.algo] ? ALGO_INTRO[user.algo] : user.algo}</p>
-                        </div>
-                        }
-                    >
-                        {user.inst_id.replace('-USDT-SWAP', '')}<span className={styles.desx}>( {imagelist[user.inst_id]?.alias} )</span>
-                    </List.Item>
-                ))}
-            </List>
+              {xcon}
+              {
+                !(app?.data||[]).length ? <Result
+                icon={<SmileOutline />}
+                status='success'
+                title='充值成功'
+                description='刷新一下试试吧'
+              /> : null
+              }
+              {
+                (app?.data||[]).length ? 
+              <CapsuleTabs defaultActiveKey={`${xindex}`}>
+                {
+                  x_tabList.map((item, index)=>{
+                    return <CapsuleTabs.Tab title={item.title} key={index} destroyOnClose>
+                              <List>
+                                  {
+                                    !item.list.length ? 
+                                    <Result
+                                        icon={<SmileOutline />}
+                                        status='success'
+                                        title='暂无数据'
+                                        description={<p>还没有命中的指标，再等等吧</p>}
+                                      />: null
+                                  }
+                                  {item.list.map((user: any, index) => (
+                                      <List.Item
+                                          key={index}
+                                          prefix={
+                                              <div className={styles.listicon}>
+                                                  <Image
+                                                      src={imagelist[user.inst_id]?.img}
+                                                      style={{ borderRadius: 20 }}
+                                                      fit='cover'
+                                                      width={32}
+                                                      height={32}
+                                                  />
+                                              </div>
+                                          }
+                                          description={
+                                              <div className={styles.defs}>
+                                              <p>
+                                                  <label>方向：</label>
+                                                  <Tag color={user.pos_side === 'long' ? 'danger' : '#87d068'} fill='outline'>
+                                                    {user.pos_side === 'long' ? '做多' : '做空'}
+                                                  </Tag>
+                                              </p>
+                                              <p>
+                                                  <label>周期：</label>
+                                                  <Tag color='primary' fill='outline'>
+                                                    {timeMap[user.type]}
+                                                  </Tag>
+                                              </p>
+                                              <p>
+                                                  <label>策略：</label>
+                                                  <Tag color='primary' fill='outline'>
+                                                    {user.algo}
+                                                  </Tag>
+                                              </p>
+                                              <p>{ALGO_INTRO[user.algo] ? ALGO_INTRO[user.algo] : user.algo}</p>
+                                          </div>
+                                          }
+                                      >
+                                          {user.inst_id.replace('-USDT-SWAP', '')}<span className={styles.desx}>( {imagelist[user.inst_id]?.alias} )</span>
+                                      </List.Item>
+                                  ))}
+                              </List>
+                          </CapsuleTabs.Tab>
+                  })
+                }
+              </CapsuleTabs> : null
+              }
             </div>
       );
       cons.push(
@@ -612,7 +717,7 @@ const AlgoList = (props)=>{
           <div 
               className={styles.wraplidst}
               style={{
-                  maxHeight: document.documentElement.clientHeight - 300,
+                  // maxHeight: document.documentElement.clientHeight - 300,
                   overflowY: 'auto',
                   margin: '10px 20px'
               }}>

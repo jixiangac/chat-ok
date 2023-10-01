@@ -45,7 +45,8 @@ const popForm = (props)=>{
             closeOnMaskClick
             position={props.position || 'bottom'}
             bodyStyle={{
-              minHeight: `${mainHeight - 15}px`
+              height: '100%',
+              overflowY: 'auto'
             }}
             onClose={() => {
                 props.onClose && props.onClose();

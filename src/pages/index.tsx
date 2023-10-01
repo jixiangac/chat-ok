@@ -145,10 +145,7 @@ export default function IndexPage() {
 
 
   if ( datas.isLoading ) {
-    return <div className={styles.app} style={{
-              maxHeight: document.documentElement.clientHeight,
-              overflow: 'hidden'
-            }}>
+    return <div className={styles.app}>
               <div className={styles.container}>
                 
                 <Space direction='horizontal' wrap block style={{ '--gap': '40px' }}>
@@ -180,22 +177,24 @@ export default function IndexPage() {
   }
 
   return (
-    <div className={styles.app} style={{
-      maxHeight: document.documentElement.clientHeight,
-      overflow: 'hidden'
-    }}>
+    <div className={styles.app}>
       {/* <pre>
         {JSON.stringify(datas.abc || {}, null, 4)}
       </pre> */}
       <List>
         <List.Item
           prefix={<Avatar src={demoAvatarImages[0]} />}
-          description='一个量化交易者，欢迎一起交流学习合作~'
+          description={
+            <div className={styles.avatarWrap}>
+              <p>一个量化交易者，欢迎一起交流学习合作~</p>
+              <p> {datas.uuid}</p>
+            </div>
+          }
         >
           冲鸭卡卡
         </List.Item>
       </List>
-      <p>uuid: {datas.uuid}</p>
+  
       <div className={styles.container}>
 
       <a 
@@ -262,7 +261,7 @@ export default function IndexPage() {
             openFormDrawer({
               title: '加入群聊',
               children: <div style={{
-                maxHeight: document.documentElement.clientHeight - 300,
+                // maxHeight: document.documentElement.clientHeight - 300,
                 overflowY: 'auto',
                 margin: '10px 20px'
               }}>

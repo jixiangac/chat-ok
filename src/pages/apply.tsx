@@ -379,8 +379,8 @@ const ApplyForm = (props)=>{
       cons.push(
         <div className={styles.wraplist} 
               style={{
-                height: document.documentElement.clientHeight - 270,
-                overflowY: 'auto',
+                // height: document.documentElement.clientHeight - 270,
+                // overflowY: 'auto',
                 margin: '10px 20px'
             }}>
           <List>
@@ -505,7 +505,7 @@ const ApplyForm = (props)=>{
       );
 
       cons.push(
-        <Space justify='center' block style={{marginTop: '20px'}}>
+        <Space justify='center' block style={{marginTop: '20px', marginBottom: '20px'}}>
           <Button onClick={()=>{
             setForce(true);
             setAccount(false);

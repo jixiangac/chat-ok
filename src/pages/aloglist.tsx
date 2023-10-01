@@ -24,7 +24,7 @@ import localforage from 'localforage';
 import styles from './index.module.css';
 
 import { useEffect, useState } from 'react';
-import { saveUuid } from '@/utils';
+import { saveUuid, setPageInfo, getPageInfo } from '@/utils';
 
 const prefix = location.href.indexOf('localhost') !== -1 ? '' : 'https://api.jixiang.chat';
 
@@ -250,7 +250,8 @@ const AlgoList = (props)=>{
         } else if ( info.gmt_update ) {
           await initDefaultCounts(false);
         } else {
-          if ( count === 0 ) {
+          if ( !getPageInfo('today_usdt') ) {
+            setPageInfo('today_usdt', 1);
             setCount(info.today_usdt || datas.count);
             fetchData(false, info.today_usdt || datas.count);
           } else {

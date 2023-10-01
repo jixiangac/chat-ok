@@ -7,6 +7,10 @@ const prefix = location.href.indexOf('localhost') !== -1 ? '' : 'https://api.jix
 
 const prepre = {};
 
+const GLOBAL_PAGE_INFO = {
+
+};
+
 export function createFingerprint() {
     return new Promise<void>((resolve, reject) => {
         // 浏览器指纹
@@ -103,6 +107,15 @@ export async function saveUuid(datas){
  });
  return namelist;
 }
+
+
+export const setPageInfo = (key, value)=>{
+  GLOBAL_PAGE_INFO[key] = value;
+}
+
+export const getPageInfo = (key)=>{
+  return GLOBAL_PAGE_INFO[key];
+};
 
 
 window.getABC = ()=>{

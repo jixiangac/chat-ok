@@ -13,6 +13,14 @@ body{
   margin: 0;
 }
 
+:global(.question li) {
+  line-height: 32px;
+}
+
+:global(.contact .adm-list-item-content-main) {
+  margin: 20px;
+}
+
 .wraplist{
   :global(.adm-list-body){
     /* max-height: 500px; */

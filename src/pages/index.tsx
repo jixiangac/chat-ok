@@ -137,12 +137,11 @@ export default function IndexPage() {
   }
 
 
-  const onChange = (datas)=>{
+  const onChange = (xdatas)=>{
     // const uuid = await localforage.getItem('robot_accout_id');
     setData({
-      isLoading: false,
-      loaded: true,
-      list: datas.list,
+      ...datas || {},
+      list: xdatas.list,
     });
   }
 

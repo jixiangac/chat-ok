@@ -1,7 +1,9 @@
 import { createRouteLoader, WrapRouteComponent, RouteErrorComponent } from '@ice/runtime';
 import * as aloglist from '@/pages/aloglist';
 import * as apply from '@/pages/apply';
+import * as image from '@/pages/image';
 import * as _ from '@/pages/index';
+import * as intro from '@/pages/intro';
 import * as open from '@/pages/open';
 import * as pop from '@/pages/pop';
 
@@ -60,6 +62,31 @@ export default ({
     exact: true,
     exports: ["default"],
   },{
+    path: 'image',
+    async lazy() {
+      ;
+      return {
+        ...image,
+        Component: () => WrapRouteComponent({
+          routeId: 'image',
+          isLayout: false,
+          routeExports: image,
+        }),
+        loader: createRouteLoader({
+          routeId: 'image',
+          requestContext,
+          renderMode,
+          module: image,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'image',
+    index: undefined,
+    id: 'image',
+    exact: true,
+    exports: ["commonList","fufeiList","hezuoList","tiyanList","yaoqingList"],
+  },{
     path: '',
     async lazy() {
       ;
@@ -82,6 +109,31 @@ export default ({
     componentName: 'index',
     index: true,
     id: '/',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'intro',
+    async lazy() {
+      ;
+      return {
+        ...intro,
+        Component: () => WrapRouteComponent({
+          routeId: 'intro',
+          isLayout: false,
+          routeExports: intro,
+        }),
+        loader: createRouteLoader({
+          routeId: 'intro',
+          requestContext,
+          renderMode,
+          module: intro,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'intro',
+    index: undefined,
+    id: 'intro',
     exact: true,
     exports: ["default"],
   },{

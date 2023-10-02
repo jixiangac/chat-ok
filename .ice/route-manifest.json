@@ -20,10 +20,34 @@
     ]
   },
   {
+    "path": "image",
+    "id": "image",
+    "file": "image.ts",
+    "componentName": "image",
+    "layout": false,
+    "exports": [
+      "commonList",
+      "fufeiList",
+      "hezuoList",
+      "tiyanList",
+      "yaoqingList"
+    ]
+  },
+  {
     "index": true,
     "id": "/",
     "file": "index.tsx",
     "componentName": "index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "intro",
+    "id": "intro",
+    "file": "intro.tsx",
+    "componentName": "intro",
     "layout": false,
     "exports": [
       "default"

@@ -10,6 +10,7 @@ import openFormDrawer from './open';
 
 import ApplyForm from './apply';
 import AlgoList from './aloglist';
+import IntroList from './intro';
 
 import { createFingerprint, saveUuid } from '../utils';
 
@@ -259,20 +260,13 @@ export default function IndexPage() {
         }
         <a className={styles.card} onClick={()=>{
             openFormDrawer({
-              title: '加入群聊',
-              children: <div style={{
-                // maxHeight: document.documentElement.clientHeight - 300,
-                overflowY: 'auto',
-                margin: '10px 20px'
-              }}>
-                <div style={{marginBottom: 20}}>VX:  amuye1993</div>
-                <Image src="https://okx.jixiang.chat/src/assets/a.jpeg" />
-              </div>
+              title: '帮助&介绍',
+              children: <IntroList />
             });
         }}>
           <div className={styles.content}>
-            <h3>加入群聊</h3>
-            <span>加入VX交流群，一起交流</span>
+            <h3>策略介绍</h3>
+            <span>了解整体策略，机器人的机制</span>
             <div style={{flex:1}}></div>
           </div>
         </a>

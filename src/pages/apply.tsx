@@ -14,9 +14,16 @@ import {
   ExclamationCircleFill
 } from 'antd-mobile-icons';
 
-import { Dialog } from 'antd-mobile';
+import { Dialog, ImageViewer } from 'antd-mobile';
 
 import { saveUuid } from '../utils';
+
+import { 
+  yaoqingList,
+  tiyanList,
+  fufeiList,
+  hezuoList
+} from './image';
 
 const prefix = location.href.indexOf('localhost') !== -1 ? '' : 'https://api.jixiang.chat';
 
@@ -575,7 +582,9 @@ const ApplyForm = (props)=>{
                     <ol>
                       <li>需要录入的账号为通过<CopyDiv url="https://ouxyi.club/join/meihao"/>或邀请码填写<CopyDiv url="meihao"/></li>
                       <li>如果当前为邀请账号的子账号，需要填写主账号的appkey进行验证</li>
-                      <li>操作步骤可以点此查看</li>
+                      <li><a onClick={()=>{
+                        ImageViewer.Multi.show({ images: yaoqingList })
+                      }}>操作步骤可以点此查看</a></li>
                     </ol>
                   </div> : ''}</p>
                 <p>{categroy === '4' ? <div><h4>[体验模式]</h4> <ol><li>需要录入的账号转到到OKX账号<CopyDiv url="1251223923@qq.com"/> <span style={{
@@ -584,21 +593,27 @@ const ApplyForm = (props)=>{
                 }}>1USDT</span></li><li>录入成功自动获得至少7天的自动化机器交易体验</li><li>交易账户至少<span style={{
                   textDecoration: 'underline',
                   color: 'red'
-                }}>200U</span>可用资金</li><li>操作步骤可以点此查看</li></ol></div> : ''}</p>
+                }}>200U</span>可用资金</li><li><a onClick={()=>{
+                  ImageViewer.Multi.show({ images: tiyanList })
+                }}>操作步骤可以点此查看</a></li></ol></div> : ''}</p>
                 <p>{categroy === '2' ? <div><h4>[付费模式] </h4><ol><li>通过支付每天1U的使用费进行合作，前7天免费使用，需要录入的账号转到到OKX账号<CopyDiv url="1251223923@qq.com"/> <span style={{
                   textDecoration: 'underline',
                   color: 'red'
                 }}>5USDT</span></li><li>录入成功自动获得至少7天的自动化机器交易体验</li><li>交易账户至少<span style={{
                   textDecoration: 'underline',
                   color: 'red'
-                }}>500U</span>可用资金</li><li>操作步骤可以点此查看</li></ol></div> : ''}</p>
+                }}>500U</span>可用资金</li><li><a onClick={()=>{
+                  ImageViewer.Multi.show({ images: fufeiList })
+                }}>操作步骤可以点此查看</a></li></ol></div> : ''}</p>
                 <p>{categroy === '3' ? <div><h4>[合作模式]</h4><ol><li>分成合作模式，合作咨询可加vx:<CopyDiv url="amuye1993"/>，如想直接体验，可以按下面步骤进行</li><li>需要录入的账号转到到OKX账号<CopyDiv url="1251223923@qq.com"/> <span style={{
                   textDecoration: 'underline',
                   color: 'red'
                 }}>15USDT</span></li><li>录入成功自动获得至少30天的自动化机器交易体验</li><li>交易账户至少<span style={{
                   textDecoration: 'underline',
                   color: 'red'
-                }}>1000U</span>可用资金</li><li>操作步骤可以点此查看</li></ol></div> : ''}</p>
+                }}>1000U</span>可用资金</li><li><a onClick={()=>{
+                  ImageViewer.Multi.show({ images: hezuoList })
+                }}>操作步骤可以点此查看</a></li></ol></div> : ''}</p>
                 {
                   error ? <p style={{color: 'red', marginTop: 10}}>{error}</p> : null
                 }

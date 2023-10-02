@@ -21,9 +21,9 @@ import IntroList from './intro';
 
 import { createFingerprint, saveUuid } from '../utils';
 
-const anchors = [100, window.innerHeight * 0.4, window.innerHeight * 0.8];
-const minHeight = anchors[0];
-const maxHeight = anchors[anchors.length - 1];
+// const anchors = [100, window.innerHeight * 0.4, window.innerHeight * 0.8];
+// const minHeight = anchors[0];
+// const maxHeight = anchors[anchors.length - 1];
 
 import axios from 'axios';
 
@@ -35,7 +35,7 @@ const prefix = location.href.indexOf('localhost') !== -1 ? '' : 'https://api.jix
 
 export default function IndexPage() {
 
-  const targetRef = useRef<HTMLDivElement>(null)
+  // const targetRef = useRef<HTMLDivElement>(null)
 
   const [datas, setData] = useState({
     isLoading: true,
@@ -153,18 +153,18 @@ export default function IndexPage() {
     });
   }
 
-  const onHeightChange = (height: number) => {
-    const ratio = height / maxHeight
-    console.log(ratio)
-    const target = targetRef.current
-    if (!target) return
-    target.style.height = '100%'
-    // target.style.backgroundImage = `linear-gradient(rgba(185,147,214,${ratio}),rgba(140,166,219,${ratio}))`
-  }
+  // const onHeightChange = (height: number) => {
+  //   const ratio = height / maxHeight
+  //   console.log(ratio)
+  //   const target = targetRef.current
+  //   if (!target) return
+  //   target.style.height = '100%'
+  //   // target.style.backgroundImage = `linear-gradient(rgba(185,147,214,${ratio}),rgba(140,166,219,${ratio}))`
+  // }
 
   useEffect(()=>{
     initData();
-    onHeightChange(minHeight)
+    // onHeightChange(minHeight)
   }, []);
 
 
@@ -293,7 +293,7 @@ export default function IndexPage() {
             <div style={{flex:1}}></div>
           </div>
         </a>
-        <FloatingPanel anchors={anchors} onHeightChange={onHeightChange}>
+        {/* <FloatingPanel anchors={anchors} onHeightChange={onHeightChange}>
           <div ref={targetRef}>
             <div style={{
               'textAlign': 'center',
@@ -302,7 +302,7 @@ export default function IndexPage() {
             }}>策略介绍</div>
             <IntroList />
           </div>
-        </FloatingPanel>
+        </FloatingPanel> */}
       </div>
     </div>
   );

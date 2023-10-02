@@ -3,14 +3,32 @@ import axios from 'axios';
 
 import dayjs from 'dayjs';
 
+import { LoremIpsum } from 'lorem-ipsum'
+
+export const lorem = new LoremIpsum({
+  sentencesPerParagraph: {
+    max: 8,
+    min: 4,
+  },
+  wordsPerSentence: {
+    max: 16,
+    min: 4,
+  },
+})
+
 import {
     Tabs,
-    CapsuleTabs
+    CapsuleTabs,
+    Collapse
 } from 'antd-mobile';
 
 import { useEffect, useState } from 'react';
 
 const prefix = location.href.indexOf('localhost') !== -1 ? '' : 'https://api.jixiang.chat';
+
+const mockContents = Array(5)
+  .fill(null)
+  .map(() => lorem.generateParagraphs(1))
 
 const copyToClip = (url?: string) => {
   if ( !url ) {
@@ -64,6 +82,21 @@ const IntroList = (props)=>{
                 </CapsuleTabs>
       }
    },{
+    title: '常见问题',
+    content: ()=>{
+      return <Collapse defaultActiveKey={"1"} accordion>
+                <Collapse.Panel key='1' title='第一项'>
+                    {mockContents[0]}
+                </Collapse.Panel>
+                <Collapse.Panel key='2' title='第二项'>
+                    {mockContents[1]}
+                </Collapse.Panel>
+                <Collapse.Panel key='3' title='第三项'>
+                    {mockContents[2]}
+                </Collapse.Panel>
+             </Collapse>
+    }
+  },{
       title: '交流相关',
       content: ()=>{
         return <p>fdfdf</p>

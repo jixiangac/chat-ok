@@ -135,7 +135,7 @@ export default ({
     index: undefined,
     id: 'intro',
     exact: true,
-    exports: ["default"],
+    exports: ["default","lorem"],
   },{
     path: 'open',
     async lazy() {

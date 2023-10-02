@@ -50,7 +50,8 @@
     "componentName": "intro",
     "layout": false,
     "exports": [
-      "default"
+      "default",
+      "lorem"
     ]
   },
   {

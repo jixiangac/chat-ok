@@ -85,7 +85,7 @@ export default ({
     index: undefined,
     id: 'image',
     exact: true,
-    exports: ["commonList","fufeiList","hezuoList","tiyanList","yaoqingList"],
+    exports: ["commonList","fufeiList","hezuoList","imagelist","tiyanList","yaoqingList"],
   },{
     path: '',
     async lazy() {

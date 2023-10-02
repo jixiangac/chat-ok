@@ -17,6 +17,10 @@ body{
   line-height: 32px;
 }
 
+:global(.adm-capsule-tabs-content p){
+  line-height: 28px;
+}
+
 :global(.contact .adm-list-item-content-main) {
   margin: 20px;
 }

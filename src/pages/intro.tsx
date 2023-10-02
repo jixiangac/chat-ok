@@ -157,9 +157,10 @@ const IntroList = (props)=>{
                         <List mode='card' header='监控币种列表'>
                             {
                                 "BTC /  ETH / AXS / DOT / DOGE / PEPE / XRP / MANA / SAND / UNI / NEAR / ADA / GMT / APE / SOL / ETC / PEOPLE / ATOM / AVAX / DYDX".split('/').map(item=>{
-                                    console.log(item,'dd')
                                     let us = imagelist[`${item.replace(/^\s*|\s*$/g,"")}-USDT-SWAP`];
-                                    return <List.Item extra={
+                                    return <List.Item description={
+                                        item.replace(/^\s*|\s*$/g,"").toLocaleLowerCase()
+                                    } extra={
                                             <Image
                                                 src={us?.img}
                                                 style={{ borderRadius: 20 }}

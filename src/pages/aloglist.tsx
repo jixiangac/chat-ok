@@ -452,10 +452,10 @@ const AlgoList = (props)=>{
         taglist: ['BTC-USDT-SWAP', 'ETH-USDT-SWAP', 'ADA-USDT-SWAP', 'SOL-USDT-SWAP']
       },{
         title: '大概率下跌',
-        taglist: ['trend_reverse_short']
+        taglist: ['reverse_short', 'reverse_start_short']
       },{
         title: '大概率上涨',
-        taglist: ['trend_reverse_long']
+        taglist: ['reverse_long', 'reverse_start_long']
       },{
         title: '看多',
         taglist: ['long']
@@ -498,10 +498,10 @@ const AlgoList = (props)=>{
           if ( item.title === '主流币'&& item.taglist.indexOf(it.inst_id) !== -1 ) {
               return true;
           }
-          if ( item.title === '大概率下跌' && item.taglist.indexOf(it.algo) !== -1 ) {
+          if ( item.title === '大概率下跌' && (it.algo.indexOf(item.taglist[0]) !== -1 || it.algo.indexOf(item.taglist[1]) !== -1) ) {
             return true;
           }
-          if ( item.title === '大概率下跌' && item.taglist.indexOf(it.algo) !== -1 ) {
+          if ( item.title === '大概率下跌' && (it.algo.indexOf(item.taglist[0]) !== -1 || it.algo.indexOf(item.taglist[1]) !== -1) ) {
             return true;
           }
           if ( item.title === '看多' && it.pos_side === 'long' ) {

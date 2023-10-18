@@ -154,7 +154,7 @@ const IntroList = (props)=>{
                   <CapsuleTabs.Tab title="合作模式" key="1" destroyOnClose>
                      <Card title='邀请模式'>
                         <Steps direction='vertical'>
-                            <Step title='注册一个OKX账号：' description={<p><a href="https://www.cnouyi.expert/cn/join/chongya" target="_blank">https://www.cnouyi.expert/cn/join/chongya</a>（该模式每次交易自动返15%手续费）</p>} status='process' />
+                            <Step title='注册一个OKX账号：' description={<p><a href="https://www.ouxyi.clinic/cn/join/chongya" target="_blank">https://www.ouxyi.clinic/cn/join/chongya</a>（该模式每次交易自动返15%手续费）</p>} status='process' />
                             <Step title='录入OKX API' status='wait' />
                             <Step title='等待自动进行' status='wait' />
                         </Steps>

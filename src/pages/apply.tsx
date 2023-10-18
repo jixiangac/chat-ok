@@ -580,7 +580,7 @@ const ApplyForm = (props)=>{
                 <p>{categroy === '1' ? <div>
                     <h4>[邀请模式]</h4> 
                     <ol>
-                      <li>需要录入的账号为通过<CopyDiv url="https://ouxyi.club/join/meihao"/>或邀请码填写<CopyDiv url="meihao"/></li>
+                      <li>需要录入的账号为通过<CopyDiv url="https://ouxyi.club/join/chongya"/>或邀请码填写<CopyDiv url="chongya"/>，该模式交易所也会每次交易返15%手续费</li>
                       <li>如果当前为邀请账号的子账号，需要填写主账号的appkey进行验证</li>
                       <li><a onClick={()=>{
                         ImageViewer.Multi.show({ images: yaoqingList })

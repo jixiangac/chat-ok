@@ -154,14 +154,14 @@ const IntroList = (props)=>{
                   <CapsuleTabs.Tab title="合作模式" key="1" destroyOnClose>
                      <Card title='邀请模式'>
                         <Steps direction='vertical'>
-                            <Step title='注册一个OKX账号：' description={<p><a href="https://www.cnouyi.expert/cn/join/meihao" target="_blank">https://www.cnouyi.expert/cn/join/meihao</a></p>} status='process' />
+                            <Step title='注册一个OKX账号：' description={<p><a href="https://www.cnouyi.expert/cn/join/chongya" target="_blank">https://www.cnouyi.expert/cn/join/chongya</a>（该模式每次交易自动返15%手续费）</p>} status='process' />
                             <Step title='录入OKX API' status='wait' />
                             <Step title='等待自动进行' status='wait' />
                         </Steps>
                      </Card>
                      <Card title='付费模式'>
                         <Steps direction='vertical'>
-                            <Step title='转账充值' description={<p>按日收费：1U / 日 收费，前7天免费，直接充到指定账户(OKX账户：1251223923@qq.com)</p>} status='process' />
+                            <Step title='转账充值' description={<p>按日收费：1U / 日 收费，前7天免费，直接充到指定账户(OKX账户：1251223923@qq.com)(推荐资金1000U以上，日赚更多更划算)</p>} status='process' />
                             <Step title='录入OKX API' status='wait' />
                             <Step title='校验充值USDT' status='wait' />
                             <Step title='等待自动进行' status='wait' />

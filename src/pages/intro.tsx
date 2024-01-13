@@ -1,6 +1,8 @@
 // @ts-nocheck
 import { LoremIpsum } from 'lorem-ipsum';
 
+// x
+
 export const lorem = new LoremIpsum({
   sentencesPerParagraph: {
     max: 8,

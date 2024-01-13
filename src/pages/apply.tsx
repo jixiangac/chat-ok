@@ -597,7 +597,9 @@ const ApplyForm = (props)=>{
                 <p>{categroy === '1' ? <div>
                     <h4>[邀请模式]</h4> 
                     <ol>
-                      <li>需要录入的账号为通过<CopyDiv url="https://www.ouxyi.clinic/cn/join/chongya"/>或邀请码填写<CopyDiv url="chongya" flag/>，该模式交易所也会每次交易返15%手续费</li>
+                      <li>需要录入的账号为通过<CopyDiv url="https://www.ouxyi.clinic/cn/join/meihao"/></li>
+                      <li>已科学上网的话使用<CopyDiv url="https://www.okx.com/join/meihao"/></li>
+                      <li>已上邀请地址在浏览器打开，或者已有OKX APP的话，邀请码填写<CopyDiv url="meihao" flag/>即可</li>
                       <li>如果当前为邀请账号的子账号，需要填写主账号的appkey进行验证</li>
                       <li><a onClick={()=>{
                         ImageViewer.Multi.show({ images: yaoqingList })

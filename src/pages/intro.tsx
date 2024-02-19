@@ -158,14 +158,15 @@ const IntroList = (props)=>{
                         <Steps direction='vertical'>
                             <Step title='注册一个OKX账号：' description={<p><a href="https://www.ouxyi.clinic/cn/join/meihao" target="_blank">https://www.ouxyi.clinic/cn/join/meihao</a></p>} status='process' />
                             <Step title='录入OKX API' status='wait' />
+                            <Step title='无其他任何费用' status='wait' />
                             <Step title='等待自动进行' status='wait' />
                         </Steps>
                      </Card>
                      <Card title='付费模式'>
                         <Steps direction='vertical'>
-                            <Step title='转账充值' description={<p>按日收费：1U / 日 收费，前7天免费，直接充到指定账户(OKX账户：1251223923@qq.com)(推荐资金1000U以上，日赚更多更划算)</p>} status='process' />
+                            <Step title='转账充值' description={<p>按日收费：5U / 日 收费，一次最少30天(150U)，到期后自动清仓终止，请及时连续续费，前7天免费，直接充到指定账户(OKX账户：1251223923@qq.com)(推荐资金5000U以上，日赚更多更划算)</p>} status='process' />
                             <Step title='录入OKX API' status='wait' />
-                            <Step title='校验充值USDT' status='wait' />
+                            <Step title='转账150USDT,校验充值USDT' status='wait' />
                             <Step title='等待自动进行' status='wait' />
                         </Steps>
                      </Card>

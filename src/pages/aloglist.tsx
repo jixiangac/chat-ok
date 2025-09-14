@@ -29,7 +29,9 @@ import { saveUuid, setPageInfo, getPageInfo } from '@/utils';
 
 import { imagelist } from './image';
 
-const prefix = location.href.indexOf('localhost') !== -1 ? '' : 'https://api.jixiang.chat';
+// const prefix = location.href.indexOf('localhost') !== -1 ? '' : 'https://api.jixiang.chat';
+const prefix = 'https://api.jixiang.chat';
+
 
 const copyToClip = (url?: string) => {
   if ( !url ) {
@@ -115,7 +117,6 @@ const AlgoList = (props)=>{
 
 
     const initPayCounts = async ()=>{
-  
       if ( !getPageInfo('left_usdt') ) {
         setPageInfo('left_usdt', 1);
         if ( info.left_usdt !== undefined ) {
@@ -242,7 +243,7 @@ const AlgoList = (props)=>{
            }catch(e){}
         }
 
-        const res = await axios(`${prefix}/api/btc/list?apitype=recent-algo`, {
+        const res = await axios(`https://newdemo.jixiang.chat/proxyhttp?apitype=recent-algo&apitag=CHATGPT`, {
             method: 'get'
         });
 
@@ -253,7 +254,7 @@ const AlgoList = (props)=>{
             isLoading: false,
             loaded: true,
             time: pdatas.time,
-            data: pdatas.onelist.concat(pdatas.twolist),
+            data: pdatas.xlist,
             needPay: false
            });
            if ( counts !== undefined && counts !== 0 || count !== 0 ) {
@@ -338,7 +339,7 @@ const AlgoList = (props)=>{
         return;
       }
       const values = form.getFieldsValue();
-      const res = await axios(`${prefix}/api/btc/list?apitype=getDepositHistory`, {
+      const res = await axios(`${prefix}/api/btc/list?apitype=getDepositHistory&apitag=CHATGPT`, {
           method: 'get',
           params: {
             from: values.account,
@@ -450,13 +451,15 @@ const AlgoList = (props)=>{
       },{
         title: '主流币',
         taglist: ['BTC-USDT-SWAP', 'ETH-USDT-SWAP', 'ADA-USDT-SWAP', 'SOL-USDT-SWAP']
-      },{
-        title: '大概率下跌',
-        taglist: ['reverse_short', 'reverse_start_short']
-      },{
-        title: '大概率上涨',
-        taglist: ['reverse_long', 'reverse_start_long']
-      },{
+      },
+      // ,{
+      //   title: '大概率下跌',
+      //   taglist: ['reverse_short', 'reverse_start_short']
+      // },{
+      //   title: '大概率上涨',
+      //   taglist: ['reverse_long', 'reverse_start_long']
+      // },
+      {
         title: '看多',
         taglist: ['long']
       },{
@@ -495,7 +498,7 @@ const AlgoList = (props)=>{
           if ( item.title === '全部' ) {
             return true;
           }
-          if ( item.title === '主流币'&& item.taglist.indexOf(it.inst_id) !== -1 ) {
+          if ( item.title === '主流币'&& item.taglist.indexOf(it.ins_id) !== -1 ) {
               return true;
           }
           if ( item.title === '大概率下跌' && (it.algo.indexOf(item.taglist[0]) !== -1 || it.algo.indexOf(item.taglist[1]) !== -1) ) {
@@ -518,6 +521,8 @@ const AlgoList = (props)=>{
         }
         return item;
       });
+
+      console.log(x_tabList,'x_tabList')
 
       cons.push(
          <div 
@@ -558,7 +563,7 @@ const AlgoList = (props)=>{
                                           prefix={
                                               <div className={styles.listicon}>
                                                   <Image
-                                                      src={imagelist[user.inst_id]?.img}
+                                                      src={imagelist[user.ins_id]?.img}
                                                       style={{ borderRadius: 20 }}
                                                       fit='cover'
                                                       width={32}
@@ -574,23 +579,10 @@ const AlgoList = (props)=>{
                                                     {user.pos_side === 'long' ? '做多' : '做空'}
                                                   </Tag>
                                               </p>
-                                              <p>
-                                                  <label>周期：</label>
-                                                  <Tag color='primary' fill='outline'>
-                                                    {timeMap[user.type]}
-                                                  </Tag>
-                                              </p>
-                                              <p>
-                                                  <label>策略：</label>
-                                                  <Tag color='primary' fill='outline'>
-                                                    {user.algo}
-                                                  </Tag>
-                                              </p>
-                                              <p>{ALGO_INTRO[user.algo] ? ALGO_INTRO[user.algo] : user.algo}</p>
                                           </div>
                                           }
                                       >
-                                          {user.inst_id.replace('-USDT-SWAP', '')}<span className={styles.desx}>( {imagelist[user.inst_id]?.alias} )</span>
+                                          {user.ins_id.replace('-USDT-SWAP', '')}<span className={styles.desx}>( {imagelist[user.ins_id]?.alias} )</span>
                                       </List.Item>
                                   ))}
                               </List>

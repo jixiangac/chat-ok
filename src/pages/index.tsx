@@ -31,7 +31,9 @@ const demoAvatarImages = [
   'https://gw.alicdn.com/imgextra/i2/O1CN01fPz7p81auD8ECFNjZ_!!6000000003389-0-tps-886-1919.jpg',
 ]
 
-const prefix = location.href.indexOf('localhost') !== -1 ? '' : 'https://api.jixiang.chat';
+// const prefix = location.href.indexOf('localhost') !== -1 ? '' : 'https://api.jixiang.chat';
+
+const prefix = 'https://api.jixiang.chat';
 
 export default function IndexPage() {
 
@@ -50,8 +52,6 @@ export default function IndexPage() {
 
 
   const fetchData = async ()=>{
-
-    
 
     let uuid = await localforage.getItem('robot_accout_id');
     // let uuid = '';
@@ -83,7 +83,7 @@ export default function IndexPage() {
     } else {
       if ( namelist?.data?.success && namelist.data?.data?.names ) {
         const _name = (namelist?.data?.data?.names || '');
-        const accounts = await axios(`${prefix}/api/btc/list?apitype=getAccountByNames`, {
+        const accounts = await axios(`${prefix}/api/btc/list?apitype=getAccountByNames&apitag=CHATGPT`, {
           params: {
             names: _name
           },

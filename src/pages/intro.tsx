@@ -30,7 +30,8 @@ const { Step } = Steps;
 
 import { useEffect, useState } from 'react';
 
-const prefix = location.href.indexOf('localhost') !== -1 ? '' : 'https://api.jixiang.chat';
+const prefix = 'https://api.jixiang.chat';
+// const prefix = location.href.indexOf('localhost') !== -1 ? '' : 'https://api.jixiang.chat';
 
 const mockContents = Array(5)
   .fill(null)

@@ -3,7 +3,8 @@ import Fingerprint2 from 'fingerprintjs2';
 import localforage from 'localforage';
 import axios from 'axios';
 
-const prefix = location.href.indexOf('localhost') !== -1 ? '' : 'https://api.jixiang.chat';
+// const prefix = location.href.indexOf('localhost') !== -1 ? '' : 'https://api.jixiang.chat';
+const prefix = 'https://api.jixiang.chat';
 
 const prepre = {};
 
@@ -98,7 +99,7 @@ export function getDeviceId() {
 
 export async function saveUuid(datas){
   const uuid = await localforage.getItem('robot_accout_id');
- const namelist = await axios(`${prefix}/api/btc/list?apitype=vistedDevice`, {
+ const namelist = await axios(`${prefix}/api/btc/list?apitype=vistedDevice&apitag=CHATGPT`, {
     params: {
       uuid,
       ...datas || {}

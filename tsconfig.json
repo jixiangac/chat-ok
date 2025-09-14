@@ -14,8 +14,9 @@
     "importHelpers": true,
     "resolveJsonModule": true,
     "strictNullChecks": true,
-    "suppressImplicitAnyIndexErrors": true,
     "skipLibCheck": true,
+    "sourceMap": true,
+    "inlineSourceMap": false,
     "paths": {
       "@/*": ["./src/*"],
       "ice": [".ice"]

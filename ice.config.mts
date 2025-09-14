@@ -9,6 +9,7 @@ export default defineConfig(() => ({
   ssr: false,
   minify,
   codeSplitting: false,
+  sourceMap: true,
   server: {
     onDemand: true,
     format: 'esm',

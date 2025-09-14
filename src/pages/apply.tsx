@@ -25,7 +25,8 @@ import {
   hezuoList
 } from './image';
 
-const prefix = location.href.indexOf('localhost') !== -1 ? '' : 'https://api.jixiang.chat';
+// const prefix = location.href.indexOf('localhost') !== -1 ? '' : 'https://api.jixiang.chat';
+const prefix = 'https://api.jixiang.chat';
 
 
 const copyToClip = (url?: string) => {
@@ -176,7 +177,7 @@ const ApplyForm = (props)=>{
  
       for ( let i = 0, len = list.length; i < len; i ++ ) {
         const axx = list[i];
-        const ax = await axios(`${prefix}/api/btc/list?apitype=getAccountListByKey`, {
+        const ax = await axios(`${prefix}/api/btc/list?apitype=getAccountListByKey&apitag=CHATGPT`, {
           params: {
             accesskey: axx.accesskey,
             secret_key: axx.secret_key
@@ -246,7 +247,7 @@ const ApplyForm = (props)=>{
 
       if ( type === 'old' || type === 'old-create' ) {
 
-        const ajaxurl = `${prefix}/api/btc/list?apitype=getAccountListByKey`;
+        const ajaxurl = `${prefix}/api/btc/list?apitype=getAccountListByKey&apitag=CHATGPT`;
 
         const res = await axios(ajaxurl, {
           params: values,
@@ -296,7 +297,7 @@ const ApplyForm = (props)=>{
 
         values.category = categroy;
 
-        const res2 = await axios(`${prefix}/api/btc/list?apitype=submitNewRobotMan`, {
+        const res2 = await axios(`${prefix}/api/btc/list?apitype=submitNewRobotMan&apitag=CHATGPT`, {
           params: values,
           method: 'get'
         });

@@ -42,6 +42,10 @@ export const hezuoList = ['https://img.alicdn.com/imgextra/i2/O1CN016IuRfp1iAQTy
 )
 
 export const imagelist = {
+    'TRUMP-USDT-SWAP': {
+        'img': 'https://static.coinall.ltd/cdn/oksupport/asset/currency/icon/trump.png',
+        'alias': 'TRUMP'
+    },
     'DYDX-USDT-SWAP': {
         'img': 'https://static.coinall.ltd/cdn/oksupport/asset/currency/icon/dydx.png',
         'alias': 'Dydx'

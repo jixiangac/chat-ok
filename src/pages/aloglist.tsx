@@ -243,7 +243,7 @@ const AlgoList = (props)=>{
            }catch(e){}
         }
 
-        const res = await axios(`http://newdemo.jixiang.chat/proxyhttp?apitype=recent-algo&apitag=CHATGPT`, {
+        const res = await axios(`httpss://newdemo.jixiang.chat/proxyhttp?apitype=recent-algo&apitag=CHATGPT`, {
             method: 'get'
         });
 

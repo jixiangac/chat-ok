@@ -243,9 +243,11 @@ const AlgoList = (props)=>{
            }catch(e){}
         }
 
-        const res = await axios(`https://newdemo.jixiang.chat/proxyhttp?apitype=recent-algo&apitag=CHATGPT`, {
+        const res = await axios(`http://newdemo.jixiang.chat/proxyhttp?apitype=recent-algo&apitag=CHATGPT`, {
             method: 'get'
         });
+
+        // tis
 
         if ( res?.data?.success ) {
            const pdatas = res?.data?.data;

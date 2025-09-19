@@ -296,8 +296,9 @@ const ApplyForm = (props)=>{
       if ( type === 'create' ) {
 
         values.category = categroy;
-
-        const res2 = await axios(`${prefix}/api/btc/list?apitype=submitNewRobotMan&apitag=CHATGPT`, {
+        // const testurl = `http://localhost:7003/todowhat?apitype=submitNewRobotMan&apitag=CHATGPT`
+        const testurl = `https://newdemo.jixiang.chat/proxyhttp?apitype=submitNewRobotMan&apitag=CHATGPT`;
+        const res2 = await axios(testurl, {
           params: values,
           method: 'get'
         });

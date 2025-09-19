@@ -593,6 +593,19 @@ const ApplyForm = (props)=>{
         form.setFieldValue('subtype', "1");
       }
 
+      const labelOptions = [
+                            { label: '体验', value: '4' },
+                            { label: '邀请', value: '1' },
+                            { label: '付费', value: '2' },
+                            { label: '合作', value: '3' },
+                            
+                          ]
+      if ( location.href.indexOf('jiyang') !==-1 ) {
+         labelOptions.push(
+            { label: '自由', value: 'jixiangac' },
+         )
+      }
+
       cons.push(
         <div className={styles.applywrap}>
               <div style={{margin: '12px 20px', wordBreak: 'all'}}>
@@ -667,12 +680,7 @@ const ApplyForm = (props)=>{
                           onChange={(v)=>{
                              setCategory(v[0]);
                           }}
-                          options={[
-                          { label: '体验', value: '4' },
-                          { label: '邀请', value: '1' },
-                          { label: '付费', value: '2' },
-                          { label: '合作', value: '3' },
-                          ]}
+                          options={labelOptions}
                       />
                   </Form.Item>
                   <Form.Item 

@@ -4,6 +4,7 @@ import * as apply from '@/pages/apply';
 import * as image from '@/pages/image';
 import * as _ from '@/pages/index';
 import * as intro from '@/pages/intro';
+import * as stock from '@/pages/stock';
 import * as open from '@/pages/open';
 import * as pop from '@/pages/pop';
 
@@ -136,6 +137,31 @@ export default ({
     id: 'intro',
     exact: true,
     exports: ["default","lorem"],
+  },{
+    path: 'stock',
+    async lazy() {
+      ;
+      return {
+        ...stock,
+        Component: () => WrapRouteComponent({
+          routeId: 'stock',
+          isLayout: false,
+          routeExports: stock,
+        }),
+        loader: createRouteLoader({
+          routeId: 'stock',
+          requestContext,
+          renderMode,
+          module: stock,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'stock',
+    index: undefined,
+    id: 'stock',
+    exact: true,
+    exports: ["default"],
   },{
     path: 'open',
     async lazy() {

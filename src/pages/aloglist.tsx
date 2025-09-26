@@ -114,6 +114,13 @@ const AlgoList = (props)=>{
       info
     } = props;
 
+    // 计算策略持续小时数
+    const calculateHours = (gmt_modified) => {
+        const now = dayjs();
+        const modifiedTime = dayjs(gmt_modified);
+        return now.diff(modifiedTime, 'hour');
+    };
+
 
 
     const initPayCounts = async ()=>{
@@ -517,7 +524,12 @@ const AlgoList = (props)=>{
           }
           return false;
         })
-        item.list = targetList;
+        // 按照持续时间从少到多排序
+        item.list = targetList.sort((a, b) => {
+          const hoursA = calculateHours(a.gmt_modified);
+          const hoursB = calculateHours(b.gmt_modified);
+          return hoursA - hoursB;
+        });
         if ( xindex === 0 && targetList.length ) {
            xindex = index;
         }
@@ -549,7 +561,7 @@ const AlgoList = (props)=>{
                 {
                   x_tabList.map((item, index)=>{
                     return <CapsuleTabs.Tab title={item.title} key={index} destroyOnClose>
-                              <List>
+                              <div>
                                   {
                                     !item.list.length ? 
                                     <Result
@@ -559,35 +571,65 @@ const AlgoList = (props)=>{
                                         description={<p>还没有命中的指标，再等等吧</p>}
                                       />: null
                                   }
-                                  {item.list.map((user: any, index) => (
-                                      <List.Item
-                                          key={index}
-                                          prefix={
-                                              <div className={styles.listicon}>
-                                                  <Image
-                                                      src={imagelist[user.ins_id]?.img}
-                                                      style={{ borderRadius: 20 }}
-                                                      fit='cover'
-                                                      width={32}
-                                                      height={32}
-                                                  />
+                                  {item.list.map((user: any, index) => {
+                                      const hours = calculateHours(user.gmt_modified);
+                                      
+                                      return (
+                                          <div key={index} style={{
+                                              backgroundColor: '#fff',
+                                              padding: '12px 16px',
+                                              borderBottom: '1px solid #f0f0f0',
+                                              position: 'relative'
+                                          }}>
+                                              {/* 头像、币种名称和持续小时数在同一行 */}
+                                              <div style={{
+                                                  display: 'flex',
+                                                  alignItems: 'center',
+                                                  marginBottom: 8
+                                              }}>
+                                                  {/* 左侧头像 */}
+                                                  <div className={styles.listicon} style={{ marginRight: 12 }}>
+                                                      <Image
+                                                          src={imagelist[user.ins_id]?.img}
+                                                          style={{ borderRadius: 20 }}
+                                                          fit='cover'
+                                                          width={32}
+                                                          height={32}
+                                                      />
+                                                  </div>
+
+                                                  {/* 中间币种名称 */}
+                                                  <div style={{
+                                                      flex: 1,
+                                                      fontSize: 14,
+                                                    //   fontWeight: 'bold',
+                                                      color: '#333'
+                                                  }}>
+                                                      {user.ins_id.replace('-USDT-SWAP', '')}<span className={styles.desx}>( {imagelist[user.ins_id]?.alias} )</span>
+                                                  </div>
+
+                                                  {/* 右侧持续小时数 */}
+                                                  <div style={{
+                                                      fontSize: 11,
+                                                      color: '#999'
+                                                  }}>
+                                                      {hours}小时
+                                                  </div>
                                               </div>
-                                          }
-                                          description={
+
+                                              {/* 描述信息 */}
                                               <div className={styles.defs}>
-                                              <p>
-                                                  <label>方向：</label>
-                                                  <Tag color={user.pos_side === 'long' ? 'danger' : '#87d068'} fill='outline'>
-                                                    {user.pos_side === 'long' ? '做多' : '做空'}
-                                                  </Tag>
-                                              </p>
+                                                  <p>
+                                                      <label>方向：</label>
+                                                      <Tag color={user.pos_side === 'long' ? 'danger' : '#87d068'} fill='outline'>
+                                                        {user.pos_side === 'long' ? '做多' : '做空'}
+                                                      </Tag>
+                                                  </p>
+                                              </div>
                                           </div>
-                                          }
-                                      >
-                                          {user.ins_id.replace('-USDT-SWAP', '')}<span className={styles.desx}>( {imagelist[user.ins_id]?.alias} )</span>
-                                      </List.Item>
-                                  ))}
-                              </List>
+                                      );
+                                  })}
+                              </div>
                           </CapsuleTabs.Tab>
                   })
                 }
@@ -690,3 +732,4 @@ const AlgoList = (props)=>{
 
 
 export default AlgoList;
+

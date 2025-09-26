@@ -18,6 +18,7 @@ import openFormDrawer from './open';
 import ApplyForm from './apply';
 import AlgoList from './aloglist';
 import IntroList from './intro';
+import StockList from './stock'
 
 import { createFingerprint, saveUuid } from '../utils';
 
@@ -237,9 +238,32 @@ export default function IndexPage() {
             });
         }}>
           <div className={styles.content}>
-            <h3>实时策略信息(beta)</h3>
+            <h3>加密货币</h3>
             <span>该频道主要通过监控K线的MACD形态，布林形态，EMA均线形态，裸K形态（十字星，看涨看跌等蜡烛图形态），迪马克指标（td），综合分析币价在周期内的可能趋势，仅做分析参考。</span>
             <span style={{color: 'rgb(178 121 121)', marginTop: 10}}>每半小时更新一次，每自然日可免费使用10次</span>
+            <div style={{flex:1}}></div>
+          </div>
+        </a>
+
+        <a 
+         className={styles.card} 
+         style={{
+          height: 160
+         }}
+         onClick={()=>{
+            openFormDrawer({
+              title: '股票策略',
+              children: <StockList info={{
+                uuid: datas.uuid,
+                left_usdt: datas.left_usdt,
+                today_usdt: datas.today_usdt,
+                gmt_update: datas.gmt_update || ''
+              }}/>
+            });
+        }}>
+          <div className={styles.content}>
+            <h3>港美股市场</h3>
+            <span>港美股股票策略，主要根据均值回归策略和AI捕获趋势</span>
             <div style={{flex:1}}></div>
           </div>
         </a>
@@ -269,12 +293,12 @@ export default function IndexPage() {
             :
             <a className={styles.card} onClick={()=>{
               openFormDrawer({
-                title: '申请使用机器人',
+                title: 'OKX量化机器人',
                 children: <ApplyForm onChange={onChange}/>
               });
           }}>
             <div className={styles.content}>
-              <h3>申请使用机器人</h3>
+              <h3>OKX量化机器人</h3>
               <span>量化交易机器人，全自动化交易，交易实盘请在币COIN中搜搜『冲鸭卡卡』</span>
               <div style={{flex:1}}></div>
             </div>

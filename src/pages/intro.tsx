@@ -264,6 +264,18 @@ const IntroList = (props)=>{
                  </List.Item>
                  <List.Item prefix={
                         <Image
+                            src={"https://nimg.ws.126.net/?url=http%3A%2F%2Fspider.ws.126.net%2F55ba8f5cdba3ae70a4f7010f11bcd531.jpeg&thumbnail=660x2147483647&quality=80&type=jpg"}
+                            style={{ borderRadius: 20 }}
+                            fit='cover'
+                            width={40}
+                            height={40}
+                            lazy
+                            />
+                    } >
+                    <a href="https://t.me/chongyakaka" target="_blank">https://t.me/chongyakaka</a>
+                 </List.Item>
+                 <List.Item prefix={
+                        <Image
                             src={"https://img.alicdn.com/imgextra/i4/O1CN019bR9Ls1iF0RYj2Aqs_!!6000000004382-0-tps-512-512.jpg"}
                             style={{ borderRadius: 20 }}
                             fit='cover'
@@ -272,7 +284,7 @@ const IntroList = (props)=>{
                             lazy
                             />
                     } >
-                    amuye1993
+                    QQ群：915666006
                  </List.Item>
                </List>
              </div>

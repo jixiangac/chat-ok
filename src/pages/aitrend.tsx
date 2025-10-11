@@ -15,7 +15,8 @@ import {
     Form,
     Input,
     Button,
-    CapsuleTabs
+    CapsuleTabs,
+    Radio,
 } from 'antd-mobile';
 
 import { SmileOutline, RedoOutline, MailOpenOutline } from 'antd-mobile-icons';
@@ -29,10 +30,9 @@ import { saveUuid, setPageInfo, getPageInfo } from '@/utils';
 
 import { imagelist } from './image';
 
-import AITrend from './aitrend';
-
 // const prefix = location.href.indexOf('localhost') !== -1 ? '' : 'https://api.jixiang.chat';
 const prefix = 'https://api.jixiang.chat';
+const prefix_new_api = 'https://newdemo.jixiang.chat/proxyhttp';
 
 
 const copyToClip = (url?: string) => {
@@ -88,7 +88,7 @@ let payClickIns = 0;
 
 let PAY_COUNTS = 0;
 
-const AlgoList = (props)=>{
+const AlgoTrendList = (props)=>{
 
 
     const today = dayjs();
@@ -112,6 +112,46 @@ const AlgoList = (props)=>{
         needPay: false,
     });
 
+    const onRemove = async (name)=>{
+        const res = await axios(`${prefix_new_api}?apitype=aitrend&apitag=CHATGPT`, {
+          method: 'get',
+          params: {
+            type: 'delete',
+            name
+          },
+       });
+       if ( res.data.success ) {
+          setShow(false);
+          fetchData(true);
+       }
+    }
+
+    const onPay = async ()=>{
+      const error = await checkErros(true);
+      if ( error ) {
+        setPayLoading(false);
+        return;
+      }
+      const values = form.getFieldsValue();
+     
+      const post_values = {
+        name: `${values.name.toUpperCase()}-USDT-SWAP`,
+        pos_side: values.pos_side,
+        lastprice: values.lastprice
+      }
+       const res = await axios(`${prefix_new_api}?apitype=aitrend&apitag=CHATGPT`, {
+          method: 'get',
+          params: {
+            type: 'post',
+            ...post_values,
+          },
+       });
+       if ( res.data.success ) {
+          setShow(false);
+          fetchData(true);
+       }
+    }
+
     const {
       info
     } = props;
@@ -123,106 +163,13 @@ const AlgoList = (props)=>{
         return now.diff(modifiedTime, 'hour');
     };
 
-
-
-    const initPayCounts = async ()=>{
-      if ( !getPageInfo('left_usdt') ) {
-        setPageInfo('left_usdt', 1);
-        if ( info.left_usdt !== undefined ) {
-          setPayCount(info.left_usdt || 0);
-          PAY_COUNTS = info.left_usdt || 0;
-          await localforage.setItem('pay_counts', JSON.stringify({
-            count: PAY_COUNTS
-          }));
-        }
-      } else {
-        const onedatas: any = await localforage.getItem('pay_counts');
-        if ( onedatas ) {
-          const datas = JSON.parse(onedatas);
-          setPayCount(datas.count || 0);
-          PAY_COUNTS = datas.count || 0;
-        } 
-      }
-    };
-
     const initCounts = async ()=>{
-      const onedatas: any = await localforage.getItem('rtime_counts');
-
-      const initDefaultCounts = async (refresh: boolean)=>{
-        let default_counts = refresh ? 11 : (info.today_usdt || 0);
-
-        if ( location.href.indexOf('jiyang') !==-1 ) {
-          default_counts = 10000;
-        }
-
-        if ( info.gmt_update ) {
-          await saveUuid({
-            gmt_update: 'null'
-          });
-        }
-
-        if ( default_counts <= 0 && PAY_COUNTS <= 0 ) {
-          setApp({
-            isLoading: false,
-            loaded: true,
-            time: '',
-            data: [],
-            needPay: true
-           });
-          return;
-        }
-
-        await localforage.setItem('rtime_counts', JSON.stringify({
-          count: default_counts,
-          date: now_today
-        }));
-        if ( refresh ) {
-          await saveUuid({
-            today_usdt: default_counts
-          });
-        }
-        setCount(default_counts);
-        fetchData(false, default_counts);
-      }
-
-      if ( onedatas ) {
-        const datas = JSON.parse(onedatas);
-
-        if ( datas.date !== now_today ) {
-          await initDefaultCounts(true);
-        } else if ( info.gmt_update ) {
-          await initDefaultCounts(false);
-        } else {
-          if ( !getPageInfo('today_usdt') ) {
-            setPageInfo('today_usdt', 1);
-            setCount(info.today_usdt || datas.count);
-            fetchData(false, info.today_usdt || datas.count);
-          } else {
-            setCount(datas.count);
-            fetchData(false, datas.count);
-          }
-        }
-      } else {
-        await initDefaultCounts(false);
-      }
+      fetchData(false);
     };
 
     const fetchData = async (flag?: boolean, counts?: number)=>{
 
-        const adatas: any = await localforage.getItem('rtime');
-
-        const dconfirm = counts !== undefined ? counts === 0 && PAY_COUNTS === 0 : count === 0 && paycount === 0;
-
-        if ( dconfirm ) {
-          setApp({
-            isLoading: false,
-            loaded: true,
-            time: '',
-            data: [],
-            needPay: true
-           });
-          return;
-        }
+        const adatas: any = await localforage.getItem('ai_rtime');
 
         if ( flag ) {
           setApp({
@@ -256,15 +203,18 @@ const AlgoList = (props)=>{
            }catch(e){}
         }
 
-        const res = await axios(`https://newdemo.jixiang.chat/proxyhttp?apitype=recent-algo&apitag=CHATGPT`, {
+        const ajaxurl = `${prefix_new_api}?apitype=aitrend&apitag=CHATGPT&type=get`;
+        const res = await axios(ajaxurl, {
             method: 'get'
         });
 
-        // tis
+        // const res = {
+        //     data: testdata
+        // };
 
         if ( res?.data?.success ) {
            const pdatas = res?.data?.data;
-           await localforage.setItem('rtime', JSON.stringify(pdatas));
+           await localforage.setItem('ai_rtime', JSON.stringify(pdatas));
            setApp({
             isLoading: false,
             loaded: true,
@@ -272,27 +222,6 @@ const AlgoList = (props)=>{
             data: pdatas.xlist,
             needPay: false
            });
-           if ( counts !== undefined && counts !== 0 || count !== 0 ) {
-             const left_counts = counts !== undefined ? (counts - 1) : (count - 1);
-             await localforage.setItem('rtime_counts', JSON.stringify({
-               date: now_today,
-               count: left_counts
-             }));
-             await saveUuid({
-               today_usdt: left_counts
-             });
-             setCount(left_counts);
-           } else if ( PAY_COUNTS !== -1 && PAY_COUNTS > 0 || paycount !== 0 ) {
-             const left_pay_counts = PAY_COUNTS !== -1 ? PAY_COUNTS - 1 : paycount - 1;
-             await localforage.setItem('pay_counts', JSON.stringify({
-              count: left_pay_counts
-             }));
-             await saveUuid({
-              left_usdt: left_pay_counts
-             });
-             PAY_COUNTS = -1;
-             setPayCount(left_pay_counts);
-           }
            
         } else {
           setApp({
@@ -331,93 +260,8 @@ const AlgoList = (props)=>{
       return errTititle;
     }
 
-    const onPay = async ()=>{
-
-      if ( payClickIns === 0 ) {
-          payClickIns = new Date().getTime();
-      } else {
-          const now = new Date().getTime();
-          const dif = now - payClickIns;
-          if ( dif < 10*1000 ) {
-            Toast.show({
-              icon: 'fail',
-              content: `提交过于频繁, ${Math.ceil(dif/1000)}S后再试试`
-            });
-            return;
-          }
-      }
-
-      setPayLoading(true);
-      const error = await checkErros(true);
-      if ( error ) {
-        setPayLoading(false);
-        return;
-      }
-      const values = form.getFieldsValue();
-      const res = await axios(`${prefix}/api/btc/list?apitype=getDepositHistory&apitag=CHATGPT`, {
-          method: 'get',
-          params: {
-            from: values.account,
-            removeOld: true
-          },
-      });
-
-      if ( res?.data?.success && res?.data?.data?.length ) {
-
-        let usdts = 0;
-        let caches_hash = [];
-
-        const dep_list = res?.data?.data || [];
-
-        for ( let i = 0, len = dep_list.length; i < len; i ++ ) {
-          usdts += (dep_list[i].amt - 0);
-          caches_hash.push(
-            `${dep_list[i].txId}`
-          );
-        }
-
-        try{
-          if ( caches_hash.length ) {
-            await axios(`${prefix}/api/btc/list?apitype=saveDepositHash`, {
-              method: 'get',
-              params: {
-                datas: caches_hash.join(',')
-              },
-            });
-          }
-        }catch(e){}
-      
-        let xcounts = Math.ceil(usdts/0.1);
-        await localforage.setItem('pay_counts', JSON.stringify({
-          caches_hash: caches_hash,
-          count: xcounts
-        }));
-        await saveUuid({
-          left_usdt: xcounts
-        });
-        PAY_COUNTS = xcounts;
-        clickIns = 0;
-        setPayCount(xcounts);
-        props.onChange && props.onChange({
-          left_usdt: xcounts,
-          today_usdt: 0
-        });
-        setApp({
-          ...app || {},
-          needPay: false,
-        });
-      } else {
-        Toast.show({
-          icon: 'fail',
-          content: `没有收到${values.account}的转账信息`
-        });
-      }
-      setPayLoading(false);
-    };
-
     useEffect(()=>{
       const init = async ()=>{
-        await initPayCounts();
         await initCounts();
       };
       init();
@@ -463,31 +307,7 @@ const AlgoList = (props)=>{
       const tabList = [{
         title: '全部',
         taglist: []
-      },{
-        title: '主流币',
-        taglist: ['BTC-USDT-SWAP', 'ETH-USDT-SWAP', 'ADA-USDT-SWAP', 'SOL-USDT-SWAP']
-      },
-      // ,{
-      //   title: '大概率下跌',
-      //   taglist: ['reverse_short', 'reverse_start_short']
-      // },{
-      //   title: '大概率上涨',
-      //   taglist: ['reverse_long', 'reverse_start_long']
-      // },
-      {
-        title: '看多',
-        taglist: ['long']
-      },{
-        title: '看空',
-        taglist: ['short']
       }];
-
-      if ( location.href.indexOf('jiyang') !==-1 ) {
-         tabList.push({
-            title: 'AI趋势',
-            taglist: []
-         });
-      }
 
       let long = 0, short = 0;
 
@@ -502,37 +322,10 @@ const AlgoList = (props)=>{
 
       let xcon = [];
 
-      if ( long > 0 || short > 0 ) {
-         xcon.push(
-            <p>
-              <span style={{marginLeft: '20px'}}>多：{long}</span>
-              <span style={{marginLeft: '10px'}}>空：{short}</span>
-              <span style={{marginLeft: '20px'}}>{
-                long > short ? '当前上涨的币种较多' : '当前下跌的币种较多'
-              }</span>
-            </p>
-         );
-      }
-
       let xindex = 0;
       const x_tabList = tabList.map((item, index)=>{
         const targetList = (app?.data||[]).filter(it=>{
           if ( item.title === '全部' ) {
-            return true;
-          }
-          if ( item.title === '主流币'&& item.taglist.indexOf(it.ins_id) !== -1 ) {
-              return true;
-          }
-          if ( item.title === '大概率下跌' && (it.algo.indexOf(item.taglist[0]) !== -1 || it.algo.indexOf(item.taglist[1]) !== -1) ) {
-            return true;
-          }
-          if ( item.title === '大概率下跌' && (it.algo.indexOf(item.taglist[0]) !== -1 || it.algo.indexOf(item.taglist[1]) !== -1) ) {
-            return true;
-          }
-          if ( item.title === '看多' && it.pos_side === 'long' ) {
-            return true;
-          }
-          if ( item.title === '看空' && it.pos_side === 'short' ) {
             return true;
           }
           return false;
@@ -551,6 +344,8 @@ const AlgoList = (props)=>{
 
       console.log(x_tabList,'x_tabList')
 
+      const cur_list = x_tabList[0]?.list || [];
+
       cons.push(
          <div 
             className={styles.wraplist}
@@ -564,19 +359,13 @@ const AlgoList = (props)=>{
                 !(app?.data||[]).length ? <Result
                 icon={<SmileOutline />}
                 status='success'
-                title='充值成功'
-                description='刷新一下试试吧'
+                title='当前没有数据'
+                description='当前没有数据'
               /> : null
               }
-              {
-                (app?.data||[]).length ? 
-              <CapsuleTabs defaultActiveKey={`${xindex}`}>
-                {
-                  x_tabList.map((item, index)=>{
-                    return <CapsuleTabs.Tab title={item.title} key={index} destroyOnClose>
-                              <div>
+              <div>
                                   {
-                                    item.title !== 'AI趋势' && !item.list.length ? 
+                                    !cur_list.length ? 
                                     <Result
                                         icon={<SmileOutline />}
                                         status='success'
@@ -584,12 +373,7 @@ const AlgoList = (props)=>{
                                         description={<p>还没有命中的指标，再等等吧</p>}
                                       />: null
                                   }
-                                  {
-                                    item.title === 'AI趋势' ? 
-                                    <AITrend />
-                                    : null
-                                  }
-                                  {item.list.map((user: any, index) => {
+                                  {cur_list.map((user: any, index) => {
                                       const hours = calculateHours(user.gmt_modified);
                                       
                                       return (
@@ -608,7 +392,7 @@ const AlgoList = (props)=>{
                                                   {/* 左侧头像 */}
                                                   <div className={styles.listicon} style={{ marginRight: 12 }}>
                                                       <Image
-                                                          src={imagelist[user.ins_id]?.img}
+                                                          src={imagelist[user.name]?.img}
                                                           style={{ borderRadius: 20 }}
                                                           fit='cover'
                                                           width={32}
@@ -623,7 +407,7 @@ const AlgoList = (props)=>{
                                                     //   fontWeight: 'bold',
                                                       color: '#333'
                                                   }}>
-                                                      {user.ins_id.replace('-USDT-SWAP', '')}<span className={styles.desx}>( {imagelist[user.ins_id]?.alias} )</span>
+                                                      {user.name.replace('-USDT-SWAP', '')}<span className={styles.desx}>( {imagelist[user.name]?.alias} )</span>
                                                   </div>
 
                                                   {/* 右侧持续小时数 */}
@@ -633,60 +417,35 @@ const AlgoList = (props)=>{
                                                   }}>
                                                       {hours}小时
                                                   </div>
+                                                  {show ? <a onClick={()=>{
+                                                    onRemove(user.name);
+                                                  }}>删除</a> : null}
                                               </div>
 
                                               {/* 描述信息 */}
                                               <div className={styles.defs}>
                                                   <p>
                                                       <label>方向：</label>
-                                                      <Tag color={user.pos_side === 'long' ? 'danger' : '#87d068'} fill='outline'>
-                                                        {user.pos_side === 'long' ? '做多' : '做空'}
+                                                      <Tag color={user.algo === 'long' ? 'danger' : '#87d068'} fill='outline'>
+                                                        {user.algo === 'long' ? '做多' : '做空'}
                                                       </Tag>
+                                                      <span style={{marginLeft: 10, color: '#999'}}>目标价格：{user.lastprice}</span>
                                                   </p>
                                               </div>
                                           </div>
                                       );
                                   })}
                               </div>
-                          </CapsuleTabs.Tab>
-                  })
-                }
-              </CapsuleTabs> : null
-              }
             </div>
       );
-      cons.push(
-        <div className={styles.wrapdiscord}>
-              <p style={{color: '#999'}}>本日免费使用次数剩余：<b style={{fontSize: 14, margin: '0 5px'}}>{count > 0 ? count : 0}</b> 次</p>
-              {
-                paycount ?
-                <p style={{color: '#999'}}>充值次数剩余：<b style={{fontSize: 14, margin: '0 5px'}}>{paycount}</b> 次</p> : null
-              }
-              <p>加入Discord频道：<a onClick={()=>{
-                   ImageViewer.Multi.show({ images: demoImages })
-              }}>(频道示例点此查看)</a></p>
-              <p><a href="https://discord.gg/8UPC9Hj5Mr" target="_blank">https://discord.gg/8UPC9Hj5Mr</a>，免费实时策略提醒</p>
-            </div>
-      );
-    } else {
+    } 
 
-      if ( !show ) {
-        cons.push(
-          <Result
-            icon={<SmileOutline />}
-            status='success'
-            title='今日免费次数已用尽，明天再来吧'
-            description={<p>付费增加永久使用次数，0.1U = 1次，<a onClick={()=>{setShow(true)}}>点此充值</a></p>}
-          />
-        );
+    if ( !show ) {
         cons.push(
           <div className={styles.wrapdiscord}>
-            <p style={{color: '#999'}}>本日免费使用次数剩余：<b style={{fontSize: 14, margin: '0 5px'}}>0</b> 次</p>
-      
-            <p>加入Discord频道：<a onClick={()=>{
-                  ImageViewer.Multi.show({ images: demoImages })
-            }}>(频道示例点此查看)</a></p>
-            <p><a href="https://discord.gg/8UPC9Hj5Mr" target="_blank">https://discord.gg/8UPC9Hj5Mr</a>，推送实时策略提醒</p>
+            <p><a onClick={()=>{
+                  setShow(true)
+            }}>添加趋势</a></p>
           </div>
         );
       } else {
@@ -709,38 +468,29 @@ const AlgoList = (props)=>{
                     type='submit' 
                     color='primary' 
                     size='large'>
-                      我已转账，进行验证
+                      提交设置
                   </Button>
                   }>
-              <Form.Item label='转入账号'>
-                <p>1251223923@qq.com（<span onClick={()=>{
-                  if ( copyToClip('1251223923@qq.com') ) {
-                    Toast.show({
-                      icon: 'success',
-                      content: '复制成功'
-                    });
-                  }
-                }}><MailOpenOutline />复制</span>）</p>
+              <Form.Item name="name" label='币种' rules={[{ required: true }]}>
+                <Input placeholder='请输入币种' />
               </Form.Item>
-              <Form.Item name="account" label='OKX转出账号' rules={[{ required: true }]}>
-                <Input placeholder='请输入转账的OKX账号，手机或邮箱' />
-              </Form.Item>
+              <Form.Item 
+                    name='pos_side' 
+                    label='方向'
+                    rules={[{ required: true }]}>
+                    <Radio.Group defaultValue='long'>
+                        <Space>
+                        <Radio value='long'>多</Radio>
+                        <Radio value='short'>空</Radio>
+                        </Space>
+                    </Radio.Group>
+                </Form.Item>
+                <Form.Item name="lastprice" label='价格' rules={[{ required: true }]}>
+                  <Input placeholder='请输入价格' />
+                </Form.Item>
             </Form>
           </div>
         )
-        cons.push(
-          <div className={styles.wrapdiscord}>
-            <h5>支付流程</h5>
-            <p style={{lineHeight:1.8}}>注：避免白嫖按使用次数收费，0.1U = 1次，每日免费10次 ^_^，不想付费可以明日再来哦</p>
-            <ol className={styles.wrapol}>
-              <li>前往OKX，登陆需要转账的OKX账号</li>
-              <li>OKX『资产』页 → 提币 → 币种选择『USDT』→ 提现方式选择『内部转账』</li>
-              <li>填写收款账号1251223923@qq.com → 填写需要转账的数量</li>
-              <li>等待2 ~ 10分钟后，回到界面进行验证即可</li>
-            </ol>
-            </div>
-        );
-      }
     }
 
     return <>
@@ -749,5 +499,5 @@ const AlgoList = (props)=>{
 };
 
 
-export default AlgoList;
+export default AlgoTrendList;
 

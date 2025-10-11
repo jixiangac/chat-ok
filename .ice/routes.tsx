@@ -1,5 +1,6 @@
 import { createRouteLoader, WrapRouteComponent, RouteErrorComponent } from '@ice/runtime';
 import * as aloglist from '@/pages/aloglist';
+import * as aitrend from '@/pages/aitrend';
 import * as apply from '@/pages/apply';
 import * as image from '@/pages/image';
 import * as _ from '@/pages/index';
@@ -35,6 +36,31 @@ export default ({
     componentName: 'aloglist',
     index: undefined,
     id: 'aloglist',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'aitrend',
+    async lazy() {
+      ;
+      return {
+        ...aitrend,
+        Component: () => WrapRouteComponent({
+          routeId: 'aitrend',
+          isLayout: false,
+          routeExports: aitrend,
+        }),
+        loader: createRouteLoader({
+          routeId: 'aitrend',
+          requestContext,
+          renderMode,
+          module: aitrend,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'aitrend',
+    index: undefined,
+    id: 'aitrend',
     exact: true,
     exports: ["default"],
   },{

@@ -42,6 +42,26 @@ export const hezuoList = ['https://img.alicdn.com/imgextra/i2/O1CN016IuRfp1iAQTy
 )
 
 export const imagelist = {
+   'BNB-USDT-SWAP': {
+        'img': 'https://static.coinall.ltd/cdn/oksupport/asset/currency/icon/bnb.png',
+        'alias': 'BNB'
+    },
+    'LINEA-USDT-SWAP': {
+        'img': 'https://static.coinall.ltd/cdn/oksupport/asset/currency/icon/linea.png',
+        'alias': 'LINEA'
+    },
+    'ORDI-USDT-SWAP': {
+        'img': 'https://static.coinall.ltd/cdn/oksupport/asset/currency/icon/ordi.png',
+        'alias': 'ORDI'
+    },
+   'OKB-USDT-SWAP': {
+        'img': 'https://static.coinall.ltd/cdn/oksupport/asset/currency/icon/okb.png',
+        'alias': 'OKB'
+    },
+   'SUI-USDT-SWAP': {
+        'img': 'https://static.coinall.ltd/cdn/oksupport/asset/currency/icon/sui.png',
+        'alias': 'SUI'
+    },
    'APT-USDT-SWAP': {
         'img': 'https://static.coinall.ltd/cdn/oksupport/asset/currency/icon/apt.png',
         'alias': 'APT'

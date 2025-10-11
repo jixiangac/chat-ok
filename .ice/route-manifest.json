@@ -10,6 +10,16 @@
     ]
   },
   {
+    "path": "aitrend",
+    "id": "aitrend",
+    "file": "aitrend.tsx",
+    "componentName": "aitrend",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
     "path": "apply",
     "id": "apply",
     "file": "apply.tsx",

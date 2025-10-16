@@ -281,28 +281,28 @@ const AlgoTrendList = (props)=>{
     const cons: any = [];
 
     if ( !app.needPay ) {
-      cons.push(
-        <div className={styles.wraptime}>
-            最近更新时间：{app.time}
-            <span onClick={()=>{
-              if ( clickIns === 0 ) {
-                  clickIns = new Date().getTime();
-                  fetchData(true);
-              } else {
-                  const now = new Date().getTime();
-                  const dif = now - clickIns;
-                  if ( dif < 900000 ) {
-                    Toast.show({
-                      icon: 'fail',
-                      content: '刷新过于频繁，5分钟后再试试'
-                    });
-                  } else {
-                    fetchData(true);
-                  }
-              }
-            }}><RedoOutline style={{marginLeft: 20}}/><span style={{fontSize: 10}}>刷新</span></span>
-        </div>
-      );
+      // cons.push(
+      //   <div className={styles.wraptime}>
+      //       最近更新时间：{app.time}
+      //       <span onClick={()=>{
+      //         if ( clickIns === 0 ) {
+      //             clickIns = new Date().getTime();
+      //             fetchData(true);
+      //         } else {
+      //             const now = new Date().getTime();
+      //             const dif = now - clickIns;
+      //             if ( dif < 900000 ) {
+      //               Toast.show({
+      //                 icon: 'fail',
+      //                 content: '刷新过于频繁，5分钟后再试试'
+      //               });
+      //             } else {
+      //               fetchData(true);
+      //             }
+      //         }
+      //       }}><RedoOutline style={{marginLeft: 20}}/><span style={{fontSize: 10}}>刷新</span></span>
+      //   </div>
+      // );
 
       const tabList = [{
         title: '全部',
@@ -341,8 +341,6 @@ const AlgoTrendList = (props)=>{
         }
         return item;
       });
-
-      console.log(x_tabList,'x_tabList')
 
       const cur_list = x_tabList[0]?.list || [];
 
@@ -408,6 +406,12 @@ const AlgoTrendList = (props)=>{
                                                       color: '#333'
                                                   }}>
                                                       {user.name.replace('-USDT-SWAP', '')}<span className={styles.desx}>( {imagelist[user.name]?.alias} )</span>
+                                                      {
+                                                        user?.apikey === 'quick' ?
+                                                        <Tag color={'#9254de'} style={{marginLeft: 10}} fill='outline'>
+                                                          突袭
+                                                        </Tag> : null
+                                                      }
                                                   </div>
 
                                                   {/* 右侧持续小时数 */}
@@ -430,6 +434,7 @@ const AlgoTrendList = (props)=>{
                                                         {user.algo === 'long' ? '做多' : '做空'}
                                                       </Tag>
                                                       <span style={{marginLeft: 10, color: '#999'}}>目标价格：{user.lastprice}</span>
+            
                                                   </p>
                                               </div>
                                           </div>

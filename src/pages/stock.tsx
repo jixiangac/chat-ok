@@ -11,7 +11,8 @@ import {
     Tag,
     Result,
     Toast,
-    CapsuleTabs
+    CapsuleTabs,
+    Button
 } from 'antd-mobile';
 
 import { SmileOutline, RedoOutline } from 'antd-mobile-icons';
@@ -20,7 +21,12 @@ import localforage from 'localforage';
 
 import styles from './index.module.css';
 
+import SelfStock from './stock_self';
+
 import { useEffect, useState } from 'react';
+
+// zScore 筛选阈值常量
+const ZSCORE_THRESHOLD = 2.31;
 
 let clickIns = 0;
 
@@ -31,6 +37,11 @@ const StockList = (props) => {
         time: '',
         data: [],
     });
+    
+    const [enableZScoreFilter, setEnableZScoreFilter] = useState(false);
+    const [showUSOnly, setShowUSOnly] = useState(false);
+    const [showHKOnly, setShowHKOnly] = useState(false);
+    const [operationMode, setOperationMode] = useState(false);
 
     // 计算策略持续天数
     const calculateDays = (gmt_modified) => {
@@ -44,6 +55,36 @@ const StockList = (props) => {
         const now = dayjs();
         const modifiedTime = dayjs(gmt_modified);
         return now.diff(modifiedTime, 'hour');
+    };
+
+    const onAddSelf = async (name, cname)=>{
+     
+       const res = await axios(`https://newdemo.jixiang.chat/proxyhttp?apitag=MEIJINGAC&apitype=aistock_manager`, {
+          method: 'get',
+          params: {
+            type: 'hold',
+            name,
+            hold: '1'
+          },
+       });
+       if ( res.data.success ) {
+          // 这里可以添加加入持有的逻辑
+            Toast.show({
+                icon: 'success',
+                content: `已加入持有: ${cname}`
+            });
+       }
+    }
+
+    // 根据 z_score 获取等级和标签
+    const getZScoreLevel = (zScore) => {
+        const score = Math.abs(Number(zScore));
+        if (score >= 3.0) return { level: 10, label: '5星', color: '#722ed1' };
+        if (score >= 2.7) return { level: 9, label: '4星', color: '#9254de' };
+        if (score >= 2.5) return { level: 8, label: '3星', color: '#b37feb' };
+        if (score >= 2.3) return { level: 7, label: '2星', color: '#d3adf7' };
+        if (score >= 2.2) return { level: 6, label: '1星', color: '#efdbff' };
+        return { level: 0, label: '0星', color: '#1677ff' };
     };
 
     // 处理股票代码生成图片URL
@@ -175,7 +216,7 @@ const StockList = (props) => {
 
     cons.push(
         <div className={styles.wraptime}>
-            最近更新时间：{app.time}
+            最近更新时间：{app.time ? dayjs(app.time).format('YYYY-MM-DD HH:mm:ss') : ''}
             <span onClick={() => {
                 if (clickIns === 0) {
                     clickIns = new Date().getTime();
@@ -220,9 +261,34 @@ const StockList = (props) => {
         taglist: ['short']
     }];
 
+    if ( location.href.indexOf('jiyang') !==-1 ) {
+        tabList.push({
+            title: '持有',
+            taglist: []
+        });
+    }
+
     let long = 0, short = 0;
 
     (app?.data || []).forEach(item => {
+        // 如果开启了 zScore 筛选，先检查 zScore 条件
+        if (enableZScoreFilter && item.z_score) {
+            const zScoreValue = Math.abs(Number(item.z_score));
+            if (zScoreValue <= ZSCORE_THRESHOLD) {
+                return; // 跳过 zScore 绝对值小于等于 2.31 的数据
+            }
+        }
+        
+        // 如果开启了美股筛选，只显示美股
+        if (showUSOnly && item.name && item.name.toLowerCase().startsWith('hk')) {
+            return;
+        }
+        
+        // 如果开启了港股筛选，只显示港股
+        if (showHKOnly && item.name && !item.name.toLowerCase().startsWith('hk')) {
+            return;
+        }
+        
         if (item.pos_side === 'long') {
             long++;
         }
@@ -233,7 +299,7 @@ const StockList = (props) => {
 
     let xcon = [];
 
-    if (long > 0 || short > 0) {
+    if (long > 0 || short > 0 || enableZScoreFilter) {
         xcon.push(
             <p>
                 <span style={{ marginLeft: '20px' }}>多：{long}</span>
@@ -241,13 +307,79 @@ const StockList = (props) => {
                 <span style={{ marginLeft: '20px' }}>{
                     long > short ? '当前看多的股票较多' : '当前看空的股票较多'
                 }</span>
+                {/* {enableZScoreFilter && (
+                    <span style={{marginLeft: '20px', color: '#1677ff', fontSize: 12}}>
+                        (已筛选 |zScore| &gt; {ZSCORE_THRESHOLD})
+                    </span>
+                )} */}
+                <span style={{marginLeft: '20px'}}>
+                    <Button 
+                        size='mini' 
+                        color={enableZScoreFilter ? 'primary' : 'default'}
+                        onClick={() => setEnableZScoreFilter(!enableZScoreFilter)}>
+                        {enableZScoreFilter ? '关闭筛选' : '开启筛选'}
+                    </Button>
+                </span>
             </p>
         );
+
+        xcon.push(
+          <p>
+            <span style={{marginLeft: '10px'}}>
+                    <Button 
+                        size='mini' 
+                        color={showUSOnly ? 'success' : 'default'}
+                        onClick={() => {
+                            setShowUSOnly(!showUSOnly);
+                            if (!showUSOnly) setShowHKOnly(false); // 互斥选择
+                        }}>
+                        {showUSOnly ? '取消美股' : '只看美股'}
+                    </Button>
+                </span>
+                <span style={{marginLeft: '10px'}}>
+                    <Button 
+                        size='mini' 
+                        color={showHKOnly ? 'warning' : 'default'}
+                        onClick={() => {
+                            setShowHKOnly(!showHKOnly);
+                            if (!showHKOnly) setShowUSOnly(false); // 互斥选择
+                        }}>
+                        {showHKOnly ? '取消港股' : '只看港股'}
+                    </Button>
+                </span>
+                {location.href.indexOf('jiyang') !==-1 ? <span style={{marginLeft: '10px'}}>
+                    <Button 
+                        size='mini' 
+                        color={operationMode ? 'danger' : 'default'}
+                        onClick={() => setOperationMode(!operationMode)}>
+                        {operationMode ? '退出操作' : '操作模式'}
+                    </Button>
+                </span> : null}
+          </p>
+        )
     }
 
     let xindex = 0; // 默认激活"全部"标签页
     const x_tabList = tabList.map((item, index) => {
         const targetList = (app?.data || []).filter(it => {
+            // 如果开启了 zScore 筛选，先检查 zScore 条件
+            if (enableZScoreFilter && it.z_score) {
+                const zScoreValue = Math.abs(Number(it.z_score));
+                if (zScoreValue <= ZSCORE_THRESHOLD) {
+                    return false; // 过滤掉 zScore 绝对值小于等于 2.31 的数据
+                }
+            }
+            
+            // 如果开启了美股筛选，只显示美股
+            if (showUSOnly && it.name && it.name.toLowerCase().startsWith('hk')) {
+                return false;
+            }
+            
+            // 如果开启了港股筛选，只显示港股
+            if (showHKOnly && it.name && !it.name.toLowerCase().startsWith('hk')) {
+                return false;
+            }
+            
             if (item.title === '全部') {
                 return true;
             }
@@ -274,6 +406,10 @@ const StockList = (props) => {
         return item;
     });
 
+    if ( location.href.indexOf('jiyang') !==-1 ) {
+      xindex = x_tabList.length - 1;
+    }
+
     cons.push(
         <div
             className={styles.wraplist}
@@ -298,13 +434,16 @@ const StockList = (props) => {
                                 return <CapsuleTabs.Tab title={item.title} key={index} destroyOnClose>
                                     <div>
                                         {
-                                            !item.list.length ?
+                                          item.title !== '持有' && !item.list.length ?
                                                 <Result
                                                     icon={<SmileOutline />}
                                                     status='success'
                                                     title='暂无数据'
                                                     description={<p>还没有命中的指标，再等等吧</p>}
                                                 /> : null
+                                        }
+                                        {
+                                          item.title === '持有' ? <SelfStock showUSOnly={showUSOnly} showHKOnly={showHKOnly} operationMode={operationMode}/> : null
                                         }
                                         {item.list.map((stock: any, index) => {
                                             const days = calculateDays(stock.gmt_modified);
@@ -329,7 +468,7 @@ const StockList = (props) => {
                                                         <div className={styles.listicon} style={{ marginRight: 12 }}>
                                                             <Image
                                                                 src={imageUrl}
-                                                                style={{ borderRadius: 20 }}
+                                                                style={{ borderRadius: 20, border: '1px solid #97b1ca6b'}}
                                                                 fit='cover'
                                                                 width={32}
                                                                 height={32}
@@ -362,17 +501,55 @@ const StockList = (props) => {
                                                             {stock.cname || stock.name}<span className={styles.desx}>( {stock.name} )</span>
                                                         </div>
 
-                                                        {/* 右侧持续天数 */}
+                                                        {/* 右侧持续天数或操作按钮 */}
                                                         <div style={{
                                                             fontSize: 11,
-                                                            color: '#999'
+                                                            color: '#999',
+                                                            display: 'flex',
+                                                            alignItems: 'center'
                                                         }}>
-                                                            {days === 0 ? `${hours}小时` : `${days}天`}
+                                                            {operationMode ? (
+                                                                <Button 
+                                                                    size='mini' 
+                                                                    color='primary'
+                                                                    onClick={() => {
+                                                                        onAddSelf(stock.name, stock.cname)
+                                                                    }}>
+                                                                    加入持有
+                                                                </Button>
+                                                            ) : (
+                                                                <span>{days === 0 ? `${hours}小时` : `${days}天`}</span>
+                                                            )}
                                                         </div>
                                                     </div>
 
                                                     {/* 描述信息 */}
                                                     <div className={styles.defs}>
+                                                        {stock?.z_score && (() => {
+                                                            // 根据 pos_side 调整 z_score 的正负号
+                                                            const adjustedZScore = stock.pos_side === 'long' ? 
+                                                                Math.abs(Number(stock.z_score)) : -Math.abs(Number(stock.z_score));
+                                                            // 使用调整后的 z_score 计算等级
+                                                            const zScoreInfo = getZScoreLevel(adjustedZScore);
+                                                            // 检查是否为测试版（绝对值小于阈值）
+                                                            const isTestVersion = Math.abs(Number(stock.z_score)) <= ZSCORE_THRESHOLD;
+                                                            return (
+                                                            <p>
+                                                                <label>Z分数：</label>
+                                                                <span style={{color: '#666', fontSize: 12, marginRight: 8}}>
+                                                                    {adjustedZScore.toFixed(4)}
+                                                                </span>
+                                                                <Tag color={zScoreInfo.color} fill='outline'>
+                                                                    {zScoreInfo.label}
+                                                                </Tag>
+                                                                {isTestVersion && (
+                                                                    <Tag color='#faad14' fill='outline' style={{marginLeft: 4}}>
+                                                                        测试版
+                                                                    </Tag>
+                                                                )}
+                                                            </p>
+                                                            );
+                                                        })()}
                                                         <p>
                                                             <label>方向：</label>
                                                             <Tag color={stock.pos_side === 'long' ? 'danger' : '#87d068'} fill='outline'>
@@ -404,28 +581,9 @@ const StockList = (props) => {
         </div>
     );
 
-    // cons.push(
-    //     <div className={styles.wrapdiscord}>
-    //         <p style={{ color: '#999' }}>
-    //             总计：<b style={{ fontSize: 14, margin: '0 5px' }}>{app.data.length}</b> 个策略
-    //         </p>
-    //         <p style={{ color: '#999' }}>
-    //             做多：<b style={{ fontSize: 14, margin: '0 5px' }}>{long}</b> 个
-    //         </p>
-    //         <p style={{ color: '#999' }}>
-    //             做空：<b style={{ fontSize: 14, margin: '0 5px' }}>{short}</b> 个
-    //         </p>
-    //     </div>
-    // );
-
     return <>
         {cons}
     </>
 };
 
 export default StockList;
-
-
-
-
-

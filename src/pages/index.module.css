@@ -122,6 +122,9 @@ body{
 
  .listicon{
    position: relative;
+   img{
+    background: #d7d7d7;
+   }
    :global(svg){
       position: absolute;
       right: 0;

@@ -1,4 +1,5 @@
 import { createRouteLoader, WrapRouteComponent, RouteErrorComponent } from '@ice/runtime';
+import * as stock_self from '@/pages/stock_self';
 import * as aloglist from '@/pages/aloglist';
 import * as aitrend from '@/pages/aitrend';
 import * as apply from '@/pages/apply';
@@ -14,6 +15,31 @@ export default ({
   renderMode,
 }) => ([
   {
+    path: 'stock_self',
+    async lazy() {
+      ;
+      return {
+        ...stock_self,
+        Component: () => WrapRouteComponent({
+          routeId: 'stock_self',
+          isLayout: false,
+          routeExports: stock_self,
+        }),
+        loader: createRouteLoader({
+          routeId: 'stock_self',
+          requestContext,
+          renderMode,
+          module: stock_self,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'stock_self',
+    index: undefined,
+    id: 'stock_self',
+    exact: true,
+    exports: ["default"],
+  },{
     path: 'aloglist',
     async lazy() {
       ;

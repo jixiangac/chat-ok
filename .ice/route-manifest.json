@@ -1,5 +1,15 @@
 [
   {
+    "path": "stock_self",
+    "id": "stock_self",
+    "file": "stock_self.tsx",
+    "componentName": "stock_self",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
     "path": "aloglist",
     "id": "aloglist",
     "file": "aloglist.tsx",

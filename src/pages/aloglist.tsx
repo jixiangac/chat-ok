@@ -15,7 +15,8 @@ import {
     Form,
     Input,
     Button,
-    CapsuleTabs
+    CapsuleTabs,
+    Selector
 } from 'antd-mobile';
 
 import { SmileOutline, RedoOutline, MailOpenOutline } from 'antd-mobile-icons';
@@ -33,6 +34,9 @@ import AITrend from './aitrend';
 
 // const prefix = location.href.indexOf('localhost') !== -1 ? '' : 'https://api.jixiang.chat';
 const prefix = 'https://api.jixiang.chat';
+
+// zScore 筛选阈值常量
+const ZSCORE_THRESHOLD = 2.31;
 
 
 const copyToClip = (url?: string) => {
@@ -97,6 +101,10 @@ const AlgoList = (props)=>{
     const [count, setCount] = useState(0);
 
     const [paycount, setPayCount] = useState(0);
+    
+    const [enableZScoreFilter, setEnableZScoreFilter] = useState(false);
+
+    const [starFilter, setStarFilter] = useState([]);
 
     const [show, setShow] = useState(false);
 
@@ -122,6 +130,26 @@ const AlgoList = (props)=>{
         const modifiedTime = dayjs(gmt_modified);
         return now.diff(modifiedTime, 'hour');
     };
+
+    // 根据 z_score 获取等级和标签
+    const getZScoreLevel = (zScore) => {
+        const score = Math.abs(Number(zScore));
+        if (score >= 3.0) return { level: 10, label: '5星', color: '#722ed1' };
+        if (score >= 2.7) return { level: 9, label: '4星', color: '#9254de' };
+        if (score >= 2.5) return { level: 8, label: '3星', color: '#b37feb' };
+        if (score >= 2.3) return { level: 7, label: '2星', color: '#d3adf7' };
+        if (score >= 2.2) return { level: 6, label: '1星', color: '#efdbff' };
+        return { level: 0, label: '0星', color: '#1677ff' };
+    };
+
+    // 星级选项
+    const starOptions = [
+        { label: '5星', value: '5' },
+        { label: '4星', value: '4' },
+        { label: '3星', value: '3' },
+        { label: '2星', value: '2' },
+        { label: '1星', value: '1' },
+    ];
 
 
 
@@ -439,7 +467,7 @@ const AlgoList = (props)=>{
     if ( !app.needPay ) {
       cons.push(
         <div className={styles.wraptime}>
-            最近更新时间：{app.time}
+            最近更新时间：{app.time ? dayjs(app.time).format('YYYY-MM-DD HH:mm:ss') : ''}
             <span onClick={()=>{
               if ( clickIns === 0 ) {
                   clickIns = new Date().getTime();
@@ -490,8 +518,25 @@ const AlgoList = (props)=>{
       }
 
       let long = 0, short = 0;
-
+      
       (app?.data||[]).forEach(item=>{
+         // 如果开启了 zScore 筛选，先检查 zScore 条件
+         if (enableZScoreFilter && item.z_score) {
+           const zScoreValue = Math.abs(Number(item.z_score));
+           if (zScoreValue <= ZSCORE_THRESHOLD) {
+             return; // 跳过 zScore 绝对值小于等于 2.31 的数据
+           }
+         }
+         
+         // 如果开启了星级筛选，检查星级条件
+         if (starFilter.length > 0 && item.z_score) {
+           const zScoreInfo = getZScoreLevel(item.z_score);
+           const starLevel = zScoreInfo.label;
+           if (!starFilter.includes(starLevel.replace('星', ''))) {
+             return; // 跳过不符合星级筛选条件的数据
+           }
+         }
+         
          if ( item.pos_side === 'long' ) {
            long ++;
          }
@@ -502,7 +547,7 @@ const AlgoList = (props)=>{
 
       let xcon = [];
 
-      if ( long > 0 || short > 0 ) {
+      if ( long > 0 || short > 0 || enableZScoreFilter || starFilter.length > 0 ) {
          xcon.push(
             <p>
               <span style={{marginLeft: '20px'}}>多：{long}</span>
@@ -510,13 +555,69 @@ const AlgoList = (props)=>{
               <span style={{marginLeft: '20px'}}>{
                 long > short ? '当前上涨的币种较多' : '当前下跌的币种较多'
               }</span>
+              {/* {enableZScoreFilter && (
+                <span style={{marginLeft: '20px', color: '#1677ff', fontSize: 12}}>
+                  (已筛选 |zScore| &gt; {ZSCORE_THRESHOLD})
+                  </span>
+              )} */}
+              <span style={{marginLeft: '20px'}}>
+                <Button 
+                  size='mini' 
+                  color={enableZScoreFilter ? 'primary' : 'default'}
+                  onClick={() => setEnableZScoreFilter(!enableZScoreFilter)}>
+                  {enableZScoreFilter ? '关闭筛选' : '开启筛选'}
+                </Button>
+              </span>
             </p>
          );
+
+         xcon.push(
+          <p>
+            <span style={{marginLeft: '20px'}}>
+                <span style={{display: 'inline-flex', alignItems: 'center', gap: '5px'}}><Selector
+                  options={starOptions}
+                  value={starFilter}
+                  onChange={(arr) => {
+                    setStarFilter(arr);
+                  }}
+                  multiple={true}
+                  style={{ '--border': 'none', '--padding': '4px 8px', fontSize: '12px' }}
+                >
+                  星级筛选
+                </Selector>
+                {starFilter.length > 0 && (
+                  <Button 
+                    size='mini' 
+                    color='default'
+                    onClick={() => setStarFilter([])}>
+                    清空
+                  </Button>
+                )}</span>
+              </span>
+          </p>
+         )
       }
 
       let xindex = 0;
       const x_tabList = tabList.map((item, index)=>{
         const targetList = (app?.data||[]).filter(it=>{
+          // 如果开启了 zScore 筛选，先检查 zScore 条件
+          if (enableZScoreFilter && it.z_score) {
+            const zScoreValue = Math.abs(Number(it.z_score));
+            if (zScoreValue <= ZSCORE_THRESHOLD) {
+              return false; // 过滤掉 zScore 绝对值小于等于 2.31 的数据
+            }
+          }
+          
+          // 如果开启了星级筛选，检查星级条件
+          if (starFilter.length > 0 && it.z_score) {
+            const zScoreInfo = getZScoreLevel(it.z_score);
+            const starLevel = zScoreInfo.label;
+            if (!starFilter.includes(starLevel.replace('星', ''))) {
+              return false; // 过滤掉不符合星级筛选条件的数据
+            }
+          }
+          
           if ( item.title === '全部' ) {
             return true;
           }
@@ -549,8 +650,6 @@ const AlgoList = (props)=>{
         return item;
       });
 
-      console.log(x_tabList,'x_tabList')
-
       cons.push(
          <div 
             className={styles.wraplist}
@@ -568,8 +667,6 @@ const AlgoList = (props)=>{
                 description='刷新一下试试吧'
               /> : null
               }
-              {
-                (app?.data||[]).length ? 
               <CapsuleTabs defaultActiveKey={`${xindex}`}>
                 {
                   x_tabList.map((item, index)=>{
@@ -638,6 +735,33 @@ const AlgoList = (props)=>{
                                               {/* 描述信息 */}
                                               <div className={styles.defs}>
                                                   <p>
+                                                      {user?.z_score && (() => {
+                                                          // 根据 pos_side 调整 z_score 的正负号
+                                                          const adjustedZScore = user.pos_side === 'long' ? 
+                                                              Number(user.z_score) : -Number(user.z_score);
+                                                          // 使用调整后的 z_score 计算等级
+                                                          const zScoreInfo = getZScoreLevel(adjustedZScore);
+                                                          // 检查是否为测试版（绝对值小于阈值）
+                                                          const isTestVersion = Math.abs(Number(user.z_score)) <= ZSCORE_THRESHOLD;
+                                                          return (
+                                                          <>
+                                                              <label>Z分数：</label>
+                                                              <span style={{color: '#666', fontSize: 12, marginRight: 8}}>
+                                                                  {adjustedZScore.toFixed(4)}
+                                                              </span>
+                                                              <Tag color={zScoreInfo.color} fill='outline'>
+                                                                  {zScoreInfo.label}
+                                                              </Tag>
+                                                              {isTestVersion && (
+                                                                  <Tag color='#faad14' fill='outline' style={{marginLeft: 4}}>
+                                                                      测试版
+                                                                  </Tag>
+                                                              )}
+                                                          </>
+                                                          );
+                                                      })()}
+                                                  </p>
+                                                  <p>
                                                       <label>方向：</label>
                                                       <Tag color={user.pos_side === 'long' ? 'danger' : '#87d068'} fill='outline'>
                                                         {user.pos_side === 'long' ? '做多' : '做空'}
@@ -651,8 +775,7 @@ const AlgoList = (props)=>{
                           </CapsuleTabs.Tab>
                   })
                 }
-              </CapsuleTabs> : null
-              }
+              </CapsuleTabs>
             </div>
       );
       cons.push(
@@ -750,4 +873,6 @@ const AlgoList = (props)=>{
 
 
 export default AlgoList;
+
+
 

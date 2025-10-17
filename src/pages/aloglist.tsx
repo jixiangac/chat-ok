@@ -37,7 +37,7 @@ const prefix = 'https://api.jixiang.chat';
 
 // zScore 筛选阈值常量
 const ZSCORE_THRESHOLD = 2.31;
-// t
+// t2
 
 const copyToClip = (url?: string) => {
   if ( !url ) {

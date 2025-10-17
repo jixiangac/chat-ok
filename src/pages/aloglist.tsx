@@ -767,6 +767,10 @@ const AlgoList = (props)=>{
                                                         {user.pos_side === 'long' ? '做多' : '做空'}
                                                       </Tag>
                                                   </p>
+                                                  <p>
+                                                      <label>次数：</label>
+                                                      <span style={{fontWeight: 'normal', color: '#999'}}>{user?.count || '0'}</span>
+                                                  </p>
                                               </div>
                                           </div>
                                       );

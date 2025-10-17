@@ -568,6 +568,60 @@ const StockList = (props) => {
                                                                 <span style={{ color: '#666', fontSize: 12 }}>{atrInfo}</span>
                                                             </p>
                                                         )}
+                                                        {stock?.last_price && (() => {
+                                                            try {
+                                                                const priceData = JSON.parse(stock.last_price);
+                                                                const currentPrice = priceData.c;
+                                                                // 根据股票代码判断是否为港股
+                                                                const isHKStock = stock.name && stock.name.toLowerCase().startsWith('hk');
+                                                                const currencySymbol = isHKStock ? 'HK$' : '$';
+                                                                
+                                                                // 计算建议入仓价格
+                                                                const isLong = stock.pos_side === 'long';
+                                                                let firstLevel, secondLevel, firstLabel, secondLabel;
+                                                                let quickLevel;
+                                                                
+                                                                if (isLong) {
+                                                                    // 做多：计算支撑位
+                                                                    quickLevel = (currentPrice * 0.98).toFixed(2);
+                                                                    firstLevel = (currentPrice * 0.95).toFixed(2);
+                                                                    secondLevel = (currentPrice * 0.92).toFixed(2);
+                                                                    firstLabel = '第一支撑';
+                                                                    secondLabel = '第二支撑';
+                                                                } else {
+                                                                    // 做空：计算阻力位
+                                                                    quickLevel = (currentPrice * 1.02).toFixed(2);
+                                                                    firstLevel = (currentPrice * 1.05).toFixed(2);
+                                                                    secondLevel = (currentPrice * 1.08).toFixed(2);
+                                                                    firstLabel = '第一阻力';
+                                                                    secondLabel = '第二阻力';
+                                                                }
+                                                                
+                                                                return (
+                                                                    <div style={{marginTop: 8, padding: '8px 12px', backgroundColor: '#f8f8f8', borderRadius: 6, border: '1px dashed #d9d9d9'}}>
+                                                                        <p style={{margin: '4px 0'}}>
+                                                                            <label style={{fontWeight: 'bold', color: '#495057'}}>策略时价格：</label>
+                                                                            <span style={{color: '#28a745', fontSize: 13, fontWeight: 'bold', marginLeft: 8}}>
+                                                                                {currencySymbol}{currentPrice}
+                                                                            </span>
+                                                                        </p>
+                                                                        <p style={{margin: '4px 0'}}>
+                                                                            <label style={{fontWeight: 'bold', color: '#495057'}}>建议入仓：<span style={{fontWeight: 'normal', color: '#999'}}>( {currencySymbol}{quickLevel} )</span></label>
+                                                                        </p>
+                                                                        <p style={{margin: '4px 0', paddingLeft: 16}}>
+                                                                            <span style={{color: '#007bff', fontSize: 12}}>
+                                                                                {firstLabel}: {currencySymbol}{firstLevel}
+                                                                            </span>
+                                                                            <span style={{color: '#6f42c1', fontSize: 12, marginLeft: 10}}>
+                                                                                {secondLabel}: {currencySymbol}{secondLevel}
+                                                                            </span>
+                                                                        </p>
+                                                                    </div>
+                                                                );
+                                                            } catch (e) {
+                                                                return null;
+                                                            }
+                                                        })()}
                                                     </div>
                                                 </div>
                                             );
@@ -587,3 +641,9 @@ const StockList = (props) => {
 };
 
 export default StockList;
+
+
+
+
+
+

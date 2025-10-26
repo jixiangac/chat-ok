@@ -108,6 +108,8 @@ const AlgoList = (props)=>{
 
     const [show, setShow] = useState(false);
 
+    const [operationMode, setOperationMode] = useState(false);
+
     const [payLoading, setPayLoading] = useState(false);
 
     const [form] = Form.useForm();
@@ -152,6 +154,41 @@ const AlgoList = (props)=>{
     ];
 
 
+    const onAddAITrend = async (ifo) => {
+        const post_values = {
+          name: `${ifo.inst_id}`,
+          pos_side: `${ifo.pos_side}`,
+          // lastprice: ifo.pos_side === 'long' ? ifo.lastprice
+        }
+
+        try{
+           let price = JSON.parse(ifo.last_price);
+           post_values.lastprice = post_values.pos_side === 'long' ? price * (1+0.1) : price * (1-0.1);
+        }catch(e){
+          Toast.show({
+            icon: 'fail',
+            content: '出错了',
+          });
+          return;
+        }
+        // if ( post_values.pos_side === 'long' ) {
+        //   post_values.lastprice
+        // }
+        // const res = await axios(`https://newdemo.jixiang.chat/proxyhttp?apitype=aitrend&apitag=CHATGPT`, {
+        //     method: 'get',
+        //     params: {
+        //         type: 'add',
+        //         ins_id,
+        //         trend: '1'
+        //     },
+        // });
+        // if (res.data.success) {
+        //     Toast.show({
+        //         icon: 'success',
+        //         content: `已加入AI趋势: ${alias}`
+        //     });
+        // }
+    }
 
     const initPayCounts = async ()=>{
       if ( !getPageInfo('left_usdt') ) {
@@ -594,6 +631,14 @@ const AlgoList = (props)=>{
                   </Button>
                 )}</span>
               </span>
+              {location.href.indexOf('jiyang') !==-1 ? <span style={{marginLeft: '12px', position: 'relative',top: '4px'}}>
+                  <Button 
+                      size='mini' 
+                      color={operationMode ? 'danger' : 'default'}
+                      onClick={() => setOperationMode(!operationMode)}>
+                      {operationMode ? '退出操作' : '操作模式'}
+                  </Button>
+              </span> : null}
           </p>
          )
       }
@@ -688,6 +733,14 @@ const AlgoList = (props)=>{
                                   }
                                   {item.list.map((user: any, index) => {
                                       const hours = calculateHours(user.gmt_modified);
+
+                                      let zScoreList = [];
+
+                                      console.log(user,'user')
+                                      
+                                      try{
+                                        zScoreList = JSON.parse(user?.z_score_history || '{}').list
+                                      }catch(e){}
                                       
                                       return (
                                           <div key={index} style={{
@@ -726,9 +779,22 @@ const AlgoList = (props)=>{
                                                   {/* 右侧持续小时数 */}
                                                   <div style={{
                                                       fontSize: 11,
-                                                      color: '#999'
+                                                      color: '#999',
+                                                      display: 'flex',
+                                                      alignItems: 'center'
                                                   }}>
-                                                      {hours}小时
+                                                      {operationMode ? (
+                                                          <Button 
+                                                              size='mini' 
+                                                              color='primary'
+                                                              onClick={() => {
+                                                                  onAddAITrend(user)
+                                                              }}>
+                                                              加入AI趋势
+                                                          </Button>
+                                                      ) : (
+                                                          <span>{hours}小时</span>
+                                                      )}
                                                   </div>
                                               </div>
 
@@ -771,6 +837,34 @@ const AlgoList = (props)=>{
                                                       <label>次数：</label>
                                                       <span style={{fontWeight: 'normal', color: '#999'}}>{user?.count || '0'}</span>
                                                   </p>
+                                                  {zScoreList && zScoreList.length > 1 && (
+                                                      <p>
+                                                          <label>Z历史：</label>
+                                                          <span style={{fontWeight: 'normal', color: '#999'}}>
+                                                              {zScoreList.map((score, idx) => (
+                                                                  <span key={idx} style={{marginRight: '8px', display: 'inline-flex', alignItems: 'center'}}>
+                                                                      <span>{Number(score).toFixed(4)}</span>
+                                                                      {idx > 0 && (() => {
+                                                                          const current = Number(score);
+                                                                          const previous = Number(zScoreList[idx - 1]);
+                                                                          const diff = current - previous;
+                                                                          if (Math.abs(diff) < 0.0001) return null; // 变化太小不显示
+                                                                          return (
+                                                                              <span style={{
+                                                                                  marginLeft: '2px',
+                                                                                  color: diff > 0 ? '#f5222d' : '#52c41a',
+                                                                                  fontSize: '10px'
+                                                                              }}>
+                                                                                  {diff > 0 ? '▲' : '▼'}
+                                                                              </span>
+                                                                          );
+                                                                      })()}
+                                                                      {idx < zScoreList.length - 1 && <span style={{marginLeft: '2px'}}>, </span>}
+                                                                  </span>
+                                                              ))}
+                                                          </span>
+                                                      </p>
+                                                  )}
                                               </div>
                                           </div>
                                       );
@@ -877,6 +971,14 @@ const AlgoList = (props)=>{
 
 
 export default AlgoList;
+
+
+
+
+
+
+
+
 
 
 

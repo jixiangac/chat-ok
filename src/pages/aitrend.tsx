@@ -412,6 +412,12 @@ const AlgoTrendList = (props)=>{
                                                           突袭
                                                         </Tag> : null
                                                       }
+                                                      {
+                                                        user?.apikey === 'watch' ?
+                                                        <Tag color={'#cc38e3ff'} style={{marginLeft: 10}} fill='outline'>
+                                                          监控
+                                                        </Tag> : null
+                                                      }
                                                   </div>
 
                                                   {/* 右侧持续小时数 */}

@@ -1,0 +1,46 @@
+.card {
+  background-color: white;
+  border-radius: 12px;
+  padding: 12px 16px;
+  border: 1px solid #f0f0f0;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.card:active {
+  background-color: #fafafa;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.title {
+  flex: 1;
+  margin: 0;
+  font-size: 14px;
+  font-weight: normal;
+}
+
+.progressBar {
+  height: 5px;
+  background-color: #f0f0f0;
+  border-radius: 20px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.progressFill {
+  height: 100%;
+  background-color: black;
+  transition: width 0.3s;
+  border-radius: 20px;
+}
+
+.daysText {
+  font-size: 11px;
+  color: #999;
+}

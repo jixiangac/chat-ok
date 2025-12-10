@@ -1,0 +1,83 @@
+.card {
+  background: linear-gradient(135deg, rgb(21 4 4 / 67%) 0%, rgb(13 0 0) 100%);
+  border-radius: 10px;
+  padding: 40px 16px;
+  margin-bottom: 8px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.card:active {
+  opacity: 0.9;
+}
+
+.content {
+  position: relative;
+  z-index: 10;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.title {
+  color: white;
+  margin: 0;
+  padding-right: 16px;
+  font-size: 15px;
+  font-weight: normal;
+}
+
+.cycleBadge {
+  background-color: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+.cycleText {
+  font-size: 11px;
+  color: white;
+}
+
+.progressContainer {
+  margin-bottom: 8px;
+}
+
+.progressBar {
+  height: 6px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.progressFill {
+  height: 100%;
+  background-color: white;
+  transition: width 0.3s;
+  border-radius: 20px;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+.daysText {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.progressInfo {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: rgba(255, 255, 255, 0.8);
+}

@@ -1,5 +1,157 @@
 [
   {
+    "path": "dc/detail/CheckInRecordPanel",
+    "id": "dc/detail/CheckInRecordPanel",
+    "file": "dc/detail/CheckInRecordPanel.tsx",
+    "componentName": "dc-detail-checkinrecordpanel",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/detail/CycleSummaryDialog",
+    "id": "dc/detail/CycleSummaryDialog",
+    "file": "dc/detail/CycleSummaryDialog.tsx",
+    "componentName": "dc-detail-cyclesummarydialog",
+    "layout": false,
+    "exports": [
+      "showCycleSummaryDialog"
+    ]
+  },
+  {
+    "path": "dc/detail/CurrentCyclePanel",
+    "id": "dc/detail/CurrentCyclePanel",
+    "file": "dc/detail/CurrentCyclePanel.tsx",
+    "componentName": "dc-detail-currentcyclepanel",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/detail/ProgressSection",
+    "id": "dc/detail/ProgressSection",
+    "file": "dc/detail/ProgressSection.tsx",
+    "componentName": "dc-detail-progresssection",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/card/MainlineTaskCard",
+    "id": "dc/card/MainlineTaskCard",
+    "file": "dc/card/MainlineTaskCard.tsx",
+    "componentName": "dc-card-mainlinetaskcard",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/card/SidelineTaskCard",
+    "id": "dc/card/SidelineTaskCard",
+    "file": "dc/card/SidelineTaskCard.tsx",
+    "componentName": "dc-card-sidelinetaskcard",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/utils/cycleCalculator",
+    "id": "dc/utils/cycleCalculator",
+    "file": "dc/utils/cycleCalculator.ts",
+    "componentName": "dc-utils-cyclecalculator",
+    "layout": false,
+    "exports": [
+      "CycleCalculator"
+    ]
+  },
+  {
+    "path": "dc/detail/GoalHeader",
+    "id": "dc/detail/GoalHeader",
+    "file": "dc/detail/GoalHeader.tsx",
+    "componentName": "dc-detail-goalheader",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/CreateGoalModal",
+    "id": "dc/CreateGoalModal",
+    "file": "dc/CreateGoalModal.tsx",
+    "componentName": "dc-creategoalmodal",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/detail/example",
+    "id": "dc/detail/example",
+    "file": "dc/detail/example.tsx",
+    "componentName": "dc-detail-example",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/detail/TabBar",
+    "id": "dc/detail/TabBar",
+    "file": "dc/detail/TabBar.tsx",
+    "componentName": "dc-detail-tabbar",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/detail/hooks",
+    "id": "dc/detail/hooks",
+    "file": "dc/detail/hooks.ts",
+    "componentName": "dc-detail-hooks",
+    "layout": false,
+    "exports": [
+      "getCurrentCycle",
+      "useGoalDetail"
+    ]
+  },
+  {
+    "path": "dc/detail",
+    "index": true,
+    "id": "dc/detail",
+    "file": "dc/detail/index.tsx",
+    "componentName": "dc-detail-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/detail/types",
+    "id": "dc/detail/types",
+    "file": "dc/detail/types.ts",
+    "componentName": "dc-detail-types",
+    "layout": false,
+    "exports": []
+  },
+  {
+    "path": "dc/card",
+    "index": true,
+    "id": "dc/card",
+    "file": "dc/card/index.ts",
+    "componentName": "dc-card-index",
+    "layout": false,
+    "exports": [
+      "MainlineTaskCard",
+      "SidelineTaskCard"
+    ]
+  },
+  {
     "path": "stock_self",
     "id": "stock_self",
     "file": "stock_self.tsx",
@@ -18,6 +170,14 @@
     "exports": [
       "default"
     ]
+  },
+  {
+    "path": "dc/types",
+    "id": "dc/types",
+    "file": "dc/types.ts",
+    "componentName": "dc-types",
+    "layout": false,
+    "exports": []
   },
   {
     "path": "aitrend",
@@ -80,6 +240,16 @@
     "id": "stock",
     "file": "stock.tsx",
     "componentName": "stock",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "demo",
+    "id": "demo",
+    "file": "demo.tsx",
+    "componentName": "demo",
     "layout": false,
     "exports": [
       "default"

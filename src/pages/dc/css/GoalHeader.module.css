@@ -1,0 +1,114 @@
+.container {
+  background: #ffffff;
+  padding: 20px 20px 16px;
+  position: relative;
+}
+
+.topBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.closeButton {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-size: 18px;
+  color: #333;
+}
+
+.closeButton:hover {
+  background: #ebebeb;
+}
+
+.rightActions {
+  display: flex;
+  gap: 12px;
+}
+
+.actionButton {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 20px;
+  color: #333;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #f0f0ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+}
+
+.mainValue {
+  font-size: 36px;
+  font-weight: 700;
+  color: #000;
+  margin-bottom: 16px;
+}
+
+.mainValuePrefix {
+  font-size: 24px;
+  margin-right: 2px;
+}
+
+.progressWrapper {
+  margin-bottom: 8px;
+}
+
+.progressBar {
+  height: 6px;
+  background: #f0f0f0;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, #6366f1, #8b5cf6);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.progressInfo {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: #999;
+}
+
+.tag {
+  display: none;
+}

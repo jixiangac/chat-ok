@@ -1,0 +1,37 @@
+.container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8f6ff;
+  padding: 14px 20px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.tab {
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  color: #333;
+  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tab:hover {
+  color: #666;
+}
+
+.tab.active {
+  color: #000;
+}
+
+.filterIcon {
+  font-size: 16px;
+  color: #999;
+}
+
+.rightLabel {
+  font-size: 14px;
+  color: #999;
+}

@@ -1,16 +1,26 @@
 .card {
-  background: linear-gradient(135deg, rgb(21 4 4 / 67%) 0%, rgb(13 0 0) 100%);
-  border-radius: 10px;
-  padding: 40px 16px;
-  margin-bottom: 8px;
+  background: #ffffff;
+  border: 1px solid rgba(55, 53, 47, 0.12);
+  border-left: 3px solid rgb(55, 53, 47);
+  border-radius: 8px;
+  padding: 20px;
+  padding-left: 18px;
+  margin-bottom: 12px;
   position: relative;
   overflow: hidden;
   cursor: pointer;
-  transition: opacity 0.2s;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.card:hover {
+  background: rgba(55, 53, 47, 0.03);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .card:active {
-  opacity: 0.9;
+  background: rgba(55, 53, 47, 0.06);
+  transform: scale(0.995);
 }
 
 .content {
@@ -26,23 +36,25 @@
 }
 
 .title {
-  color: white;
+  color: rgb(55, 53, 47);
   margin: 0;
-  padding-right: 16px;
+  padding-right: 12px;
   font-size: 15px;
-  font-weight: normal;
+  font-weight: 500;
+  line-height: 1.4;
 }
 
 .cycleBadge {
-  background-color: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
-  padding: 4px 10px;
-  border-radius: 20px;
+  background-color: rgba(55, 53, 47, 0.06);
+  padding: 3px 8px;
+  border-radius: 4px;
+  flex-shrink: 0;
 }
 
 .cycleText {
   font-size: 11px;
-  color: white;
+  color: rgba(55, 53, 47, 0.65);
+  font-weight: 500;
 }
 
 .progressContainer {
@@ -50,18 +62,17 @@
 }
 
 .progressBar {
-  height: 6px;
-  background-color: rgba(255, 255, 255, 0.2);
-  border-radius: 20px;
+  height: 4px;
+  background-color: rgba(55, 53, 47, 0.08);
+  border-radius: 4px;
   overflow: hidden;
-  backdrop-filter: blur(10px);
 }
 
 .progressFill {
   height: 100%;
-  background-color: white;
-  transition: width 0.3s;
-  border-radius: 20px;
+  background-color: rgb(55, 53, 47);
+  transition: width 0.3s ease;
+  border-radius: 4px;
 }
 
 .footer {
@@ -72,12 +83,14 @@
 }
 
 .daysText {
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(55, 53, 47, 0.5);
+  font-size: 12px;
 }
 
 .progressInfo {
   display: flex;
   align-items: center;
   gap: 4px;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(55, 53, 47, 0.65);
+  font-weight: 500;
 }

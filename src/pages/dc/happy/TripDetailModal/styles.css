@@ -1,0 +1,368 @@
+/* 行程详情弹窗样式 - Notion风格 */
+
+.trip-detail-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.trip-detail-modal {
+  width: 343px;
+  max-height: 580px;
+  background-color: white;
+  border-radius: 24px;
+  border: 1px solid rgba(0, 22, 10, 0.2);
+  overflow: hidden;
+  animation: slideUp 0.3s ease-out;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 头部图片区域 */
+.trip-detail-header {
+  height: 200px;
+  background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.trip-detail-header-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.trip-detail-header-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.trip-detail-header-icon {
+  color: white;
+  opacity: 0.8;
+}
+
+/* 内容区域 */
+.trip-detail-content {
+  padding: 24px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* 路线信息 */
+.trip-detail-route {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.trip-detail-route-point {
+  flex: 1;
+}
+
+.trip-detail-route-label {
+  font-size: 12px;
+  color: #c0c1c4;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.trip-detail-route-city {
+  font-size: 18px;
+  font-weight: 500;
+  color: #2d303a;
+  margin-bottom: 4px;
+}
+
+.trip-detail-route-date {
+  font-size: 13px;
+  color: #c0c1c4;
+}
+
+.trip-detail-route-arrow {
+  display: flex;
+  align-items: center;
+  padding-top: 24px;
+  color: #c0c1c4;
+}
+
+/* 分隔线 */
+.trip-detail-divider {
+  height: 1px;
+  background-color: rgba(0, 0, 0, 0.08);
+  margin: 20px 0;
+  position: relative;
+}
+
+.trip-detail-divider::before,
+.trip-detail-divider::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 12px;
+  height: 12px;
+  background-color: #f5f5f5;
+  border-radius: 50%;
+}
+
+.trip-detail-divider::before {
+  left: -30px;
+}
+
+.trip-detail-divider::after {
+  right: -30px;
+}
+
+/* 统计信息 */
+.trip-detail-stats {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.trip-detail-stat-item {
+  flex: 1;
+}
+
+.trip-detail-stat-label {
+  font-size: 11px;
+  color: #aeafb5;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.trip-detail-stat-value {
+  font-size: 24px;
+  font-weight: 600;
+  color: #2d303a;
+}
+
+.trip-detail-stat-unit {
+  font-size: 14px;
+  font-weight: 400;
+  color: #2d303a;
+  margin-left: 2px;
+}
+
+/* 价格/积分区域 */
+.trip-detail-price-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.trip-detail-price-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.trip-detail-price-label {
+  font-size: 11px;
+  color: #aeafb5;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.trip-detail-price-value {
+  font-size: 28px;
+  font-weight: 600;
+  color: #2d303a;
+}
+
+.trip-detail-price-unit {
+  font-size: 14px;
+  font-weight: 400;
+  margin-left: 2px;
+}
+
+/* 完成率圆环 */
+.trip-detail-progress {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.trip-detail-progress-ring {
+  position: relative;
+  width: 60px;
+  height: 60px;
+}
+
+.trip-detail-progress-ring svg {
+  transform: rotate(-90deg);
+}
+
+.trip-detail-progress-ring-bg {
+  fill: none;
+  stroke: #f0f0f0;
+  stroke-width: 4;
+}
+
+.trip-detail-progress-ring-fill {
+  fill: none;
+  stroke: #2d303a;
+  stroke-width: 4;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.5s ease;
+}
+
+.trip-detail-progress-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 14px;
+  font-weight: 600;
+  color: #2d303a;
+}
+
+.trip-detail-progress-label {
+  font-size: 11px;
+  color: #aeafb5;
+  margin-top: 4px;
+}
+
+/* 底部按钮区域 */
+.trip-detail-footer {
+  padding: 16px 24px 24px;
+  display: flex;
+  gap: 12px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.trip-detail-btn-secondary {
+  flex: 1;
+  height: 44px;
+  border-radius: 10px;
+  border: 1px solid #e0e0e0;
+  background-color: white;
+  font-size: 15px;
+  font-weight: 500;
+  color: #2d303a;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.trip-detail-btn-secondary:hover {
+  background-color: #f5f5f5;
+}
+
+.trip-detail-btn-primary {
+  flex: 2;
+  height: 44px;
+  border-radius: 10px;
+  border: none;
+  background-color: #2d303a;
+  font-size: 15px;
+  font-weight: 500;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.trip-detail-btn-primary:hover {
+  background-color: #1a1c22;
+}
+
+/* 日程预览列表 */
+.trip-detail-schedules {
+  margin-top: 16px;
+}
+
+.trip-detail-schedules-title {
+  font-size: 12px;
+  color: #aeafb5;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 12px;
+}
+
+.trip-detail-schedule-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.trip-detail-schedule-item:last-child {
+  border-bottom: none;
+}
+
+.trip-detail-schedule-day {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background-color: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: #2d303a;
+}
+
+.trip-detail-schedule-day.completed {
+  background-color: #2d303a;
+  color: white;
+}
+
+.trip-detail-schedule-info {
+  flex: 1;
+}
+
+.trip-detail-schedule-date {
+  font-size: 14px;
+  color: #2d303a;
+  margin-bottom: 2px;
+}
+
+.trip-detail-schedule-goals {
+  font-size: 12px;
+  color: #aeafb5;
+}
+
+.trip-detail-schedule-check {
+  width: 20px;
+  height: 20px;
+  color: #2d303a;
+}

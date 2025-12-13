@@ -1,3 +1,4 @@
+import { Check, Calendar } from 'lucide-react';
 import type { CurrentCyclePanelProps } from './types';
 import styles from '../css/CurrentCyclePanel.module.css';
 
@@ -26,7 +27,7 @@ export default function CurrentCyclePanel({ cycle }: CurrentCyclePanelProps) {
         
         {isCompleted ? (
           <div className={styles.completedBadge}>
-            <span className={styles.checkIcon}>✓</span>
+            <Check size={14} className={styles.checkIcon} />
             已完成
           </div>
         ) : (
@@ -50,7 +51,7 @@ export default function CurrentCyclePanel({ cycle }: CurrentCyclePanelProps) {
       
       {/* 周期时间 - 辅助信息 */}
       <div className={styles.timeRange}>
-        <span className={styles.timeIcon}>📅</span>
+        <Calendar size={14} className={styles.timeIcon} />
         <span>{cycle.startDate} ~ {cycle.endDate}</span>
       </div>
     </div>

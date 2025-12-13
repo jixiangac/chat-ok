@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import dayjs from 'dayjs';
+import { Check } from 'lucide-react';
 import type { CheckInRecordPanelProps } from './types';
 import styles from '../css/CheckInRecordPanel.module.css';
 
@@ -89,7 +90,7 @@ export default function CheckInRecordPanel({
                 {/* 卡片 */}
                 <div className={styles.card}>
                   <div className={styles.cardTitle}>
-                    ✓ 打卡成功
+                    <Check size={14} style={{ marginRight: 4 }} /> 打卡成功
                   </div>
                   {record.note && (
                     <div className={styles.cardNote}>

@@ -1,49 +1,22 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { Calendar, Plane, Plus, X } from 'lucide-react';
 import CreateGoalModal from './dc/CreateGoalModal';
+import CreateMainlineTaskModal from './dc/CreateMainlineTaskModal';
+import CreateSidelineTaskModal from './dc/CreateSidelineTaskModal';
 import { MainlineTaskCard, SidelineTaskCard } from './dc/card';
 import GoalDetailModal from './dc/detail';
-import { Task } from './dc/types';
+import { Task, MainlineTask } from './dc/types';
+import VacationContent from './dc/happy/VacationContent';
+import { TaskProvider, useTaskContext } from './dc/context';
 
-const STORAGE_KEY = 'dc_tasks';
-
-// 从 localStorage 读取任务
-const loadTasksFromStorage = (): Task[] => {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : [];
-  } catch (error) {
-    console.error('Failed to load tasks from localStorage:', error);
-    return [];
-  }
-};
-
-// 保存任务到 localStorage
-const saveTasksToStorage = (tasks: Task[]) => {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
-  } catch (error) {
-    console.error('Failed to save tasks to localStorage:', error);
-  }
-};
-
-export default function DemoPage() {
+function DemoPageContent() {
+  const { tasks, addTask, refreshTasks } = useTaskContext();
   const [modalVisible, setModalVisible] = useState(false);
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const [mainlineModalVisible, setMainlineModalVisible] = useState(false);
+  const [sidelineModalVisible, setSidelineModalVisible] = useState(false);
   const [showAllSidelineTasks, setShowAllSidelineTasks] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
-
-  // 初始化时从 localStorage 加载数据
-  useEffect(() => {
-    const loadedTasks = loadTasksFromStorage();
-    setTasks(loadedTasks);
-  }, []);
-
-  // 当任务列表变化时保存到 localStorage
-  useEffect(() => {
-    if (tasks.length > 0) {
-      saveTasksToStorage(tasks);
-    }
-  }, [tasks]);
+  const [isVacationMode, setIsVacationMode] = useState(false);
 
   // 检查是否有主线或支线任务
   const hasMainOrSubTasks = tasks.some(t => t.type === 'mainline' || t.type === 'sidelineA' || t.type === 'sidelineB');
@@ -51,6 +24,9 @@ export default function DemoPage() {
   // 获取支线任务
   const sidelineTasks = tasks.filter(t => t.type === 'sidelineA' || t.type === 'sidelineB');
   const displayedSidelineTasks = sidelineTasks.slice(0, 3);
+
+  // 检查是否已有主线任务
+  const hasMainlineTask = tasks.some(t => t.type === 'mainline');
 
   const handleCreateGoal = (goal: any) => {
     const today = new Date().toISOString().split('T')[0];
@@ -70,8 +46,135 @@ export default function DemoPage() {
       minCheckInsPerCycle: 3,
       checkIns: []
     };
-    setTasks([...tasks, newTask]);
+    addTask(newTask);
     setModalVisible(false);
+  };
+
+  // 处理主线任务创建
+  const handleCreateMainlineTask = (taskData: any) => {
+    const today = new Date().toISOString().split('T')[0];
+    
+    // 创建主线任务对象
+    const mainlineTask: MainlineTask = {
+      id: Date.now().toString(),
+      mainlineType: taskData.mainlineType,
+      title: taskData.title,
+      status: 'ACTIVE',
+      createdAt: today,
+      cycleConfig: {
+        totalDurationDays: taskData.totalDays,
+        cycleLengthDays: taskData.cycleDays,
+        totalCycles: taskData.totalCycles,
+        currentCycle: 1
+      },
+      progress: {
+        totalPercentage: 0,
+        currentCyclePercentage: 0
+      },
+      numericConfig: taskData.numericConfig,
+      checklistConfig: taskData.checklistConfig ? {
+        ...taskData.checklistConfig,
+        completedItems: 0,
+        perCycleTarget: Math.ceil(taskData.checklistConfig.totalItems / taskData.totalCycles)
+      } : undefined,
+      checkInConfig: taskData.checkInConfig ? {
+        ...taskData.checkInConfig,
+        currentStreak: 0,
+        longestStreak: 0,
+        checkInRate: 0,
+        streaks: [],
+        records: []
+      } : undefined,
+      history: []
+    };
+
+    // 创建兼容的 Task 对象
+    const newTask: Task = {
+      id: mainlineTask.id,
+      title: taskData.title,
+      progress: 0,
+      currentDay: 0,
+      totalDays: taskData.totalDays,
+      type: 'mainline',
+      mainlineType: taskData.mainlineType,
+      mainlineTask: mainlineTask,
+      startDate: today,
+      cycleDays: taskData.cycleDays,
+      totalCycles: taskData.totalCycles,
+      cycle: `1/${taskData.totalCycles}`
+    };
+
+    addTask(newTask);
+    setMainlineModalVisible(false);
+  };
+
+  // 处理支线任务创建
+  const handleCreateSidelineTask = (taskData: any) => {
+    const today = new Date().toISOString().split('T')[0];
+    
+    // 创建支线任务对象（与主线任务结构相同）
+    const sidelineTask: MainlineTask = {
+      id: Date.now().toString(),
+      mainlineType: taskData.mainlineType,
+      title: taskData.title,
+      status: 'ACTIVE',
+      createdAt: today,
+      cycleConfig: {
+        totalDurationDays: taskData.totalDays,
+        cycleLengthDays: taskData.cycleDays,
+        totalCycles: taskData.totalCycles,
+        currentCycle: 1
+      },
+      progress: {
+        totalPercentage: 0,
+        currentCyclePercentage: 0
+      },
+      numericConfig: taskData.numericConfig,
+      checklistConfig: taskData.checklistConfig ? {
+        ...taskData.checklistConfig,
+        completedItems: 0,
+        perCycleTarget: Math.ceil(taskData.checklistConfig.totalItems / taskData.totalCycles)
+      } : undefined,
+      checkInConfig: taskData.checkInConfig ? {
+        ...taskData.checkInConfig,
+        currentStreak: 0,
+        longestStreak: 0,
+        checkInRate: 0,
+        streaks: [],
+        records: []
+      } : undefined,
+      history: []
+    };
+
+    // 创建兼容的 Task 对象
+    const newTask: Task = {
+      id: sidelineTask.id,
+      title: taskData.title,
+      progress: 0,
+      currentDay: 0,
+      totalDays: taskData.totalDays,
+      type: 'sidelineA',
+      mainlineType: taskData.mainlineType,
+      mainlineTask: sidelineTask,
+      startDate: today,
+      cycleDays: taskData.cycleDays,
+      totalCycles: taskData.totalCycles,
+      cycle: `1/${taskData.totalCycles}`
+    };
+
+    addTask(newTask);
+    setSidelineModalVisible(false);
+  };
+
+  // 处理添加按钮点击
+  const handleAddClick = () => {
+    // 如果没有主线任务，打开主线任务创建模态框
+    if (!hasMainlineTask) {
+      setMainlineModalVisible(true);
+    } else {
+      // 否则打开支线任务创建模态框
+      setSidelineModalVisible(true);
+    }
   };
 
   return (
@@ -98,35 +201,60 @@ export default function DemoPage() {
           justifyContent: 'space-between'
         }}>
           <h1 style={{ fontSize: '30px', margin: 0, fontWeight: 'normal' }}>36×10</h1>
-          <button 
-            onClick={() => setModalVisible(true)}
-            style={{
-              width: '32px',
-              height: '32px',
-              borderRadius: '8px',
-              border: 'none',
-              backgroundColor: 'transparent',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              transition: 'background-color 0.2s'
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M5 12h14"></path>
-              <path d="M12 5v14"></path>
-            </svg>
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {/* 模式切换按钮 */}
+            <button 
+              onClick={() => setIsVacationMode(!isVacationMode)}
+              style={{
+                width: '32px',
+                height: '32px',
+                borderRadius: '8px',
+                border: 'none',
+                backgroundColor: isVacationMode ? '#f0f0f0' : 'transparent',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                transition: 'background-color 0.2s'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = isVacationMode ? '#f0f0f0' : 'transparent'}
+              title={isVacationMode ? "切换到常规模式" : "切换到度假模式"}
+            >
+              {isVacationMode ? (
+                <Calendar size={20} />
+              ) : (
+                <Plane size={20} />
+              )}
+            </button>
+            {/* 添加按钮 */}
+            <button 
+              onClick={handleAddClick}
+              style={{
+                width: '32px',
+                height: '32px',
+                borderRadius: '8px',
+                border: 'none',
+                backgroundColor: 'transparent',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                transition: 'background-color 0.2s'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+            >
+              <Plus size={20} />
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Empty State - 当没有主线和支线任务时显示 */}
-      {!hasMainOrSubTasks && (
+      {/* Empty State - 常规模式下当没有主线和支线任务时显示 */}
+      {!isVacationMode && !hasMainOrSubTasks && (
         <div 
-          onClick={() => setModalVisible(true)}
+          onClick={handleAddClick}
           style={{
             position: 'absolute',
             top: 0,
@@ -159,91 +287,99 @@ export default function DemoPage() {
         overflowY: 'auto',
         padding: '12px 16px'
       }}>
-        {/* Cute Ghost Character */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          marginBottom: '16px'
-        }}>
-          <img 
-            src="https://img.alicdn.com/imgextra/i4/O1CN01FgLcMT1COZEIxZ3nG_!!6000000000071-2-tps-1248-832.png" 
-            alt="可爱的小精灵"
-            style={{
-              width: '100%',
-              maxWidth: '350px',
-              height: 'auto',
-              objectFit: 'contain'
-            }}
-          />
-        </div>
-
-        {/* Main Task Section */}
-        <div style={{ marginBottom: '16px' }}>
-          <div style={{ padding: '0 8px', marginBottom: '8px' }}>
-            <h2 style={{
-              fontSize: '12px',
-              color: '#999',
-              textTransform: 'uppercase',
-              letterSpacing: '0.05em',
-              margin: 0,
-              fontWeight: 'normal'
-            }}>主线任务</h2>
-          </div>
-          
-          {tasks.filter(t => t.type === 'mainline').map(task => (
-            <MainlineTaskCard 
-              key={task.id} 
-              task={task}
-              onClick={() => setSelectedTaskId(task.id)}
-            />
-          ))}
-        </div>
-
-        {/* Sub Tasks Section */}
-        <div>
-          <div style={{ padding: '0 8px', marginBottom: '8px' }}>
-            <h2 style={{
-              fontSize: '12px',
-              color: '#999',
-              textTransform: 'uppercase',
-              letterSpacing: '0.05em',
-              margin: 0,
-              fontWeight: 'normal'
-            }}>支线任务</h2>
-          </div>
-          
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {displayedSidelineTasks.map(task => (
-              <SidelineTaskCard 
-                key={task.id} 
-                task={task}
-                onClick={() => setSelectedTaskId(task.id)}
-              />
-            ))}
-            
-            {/* Show More Button */}
-            {sidelineTasks.length > 3 && (
-              <button
-                onClick={() => setShowAllSidelineTasks(true)}
+        {isVacationMode ? (
+          // 度假模式内容
+          <VacationContent onAddClick={handleAddClick} />
+        ) : (
+          // 常规模式内容
+          <>
+            {/* Cute Ghost Character */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'center',
+              marginBottom: '16px'
+            }}>
+              <img 
+                src="https://img.alicdn.com/imgextra/i4/O1CN01FgLcMT1COZEIxZ3nG_!!6000000000071-2-tps-1248-832.png" 
+                alt="可爱的小精灵"
                 style={{
-                  backgroundColor: 'white',
-                  borderRadius: '12px',
-                  padding: '12px 16px',
-                  border: '1px solid #f0f0f0',
-                  cursor: 'pointer',
-                  transition: 'background-color 0.2s',
-                  fontSize: '14px',
-                  color: '#666',
-                  textAlign: 'center'
+                  width: '100%',
+                  maxWidth: '350px',
+                  height: 'auto',
+                  objectFit: 'contain'
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fafafa'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'white'}
-              >
-                显示更多 ({sidelineTasks.length - 3} 个任务)
-              </button>
-            )}
-          </div>
-        </div>
+              />
+            </div>
+
+            {/* Main Task Section */}
+            <div style={{ marginBottom: '16px' }}>
+              <div style={{ padding: '0 8px', marginBottom: '8px' }}>
+                <h2 style={{
+                  fontSize: '12px',
+                  color: '#999',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                  margin: 0,
+                  fontWeight: 'normal'
+                }}>主线任务</h2>
+              </div>
+              
+              {tasks.filter(t => t.type === 'mainline').map(task => (
+                <MainlineTaskCard 
+                  key={task.id} 
+                  task={task}
+                  onClick={() => setSelectedTaskId(task.id)}
+                />
+              ))}
+            </div>
+
+            {/* Sub Tasks Section */}
+            <div>
+              <div style={{ padding: '0 8px', marginBottom: '8px' }}>
+                <h2 style={{
+                  fontSize: '12px',
+                  color: '#999',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                  margin: 0,
+                  fontWeight: 'normal'
+                }}>支线任务</h2>
+              </div>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {displayedSidelineTasks.map(task => (
+                  <SidelineTaskCard 
+                    key={task.id} 
+                    task={task}
+                    onClick={() => setSelectedTaskId(task.id)}
+                  />
+                ))}
+                
+                {/* Show More Button */}
+                {sidelineTasks.length > 3 && (
+                  <button
+                    onClick={() => setShowAllSidelineTasks(true)}
+                    style={{
+                      backgroundColor: 'white',
+                      borderRadius: '12px',
+                      padding: '12px 16px',
+                      border: '1px solid #f0f0f0',
+                      cursor: 'pointer',
+                      transition: 'background-color 0.2s',
+                      fontSize: '14px',
+                      color: '#666',
+                      textAlign: 'center'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fafafa'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'white'}
+                  >
+                    显示更多 ({sidelineTasks.length - 3} 个任务)
+                  </button>
+                )}
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Bottom Indicator */}
@@ -263,11 +399,25 @@ export default function DemoPage() {
         }}></div>
       </div>
 
+      {/* Create Mainline Task Modal */}
+      <CreateMainlineTaskModal
+        visible={mainlineModalVisible}
+        onClose={() => setMainlineModalVisible(false)}
+        onSubmit={handleCreateMainlineTask}
+      />
+
       {/* Create Goal Modal */}
       <CreateGoalModal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
         onSubmit={handleCreateGoal}
+      />
+
+      {/* Create Sideline Task Modal */}
+      <CreateSidelineTaskModal
+        visible={sidelineModalVisible}
+        onClose={() => setSidelineModalVisible(false)}
+        onSubmit={handleCreateSidelineTask}
       />
 
       {/* All Sideline Tasks Drawer */}
@@ -347,10 +497,7 @@ export default function DemoPage() {
                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'}
                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M18 6 6 18"></path>
-                  <path d="m6 6 12 12"></path>
-                </svg>
+                <X size={20} />
               </button>
             </div>
 
@@ -401,14 +548,16 @@ export default function DemoPage() {
         visible={!!selectedTaskId}
         goalId={selectedTaskId || ''}
         onClose={() => setSelectedTaskId(null)}
+        onDataChange={refreshTasks}
       />
     </div>
   );
 }
 
-
-
-
-
-
-
+export default function DemoPage() {
+  return (
+    <TaskProvider>
+      <DemoPageContent />
+    </TaskProvider>
+  );
+}

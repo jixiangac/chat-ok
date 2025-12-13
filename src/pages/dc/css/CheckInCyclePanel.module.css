@@ -1,0 +1,149 @@
+.container {
+  padding: 16px 20px;
+  background: #ffffff;
+}
+
+/* 主要进度区域 */
+.heroSection {
+  text-align: center;
+  padding: 32px 20px;
+  background: #f5f5f5;
+  border-radius: 16px;
+  margin-bottom: 16px;
+}
+
+.heroNumber {
+  font-size: 56px;
+  font-weight: 700;
+  color: #000;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.heroUnit {
+  font-size: 24px;
+  font-weight: 500;
+  color: #999;
+}
+
+.heroLabel {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 24px;
+}
+
+.progressBar {
+  height: 6px;
+  background: #e0e0e0;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, #000 0%, #333 100%);
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+
+.completedBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: #f0fdf4;
+  color: #16a34a;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.todayBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: #f0f9ff;
+  color: #0284c7;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.checkIcon {
+  font-size: 12px;
+}
+
+.remainingHint {
+  font-size: 14px;
+  color: #666;
+}
+
+.remainingHint strong {
+  color: #000;
+  font-weight: 600;
+}
+
+/* 数据统计网格 */
+.statsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.statItem {
+  background: #f5f5f5;
+  border-radius: 12px;
+  padding: 20px 16px;
+  text-align: center;
+}
+
+.statValue {
+  font-size: 28px;
+  font-weight: 700;
+  color: #000;
+  margin-bottom: 4px;
+}
+
+.statLabel {
+  font-size: 13px;
+  color: #999;
+}
+
+/* 连续打卡横幅 */
+.streakBanner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #92400e;
+  margin-bottom: 16px;
+}
+
+.streakIcon {
+  font-size: 18px;
+}
+
+/* 时间范围 */
+.timeRange {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #f5f5f5;
+  border-radius: 12px;
+  font-size: 14px;
+  color: #666;
+}
+
+.timeIcon {
+  font-size: 16px;
+}

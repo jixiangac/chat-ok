@@ -2,9 +2,11 @@
 import '@ice/runtime/polyfills/signal';
 import { createElement, Fragment } from 'react';
 import { runClientApp, getAppConfig } from '@ice/runtime';
-import { commons, statics } from './runtimeModules';
+import { commons, statics } from './runtime-modules';
 import * as app from '@/app';
 import createRoutes from './routes';
+
+import type { RunClientAppOptions } from '@ice/runtime';
 
 const getRouterBasename = () => {
   const appConfig = getAppConfig(app);
@@ -14,33 +16,42 @@ const getRouterBasename = () => {
 // Otherwise chunk of route component will pack @ice/jsx-runtime and depend on framework bundle.
 const App = <></>;
 
-let dataLoaderFetcher = (options) => {
-  return window.fetch(options.url, options);
-}
 
-let dataLoaderDecorator = (dataLoader) => {
-  return dataLoader;
-}
+const renderOptions: RunClientAppOptions = {
+  app,
+  runtimeModules: {
+    commons,
+    statics,
+  },
+  createRoutes,
+  basename: getRouterBasename(),
+  hydrate: false,
+  memoryRouter: false,
+  runtimeOptions: {
+  },
+};
 
-const render = (customOptions: Record<string, any> = {}) => {
-  const appProps = {
-    app,
-    runtimeModules: {
-      commons,
-      statics,
-    },
-    createRoutes,
-    basename: getRouterBasename(),
-    hydrate: false,
-    memoryRouter: false,
-    dataLoaderFetcher,
-    dataLoaderDecorator,
+const defaultRender = (customOptions: Partial<RunClientAppOptions> = {}) => {
+  return runClientApp({
+    ...renderOptions,
     ...customOptions,
     runtimeOptions: {
-          ...customOptions.runtimeOptions,
+      ...(renderOptions.runtimeOptions || {}),
+      ...customOptions.runtimeOptions,
     },
-  };
-  return runClientApp(appProps);
+  });
+};
+
+const renderApp = (appExport: any, customOptions: Partial<RunClientAppOptions>) => {
+  if (appExport.runApp) {
+    return appExport.runApp(defaultRender, renderOptions);
+  } else {
+    return defaultRender(customOptions);
+  }
+};
+
+const render = (customOptions: Partial<RunClientAppOptions> = {}) => {
+  return renderApp(app, customOptions);
 };
 
 render();

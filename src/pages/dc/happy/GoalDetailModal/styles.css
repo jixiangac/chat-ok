@@ -1,0 +1,232 @@
+/* 目标详情弹窗样式 - Notion风格 */
+
+.goal-detail-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: goalFadeIn 0.2s ease-out;
+}
+
+@keyframes goalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes goalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.goal-detail-modal {
+  width: 320px;
+  background-color: white;
+  border-radius: 16px;
+  overflow: hidden;
+  animation: goalSlideUp 0.3s ease-out;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* 头部 */
+.goal-detail-header {
+  padding: 16px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.goal-detail-title {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.goal-detail-time {
+  font-size: 12px;
+  color: #999;
+  font-family: monospace;
+}
+
+.goal-detail-content {
+  font-size: 16px;
+  font-weight: 500;
+  color: #2d303a;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.goal-detail-close {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  color: #999;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.goal-detail-close:hover {
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+/* 图片上传区域 */
+.goal-detail-image-section {
+  padding: 16px;
+}
+
+.goal-detail-image-upload {
+  width: 100%;
+  height: 160px;
+  border: 2px dashed #e0e0e0;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #999;
+}
+
+.goal-detail-image-upload:hover {
+  border-color: #ccc;
+  background-color: #fafafa;
+  color: #666;
+}
+
+.goal-detail-image-upload span {
+  font-size: 14px;
+}
+
+.goal-detail-image-preview {
+  position: relative;
+  width: 100%;
+  height: 160px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.goal-detail-image-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.goal-detail-image-remove {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  transition: all 0.2s;
+}
+
+.goal-detail-image-remove:hover {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+/* 心情记录区域 */
+.goal-detail-note-section {
+  padding: 0 16px 16px;
+}
+
+.goal-detail-note-label {
+  display: block;
+  font-size: 13px;
+  color: #999;
+  margin-bottom: 8px;
+}
+
+.goal-detail-note-input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #333;
+  resize: none;
+  font-family: inherit;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.goal-detail-note-input:focus {
+  outline: none;
+  border-color: #333;
+}
+
+.goal-detail-note-input::placeholder {
+  color: #bbb;
+}
+
+/* 底部按钮 */
+.goal-detail-footer {
+  padding: 12px 16px 16px;
+  display: flex;
+  gap: 10px;
+}
+
+.goal-detail-btn-cancel {
+  flex: 1;
+  height: 40px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  background-color: white;
+  font-size: 14px;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.goal-detail-btn-cancel:hover {
+  background-color: #f5f5f5;
+}
+
+.goal-detail-btn-save {
+  flex: 1;
+  height: 40px;
+  border-radius: 8px;
+  border: none;
+  background-color: #2d303a;
+  font-size: 14px;
+  font-weight: 500;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.goal-detail-btn-save:hover {
+  background-color: #1a1c22;
+}

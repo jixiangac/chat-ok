@@ -1,9 +1,10 @@
-import type { TaskType, Priority } from '../types';
+import type { TaskType, Priority, MainlineTaskType, NumericConfig, ChecklistConfig, CheckInConfig, ProgressInfo, CycleConfig } from '../types';
 
 export interface GoalDetailModalProps {
   visible: boolean;
   goalId: string;
   onClose: () => void;
+  onDataChange?: () => void; // 数据变化时的回调，用于刷新卡片列表
 }
 
 export interface CheckIn {
@@ -21,6 +22,9 @@ export interface GoalDetail {
   type: TaskType;
   priority?: Priority;
   
+  // 主线任务类型
+  mainlineType?: MainlineTaskType;
+  
   // 周期配置
   totalDays: number;
   cycleDays: number;
@@ -30,6 +34,39 @@ export interface GoalDetail {
   
   // 打卡记录
   checkIns?: CheckIn[];
+  
+  // 数值型配置
+  numericConfig?: NumericConfig;
+  
+  // 清单型配置
+  checklistConfig?: ChecklistConfig;
+  
+  // 打卡型配置
+  checkInConfig?: CheckInConfig;
+  
+  // 进度信息
+  progress?: ProgressInfo;
+  
+  // 历史记录
+  history?: Array<{
+    date: string;
+    type: string;
+    value?: number;
+    change?: number;
+    note?: string;
+    itemId?: string;
+  }>;
+  
+  // 周期快照（保存过去周期的数据，进入新周期时不会改变）
+  cycleSnapshots?: Array<{
+    cycleNumber: number;
+    startDate: string;
+    endDate: string;
+    targetValue: number;
+    actualValue: number; // 结算值（周期结束时的实际值）
+    completionRate: number;
+    unit: string;
+  }>;
   
   // 其他字段
   duration?: string;
@@ -58,6 +95,8 @@ export interface GoalHeaderProps {
   totalCheckIns: number;
   totalCycles: number;
   currentCycle: number;
+  remainingDays: number;
+  onDebugNextCycle?: () => void;
 }
 
 export interface CurrentCycleCardProps {

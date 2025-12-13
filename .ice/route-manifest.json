@@ -1,5 +1,37 @@
 [
   {
+    "path": "dc/happy/GoalDetailModal",
+    "index": true,
+    "id": "dc/happy/GoalDetailModal",
+    "file": "dc/happy/GoalDetailModal/index.tsx",
+    "componentName": "dc-happy-goaldetailmodal-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/happy/TripDetailModal",
+    "index": true,
+    "id": "dc/happy/TripDetailModal",
+    "file": "dc/happy/TripDetailModal/index.tsx",
+    "componentName": "dc-happy-tripdetailmodal-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/detail/ChecklistCyclePanel",
+    "id": "dc/detail/ChecklistCyclePanel",
+    "file": "dc/detail/ChecklistCyclePanel.tsx",
+    "componentName": "dc-detail-checklistcyclepanel",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
     "path": "dc/detail/CheckInRecordPanel",
     "id": "dc/detail/CheckInRecordPanel",
     "file": "dc/detail/CheckInRecordPanel.tsx",
@@ -20,6 +52,36 @@
     ]
   },
   {
+    "path": "dc/detail/HistoryRecordPanel",
+    "id": "dc/detail/HistoryRecordPanel",
+    "file": "dc/detail/HistoryRecordPanel.tsx",
+    "componentName": "dc-detail-historyrecordpanel",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/detail/CalendarViewPanel",
+    "id": "dc/detail/CalendarViewPanel",
+    "file": "dc/detail/CalendarViewPanel.tsx",
+    "componentName": "dc-detail-calendarviewpanel",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/detail/CheckInCyclePanel",
+    "id": "dc/detail/CheckInCyclePanel",
+    "file": "dc/detail/CheckInCyclePanel.tsx",
+    "componentName": "dc-detail-checkincyclepanel",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
     "path": "dc/detail/CurrentCyclePanel",
     "id": "dc/detail/CurrentCyclePanel",
     "file": "dc/detail/CurrentCyclePanel.tsx",
@@ -30,10 +92,85 @@
     ]
   },
   {
+    "path": "dc/detail/HistoryCyclePanel",
+    "id": "dc/detail/HistoryCyclePanel",
+    "file": "dc/detail/HistoryCyclePanel.tsx",
+    "componentName": "dc-detail-historycyclepanel",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/detail/NumericCyclePanel",
+    "id": "dc/detail/NumericCyclePanel",
+    "file": "dc/detail/NumericCyclePanel.tsx",
+    "componentName": "dc-detail-numericcyclepanel",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/utils/mainlineTaskHelper",
+    "id": "dc/utils/mainlineTaskHelper",
+    "file": "dc/utils/mainlineTaskHelper.ts",
+    "componentName": "dc-utils-mainlinetaskhelper",
+    "layout": false,
+    "exports": [
+      "calculateCheckInProgress",
+      "calculateChecklistProgress",
+      "calculateNumericProgress",
+      "calculateRemainingDays",
+      "isTodayCheckedIn",
+      "updateMainlineTaskProgress"
+    ]
+  },
+  {
+    "path": "dc/CreateMainlineTaskModal",
+    "id": "dc/CreateMainlineTaskModal",
+    "file": "dc/CreateMainlineTaskModal.tsx",
+    "componentName": "dc-createmainlinetaskmodal",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/CreateSidelineTaskModal",
+    "id": "dc/CreateSidelineTaskModal",
+    "file": "dc/CreateSidelineTaskModal.tsx",
+    "componentName": "dc-createsidelinetaskmodal",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
     "path": "dc/detail/ProgressSection",
     "id": "dc/detail/ProgressSection",
     "file": "dc/detail/ProgressSection.tsx",
     "componentName": "dc-detail-progresssection",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/detail/RecordDataModal",
+    "id": "dc/detail/RecordDataModal",
+    "file": "dc/detail/RecordDataModal.tsx",
+    "componentName": "dc-detail-recorddatamodal",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/happy/TripSummaryModal",
+    "id": "dc/happy/TripSummaryModal",
+    "file": "dc/happy/TripSummaryModal.tsx",
+    "componentName": "dc-happy-tripsummarymodal",
     "layout": false,
     "exports": [
       "default"
@@ -60,6 +197,26 @@
     ]
   },
   {
+    "path": "dc/happy/CreateTripModal",
+    "id": "dc/happy/CreateTripModal",
+    "file": "dc/happy/CreateTripModal.tsx",
+    "componentName": "dc-happy-createtripmodal",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/happy/VacationContent",
+    "id": "dc/happy/VacationContent",
+    "file": "dc/happy/VacationContent.tsx",
+    "componentName": "dc-happy-vacationcontent",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
     "path": "dc/utils/cycleCalculator",
     "id": "dc/utils/cycleCalculator",
     "file": "dc/utils/cycleCalculator.ts",
@@ -67,6 +224,28 @@
     "layout": false,
     "exports": [
       "CycleCalculator"
+    ]
+  },
+  {
+    "path": "dc/context/TaskContext",
+    "id": "dc/context/TaskContext",
+    "file": "dc/context/TaskContext.tsx",
+    "componentName": "dc-context-taskcontext",
+    "layout": false,
+    "exports": [
+      "TaskProvider",
+      "default",
+      "useTaskContext"
+    ]
+  },
+  {
+    "path": "dc/happy/AddGoalModal",
+    "id": "dc/happy/AddGoalModal",
+    "file": "dc/happy/AddGoalModal.tsx",
+    "componentName": "dc-happy-addgoalmodal",
+    "layout": false,
+    "exports": [
+      "default"
     ]
   },
   {
@@ -100,6 +279,35 @@
     ]
   },
   {
+    "path": "dc/happy/GoalCard",
+    "id": "dc/happy/GoalCard",
+    "file": "dc/happy/GoalCard.tsx",
+    "componentName": "dc-happy-goalcard",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/happy/TripList",
+    "id": "dc/happy/TripList",
+    "file": "dc/happy/TripList.tsx",
+    "componentName": "dc-happy-triplist",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/context",
+    "index": true,
+    "id": "dc/context",
+    "file": "dc/context/index.ts",
+    "componentName": "dc-context-index",
+    "layout": false,
+    "exports": []
+  },
+  {
     "path": "dc/detail/TabBar",
     "id": "dc/detail/TabBar",
     "file": "dc/detail/TabBar.tsx",
@@ -107,6 +315,38 @@
     "layout": false,
     "exports": [
       "default"
+    ]
+  },
+  {
+    "path": "dc/happy/DayTabs",
+    "id": "dc/happy/DayTabs",
+    "file": "dc/happy/DayTabs.tsx",
+    "componentName": "dc-happy-daytabs",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/happy/storage",
+    "id": "dc/happy/storage",
+    "file": "dc/happy/storage.ts",
+    "componentName": "dc-happy-storage",
+    "layout": false,
+    "exports": [
+      "addGoalToSchedule",
+      "calculateTripStats",
+      "completeGoal",
+      "createTrip",
+      "deleteGoal",
+      "deleteTrip",
+      "getTrip",
+      "loadTrips",
+      "loadVacationState",
+      "saveTrips",
+      "saveVacationState",
+      "updateGoal",
+      "updateTrip"
     ]
   },
   {
@@ -136,6 +376,14 @@
     "id": "dc/detail/types",
     "file": "dc/detail/types.ts",
     "componentName": "dc-detail-types",
+    "layout": false,
+    "exports": []
+  },
+  {
+    "path": "dc/happy/types",
+    "id": "dc/happy/types",
+    "file": "dc/happy/types.ts",
+    "componentName": "dc-happy-types",
     "layout": false,
     "exports": []
   },

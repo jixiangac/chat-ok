@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Calendar, Plane, Plus, X, Archive } from 'lucide-react';
+import { Plus, X, Archive, Settings as SettingsIcon } from 'lucide-react';
 // import CreateGoalModal from './dc/CreateGoalModal';
 import CreateMainlineTaskModal from './dc/CreateMainlineTaskModal';
 import { MainlineTaskCard, SidelineTaskCard } from './dc/card';
@@ -8,6 +8,8 @@ import { Task, MainlineTask } from './dc/types';
 import VacationContent from './dc/happy/VacationContent';
 import { TaskProvider, useTaskContext } from './dc/context';
 import ArchiveList from './dc/archive';
+import Settings from './dc/settings';
+import { ThemeProvider } from './dc/settings/theme';
 
 function DemoPageContent() {
   const { tasks, addTask, refreshTasks } = useTaskContext();
@@ -15,8 +17,9 @@ function DemoPageContent() {
   const [mainlineModalVisible, setMainlineModalVisible] = useState(false);
   const [showAllSidelineTasks, setShowAllSidelineTasks] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
-  const [isVacationMode, setIsVacationMode] = useState(false);
+  const [activeTab, setActiveTab] = useState<'normal' | 'vacation' | 'memorial'>('normal');
   const [showArchive, setShowArchive] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   // 过滤掉已归档的任务
   const activeTasks = tasks.filter(t => (t as any).status !== 'archived');
@@ -118,33 +121,47 @@ function DemoPageContent() {
           alignItems: 'center',
           justifyContent: 'space-between'
         }}>
-          <h1 style={{ fontSize: '30px', margin: 0, fontWeight: 'normal' }}>36×10</h1>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            {/* 模式切换按钮 */}
-            <button 
-              onClick={() => setIsVacationMode(!isVacationMode)}
-              style={{
-                width: '32px',
-                height: '32px',
-                borderRadius: '8px',
-                border: 'none',
-                backgroundColor: isVacationMode ? '#f0f0f0' : 'transparent',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                transition: 'background-color 0.2s'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = isVacationMode ? '#f0f0f0' : 'transparent'}
-              title={isVacationMode ? "切换到常规模式" : "切换到度假模式"}
-            >
-              {isVacationMode ? (
-                <Calendar size={20} />
-              ) : (
-                <Plane size={20} />
-              )}
-            </button>
+          {/* TAB区域 */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+            {[
+              { key: 'normal', label: '常规' },
+              { key: 'vacation', label: '度假' },
+              { key: 'memorial', label: '纪念' }
+            ].map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key as 'normal' | 'vacation' | 'memorial')}
+                style={{
+                  position: 'relative',
+                  padding: '4px 0',
+                  border: 'none',
+                  backgroundColor: 'transparent',
+                  fontSize: '15px',
+                  fontWeight: activeTab === tab.key ? '500' : '400',
+                  color: activeTab === tab.key ? '#000' : '#999',
+                  cursor: 'pointer',
+                  transition: 'color 0.2s'
+                }}
+              >
+                {tab.label}
+                {/* 下划线 */}
+                <span style={{
+                  position: 'absolute',
+                  bottom: '-2px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  width: activeTab === tab.key ? '100%' : '0',
+                  height: '2px',
+                  backgroundColor: '#000',
+                  borderRadius: '1px',
+                  transition: 'width 0.2s ease'
+                }} />
+              </button>
+            ))}
+          </div>
+
+          {/* 右侧按钮区域 */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
             {/* 归档按钮 */}
             <button 
               onClick={() => setShowArchive(true)}
@@ -164,7 +181,7 @@ function DemoPageContent() {
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
               title="归档任务"
             >
-              <Archive size={20} />
+              <Archive size={18} />
             </button>
             {/* 添加按钮 */}
             <button 
@@ -184,7 +201,28 @@ function DemoPageContent() {
               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
             >
-              <Plus size={20} />
+              <Plus size={18} />
+            </button>
+            {/* 设置按钮 */}
+            <button 
+              onClick={() => setShowSettings(true)}
+              style={{
+                width: '32px',
+                height: '32px',
+                borderRadius: '8px',
+                border: 'none',
+                backgroundColor: 'transparent',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                transition: 'background-color 0.2s'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+              title="设置"
+            >
+              <SettingsIcon size={18} />
             </button>
           </div>
         </div>
@@ -226,9 +264,34 @@ function DemoPageContent() {
         overflowY: 'auto',
         padding: '12px 16px'
       }}>
-        {isVacationMode ? (
+        {activeTab === 'vacation' ? (
           // 度假模式内容
           <VacationContent onAddClick={handleAddClick} />
+        ) : activeTab === 'memorial' ? (
+          // 纪念模式 - 建设中
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: '60vh',
+            color: '#999'
+          }}>
+            <div style={{
+              fontSize: '48px',
+              marginBottom: '16px'
+            }}>🚧</div>
+            <div style={{
+              fontSize: '16px',
+              fontWeight: '500',
+              marginBottom: '8px',
+              color: '#666'
+            }}>建设中</div>
+            <div style={{
+              fontSize: '14px',
+              color: '#999'
+            }}>纪念功能即将上线</div>
+          </div>
         ) : (
           // 常规模式内容
           <>
@@ -568,14 +631,22 @@ function DemoPageContent() {
           />
         </div>
       )}
+
+      {/* Settings Modal */}
+      <Settings 
+        visible={showSettings}
+        onClose={() => setShowSettings(false)}
+      />
     </div>
   );
 }
 
 export default function DemoPage() {
   return (
-    <TaskProvider>
-      <DemoPageContent />
-    </TaskProvider>
+    <ThemeProvider>
+      <TaskProvider>
+        <DemoPageContent />
+      </TaskProvider>
+    </ThemeProvider>
   );
 }

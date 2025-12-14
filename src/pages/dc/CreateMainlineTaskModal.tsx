@@ -3,6 +3,7 @@ import { Popup } from 'antd-mobile';
 import { Target, TrendingUp, Tent, Trophy, BarChart3, ClipboardList, CheckCircle, Calendar } from 'lucide-react';
 import type { MainlineTaskType, NumericDirection, CheckInUnit } from './types';
 import { CycleCalculator } from './utils/cycleCalculator';
+import { useTheme } from './settings/theme';
 
 interface CreateMainlineTaskModalProps {
   visible: boolean;
@@ -62,6 +63,8 @@ export default function CreateMainlineTaskModal({
 }: CreateMainlineTaskModalProps) {
   // 任务类别（主线/支线）- 根据localStorage中是否存在未归档的主线任务自动判断
   const [taskCategory, setTaskCategory] = useState<'MAINLINE' | 'SIDELINE'>('MAINLINE');
+  
+  const { themeColors } = useTheme();
   
   // 每次弹窗打开时，从localStorage判断应该创建主线还是支线任务
   useEffect(() => {
@@ -1133,7 +1136,7 @@ export default function CreateMainlineTaskModal({
           style={{
             flex: 1,
             padding: '14px',
-            backgroundColor: (currentStep === 'type' && !selectedType) ? '#ccc' : 'black',
+            backgroundColor: (currentStep === 'type' && !selectedType) ? '#ccc' : themeColors.primary,
             color: 'white',
             border: 'none',
             borderRadius: '12px',

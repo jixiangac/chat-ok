@@ -11,6 +11,28 @@
     ]
   },
   {
+    "path": "dc/components/ThemedButton",
+    "index": true,
+    "id": "dc/components/ThemedButton",
+    "file": "dc/components/ThemedButton/index.tsx",
+    "componentName": "dc-components-themedbutton-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/settings/ThemeSettings",
+    "index": true,
+    "id": "dc/settings/ThemeSettings",
+    "file": "dc/settings/ThemeSettings/index.tsx",
+    "componentName": "dc-settings-themesettings-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
     "path": "dc/happy/GoalDetailModal",
     "index": true,
     "id": "dc/happy/GoalDetailModal",
@@ -30,6 +52,19 @@
     "layout": false,
     "exports": [
       "default"
+    ]
+  },
+  {
+    "path": "dc/settings/theme/ThemeContext",
+    "id": "dc/settings/theme/ThemeContext",
+    "file": "dc/settings/theme/ThemeContext.tsx",
+    "componentName": "dc-settings-theme-themecontext",
+    "layout": false,
+    "exports": [
+      "ThemeProvider",
+      "default",
+      "themePresets",
+      "useTheme"
     ]
   },
   {
@@ -239,6 +274,19 @@
     ]
   },
   {
+    "path": "dc/settings/theme",
+    "index": true,
+    "id": "dc/settings/theme",
+    "file": "dc/settings/theme/index.ts",
+    "componentName": "dc-settings-theme-index",
+    "layout": false,
+    "exports": [
+      "ThemeProvider",
+      "themePresets",
+      "useTheme"
+    ]
+  },
+  {
     "path": "dc/context/TaskContext",
     "id": "dc/context/TaskContext",
     "file": "dc/context/TaskContext.tsx",
@@ -268,6 +316,17 @@
     "layout": false,
     "exports": [
       "default"
+    ]
+  },
+  {
+    "path": "dc/components",
+    "index": true,
+    "id": "dc/components",
+    "file": "dc/components/index.ts",
+    "componentName": "dc-components-index",
+    "layout": false,
+    "exports": [
+      "ThemedButton"
     ]
   },
   {
@@ -305,6 +364,17 @@
     "id": "dc/happy/TripList",
     "file": "dc/happy/TripList.tsx",
     "componentName": "dc-happy-triplist",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/settings",
+    "index": true,
+    "id": "dc/settings",
+    "file": "dc/settings/index.tsx",
+    "componentName": "dc-settings-index",
     "layout": false,
     "exports": [
       "default"

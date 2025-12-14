@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Popup, Toast } from 'antd-mobile';
 import { FileText, Check, Archive, Clock, Hash } from 'lucide-react';
+import { useTheme } from '../settings/theme';
 import dayjs from 'dayjs';
 import GoalHeader from './GoalHeader';
 import NumericCyclePanel from './NumericCyclePanel';
@@ -177,12 +178,14 @@ export default function GoalDetailModal({
     const simulatedToday = getSimulatedToday(goalDetail);
     const today = dayjs(simulatedToday);
     const planEndDate = start.add(totalCycles * cycleDays - 1, 'day');
-    // 判断计划是否结束：基于时间 或 基于status 或 基于cycleSnapshots数量
+    // 判断计划是否结束：基于时间 或 基于status 或 基于cycleSnapshots数量 或 已归档
     const isPlanEndedByTime = today.isAfter(planEndDate);
-    const isPlanEndedByStatus = status === 'completed';
+    const isPlanEndedByStatus = status === 'completed' || status === 'archived';
     const isPlanEndedBySnapshots = (cycleSnapshots?.length || 0) >= totalCycles;
     return isPlanEndedByTime || isPlanEndedByStatus || isPlanEndedBySnapshots;
   }, [goalDetail]);
+  
+  const { themeColors } = useTheme();
   
   if (loading || !goalDetail) {
     return null;
@@ -458,7 +461,7 @@ export default function GoalDetailModal({
             style={{
               width: '100%',
               height: '52px',
-              background: (checkInLoading || isCheckInButtonDisabled()) ? '#ccc' : '#000',
+              background: (checkInLoading || isCheckInButtonDisabled()) ? '#ccc' : themeColors.primary,
               color: '#fff',
               border: 'none',
               borderRadius: '26px',

@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import dayjs from 'dayjs';
-import { Check, Calendar, Flame, Clock, Hash } from 'lucide-react';
+import { Check, Calendar, Flame, Clock, Hash, PartyPopper, ChartNoAxesCombined } from 'lucide-react';
 import type { GoalDetail, CurrentCycleInfo } from './types';
 import type { CheckInUnit } from '../types';
 import { getSimulatedToday } from './hooks';
@@ -137,7 +137,7 @@ export default function CheckInCyclePanel({
     const planEndDate = start.add(totalCycles * cycleDays - 1, 'day');
     // 判断计划是否结束：基于时间 或 基于status 或 基于cycleSnapshots数量
     const isPlanEndedByTime = today.isAfter(planEndDate);
-    const isPlanEndedByStatus = status === 'completed';
+    const isPlanEndedByStatus = status === 'completed' || status === 'archived';
     const isPlanEndedBySnapshots = (cycleSnapshots?.length || 0) >= totalCycles;
     const isPlanEnded = isPlanEndedByTime || isPlanEndedByStatus || isPlanEndedBySnapshots;
     
@@ -197,7 +197,7 @@ export default function CheckInCyclePanel({
         <div className={styles.summaryContainer}>
           {/* 总结标题 */}
           <div className={styles.summaryHeader}>
-            <span className={styles.summaryIcon}>{isSuccess ? '🎉' : '📊'}</span>
+            <span className={styles.summaryIcon}>{isSuccess ? <PartyPopper size={24} /> : <ChartNoAxesCombined size={24} />}</span>
             <span className={styles.summaryTitle}>计划已完成</span>
           </div>
           

@@ -1,8 +1,11 @@
 import { createRouteLoader, WrapRouteComponent, RouteErrorComponent } from '@ice/runtime';
 import type { CreateRoutes } from '@ice/runtime';
 import * as dc_detail_CheckInHistoryPanel from '@/pages/dc/detail/CheckInHistoryPanel/index';
+import * as dc_components_ThemedButton from '@/pages/dc/components/ThemedButton/index';
+import * as dc_settings_ThemeSettings from '@/pages/dc/settings/ThemeSettings/index';
 import * as dc_happy_GoalDetailModal from '@/pages/dc/happy/GoalDetailModal/index';
 import * as dc_happy_TripDetailModal from '@/pages/dc/happy/TripDetailModal/index';
+import * as dc_settings_theme_ThemeContext from '@/pages/dc/settings/theme/ThemeContext';
 import * as dc_detail_ChecklistCyclePanel from '@/pages/dc/detail/ChecklistCyclePanel';
 import * as dc_detail_CheckInModal from '@/pages/dc/detail/CheckInModal/index';
 import * as dc_detail_CheckInRecordPanel from '@/pages/dc/detail/CheckInRecordPanel';
@@ -23,13 +26,16 @@ import * as dc_card_SidelineTaskCard from '@/pages/dc/card/SidelineTaskCard';
 import * as dc_happy_CreateTripModal from '@/pages/dc/happy/CreateTripModal';
 import * as dc_happy_VacationContent from '@/pages/dc/happy/VacationContent';
 import * as dc_utils_cycleCalculator from '@/pages/dc/utils/cycleCalculator';
+import * as dc_settings_theme from '@/pages/dc/settings/theme/index';
 import * as dc_context_TaskContext from '@/pages/dc/context/TaskContext';
 import * as dc_happy_AddGoalModal from '@/pages/dc/happy/AddGoalModal';
 import * as dc_detail_GoalHeader from '@/pages/dc/detail/GoalHeader';
+import * as dc_components from '@/pages/dc/components/index';
 import * as dc_CreateGoalModal from '@/pages/dc/CreateGoalModal';
 import * as dc_detail_example from '@/pages/dc/detail/example';
 import * as dc_happy_GoalCard from '@/pages/dc/happy/GoalCard';
 import * as dc_happy_TripList from '@/pages/dc/happy/TripList';
+import * as dc_settings from '@/pages/dc/settings/index';
 import * as dc_archive from '@/pages/dc/archive/index';
 import * as dc_context from '@/pages/dc/context/index';
 import * as dc_detail_TabBar from '@/pages/dc/detail/TabBar';
@@ -83,6 +89,56 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["default"],
   },{
+    path: 'dc/components/ThemedButton',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_ThemedButton,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/ThemedButton',
+          isLayout: false,
+          routeExports: dc_components_ThemedButton,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/ThemedButton',
+          requestContext,
+          renderMode,
+          module: dc_components_ThemedButton,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-themedbutton-index',
+    index: true,
+    id: 'dc/components/ThemedButton',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/settings/ThemeSettings',
+    async lazy() {
+      ;
+      return {
+        ...dc_settings_ThemeSettings,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/settings/ThemeSettings',
+          isLayout: false,
+          routeExports: dc_settings_ThemeSettings,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/settings/ThemeSettings',
+          requestContext,
+          renderMode,
+          module: dc_settings_ThemeSettings,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-settings-themesettings-index',
+    index: true,
+    id: 'dc/settings/ThemeSettings',
+    exact: true,
+    exports: ["default"],
+  },{
     path: 'dc/happy/GoalDetailModal',
     async lazy() {
       ;
@@ -132,6 +188,31 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/happy/TripDetailModal',
     exact: true,
     exports: ["default"],
+  },{
+    path: 'dc/settings/theme/ThemeContext',
+    async lazy() {
+      ;
+      return {
+        ...dc_settings_theme_ThemeContext,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/settings/theme/ThemeContext',
+          isLayout: false,
+          routeExports: dc_settings_theme_ThemeContext,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/settings/theme/ThemeContext',
+          requestContext,
+          renderMode,
+          module: dc_settings_theme_ThemeContext,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-settings-theme-themecontext',
+    index: undefined,
+    id: 'dc/settings/theme/ThemeContext',
+    exact: true,
+    exports: ["ThemeProvider","default","themePresets","useTheme"],
   },{
     path: 'dc/detail/ChecklistCyclePanel',
     async lazy() {
@@ -633,6 +714,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["CycleCalculator"],
   },{
+    path: 'dc/settings/theme',
+    async lazy() {
+      ;
+      return {
+        ...dc_settings_theme,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/settings/theme',
+          isLayout: false,
+          routeExports: dc_settings_theme,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/settings/theme',
+          requestContext,
+          renderMode,
+          module: dc_settings_theme,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-settings-theme-index',
+    index: true,
+    id: 'dc/settings/theme',
+    exact: true,
+    exports: ["ThemeProvider","themePresets","useTheme"],
+  },{
     path: 'dc/context/TaskContext',
     async lazy() {
       ;
@@ -707,6 +813,31 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/detail/GoalHeader',
     exact: true,
     exports: ["default"],
+  },{
+    path: 'dc/components',
+    async lazy() {
+      ;
+      return {
+        ...dc_components,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components',
+          isLayout: false,
+          routeExports: dc_components,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components',
+          requestContext,
+          renderMode,
+          module: dc_components,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-index',
+    index: true,
+    id: 'dc/components',
+    exact: true,
+    exports: ["ThemedButton"],
   },{
     path: 'dc/CreateGoalModal',
     async lazy() {
@@ -805,6 +936,31 @@ const createRoutes: CreateRoutes = ({
     componentName: 'dc-happy-triplist',
     index: undefined,
     id: 'dc/happy/TripList',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/settings',
+    async lazy() {
+      ;
+      return {
+        ...dc_settings,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/settings',
+          isLayout: false,
+          routeExports: dc_settings,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/settings',
+          requestContext,
+          renderMode,
+          module: dc_settings,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-settings-index',
+    index: true,
+    id: 'dc/settings',
     exact: true,
     exports: ["default"],
   },{

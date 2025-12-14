@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Popup } from 'antd-mobile';
 import { Plus, Minus, FileText, Check } from 'lucide-react';
+import { useTheme } from '../settings/theme';
 import styles from '../css/RecordDataModal.module.css';
 
 type InputMode = 'direct' | 'delta';
@@ -25,6 +26,7 @@ export default function RecordDataModal({
   direction,
   loading
 }: RecordDataModalProps) {
+  const { themeColors } = useTheme();
   const [inputMode, setInputMode] = useState<InputMode>('direct');
   const [value, setValue] = useState<string>(currentValue.toString());
   const [deltaValue, setDeltaValue] = useState<string>('');
@@ -183,6 +185,7 @@ export default function RecordDataModal({
             className={styles.submitBtn} 
             onClick={handleSubmit}
             disabled={loading || isNaN(finalValue)}
+            style={{ backgroundColor: (loading || isNaN(finalValue)) ? '#ccc' : themeColors.primary }}
           >
             {loading ? '记录中...' : '确认记录'}
           </button>

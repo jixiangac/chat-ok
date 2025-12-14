@@ -19,96 +19,19 @@ interface CycleSummary {
   unit: string;
   isCurrent: boolean;
   isFuture: boolean;
+  showInProgressBadge: boolean; // 是否显示"进行中"标签
 }
 
 export default function HistoryCyclePanel({ goal }: HistoryCyclePanelProps) {
-  // 计算计划是否已结束
-  const planEndInfo = useMemo(() => {
-    const { cycleDays, totalCycles, startDate, numericConfig, cycleSnapshots } = goal;
-    const start = dayjs(startDate);
-    const today = dayjs();
-    
-    // 计算计划结束日期
-    const planEndDate = start.add(totalCycles * cycleDays - 1, 'day');
-    const isPlanEnded = today.isAfter(planEndDate);
-    
-    if (!isPlanEnded) {
-      return { isPlanEnded: false };
-    }
-    
-    // 获取最后一个周期的结算数据
-    const lastSnapshot = cycleSnapshots && cycleSnapshots.length > 0 
-      ? cycleSnapshots[cycleSnapshots.length - 1] 
-      : null;
-    
-    // 计算初始计划数据
-    let initialPlan = {
-      startValue: 0,
-      targetValue: 0,
-      unit: '',
-      direction: 'INCREASE' as 'INCREASE' | 'DECREASE'
-    };
-    
-    let finalResult = {
-      actualValue: 0,
-      targetValue: 0,
-      unit: '',
-      completionRate: 0
-    };
-    
-    if (numericConfig) {
-      // 数值型目标
-      // 初始计划：使用第一个快照的目标值作为起点，或者使用numericConfig的startValue
-      const firstSnapshot = cycleSnapshots && cycleSnapshots.length > 0 ? cycleSnapshots[0] : null;
-      initialPlan = {
-        startValue: firstSnapshot ? (firstSnapshot.targetValue + (numericConfig.direction === 'DECREASE' ? (firstSnapshot.targetValue - numericConfig.targetValue) / totalCycles * (totalCycles - 1) : -(numericConfig.targetValue - firstSnapshot.targetValue) / totalCycles * (totalCycles - 1))) : numericConfig.startValue,
-        targetValue: numericConfig.targetValue,
-        unit: numericConfig.unit,
-        direction: numericConfig.direction
-      };
-      
-      // 最终结果
-      if (lastSnapshot) {
-        finalResult = {
-          actualValue: lastSnapshot.actualValue,
-          targetValue: lastSnapshot.targetValue,
-          unit: lastSnapshot.unit,
-          completionRate: lastSnapshot.completionRate
-        };
-      } else {
-        finalResult = {
-          actualValue: numericConfig.currentValue,
-          targetValue: numericConfig.targetValue,
-          unit: numericConfig.unit,
-          completionRate: 0
-        };
-      }
-    }
-    
-    // 计算总体完成率（所有周期的平均完成率）
-    const allCompletionRates = cycleSnapshots?.map(s => s.completionRate) || [];
-    const averageCompletionRate = allCompletionRates.length > 0 
-      ? Math.round(allCompletionRates.reduce((a, b) => a + b, 0) / allCompletionRates.length)
-      : 0;
-    
-    return {
-      isPlanEnded: true,
-      planStartDate: start.format('YYYY-MM-DD'),
-      planEndDate: planEndDate.format('YYYY-MM-DD'),
-      totalCycles,
-      completedCycles: cycleSnapshots?.length || 0,
-      initialPlan,
-      finalResult,
-      averageCompletionRate
-    };
-  }, [goal]);
-  
   const cycleSummaries = useMemo(() => {
     const summaries: CycleSummary[] = [];
     const { cycleDays, totalCycles, startDate, numericConfig, checklistConfig, checkInConfig, minCheckInsPerCycle, history, cycleSnapshots } = goal;
     
     const start = dayjs(startDate);
     const today = dayjs();
+    
+    // 判断计划是否已结束（归档或完成）
+    const isPlanEnded = goal.status === 'archived' || goal.status === 'completed';
     
     // 计算实际的当前周期（基于时间）
     const daysSinceStart = today.diff(start, 'day');
@@ -119,7 +42,8 @@ export default function HistoryCyclePanel({ goal }: HistoryCyclePanelProps) {
     
     // 模拟的当前周期 = 实际当前周期 + 已跳过的周期数
     // 但不能超过总周期数
-    const simulatedCurrentCycleNumber = Math.min(realCurrentCycleNumber + snapshotCount, totalCycles);
+    // 如果计划已结束，则没有当前周期（设为0表示没有进行中的周期）
+    const simulatedCurrentCycleNumber = isPlanEnded ? 0 : Math.min(realCurrentCycleNumber + snapshotCount, totalCycles);
     
     // 先添加过去周期的快照数据（这些数据不会改变）
     if (cycleSnapshots && cycleSnapshots.length > 0) {
@@ -134,7 +58,8 @@ export default function HistoryCyclePanel({ goal }: HistoryCyclePanelProps) {
           actualValue: snapshot.actualValue, // 结算值
           unit: snapshot.unit,
           isCurrent: false,
-          isFuture: false
+          isFuture: false,
+          showInProgressBadge: false // 快照周期已结束，不显示进行中标签
         });
       }
     }
@@ -218,6 +143,9 @@ export default function HistoryCyclePanel({ goal }: HistoryCyclePanelProps) {
         completionRate = minCheckInsPerCycle > 0 ? Math.min(100, Math.round((cycleCheckIns / minCheckInsPerCycle) * 100)) : 0;
       }
       
+      // 计算是否是当前周期（用于边框高亮，不受归档状态影响）
+      const isCurrentCycle = actualCycleNumber === Math.min(realCurrentCycleNumber + snapshotCount, totalCycles);
+      
       summaries.push({
         cycleNumber: actualCycleNumber,
         startDate: cycleStart.format('YYYY-MM-DD'),
@@ -226,8 +154,9 @@ export default function HistoryCyclePanel({ goal }: HistoryCyclePanelProps) {
         completedValue,
         targetValue,
         unit,
-        isCurrent: actualCycleNumber === simulatedCurrentCycleNumber,
-        isFuture: actualCycleNumber > simulatedCurrentCycleNumber
+        isCurrent: isCurrentCycle, // 边框高亮始终保留
+        isFuture: !isPlanEnded && actualCycleNumber > simulatedCurrentCycleNumber,
+        showInProgressBadge: !isPlanEnded && isCurrentCycle // 只有未归档时才显示"进行中"标签
       });
     }
     
@@ -246,72 +175,6 @@ export default function HistoryCyclePanel({ goal }: HistoryCyclePanelProps) {
           />
           {/* <div className={styles.emptyText}>暂无历史周期</div> */}
           <div className={styles.emptyHint}>暂无历史周期</div>
-        </div>
-      </div>
-    );
-  }
-  
-  // 如果计划已结束，显示总结视图
-  if (planEndInfo.isPlanEnded && planEndInfo.initialPlan && planEndInfo.finalResult) {
-    const { initialPlan, finalResult, planStartDate, planEndDate, totalCycles, completedCycles, averageCompletionRate } = planEndInfo;
-    const isSuccess = initialPlan.direction === 'DECREASE' 
-      ? finalResult.actualValue <= finalResult.targetValue
-      : finalResult.actualValue >= finalResult.targetValue;
-    
-    return (
-      <div className={styles.container}>
-        <div className={styles.summaryContainer}>
-          {/* 总结标题 */}
-          <div className={styles.summaryHeader}>
-            <span className={styles.summaryIcon}>{isSuccess ? '🎉' : '📊'}</span>
-            <span className={styles.summaryTitle}>计划已完成</span>
-          </div>
-          
-          {/* 时间范围 */}
-          <div className={styles.summaryPeriod}>
-            {dayjs(planStartDate).format('YYYY/MM/DD')} - {dayjs(planEndDate).format('YYYY/MM/DD')}
-          </div>
-          
-          {/* 对比卡片 */}
-          <div className={styles.comparisonCards}>
-            {/* 初始计划 */}
-            <div className={styles.comparisonCard}>
-              <div className={styles.cardLabel}>初始计划</div>
-              <div className={styles.cardValue}>
-                {initialPlan.startValue} → {initialPlan.targetValue}{initialPlan.unit}
-              </div>
-              <div className={styles.cardHint}>
-                {initialPlan.direction === 'DECREASE' ? '减少' : '增加'}目标
-              </div>
-            </div>
-            
-            {/* 最终结果 */}
-            <div className={`${styles.comparisonCard} ${isSuccess ? styles.successCard : styles.normalCard}`}>
-              <div className={styles.cardLabel}>最终结算</div>
-              <div className={styles.cardValue}>
-                {finalResult.actualValue}{finalResult.unit}
-              </div>
-              <div className={styles.cardHint}>
-                目标: {finalResult.targetValue}{finalResult.unit}
-              </div>
-            </div>
-          </div>
-          
-          {/* 统计数据 */}
-          <div className={styles.summaryStats}>
-            <div className={styles.statItem}>
-              <div className={styles.statValue}>{completedCycles}/{totalCycles}</div>
-              <div className={styles.statLabel}>完成周期</div>
-            </div>
-            <div className={styles.statItem}>
-              <div className={styles.statValue}>{averageCompletionRate}%</div>
-              <div className={styles.statLabel}>平均完成率</div>
-            </div>
-            <div className={styles.statItem}>
-              <div className={styles.statValue}>{isSuccess ? '达成' : '未达成'}</div>
-              <div className={styles.statLabel}>目标状态</div>
-            </div>
-          </div>
         </div>
       </div>
     );
@@ -369,7 +232,7 @@ export default function HistoryCyclePanel({ goal }: HistoryCyclePanelProps) {
               <div className={styles.cycleInfo}>
                 <div className={styles.cycleTitle}>
                   <span>第{cycle.cycleNumber}周期</span>
-                  {cycle.isCurrent && <span className={styles.currentBadge}>进行中</span>}
+                  {cycle.showInProgressBadge && <span className={styles.currentBadge}>进行中</span>}
                 </div>
                 <div className={styles.cycleDate}>
                   <Calendar size={12} />

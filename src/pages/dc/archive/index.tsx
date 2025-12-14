@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { Task } from '../types';
+import { useTheme } from '../settings/theme';
 import styles from './ArchiveList.module.css';
 
 interface ArchiveListProps {
@@ -100,6 +101,7 @@ type TaskTypeFilter = 'all' | 'mainline' | 'sideline';
 type CompletionFilter = 'all' | 'completed' | 'incomplete';
 
 export default function ArchiveList({ onBack, onTaskClick }: ArchiveListProps) {
+  const { themeColors } = useTheme();
   const [archivedTasks, setArchivedTasks] = useState<Task[]>([]);
   const [taskTypeFilter, setTaskTypeFilter] = useState<TaskTypeFilter>('all');
   const [completionFilter, setCompletionFilter] = useState<CompletionFilter>('all');
@@ -151,18 +153,21 @@ export default function ArchiveList({ onBack, onTaskClick }: ArchiveListProps) {
           <button
             className={`${styles.filterButton} ${taskTypeFilter === 'all' ? styles.filterButtonActive : ''}`}
             onClick={() => setTaskTypeFilter('all')}
+            style={taskTypeFilter === 'all' ? { backgroundColor: themeColors.primary, borderColor: themeColors.primary } : {}}
           >
             全部
           </button>
           <button
             className={`${styles.filterButton} ${taskTypeFilter === 'mainline' ? styles.filterButtonActive : ''}`}
             onClick={() => setTaskTypeFilter('mainline')}
+            style={taskTypeFilter === 'mainline' ? { backgroundColor: themeColors.primary, borderColor: themeColors.primary } : {}}
           >
             主线任务
           </button>
           <button
             className={`${styles.filterButton} ${taskTypeFilter === 'sideline' ? styles.filterButtonActive : ''}`}
             onClick={() => setTaskTypeFilter('sideline')}
+            style={taskTypeFilter === 'sideline' ? { backgroundColor: themeColors.primary, borderColor: themeColors.primary } : {}}
           >
             支线任务
           </button>
@@ -171,18 +176,21 @@ export default function ArchiveList({ onBack, onTaskClick }: ArchiveListProps) {
           <button
             className={`${styles.filterButton} ${completionFilter === 'all' ? styles.filterButtonActive : ''}`}
             onClick={() => setCompletionFilter('all')}
+            style={completionFilter === 'all' ? { backgroundColor: themeColors.primary, borderColor: themeColors.primary } : {}}
           >
             全部
           </button>
           <button
             className={`${styles.filterButton} ${completionFilter === 'completed' ? styles.filterButtonActive : ''}`}
             onClick={() => setCompletionFilter('completed')}
+            style={completionFilter === 'completed' ? { backgroundColor: themeColors.primary, borderColor: themeColors.primary } : {}}
           >
             已完成
           </button>
           <button
             className={`${styles.filterButton} ${completionFilter === 'incomplete' ? styles.filterButtonActive : ''}`}
             onClick={() => setCompletionFilter('incomplete')}
+            style={completionFilter === 'incomplete' ? { backgroundColor: themeColors.primary, borderColor: themeColors.primary } : {}}
           >
             未完成
           </button>

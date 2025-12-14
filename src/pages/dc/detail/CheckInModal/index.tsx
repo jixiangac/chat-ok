@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Popup } from 'antd-mobile';
 import { Clock, Hash, Check, Plus, Minus } from 'lucide-react';
 import type { CheckInUnit } from '../../types';
+import { useTheme } from '../../settings/theme';
 import styles from './styles.module.css';
 
 interface CheckInModalProps {
@@ -32,6 +33,7 @@ export default function CheckInModal({
   dailyTargetValue = 0,
   todayValue = 0
 }: CheckInModalProps) {
+  const { themeColors } = useTheme();
   const [selectedDuration, setSelectedDuration] = useState<number | null>(null);
   const [customDuration, setCustomDuration] = useState('');
   const [inputValue, setInputValue] = useState('');
@@ -92,6 +94,7 @@ export default function CheckInModal({
             className={styles.submitButton}
             onClick={handleSubmit}
             disabled={loading}
+            style={{ backgroundColor: loading ? '#ccc' : themeColors.primary }}
           >
             {loading ? '打卡中...' : '确认打卡'}
           </button>
@@ -162,6 +165,7 @@ export default function CheckInModal({
             className={styles.submitButton}
             onClick={handleSubmit}
             disabled={loading || (!selectedDuration && !customDuration)}
+            style={{ backgroundColor: (loading || (!selectedDuration && !customDuration)) ? '#ccc' : themeColors.primary }}
           >
             {loading ? '记录中...' : `记录 ${selectedDuration || customDuration || 0} 分钟`}
           </button>
@@ -244,6 +248,7 @@ export default function CheckInModal({
           className={styles.submitButton}
           onClick={handleSubmit}
           disabled={loading || !inputValue || parseFloat(inputValue) <= 0}
+          style={{ backgroundColor: (loading || !inputValue || parseFloat(inputValue) <= 0) ? '#ccc' : themeColors.primary }}
         >
           {loading ? '记录中...' : `记录 ${inputValue || 0} ${valueUnit}`}
         </button>

@@ -1,0 +1,12 @@
+.themed-button {
+  outline: none;
+}
+
+.themed-button:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.themed-button:active:not(:disabled) {
+  opacity: 0.8;
+  transform: scale(0.98);
+}

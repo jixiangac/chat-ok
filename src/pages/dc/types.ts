@@ -182,11 +182,15 @@ export interface Task {
   startDate?: string;
   cycleDays?: number;
   totalCycles?: number;
+  
+  // 支线任务主题色（创建时分配，固定不变）
+  themeColor?: string;
   minCheckInsPerCycle?: number;
   checkIns?: Array<{
     id: string;
     date: string;
     timestamp: number;
+    value?: number; // 时长(分钟)或数值
   }>;
 }
 

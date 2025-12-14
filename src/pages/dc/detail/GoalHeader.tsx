@@ -103,9 +103,29 @@ export default function GoalHeader({
       const config = goal.checklistConfig;
       return config.totalItems > 0 ? Math.round((config.completedItems / config.totalItems) * 100) : 0;
     }
-    // CHECK_IN 类型
-    const totalRequired = totalCycles * requiredCheckIns;
-    return totalRequired > 0 ? Math.round((totalCheckIns / totalRequired) * 100) : 0;
+    // CHECK_IN 类型 - 根据打卡单位类型计算
+    const config = goal.checkInConfig;
+    const unit = config?.unit || 'TIMES';
+    const checkIns = goal.checkIns || [];
+    
+    if (unit === 'TIMES') {
+      // 次数型：按打卡次数计算
+      const perCycleTarget = config?.cycleTargetTimes || config?.perCycleTarget || requiredCheckIns;
+      const totalRequired = totalCycles * perCycleTarget;
+      return totalRequired > 0 ? Math.round((checkIns.length / totalRequired) * 100) : 0;
+    } else if (unit === 'DURATION') {
+      // 时长型：按累计时长计算
+      const perCycleTarget = config?.cycleTargetMinutes || config?.perCycleTarget || 0;
+      const totalRequired = totalCycles * perCycleTarget;
+      const totalValue = checkIns.reduce((sum, c) => sum + (c.value || 0), 0);
+      return totalRequired > 0 ? Math.round((totalValue / totalRequired) * 100) : 0;
+    } else {
+      // 数值型：按累计数值计算
+      const perCycleTarget = config?.cycleTargetValue || config?.perCycleTarget || 0;
+      const totalRequired = totalCycles * perCycleTarget;
+      const totalValue = checkIns.reduce((sum, c) => sum + (c.value || 0), 0);
+      return totalRequired > 0 ? Math.round((totalValue / totalRequired) * 100) : 0;
+    }
   };
   
   const progress = getProgress();
@@ -262,7 +282,29 @@ export default function GoalHeader({
               <span className={styles.infoValue}>
                 {goal.numericConfig 
                   ? <>{formatLargeNumber(goal.numericConfig.currentValue)}<span style={{ padding: '0 5px' }}>/</span><span className={styles.infoValueTarget}>{formatLargeNumber(goal.numericConfig.targetValue)}</span>{goal.numericConfig.unit}</>
-                  : `${remainingDays}天`}
+                  : goal.checklistConfig
+                    ? <>{goal.checklistConfig.completedItems}<span style={{ padding: '0 5px' }}>/</span><span className={styles.infoValueTarget}>{goal.checklistConfig.totalItems}</span>项</>
+                    : (() => {
+                        const config = goal.checkInConfig;
+                        const unit = config?.unit || 'TIMES';
+                        const checkIns = goal.checkIns || [];
+                        if (unit === 'TIMES') {
+                          const perCycleTarget = config?.cycleTargetTimes || config?.perCycleTarget || requiredCheckIns;
+                          const totalTarget = totalCycles * perCycleTarget;
+                          return <>{checkIns.length}<span style={{ padding: '0 5px' }}>/</span><span className={styles.infoValueTarget}>{totalTarget}</span>次</>;
+                        } else if (unit === 'DURATION') {
+                          const perCycleTarget = config?.cycleTargetMinutes || config?.perCycleTarget || 0;
+                          const totalTarget = totalCycles * perCycleTarget;
+                          const totalValue = checkIns.reduce((sum, c) => sum + (c.value || 0), 0);
+                          return <>{totalValue}<span style={{ padding: '0 5px' }}>/</span><span className={styles.infoValueTarget}>{totalTarget}</span>分钟</>;
+                        } else {
+                          const perCycleTarget = config?.cycleTargetValue || config?.perCycleTarget || 0;
+                          const totalTarget = totalCycles * perCycleTarget;
+                          const totalValue = checkIns.reduce((sum, c) => sum + (c.value || 0), 0);
+                          return <>{totalValue}<span style={{ padding: '0 5px' }}>/</span><span className={styles.infoValueTarget}>{totalTarget}</span>{config?.valueUnit || '个'}</>;
+                        }
+                      })()
+                }
               </span>
             </div>
           </div>

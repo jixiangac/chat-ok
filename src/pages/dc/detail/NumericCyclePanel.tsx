@@ -1,6 +1,8 @@
 import { useMemo } from 'react';
+import dayjs from 'dayjs';
 import { BarChart3, ArrowRight, Calendar } from 'lucide-react';
 import type { GoalDetail, CurrentCycleInfo } from './types';
+import { getSimulatedToday } from './hooks';
 import styles from '../css/NumericCyclePanel.module.css';
 
 // 千分位格式化
@@ -21,11 +23,69 @@ export default function NumericCyclePanel({
 }: NumericCyclePanelProps) {
   const config = goal.numericConfig;
   
+  // 获取模拟的"今日"日期
+  const effectiveToday = getSimulatedToday(goal);
+  
   if (!config) {
     return <div className={styles.container}>数值配置缺失</div>;
   }
   
   const isDecrease = config.direction === 'DECREASE';
+  
+  // 判断计划是否已结束
+  const planEndInfo = useMemo(() => {
+    const { cycleDays, totalCycles, startDate, cycleSnapshots, status } = goal;
+    const start = dayjs(startDate);
+    const today = dayjs();
+    
+    // 计算计划结束日期
+    const planEndDate = start.add(totalCycles * cycleDays - 1, 'day');
+    // 判断计划是否结束：基于时间 或 基于status 或 基于cycleSnapshots数量
+    const isPlanEndedByTime = today.isAfter(planEndDate);
+    const isPlanEndedByStatus = status === 'completed';
+    const isPlanEndedBySnapshots = (cycleSnapshots?.length || 0) >= totalCycles;
+    const isPlanEnded = isPlanEndedByTime || isPlanEndedByStatus || isPlanEndedBySnapshots;
+    
+    if (!isPlanEnded) {
+      return { isPlanEnded: false };
+    }
+    
+    // 获取最后一个周期的结算数据
+    const lastSnapshot = cycleSnapshots && cycleSnapshots.length > 0 
+      ? cycleSnapshots[cycleSnapshots.length - 1] 
+      : null;
+    
+    // 计算初始计划数据
+    const originalStart = config.originalStartValue ?? config.startValue;
+    
+    // 最终结果
+    const finalActualValue = lastSnapshot ? lastSnapshot.actualValue : config.currentValue;
+    
+    // 计算总体完成率（所有周期的平均完成率）
+    const allCompletionRates = cycleSnapshots?.map(s => s.completionRate) || [];
+    const averageCompletionRate = allCompletionRates.length > 0 
+      ? Math.round(allCompletionRates.reduce((a, b) => a + b, 0) / allCompletionRates.length)
+      : 0;
+    
+    // 判断是否达成目标
+    const isSuccess = isDecrease 
+      ? finalActualValue <= config.targetValue
+      : finalActualValue >= config.targetValue;
+    
+    return {
+      isPlanEnded: true,
+      planStartDate: start.format('YYYY-MM-DD'),
+      planEndDate: planEndDate.format('YYYY-MM-DD'),
+      totalCycles,
+      completedCycles: cycleSnapshots?.length || 0,
+      originalStartValue: originalStart,
+      targetValue: config.targetValue,
+      finalActualValue,
+      averageCompletionRate,
+      isSuccess,
+      unit: config.unit
+    };
+  }, [goal, config, isDecrease]);
   // 使用原始起始值计算总目标进度
   const originalStart = config.originalStartValue ?? config.startValue;
   const totalChange = Math.abs(config.targetValue - originalStart);
@@ -122,6 +182,73 @@ export default function NumericCyclePanel({
   
   const { cycleStartValue, cycleTargetValue, cycleAchieved, cycleRemaining, cycleProgress } = cycleData;
   
+  // 如果计划已结束，显示总结视图
+  if (planEndInfo.isPlanEnded) {
+    const { 
+      planStartDate, planEndDate, totalCycles, completedCycles, 
+      originalStartValue, targetValue, finalActualValue, 
+      averageCompletionRate, isSuccess, unit 
+    } = planEndInfo;
+    
+    return (
+      <div className={styles.container}>
+        <div className={styles.summaryContainer}>
+          {/* 总结标题 */}
+          <div className={styles.summaryHeader}>
+            <span className={styles.summaryIcon}>{isSuccess ? '🎉' : '📊'}</span>
+            <span className={styles.summaryTitle}>计划已完成</span>
+          </div>
+          
+          {/* 时间范围 */}
+          <div className={styles.summaryPeriod}>
+            {dayjs(planStartDate).format('YYYY/MM/DD')} - {dayjs(planEndDate).format('YYYY/MM/DD')}
+          </div>
+          
+          {/* 对比卡片 */}
+          <div className={styles.comparisonCards}>
+            {/* 初始计划 */}
+            <div className={styles.comparisonCard}>
+              <div className={styles.cardLabel}>初始计划</div>
+              <div className={styles.cardValue}>
+                {originalStartValue} → {targetValue}{unit}
+              </div>
+              <div className={styles.cardHint}>
+                {isDecrease ? '减少' : '增加'}目标
+              </div>
+            </div>
+            
+            {/* 最终结果 */}
+            <div className={`${styles.comparisonCard} ${isSuccess ? styles.successCard : styles.normalCard}`}>
+              <div className={styles.cardLabel}>最终结算</div>
+              <div className={styles.cardValue}>
+                {finalActualValue}{unit}
+              </div>
+              <div className={styles.cardHint}>
+                目标: {targetValue}{unit}
+              </div>
+            </div>
+          </div>
+          
+          {/* 统计数据 */}
+          <div className={styles.summaryStats}>
+            <div className={styles.statItem}>
+              <div className={styles.statValue}>{completedCycles}/{totalCycles}</div>
+              <div className={styles.statLabel}>完成周期</div>
+            </div>
+            <div className={styles.statItem}>
+              <div className={styles.statValue}>{averageCompletionRate}%</div>
+              <div className={styles.statLabel}>平均完成率</div>
+            </div>
+            <div className={styles.statItem}>
+              <div className={styles.statValue}>{isSuccess ? '达成' : '未达成'}</div>
+              <div className={styles.statLabel}>目标状态</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
   return (
     <div className={styles.container}>
       {/* 本周期目标卡片 */}
@@ -142,6 +269,17 @@ export default function NumericCyclePanel({
             className={styles.progressFill}
             style={{ width: `${Math.min(cycleProgress, 100)}%` }}
           />
+        </div>
+        
+        {/* 当前日期和周期进度 */}
+        <div className={styles.dateInfo}>
+          <span className={styles.currentDate}>
+            <Calendar size={14} />
+            {dayjs(effectiveToday).format('M月D日')}
+          </span>
+          <span className={styles.cycleDayProgress}>
+            第 <strong>{Math.max(1, dayjs(effectiveToday).diff(dayjs(cycle.startDate), 'day') + 1)}</strong> / {goal.cycleDays} 天
+          </span>
         </div>
         
         <div className={styles.progressStats}>

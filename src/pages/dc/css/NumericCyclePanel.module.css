@@ -54,7 +54,7 @@
   background: #e0e0e0;
   border-radius: 3px;
   overflow: hidden;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .progressFill {
@@ -62,6 +62,32 @@
   background: linear-gradient(90deg, #000 0%, #333 100%);
   border-radius: 3px;
   transition: width 0.4s ease;
+}
+
+/* 当前日期和周期进度 */
+.dateInfo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: #666;
+}
+
+.currentDate {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cycleDayProgress {
+  color: #999;
+}
+
+.cycleDayProgress strong {
+  color: #000;
+  font-weight: 600;
 }
 
 /* 进度统计 */
@@ -130,4 +156,83 @@
 
 .timeIcon {
   font-size: 16px;
+}
+
+/* 总结视图样式 */
+.summaryContainer {
+  background: #f5f5f5;
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.summaryHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.summaryIcon {
+  font-size: 20px;
+}
+
+.summaryTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #000;
+}
+
+.summaryPeriod {
+  font-size: 13px;
+  color: #999;
+  margin-bottom: 20px;
+}
+
+.comparisonCards {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.comparisonCard {
+  flex: 1;
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+}
+
+.successCard {
+  background: #f0f9f0;
+  border: 1px solid #d4edda;
+}
+
+.normalCard {
+  background: #fff8f0;
+  border: 1px solid #ffeeba;
+}
+
+.cardLabel {
+  font-size: 12px;
+  color: #999;
+  margin-bottom: 8px;
+}
+
+.cardValue {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 6px;
+}
+
+.cardHint {
+  font-size: 11px;
+  color: #999;
+}
+
+.summaryStats {
+  display: flex;
+  justify-content: space-around;
+  padding-top: 16px;
+  border-top: 1px solid #e0e0e0;
 }

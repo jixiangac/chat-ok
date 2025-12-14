@@ -254,3 +254,23 @@
 .menuItem:only-child {
   border-radius: 8px;
 }
+
+.menuItemDisabled {
+  color: #999;
+  cursor: not-allowed;
+  display: flex;
+  align-items: center;
+}
+
+.menuItemDisabled:hover {
+  background: transparent;
+}
+
+.devTag {
+  margin-left: auto;
+  font-size: 11px;
+  color: #999;
+  background: #f0f0f0;
+  padding: 2px 6px;
+  border-radius: 4px;
+}

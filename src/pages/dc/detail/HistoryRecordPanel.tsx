@@ -8,6 +8,11 @@ interface HistoryRecordPanelProps {
   goal: GoalDetail;
 }
 
+// 千分位格式化
+const formatNumber = (num: number): string => {
+  return num.toLocaleString('zh-CN');
+};
+
 export default function HistoryRecordPanel({ goal }: HistoryRecordPanelProps) {
   const history = goal.history || [];
   const config = goal.numericConfig;
@@ -47,10 +52,10 @@ export default function HistoryRecordPanel({ goal }: HistoryRecordPanelProps) {
             <div key={`${record.date}-${index}`} className={styles.recordItem}>
               <div className={styles.recordContent}>
                 <div className={styles.recordValue}>
-                  {record.value}{config?.unit || ''}
+                  {formatNumber(record.value ?? 0)}{config?.unit || ''}
                 </div>
                 <div className={`${styles.recordChange} ${isPositive ? styles.positive : styles.negative}`}>
-                  {changeValue > 0 ? '+' : ''}{changeValue}
+                  {changeValue > 0 ? '+' : ''}{formatNumber(changeValue)}
                   {changeValue > 0 ? <TrendingUp size={14} style={{ marginLeft: 4 }} /> : <TrendingDown size={14} style={{ marginLeft: 4 }} />}
                 </div>
               </div>

@@ -1,61 +1,43 @@
 import { useState } from 'react';
-import { Calendar, Plane, Plus, X } from 'lucide-react';
-import CreateGoalModal from './dc/CreateGoalModal';
+import { Calendar, Plane, Plus, X, Archive } from 'lucide-react';
+// import CreateGoalModal from './dc/CreateGoalModal';
 import CreateMainlineTaskModal from './dc/CreateMainlineTaskModal';
-import CreateSidelineTaskModal from './dc/CreateSidelineTaskModal';
 import { MainlineTaskCard, SidelineTaskCard } from './dc/card';
 import GoalDetailModal from './dc/detail';
 import { Task, MainlineTask } from './dc/types';
 import VacationContent from './dc/happy/VacationContent';
 import { TaskProvider, useTaskContext } from './dc/context';
+import ArchiveList from './dc/archive';
 
 function DemoPageContent() {
   const { tasks, addTask, refreshTasks } = useTaskContext();
   const [modalVisible, setModalVisible] = useState(false);
   const [mainlineModalVisible, setMainlineModalVisible] = useState(false);
-  const [sidelineModalVisible, setSidelineModalVisible] = useState(false);
   const [showAllSidelineTasks, setShowAllSidelineTasks] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [isVacationMode, setIsVacationMode] = useState(false);
+  const [showArchive, setShowArchive] = useState(false);
 
-  // 检查是否有主线或支线任务
-  const hasMainOrSubTasks = tasks.some(t => t.type === 'mainline' || t.type === 'sidelineA' || t.type === 'sidelineB');
+  // 过滤掉已归档的任务
+  const activeTasks = tasks.filter(t => (t as any).status !== 'archived');
 
-  // 获取支线任务
-  const sidelineTasks = tasks.filter(t => t.type === 'sidelineA' || t.type === 'sidelineB');
+  // 检查是否有主线或支线任务（排除已归档）
+  const hasMainOrSubTasks = activeTasks.some(t => t.type === 'mainline' || t.type === 'sidelineA' || t.type === 'sidelineB');
+
+  // 获取支线任务（排除已归档）
+  const sidelineTasks = activeTasks.filter(t => t.type === 'sidelineA' || t.type === 'sidelineB');
   const displayedSidelineTasks = sidelineTasks.slice(0, 3);
 
-  // 检查是否已有主线任务
-  const hasMainlineTask = tasks.some(t => t.type === 'mainline');
+  // 检查是否已有主线任务（排除已归档）
+  const hasMainlineTask = activeTasks.some(t => t.type === 'mainline');
 
-  const handleCreateGoal = (goal: any) => {
+  // 处理任务创建（统一处理主线和支线任务）
+  const handleCreateTask = (taskData: any) => {
     const today = new Date().toISOString().split('T')[0];
-    const newTask: Task = {
-      id: Date.now().toString(),
-      title: goal.title,
-      progress: 0,
-      currentDay: 0,
-      totalDays: 180, // 默认6个月
-      type: goal.type, // 直接使用 goal.type
-      // 添加详情页需要的字段
-      icon: goal.icon || '🎯',
-      encouragement: goal.encouragement || '',
-      startDate: today,
-      cycleDays: goal.cycleDays || 10,
-      totalCycles: Math.ceil(180 / (goal.cycleDays || 10)),
-      minCheckInsPerCycle: 3,
-      checkIns: []
-    };
-    addTask(newTask);
-    setModalVisible(false);
-  };
-
-  // 处理主线任务创建
-  const handleCreateMainlineTask = (taskData: any) => {
-    const today = new Date().toISOString().split('T')[0];
+    const isMainline = taskData.taskCategory === 'MAINLINE';
     
-    // 创建主线任务对象
-    const mainlineTask: MainlineTask = {
+    // 创建任务对象
+    const task: MainlineTask = {
       id: Date.now().toString(),
       mainlineType: taskData.mainlineType,
       title: taskData.title,
@@ -90,14 +72,14 @@ function DemoPageContent() {
 
     // 创建兼容的 Task 对象
     const newTask: Task = {
-      id: mainlineTask.id,
+      id: task.id,
       title: taskData.title,
       progress: 0,
       currentDay: 0,
       totalDays: taskData.totalDays,
-      type: 'mainline',
+      type: isMainline ? 'mainline' : 'sidelineA',
       mainlineType: taskData.mainlineType,
-      mainlineTask: mainlineTask,
+      mainlineTask: task,
       startDate: today,
       cycleDays: taskData.cycleDays,
       totalCycles: taskData.totalCycles,
@@ -108,73 +90,9 @@ function DemoPageContent() {
     setMainlineModalVisible(false);
   };
 
-  // 处理支线任务创建
-  const handleCreateSidelineTask = (taskData: any) => {
-    const today = new Date().toISOString().split('T')[0];
-    
-    // 创建支线任务对象（与主线任务结构相同）
-    const sidelineTask: MainlineTask = {
-      id: Date.now().toString(),
-      mainlineType: taskData.mainlineType,
-      title: taskData.title,
-      status: 'ACTIVE',
-      createdAt: today,
-      cycleConfig: {
-        totalDurationDays: taskData.totalDays,
-        cycleLengthDays: taskData.cycleDays,
-        totalCycles: taskData.totalCycles,
-        currentCycle: 1
-      },
-      progress: {
-        totalPercentage: 0,
-        currentCyclePercentage: 0
-      },
-      numericConfig: taskData.numericConfig,
-      checklistConfig: taskData.checklistConfig ? {
-        ...taskData.checklistConfig,
-        completedItems: 0,
-        perCycleTarget: Math.ceil(taskData.checklistConfig.totalItems / taskData.totalCycles)
-      } : undefined,
-      checkInConfig: taskData.checkInConfig ? {
-        ...taskData.checkInConfig,
-        currentStreak: 0,
-        longestStreak: 0,
-        checkInRate: 0,
-        streaks: [],
-        records: []
-      } : undefined,
-      history: []
-    };
-
-    // 创建兼容的 Task 对象
-    const newTask: Task = {
-      id: sidelineTask.id,
-      title: taskData.title,
-      progress: 0,
-      currentDay: 0,
-      totalDays: taskData.totalDays,
-      type: 'sidelineA',
-      mainlineType: taskData.mainlineType,
-      mainlineTask: sidelineTask,
-      startDate: today,
-      cycleDays: taskData.cycleDays,
-      totalCycles: taskData.totalCycles,
-      cycle: `1/${taskData.totalCycles}`
-    };
-
-    addTask(newTask);
-    setSidelineModalVisible(false);
-  };
-
   // 处理添加按钮点击
   const handleAddClick = () => {
-    // 如果没有主线任务，打开主线任务创建模态框
-    if (!hasMainlineTask) {
-      setMainlineModalVisible(true);
-    } else {
-      // 否则打开支线任务创建模态框
-      setSidelineModalVisible(true);
-    }
+    setMainlineModalVisible(true);
   };
 
   return (
@@ -227,6 +145,27 @@ function DemoPageContent() {
                 <Plane size={20} />
               )}
             </button>
+            {/* 归档按钮 */}
+            <button 
+              onClick={() => setShowArchive(true)}
+              style={{
+                width: '32px',
+                height: '32px',
+                borderRadius: '8px',
+                border: 'none',
+                backgroundColor: 'transparent',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                transition: 'background-color 0.2s'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+              title="归档任务"
+            >
+              <Archive size={20} />
+            </button>
             {/* 添加按钮 */}
             <button 
               onClick={handleAddClick}
@@ -252,7 +191,7 @@ function DemoPageContent() {
       </div>
 
       {/* Empty State - 常规模式下当没有主线和支线任务时显示 */}
-      {!isVacationMode && !hasMainOrSubTasks && (
+      {/* {!isVacationMode && !hasMainOrSubTasks && (
         <div 
           onClick={handleAddClick}
           style={{
@@ -279,7 +218,7 @@ function DemoPageContent() {
             }}
           />
         </div>
-      )}
+      )} */}
 
       {/* Content */}
       <div style={{
@@ -324,13 +263,86 @@ function DemoPageContent() {
                 }}>主线任务</h2>
               </div>
               
-              {tasks.filter(t => t.type === 'mainline').map(task => (
-                <MainlineTaskCard 
-                  key={task.id} 
-                  task={task}
-                  onClick={() => setSelectedTaskId(task.id)}
-                />
-              ))}
+              {hasMainlineTask ? (
+                activeTasks.filter(t => t.type === 'mainline').map(task => (
+                  <MainlineTaskCard 
+                    key={task.id} 
+                    task={task}
+                    onClick={() => setSelectedTaskId(task.id)}
+                  />
+                ))
+              ) : (
+                <div
+                  onClick={() => setMainlineModalVisible(true)}
+                  style={{
+                    backgroundColor: 'white',
+                    borderRadius: '12px',
+                    padding: '16px',
+                    border: '1px solid rgba(55, 53, 47, 0.09)',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    minHeight: '120px'
+                  }}
+                >
+                  <img 
+                    src="https://img.alicdn.com/imgextra/i4/O1CN01yTnklC1ia4tDwlksJ_!!6000000004428-2-tps-2528-1696.png"
+                    alt="新增主线任务"
+                    style={{
+                      width: '90%',
+                      height: 'auto',
+                      opacity: 0.3,
+                      position: 'absolute',
+                      right: '-60px',
+                      top: '48%',
+                      transform: 'translateY(-50%)'
+                    }}
+                  />
+                  {/* 骨架图样式 */}
+                  <div style={{ position: 'relative', zIndex: 1, width: '50%' }}>
+                    {/* 标题行 */}
+                    <div style={{
+                      width: '100%',
+                      height: '14px',
+                      backgroundColor: 'rgba(55, 53, 47, 0.08)',
+                      borderRadius: '4px',
+                      marginBottom: '16px'
+                    }}></div>
+                    {/* 周期信息行 */}
+                    <div style={{
+                      width: '70%',
+                      height: '10px',
+                      backgroundColor: 'rgba(55, 53, 47, 0.06)',
+                      borderRadius: '4px',
+                      marginBottom: '10px'
+                    }}></div>
+                    {/* 进度条 */}
+                    <div style={{
+                      width: '100%',
+                      height: '4px',
+                      backgroundColor: 'rgba(55, 53, 47, 0.06)',
+                      borderRadius: '2px',
+                      marginBottom: '16px'
+                    }}></div>
+                    {/* 总进度行 */}
+                    <div style={{
+                      width: '60%',
+                      height: '10px',
+                      backgroundColor: 'rgba(55, 53, 47, 0.06)',
+                      borderRadius: '4px',
+                      marginBottom: '8px'
+                    }}></div>
+                    {/* 底部小进度条 */}
+                    <div style={{
+                      width: '40%',
+                      height: '3px',
+                      backgroundColor: 'rgba(55, 53, 47, 0.04)',
+                      borderRadius: '2px'
+                    }}></div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Sub Tasks Section */}
@@ -399,25 +411,11 @@ function DemoPageContent() {
         }}></div>
       </div>
 
-      {/* Create Mainline Task Modal */}
+      {/* Create Task Modal (主线/支线任务统一使用) */}
       <CreateMainlineTaskModal
         visible={mainlineModalVisible}
         onClose={() => setMainlineModalVisible(false)}
-        onSubmit={handleCreateMainlineTask}
-      />
-
-      {/* Create Goal Modal */}
-      <CreateGoalModal
-        visible={modalVisible}
-        onClose={() => setModalVisible(false)}
-        onSubmit={handleCreateGoal}
-      />
-
-      {/* Create Sideline Task Modal */}
-      <CreateSidelineTaskModal
-        visible={sidelineModalVisible}
-        onClose={() => setSidelineModalVisible(false)}
-        onSubmit={handleCreateSidelineTask}
+        onSubmit={handleCreateTask}
       />
 
       {/* All Sideline Tasks Drawer */}
@@ -550,6 +548,26 @@ function DemoPageContent() {
         onClose={() => setSelectedTaskId(null)}
         onDataChange={refreshTasks}
       />
+
+      {/* Archive List */}
+      {showArchive && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'white',
+          zIndex: 1000
+        }}>
+          <ArchiveList 
+            onBack={() => setShowArchive(false)}
+            onTaskClick={(taskId) => {
+              setSelectedTaskId(taskId);
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 }

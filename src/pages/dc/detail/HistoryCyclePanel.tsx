@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import dayjs from 'dayjs';
+import { Calendar } from 'lucide-react';
 import type { GoalDetail } from './types';
 import styles from '../css/HistoryCyclePanel.module.css';
 
@@ -17,9 +18,91 @@ interface CycleSummary {
   actualValue?: number | string; // 结算值
   unit: string;
   isCurrent: boolean;
+  isFuture: boolean;
 }
 
 export default function HistoryCyclePanel({ goal }: HistoryCyclePanelProps) {
+  // 计算计划是否已结束
+  const planEndInfo = useMemo(() => {
+    const { cycleDays, totalCycles, startDate, numericConfig, cycleSnapshots } = goal;
+    const start = dayjs(startDate);
+    const today = dayjs();
+    
+    // 计算计划结束日期
+    const planEndDate = start.add(totalCycles * cycleDays - 1, 'day');
+    const isPlanEnded = today.isAfter(planEndDate);
+    
+    if (!isPlanEnded) {
+      return { isPlanEnded: false };
+    }
+    
+    // 获取最后一个周期的结算数据
+    const lastSnapshot = cycleSnapshots && cycleSnapshots.length > 0 
+      ? cycleSnapshots[cycleSnapshots.length - 1] 
+      : null;
+    
+    // 计算初始计划数据
+    let initialPlan = {
+      startValue: 0,
+      targetValue: 0,
+      unit: '',
+      direction: 'INCREASE' as 'INCREASE' | 'DECREASE'
+    };
+    
+    let finalResult = {
+      actualValue: 0,
+      targetValue: 0,
+      unit: '',
+      completionRate: 0
+    };
+    
+    if (numericConfig) {
+      // 数值型目标
+      // 初始计划：使用第一个快照的目标值作为起点，或者使用numericConfig的startValue
+      const firstSnapshot = cycleSnapshots && cycleSnapshots.length > 0 ? cycleSnapshots[0] : null;
+      initialPlan = {
+        startValue: firstSnapshot ? (firstSnapshot.targetValue + (numericConfig.direction === 'DECREASE' ? (firstSnapshot.targetValue - numericConfig.targetValue) / totalCycles * (totalCycles - 1) : -(numericConfig.targetValue - firstSnapshot.targetValue) / totalCycles * (totalCycles - 1))) : numericConfig.startValue,
+        targetValue: numericConfig.targetValue,
+        unit: numericConfig.unit,
+        direction: numericConfig.direction
+      };
+      
+      // 最终结果
+      if (lastSnapshot) {
+        finalResult = {
+          actualValue: lastSnapshot.actualValue,
+          targetValue: lastSnapshot.targetValue,
+          unit: lastSnapshot.unit,
+          completionRate: lastSnapshot.completionRate
+        };
+      } else {
+        finalResult = {
+          actualValue: numericConfig.currentValue,
+          targetValue: numericConfig.targetValue,
+          unit: numericConfig.unit,
+          completionRate: 0
+        };
+      }
+    }
+    
+    // 计算总体完成率（所有周期的平均完成率）
+    const allCompletionRates = cycleSnapshots?.map(s => s.completionRate) || [];
+    const averageCompletionRate = allCompletionRates.length > 0 
+      ? Math.round(allCompletionRates.reduce((a, b) => a + b, 0) / allCompletionRates.length)
+      : 0;
+    
+    return {
+      isPlanEnded: true,
+      planStartDate: start.format('YYYY-MM-DD'),
+      planEndDate: planEndDate.format('YYYY-MM-DD'),
+      totalCycles,
+      completedCycles: cycleSnapshots?.length || 0,
+      initialPlan,
+      finalResult,
+      averageCompletionRate
+    };
+  }, [goal]);
+  
   const cycleSummaries = useMemo(() => {
     const summaries: CycleSummary[] = [];
     const { cycleDays, totalCycles, startDate, numericConfig, checklistConfig, checkInConfig, minCheckInsPerCycle, history, cycleSnapshots } = goal;
@@ -50,7 +133,8 @@ export default function HistoryCyclePanel({ goal }: HistoryCyclePanelProps) {
           targetValue: snapshot.targetValue,
           actualValue: snapshot.actualValue, // 结算值
           unit: snapshot.unit,
-          isCurrent: false
+          isCurrent: false,
+          isFuture: false
         });
       }
     }
@@ -142,7 +226,8 @@ export default function HistoryCyclePanel({ goal }: HistoryCyclePanelProps) {
         completedValue,
         targetValue,
         unit,
-        isCurrent: actualCycleNumber === simulatedCurrentCycleNumber
+        isCurrent: actualCycleNumber === simulatedCurrentCycleNumber,
+        isFuture: actualCycleNumber > simulatedCurrentCycleNumber
       });
     }
     
@@ -166,15 +251,81 @@ export default function HistoryCyclePanel({ goal }: HistoryCyclePanelProps) {
     );
   }
   
+  // 如果计划已结束，显示总结视图
+  if (planEndInfo.isPlanEnded && planEndInfo.initialPlan && planEndInfo.finalResult) {
+    const { initialPlan, finalResult, planStartDate, planEndDate, totalCycles, completedCycles, averageCompletionRate } = planEndInfo;
+    const isSuccess = initialPlan.direction === 'DECREASE' 
+      ? finalResult.actualValue <= finalResult.targetValue
+      : finalResult.actualValue >= finalResult.targetValue;
+    
+    return (
+      <div className={styles.container}>
+        <div className={styles.summaryContainer}>
+          {/* 总结标题 */}
+          <div className={styles.summaryHeader}>
+            <span className={styles.summaryIcon}>{isSuccess ? '🎉' : '📊'}</span>
+            <span className={styles.summaryTitle}>计划已完成</span>
+          </div>
+          
+          {/* 时间范围 */}
+          <div className={styles.summaryPeriod}>
+            {dayjs(planStartDate).format('YYYY/MM/DD')} - {dayjs(planEndDate).format('YYYY/MM/DD')}
+          </div>
+          
+          {/* 对比卡片 */}
+          <div className={styles.comparisonCards}>
+            {/* 初始计划 */}
+            <div className={styles.comparisonCard}>
+              <div className={styles.cardLabel}>初始计划</div>
+              <div className={styles.cardValue}>
+                {initialPlan.startValue} → {initialPlan.targetValue}{initialPlan.unit}
+              </div>
+              <div className={styles.cardHint}>
+                {initialPlan.direction === 'DECREASE' ? '减少' : '增加'}目标
+              </div>
+            </div>
+            
+            {/* 最终结果 */}
+            <div className={`${styles.comparisonCard} ${isSuccess ? styles.successCard : styles.normalCard}`}>
+              <div className={styles.cardLabel}>最终结算</div>
+              <div className={styles.cardValue}>
+                {finalResult.actualValue}{finalResult.unit}
+              </div>
+              <div className={styles.cardHint}>
+                目标: {finalResult.targetValue}{finalResult.unit}
+              </div>
+            </div>
+          </div>
+          
+          {/* 统计数据 */}
+          <div className={styles.summaryStats}>
+            <div className={styles.statItem}>
+              <div className={styles.statValue}>{completedCycles}/{totalCycles}</div>
+              <div className={styles.statLabel}>完成周期</div>
+            </div>
+            <div className={styles.statItem}>
+              <div className={styles.statValue}>{averageCompletionRate}%</div>
+              <div className={styles.statLabel}>平均完成率</div>
+            </div>
+            <div className={styles.statItem}>
+              <div className={styles.statValue}>{isSuccess ? '达成' : '未达成'}</div>
+              <div className={styles.statLabel}>目标状态</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
   // 找到当前周期的索引
   const currentCycleIndex = cycleSummaries.findIndex(c => c.isCurrent);
   // 当前周期前面的周期数量
   const cyclesBeforeCurrent = currentCycleIndex > 0 ? currentCycleIndex : 0;
-  // 是否需要折叠（当前周期前超过4个）
-  const needCollapse = cyclesBeforeCurrent > 4;
+  // 是否需要折叠（当前周期前超过2个）
+  const needCollapse = cyclesBeforeCurrent > 2;
   // 折叠状态
   const [isExpanded, setIsExpanded] = useState(false);
-  // 隐藏的周期数量（保留前2个，隐藏中间的）
+  // 隐藏的周期数量（保留当前周期前临近的2个，隐藏更早的）
   const hiddenCount = needCollapse && !isExpanded ? cyclesBeforeCurrent - 2 : 0;
   
   // 计算要显示的周期
@@ -182,54 +333,62 @@ export default function HistoryCyclePanel({ goal }: HistoryCyclePanelProps) {
     if (!needCollapse || isExpanded) {
       return cycleSummaries;
     }
-    // 显示前2个 + 当前及之后的周期
-    const firstTwo = cycleSummaries.slice(0, 2);
+    // 显示当前周期前临近的2个 + 当前及之后的周期（隐藏更早的周期）
+    const twoBeforeCurrent = cycleSummaries.slice(currentCycleIndex - 2, currentCycleIndex);
     const currentAndAfter = cycleSummaries.slice(currentCycleIndex);
-    return [...firstTwo, ...currentAndAfter];
+    return [...twoBeforeCurrent, ...currentAndAfter];
   }, [cycleSummaries, needCollapse, isExpanded, currentCycleIndex]);
   
   return (
     <div className={styles.container}>
       
       <div className={styles.listContainer}>
-        {displayCycles.map((cycle, index) => (
-          <>
-            {/* 在前2个之后、当前周期之前显示"显示前面全部"按钮 */}
-            {needCollapse && !isExpanded && index === 2 && (
-              <button 
-                key="expand-btn"
-                className={styles.expandButton}
-                onClick={() => setIsExpanded(true)}
-              >
-                显示前面全部（{hiddenCount}个周期）
-              </button>
-            )}
-            <div key={cycle.cycleNumber} className={`${styles.cycleItem} ${cycle.isCurrent ? styles.currentCycle : styles.pastCycle}`}>
-              {/* 进度条背景层 */}
-              <div 
-                className={styles.progressOverlay}
-                style={{ width: `${cycle.completionRate}%` }}
-              />
-              
-              {/* 内容层 */}
-              <div className={styles.cycleContent}>
-                <div className={styles.cycleInfo}>
-                  <div className={styles.cycleDate}>
-                    {dayjs(cycle.startDate).format('MM/DD')} - {dayjs(cycle.endDate).format('MM/DD')}
-                  </div>
-                  <div className={styles.cycleData}>
-                    目标: {cycle.targetValue}{cycle.unit}
-                    {cycle.actualValue !== undefined && (
-                      <span className={styles.actualValue}> / 结算: {cycle.actualValue}{cycle.unit}</span>
-                    )}
-                  </div>
+        {/* 在列表最前面显示"显示更早周期"按钮 */}
+        {needCollapse && !isExpanded && (
+          <button 
+            key="expand-btn"
+            className={styles.expandButton}
+            onClick={() => setIsExpanded(true)}
+          >
+            显示更早周期（{hiddenCount}个）
+          </button>
+        )}
+        {displayCycles.map((cycle) => (
+          <div 
+            key={cycle.cycleNumber} 
+            className={`${styles.cycleItem} ${cycle.isCurrent ? styles.currentCycle : styles.pastCycle} ${cycle.isFuture ? styles.futureCycle : ''}`}
+          >
+            {/* 进度条背景层 */}
+            <div 
+              className={styles.progressOverlay}
+              style={{ width: `${cycle.completionRate}%` }}
+            />
+            
+            {/* 内容层 */}
+            <div className={styles.cycleContent}>
+              <div className={styles.cycleInfo}>
+                <div className={styles.cycleTitle}>
+                  <span>第{cycle.cycleNumber}周期</span>
+                  {cycle.isCurrent && <span className={styles.currentBadge}>进行中</span>}
+                </div>
+                <div className={styles.cycleDate}>
+                  <Calendar size={12} />
+                  <span>{dayjs(cycle.startDate).format('MM/DD')} - {dayjs(cycle.endDate).format('MM/DD')}</span>
+                </div>
+              </div>
+              <div className={styles.cycleRight}>
+                <div className={styles.cycleData}>
+                  {cycle.actualValue !== undefined 
+                    ? `${cycle.actualValue}${cycle.unit} / ${cycle.targetValue}${cycle.unit}`
+                    : `目标: ${cycle.targetValue}${cycle.unit}`
+                  }
                 </div>
                 <div className={styles.cycleRate}>
                   {cycle.completionRate}%
                 </div>
               </div>
             </div>
-          </>
+          </div>
         ))}
       </div>
     </div>

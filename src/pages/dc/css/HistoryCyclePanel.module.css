@@ -40,6 +40,11 @@
   border: 1px solid #e0e0e0;
 }
 
+.futureCycle {
+  border: 1px solid #e0e0e0;
+  opacity: 0.5;
+}
+
 .progressOverlay {
   position: absolute;
   top: 0;
@@ -62,23 +67,44 @@
 .cycleInfo {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
 }
 
-.cycleDate {
+.cycleTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   color: #333;
 }
 
-.cycleData {
+.currentBadge {
+  font-size: 11px;
+  padding: 2px 8px;
+  background: #000;
+  color: #fff;
+  border-radius: 10px;
+}
+
+.cycleDate {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   font-size: 12px;
   color: #999;
 }
 
-.actualValue {
+.cycleRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.cycleData {
+  font-size: 12px;
   color: #666;
-  font-weight: 500;
 }
 
 .expandButton {
@@ -123,5 +149,101 @@
 
 .emptyHint {
   font-size: 14px;
+  color: #999;
+}
+
+/* 总结视图样式 */
+.summaryContainer {
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #e0e0e0;
+  padding: 20px;
+}
+
+.summaryHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.summaryIcon {
+  font-size: 20px;
+}
+
+.summaryTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #000;
+}
+
+.summaryPeriod {
+  font-size: 13px;
+  color: #999;
+  margin-bottom: 20px;
+}
+
+.comparisonCards {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.comparisonCard {
+  flex: 1;
+  background: #f8f8f8;
+  border-radius: 10px;
+  padding: 14px;
+  text-align: center;
+}
+
+.successCard {
+  background: #f0f9f0;
+  border: 1px solid #d4edda;
+}
+
+.normalCard {
+  background: #fff8f0;
+  border: 1px solid #ffeeba;
+}
+
+.cardLabel {
+  font-size: 12px;
+  color: #999;
+  margin-bottom: 6px;
+}
+
+.cardValue {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.cardHint {
+  font-size: 11px;
+  color: #999;
+}
+
+.summaryStats {
+  display: flex;
+  justify-content: space-around;
+  padding-top: 16px;
+  border-top: 1px solid #eee;
+}
+
+.statItem {
+  text-align: center;
+}
+
+.statValue {
+  font-size: 18px;
+  font-weight: 600;
+  color: #000;
+  margin-bottom: 4px;
+}
+
+.statLabel {
+  font-size: 12px;
   color: #999;
 }

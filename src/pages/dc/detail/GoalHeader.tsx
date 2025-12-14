@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { X, Pencil, MoreHorizontal, BarChart3, ClipboardList, CheckCircle, Target } from 'lucide-react';
+import { X, Pencil, MoreHorizontal, BarChart3, ClipboardList, CheckCircle, Target, StopCircle, GitBranch } from 'lucide-react';
 import type { GoalHeaderProps } from './types';
 import type { MainlineTaskType } from '../types';
 import styles from '../css/GoalHeader.module.css';
 
-// 进度阶段图片配置
+// 进度阶段图片配置（进行中）
 const PROGRESS_IMAGES = [
   'https://img.alicdn.com/imgextra/i2/O1CN01lbaPb71byAPZUhGyr_!!6000000003533-2-tps-1409-1248.png', // 0-20%
   'https://img.alicdn.com/imgextra/i4/O1CN01Fj0ix31kYp2Hctyjg_!!6000000004696-2-tps-820-810.png',   // 20-40%
@@ -13,13 +13,37 @@ const PROGRESS_IMAGES = [
   'https://img.alicdn.com/imgextra/i2/O1CN01msiq0R1rS8Z6jGJ1P_!!6000000005629-2-tps-2528-1696.png', // 80-100%
 ];
 
-// 根据进度获取对应图片
+// 计划结束后的完成度图片配置
+const COMPLETION_IMAGES = {
+  perfect: 'https://img.alicdn.com/imgextra/i4/O1CN01F6mnTB1EYIsoD561E_!!6000000000363-2-tps-1546-1128.png', // 100%
+  excellent: 'https://img.alicdn.com/imgextra/i1/O1CN01NYxRqC1IVnARBv0Fg_!!6000000000899-2-tps-820-810.png', // 80%+
+  good: 'https://img.alicdn.com/imgextra/i2/O1CN01lbaPb71byAPZUhGyr_!!6000000003533-2-tps-1409-1248.png',
+  nook: 'https://img.alicdn.com/imgextra/i2/O1CN01If1G3b1MgYx39T1Hf_!!6000000001464-2-tps-1389-1229.png',    // 50%+
+  fair: 'https://img.alicdn.com/imgextra/i1/O1CN01SRiffz1vcuLIJzIIk_!!6000000006194-2-tps-1456-1285.png',    // 40%+
+  poor: 'https://img.alicdn.com/imgextra/i2/O1CN01x4uEXd21IC7oS7CLR_!!6000000006961-2-tps-1494-1322.png',    // 30%+
+  bad: 'https://img.alicdn.com/imgextra/i4/O1CN01NC5Fmh1rQIysmewqD_!!6000000005625-2-tps-928-845.png',       // 5-30%
+  terrible: 'https://img.alicdn.com/imgextra/i2/O1CN01BA0NSS247boF4jf09_!!6000000007344-2-tps-1056-992.png', // <5%
+};
+
+// 根据进度获取对应图片（进行中）
 const getProgressImage = (progress: number): string => {
   if (progress < 20) return PROGRESS_IMAGES[0];
   if (progress < 40) return PROGRESS_IMAGES[1];
   if (progress < 60) return PROGRESS_IMAGES[2];
   if (progress < 80) return PROGRESS_IMAGES[3];
   return PROGRESS_IMAGES[4];
+};
+
+// 根据最终完成度获取对应图片（计划结束后）
+const getCompletionImage = (completionRate: number): string => {
+  if (completionRate >= 100) return COMPLETION_IMAGES.perfect;
+  if (completionRate >= 80) return COMPLETION_IMAGES.excellent;
+  if (completionRate >= 70) return COMPLETION_IMAGES.good;
+  if (completionRate >= 50) return COMPLETION_IMAGES.nook;
+  if (completionRate >= 40) return COMPLETION_IMAGES.fair;
+  if (completionRate >= 30) return COMPLETION_IMAGES.poor;
+  if (completionRate >= 5) return COMPLETION_IMAGES.bad;
+  return COMPLETION_IMAGES.terrible;
 };
 
 // 格式化大数字（如 1000000 -> 100W）
@@ -44,7 +68,11 @@ export default function GoalHeader({
   totalCycles,
   currentCycle,
   remainingDays,
-  onDebugNextCycle
+  onDebugNextCycle,
+  onDebugNextDay,
+  onEndPlanEarly,
+  onConvertToSideline,
+  isPlanEnded
 }: GoalHeaderProps) {
   const [showMenu, setShowMenu] = useState(false);
   // 智能判断任务类型：根据实际配置数据决定
@@ -114,7 +142,10 @@ export default function GoalHeader({
   };
   
   // 获取当前进度对应的图片
-  const progressImage = getProgressImage(progress);
+  // 如果计划已结束，使用完成度图片（基于目标进度）；否则使用进度图片
+  const progressImage = isPlanEnded
+    ? getCompletionImage(progress)
+    : getProgressImage(progress);
   
   return (
     <div className={styles.container}>
@@ -142,99 +173,110 @@ export default function GoalHeader({
           </div>
           {showMenu && (
             <div className={styles.menuDropdown}>
-              <div 
-                className={styles.menuItem}
-                onClick={() => {
-                  onDebugNextCycle?.();
-                  setShowMenu(false);
-                }}
-              >
-                🐛 Debug: 进入下一周期
-              </div>
+              {!isPlanEnded && (
+                <>
+                  <div 
+                    className={styles.menuItem}
+                    onClick={() => {
+                      onDebugNextDay?.();
+                      setShowMenu(false);
+                    }}
+                  >
+                    🐛 Debug: 进入下一天
+                  </div>
+                  <div 
+                    className={styles.menuItem}
+                    onClick={() => {
+                      onDebugNextCycle?.();
+                      setShowMenu(false);
+                    }}
+                  >
+                    🐛 Debug: 进入下一周期
+                  </div>
+                  <div 
+                    className={styles.menuItem}
+                    onClick={() => {
+                      onEndPlanEarly?.();
+                      setShowMenu(false);
+                    }}
+                  >
+                    <StopCircle size={14} style={{ marginRight: 6 }} />
+                    提前结束任务
+                  </div>
+                  <div 
+                    className={`${styles.menuItem} ${styles.menuItemDisabled}`}
+                    onClick={() => {
+                      setShowMenu(false);
+                    }}
+                  >
+                    <GitBranch size={14} style={{ marginRight: 6 }} />
+                    转成支线任务
+                    <span className={styles.devTag}>开发中</span>
+                  </div>
+                </>
+              )}
             </div>
           )}
         </div>
       </div>
       
-      {/* 根据任务类型渲染不同的进度展示 */}
-      {mainlineType === 'NUMERIC' ? (
-        // 数值型：圆圈进度条 + 周期信息 + 进度图片
-        <div className={styles.numericProgress}>
-          <div className={styles.leftContent}>
-            <div className={styles.circleProgressWrapper}>
-            <svg className={styles.circleProgress} viewBox="0 0 100 100">
-              <defs>
-                <linearGradient id="circleGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#6366f1" />
-                  <stop offset="100%" stopColor="#8b5cf6" />
-                </linearGradient>
-              </defs>
-              <circle
-                className={styles.circleBackground}
-                cx="50"
-                cy="50"
-                r="42"
-                fill="none"
-                strokeWidth="8"
-              />
-              <circle
-                cx="50"
-                cy="50"
-                r="42"
-                fill="none"
-                stroke="url(#circleGradient)"
-                strokeWidth="8"
-                strokeLinecap="round"
-                strokeDasharray={`${progress * 2.64} 264`}
-                transform="rotate(-90 50 50)"
-              />
-            </svg>
-            <div className={styles.circleValue}>{progress}%</div>
-          </div>
-            <div className={styles.numericInfo}>
-              <div className={styles.infoItem}>
-                <span className={styles.infoLabel}>当前周期</span>
-                <span className={styles.infoValue}>{currentCycle}<span style={{ padding: '0 5px' }}>/</span>{totalCycles}</span>
-              </div>
-              <div className={styles.infoItem}>
-                <span className={styles.infoLabel}>目标进度</span>
-                <span className={styles.infoValue}>
-                  {goal.numericConfig 
-                    ? <>{formatLargeNumber(goal.numericConfig.currentValue)}<span style={{ padding: '0 5px' }}>/</span><span className={styles.infoValueTarget}>{formatLargeNumber(goal.numericConfig.targetValue)}</span>{goal.numericConfig.unit}</>
-                    : `${remainingDays}天`}
-                </span>
-              </div>
-            </div>
-          </div>
-          {/* 进度图片 - 右侧自适应居中 */}
-          <div className={styles.progressImageWrapper}>
-            <img 
-              src={progressImage} 
-              alt="进度图片" 
-              className={styles.progressImage}
+      <div className={styles.numericProgress}>
+        <div className={styles.leftContent}>
+          <div className={styles.circleProgressWrapper}>
+          <svg className={styles.circleProgress} viewBox="0 0 100 100">
+            <defs>
+              <linearGradient id="circleGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#6366f1" />
+                <stop offset="100%" stopColor="#8b5cf6" />
+              </linearGradient>
+            </defs>
+            <circle
+              className={styles.circleBackground}
+              cx="50"
+              cy="50"
+              r="42"
+              fill="none"
+              strokeWidth="8"
             />
+            <circle
+              cx="50"
+              cy="50"
+              r="42"
+              fill="none"
+              stroke="url(#circleGradient)"
+              strokeWidth="8"
+              strokeLinecap="round"
+              strokeDasharray={`${progress * 2.64} 264`}
+              transform="rotate(-90 50 50)"
+            />
+          </svg>
+          <div className={styles.circleValue}>{progress}%</div>
+        </div>
+          <div className={styles.numericInfo}>
+            <div className={styles.infoItem}>
+              <span className={styles.infoLabel}>当前周期</span>
+              <span className={styles.infoValue}>{currentCycle}<span style={{ padding: '0 5px' }}>/</span>{totalCycles}</span>
+            </div>
+            <div className={styles.infoItem}>
+              <span className={styles.infoLabel}>目标进度</span>
+              <span className={styles.infoValue}>
+                {goal.numericConfig 
+                  ? <>{formatLargeNumber(goal.numericConfig.currentValue)}<span style={{ padding: '0 5px' }}>/</span><span className={styles.infoValueTarget}>{formatLargeNumber(goal.numericConfig.targetValue)}</span>{goal.numericConfig.unit}</>
+                  : `${remainingDays}天`}
+              </span>
+            </div>
           </div>
         </div>
-      ) : (
-        // 其他类型：保持原有的条形进度条
-        <>
-          <div className={styles.mainValue}>
-            {progress}%
-          </div>
-          <div className={styles.progressWrapper}>
-            <div className={styles.progressBar}>
-              <div 
-                className={styles.progressFill} 
-                style={{ width: `${progress}%` }}
-              />
-            </div>
-            <div className={styles.progressInfo}>
-              <span>周期 {currentCycle}/{totalCycles}</span>
-              <span>{remainingDays}天剩余</span>
-            </div>
-          </div>
-        </>
-      )}
+        {/* 进度图片 - 右侧自适应居中 */}
+        <div className={styles.progressImageWrapper}>
+          <img 
+            src={progressImage} 
+            alt="进度图片" 
+            className={styles.progressImage}
+          />
+        </div>
+      </div>
+      
     </div>
   );
 }

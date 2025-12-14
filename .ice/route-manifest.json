@@ -1,5 +1,16 @@
 [
   {
+    "path": "dc/detail/CheckInHistoryPanel",
+    "index": true,
+    "id": "dc/detail/CheckInHistoryPanel",
+    "file": "dc/detail/CheckInHistoryPanel/index.tsx",
+    "componentName": "dc-detail-checkinhistorypanel-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
     "path": "dc/happy/GoalDetailModal",
     "index": true,
     "id": "dc/happy/GoalDetailModal",
@@ -26,6 +37,17 @@
     "id": "dc/detail/ChecklistCyclePanel",
     "file": "dc/detail/ChecklistCyclePanel.tsx",
     "componentName": "dc-detail-checklistcyclepanel",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/detail/CheckInModal",
+    "index": true,
+    "id": "dc/detail/CheckInModal",
+    "file": "dc/detail/CheckInModal/index.tsx",
+    "componentName": "dc-detail-checkinmodal-index",
     "layout": false,
     "exports": [
       "default"
@@ -131,16 +153,6 @@
     "id": "dc/CreateMainlineTaskModal",
     "file": "dc/CreateMainlineTaskModal.tsx",
     "componentName": "dc-createmainlinetaskmodal",
-    "layout": false,
-    "exports": [
-      "default"
-    ]
-  },
-  {
-    "path": "dc/CreateSidelineTaskModal",
-    "id": "dc/CreateSidelineTaskModal",
-    "file": "dc/CreateSidelineTaskModal.tsx",
-    "componentName": "dc-createsidelinetaskmodal",
     "layout": false,
     "exports": [
       "default"
@@ -299,13 +311,27 @@
     ]
   },
   {
+    "path": "dc/archive",
+    "index": true,
+    "id": "dc/archive",
+    "file": "dc/archive/index.tsx",
+    "componentName": "dc-archive-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
     "path": "dc/context",
     "index": true,
     "id": "dc/context",
     "file": "dc/context/index.ts",
     "componentName": "dc-context-index",
     "layout": false,
-    "exports": []
+    "exports": [
+      "TaskProvider",
+      "useTaskContext"
+    ]
   },
   {
     "path": "dc/detail/TabBar",
@@ -357,6 +383,8 @@
     "layout": false,
     "exports": [
       "getCurrentCycle",
+      "getSimulatedToday",
+      "getSimulatedTodayDate",
       "useGoalDetail"
     ]
   },

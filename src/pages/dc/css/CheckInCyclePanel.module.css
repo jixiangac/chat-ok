@@ -47,6 +47,65 @@
   transition: width 0.4s ease;
 }
 
+/* 当前日期和剩余天数 */
+.dateInfo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: #666;
+}
+
+.currentDate {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cycleDayProgress {
+  color: #999;
+}
+
+.cycleDayProgress strong {
+  color: #000;
+  font-weight: 600;
+}
+
+/* 今日打卡行 - 融入主区块 */
+.todayRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 8px;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+.todayRow .todayLabel {
+  color: #666;
+}
+
+.todayRow .todayValue {
+  font-weight: 600;
+  color: #000;
+}
+
+.todayCheck {
+  color: #16a34a;
+}
+
+.todayTimes {
+  color: #999;
+  font-size: 12px;
+  padding-left: 8px;
+  border-left: 1px solid #e0e0e0;
+}
+
 .completedBadge {
   display: inline-flex;
   align-items: center;
@@ -146,4 +205,96 @@
 
 .timeIcon {
   font-size: 16px;
+}
+
+/* 打卡类型标签 */
+.typeTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: #f5f5f5;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 16px;
+}
+
+/* 总结视图样式 */
+.summaryContainer {
+  background: #f5f5f5;
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.summaryHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.summaryIcon {
+  font-size: 20px;
+}
+
+.summaryTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #000;
+}
+
+.summaryPeriod {
+  font-size: 13px;
+  color: #999;
+  margin-bottom: 20px;
+}
+
+.comparisonCards {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.comparisonCard {
+  flex: 1;
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+}
+
+.successCard {
+  background: #f0f9f0;
+  border: 1px solid #d4edda;
+}
+
+.normalCard {
+  background: #fff8f0;
+  border: 1px solid #ffeeba;
+}
+
+.cardLabel {
+  font-size: 12px;
+  color: #999;
+  margin-bottom: 8px;
+}
+
+.cardValue {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 6px;
+}
+
+.cardHint {
+  font-size: 11px;
+  color: #999;
+}
+
+.summaryStats {
+  display: flex;
+  justify-content: space-around;
+  padding-top: 16px;
+  border-top: 1px solid #e0e0e0;
 }

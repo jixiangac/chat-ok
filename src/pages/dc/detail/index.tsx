@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Popup, Toast } from 'antd-mobile';
-import { FileText, Check } from 'lucide-react';
+import { FileText, Check, Archive, Clock, Hash } from 'lucide-react';
+import dayjs from 'dayjs';
 import GoalHeader from './GoalHeader';
 import NumericCyclePanel from './NumericCyclePanel';
 import ChecklistCyclePanel from './ChecklistCyclePanel';
@@ -10,29 +11,35 @@ import HistoryCyclePanel from './HistoryCyclePanel';
 import CalendarViewPanel from './CalendarViewPanel';
 import CheckInRecordPanel from './CheckInRecordPanel';
 import RecordDataModal from './RecordDataModal';
-import { useGoalDetail, getCurrentCycle } from './hooks';
+import CheckInModal from './CheckInModal';
+import CheckInHistoryPanel from './CheckInHistoryPanel';
+import { useGoalDetail, getCurrentCycle, getSimulatedToday } from './hooks';
 import type { GoalDetailModalProps } from './types';
-import type { MainlineTaskType } from '../types';
+import type { MainlineTaskType, CheckInUnit } from '../types';
 
 // 根据任务类型获取Tab配置
-const getTabsConfig = (mainlineType: MainlineTaskType) => {
+const getTabsConfig = (mainlineType: MainlineTaskType, isPlanEnded: boolean = false) => {
+  // 当计划结束时，第一个Tab改为"完结总结"
+  const firstTabLabel = isPlanEnded ? '完结总结' : '周期目标';
+  
   switch (mainlineType) {
     case 'NUMERIC':
       return [
-        { key: 'targets', label: '周期目标' },
+        { key: 'targets', label: firstTabLabel },
         { key: 'records', label: '变动记录' },
         { key: 'history', label: '周期计划' },
       ];
     case 'CHECKLIST':
       return [
-        { key: 'current', label: '周期目标' },
+        { key: 'current', label: firstTabLabel },
         { key: 'all', label: '全部清单' }
       ];
     case 'CHECK_IN':
     default:
       return [
-        { key: 'cycle', label: '周期目标' },
-        { key: 'calendar', label: '打卡记录' },
+        { key: 'cycle', label: firstTabLabel },
+        { key: 'calendar', label: '变动记录' },
+        { key: 'history', label: '周期计划' },
       ];
   }
 };
@@ -55,13 +62,18 @@ export default function GoalDetailModal({
     goalDetail, 
     loading, 
     checkInLoading, 
-    checkIn, 
+    checkIn,
+    getTodayCheckInStatus,
     recordNumericData, 
     updateChecklistItem,
-    debugNextCycle
+    debugNextCycle,
+    debugNextDay,
+    endPlanEarly,
+    archiveTask
   } = useGoalDetail(goalId, onDataChange);
   const [activeTab, setActiveTab] = useState<string>('');
   const [showRecordModal, setShowRecordModal] = useState(false);
+  const [showCheckInModal, setShowCheckInModal] = useState(false);
   
   // 每次打开时设置默认tab为周期目标
   useEffect(() => {
@@ -77,19 +89,43 @@ export default function GoalDetailModal({
     }
   }, [visible, goalDetail]);
   
-  // 处理打卡
-  const handleCheckIn = async () => {
-    const success = await checkIn();
+  // 处理打卡按钮点击
+  const handleCheckInClick = () => {
+    const config = goalDetail?.checkInConfig;
+    const unit = config?.unit || 'TIMES';
+    
+    if (unit === 'TIMES') {
+      // 次数型直接打卡
+      handleCheckInSubmit(1);
+    } else {
+      // 时长型和数值型显示弹窗
+      setShowCheckInModal(true);
+    }
+  };
+  
+  // 提交打卡
+  const handleCheckInSubmit = async (value?: number, note?: string) => {
+    const success = await checkIn(value, note);
     if (success) {
       Toast.show({
         icon: 'success',
         content: '打卡成功！',
       });
+      setShowCheckInModal(false);
     } else {
-      Toast.show({
-        icon: 'fail',
-        content: '打卡失败，请重试',
-      });
+      const config = goalDetail?.checkInConfig;
+      const todayStatus = getTodayCheckInStatus();
+      if (todayStatus.isCompleted) {
+        Toast.show({
+          icon: 'fail',
+          content: '今日目标已完成',
+        });
+      } else {
+        Toast.show({
+          icon: 'fail',
+          content: '打卡失败，请重试',
+        });
+      }
     }
   };
   
@@ -132,6 +168,22 @@ export default function GoalDetailModal({
     }
   };
   
+  // 判断计划是否已结束 - 必须在条件返回之前调用
+  const isPlanEnded = useMemo(() => {
+    if (!goalDetail) return false;
+    const { cycleDays, totalCycles, startDate, cycleSnapshots, status } = goalDetail;
+    const start = dayjs(startDate);
+    // 使用模拟的"今天"日期
+    const simulatedToday = getSimulatedToday(goalDetail);
+    const today = dayjs(simulatedToday);
+    const planEndDate = start.add(totalCycles * cycleDays - 1, 'day');
+    // 判断计划是否结束：基于时间 或 基于status 或 基于cycleSnapshots数量
+    const isPlanEndedByTime = today.isAfter(planEndDate);
+    const isPlanEndedByStatus = status === 'completed';
+    const isPlanEndedBySnapshots = (cycleSnapshots?.length || 0) >= totalCycles;
+    return isPlanEndedByTime || isPlanEndedByStatus || isPlanEndedBySnapshots;
+  }, [goalDetail]);
+  
   if (loading || !goalDetail) {
     return null;
   }
@@ -155,7 +207,7 @@ export default function GoalDetailModal({
   };
   
   const mainlineType = getEffectiveMainlineType();
-  const tabs = getTabsConfig(mainlineType);
+  const tabs = getTabsConfig(mainlineType, isPlanEnded);
   
   // 计算总打卡次数
   const totalCheckIns = goalDetail.checkIns?.length || 0;
@@ -197,6 +249,9 @@ export default function GoalDetailModal({
         if (activeTab === 'calendar') {
           return <CalendarViewPanel goal={goalDetail} />;
         }
+        if (activeTab === 'history') {
+          return <CheckInHistoryPanel goal={goalDetail} />;
+        }
         if (activeTab === 'records') {
           return (
             <CheckInRecordPanel
@@ -210,23 +265,74 @@ export default function GoalDetailModal({
     }
   };
   
+  // 获取今日打卡状态
+  const todayCheckInStatus = getTodayCheckInStatus();
+  
   // 获取底部按钮文案
   const getButtonText = () => {
+    // 如果计划已结束，显示归档总结
+    if (isPlanEnded) {
+      return <><Archive size={16} style={{ marginRight: 6 }} /> 归档总结</>;
+    }
     switch (mainlineType) {
       case 'NUMERIC': return <><FileText size={16} style={{ marginRight: 6 }} /> 记录新数据</>;
       case 'CHECKLIST': return <><FileText size={16} style={{ marginRight: 6 }} /> 更新进度</>;
       case 'CHECK_IN':
-      default: return <><Check size={16} style={{ marginRight: 6 }} /> 立即打卡</>;
+      default: {
+        const config = goalDetail?.checkInConfig;
+        const unit = config?.unit || 'TIMES';
+        
+        // 如果今日已完成，显示已完成打卡
+        if (todayCheckInStatus.isCompleted) {
+          return <><Check size={16} style={{ marginRight: 6 }} /> 今日已完成打卡</>;
+        }
+        
+        if (unit === 'DURATION') {
+          return <><Clock size={16} style={{ marginRight: 6 }} /> 记录时长</>;
+        } else if (unit === 'QUANTITY') {
+          return <><Hash size={16} style={{ marginRight: 6 }} /> 记录数值</>;
+        }
+        return <><Check size={16} style={{ marginRight: 6 }} /> 立即打卡</>;
+      }
+    }
+  };
+  
+  // 判断打卡按钮是否应该禁用
+  const isCheckInButtonDisabled = () => {
+    // 计划结束时，归档按钮不应该被禁用
+    if (isPlanEnded) return false;
+    if (mainlineType !== 'CHECK_IN') return false;
+    return todayCheckInStatus.isCompleted;
+  };
+  
+  // 处理归档总结
+  const handleArchive = async () => {
+    const success = await archiveTask();
+    if (success) {
+      Toast.show({
+        icon: 'success',
+        content: '已归档！',
+      });
+      onClose();
+    } else {
+      Toast.show({
+        icon: 'fail',
+        content: '归档失败，请重试',
+      });
     }
   };
   
   // 获取底部按钮点击处理
   const getButtonHandler = () => {
+    // 如果计划已结束，点击归档
+    if (isPlanEnded) {
+      return handleArchive;
+    }
     switch (mainlineType) {
       case 'NUMERIC': return handleRecordData;
       case 'CHECKLIST': return () => handleUpdateProgress('');
       case 'CHECK_IN':
-      default: return handleCheckIn;
+      default: return handleCheckInClick;
     }
   };
   
@@ -257,6 +363,16 @@ export default function GoalDetailModal({
         totalCycles={goalDetail.totalCycles}
         currentCycle={currentCycle.cycleNumber}
         remainingDays={currentCycle.remainingDays}
+        isPlanEnded={isPlanEnded}
+        onDebugNextDay={async () => {
+          const result = await debugNextDay();
+          if (result && result.success) {
+            Toast.show({
+              icon: 'success',
+              content: result.enteredNextCycle ? '已进入下一周期' : '已进入下一天',
+            });
+          }
+        }}
         onDebugNextCycle={async () => {
           const success = await debugNextCycle();
           if (success) {
@@ -265,6 +381,20 @@ export default function GoalDetailModal({
               content: '已进入下一周期',
             });
           }
+        }}
+        onEndPlanEarly={async () => {
+          const success = await endPlanEarly();
+          if (success) {
+            Toast.show({
+              icon: 'success',
+              content: '任务已提前结束',
+            });
+          }
+        }}
+        onConvertToSideline={() => {
+          Toast.show({
+            content: '功能开发中...',
+          });
         }}
       />
       
@@ -314,8 +444,8 @@ export default function GoalDetailModal({
         {renderContent()}
       </div>
       
-      {/* 底部操作按钮 - 只在周期目标Tab显示 */}
-      {(activeTab === 'targets' || activeTab === 'current' || activeTab === 'cycle') && (
+      {/* 底部操作按钮 - 只在周期目标Tab显示，已归档的任务不显示 */}
+      {(activeTab === 'targets' || activeTab === 'current' || activeTab === 'cycle') && goalDetail.status !== 'archived' && (
         <div style={{
           padding: '16px 20px',
           paddingBottom: 'calc(16px + env(safe-area-inset-bottom))',
@@ -324,17 +454,17 @@ export default function GoalDetailModal({
         }}>
           <button
             onClick={getButtonHandler()}
-            disabled={checkInLoading}
+            disabled={checkInLoading || isCheckInButtonDisabled()}
             style={{
               width: '100%',
               height: '52px',
-              background: checkInLoading ? '#ccc' : '#000',
+              background: (checkInLoading || isCheckInButtonDisabled()) ? '#ccc' : '#000',
               color: '#fff',
               border: 'none',
               borderRadius: '26px',
               fontSize: '16px',
               fontWeight: '600',
-              cursor: checkInLoading ? 'not-allowed' : 'pointer',
+              cursor: (checkInLoading || isCheckInButtonDisabled()) ? 'not-allowed' : 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -357,6 +487,22 @@ export default function GoalDetailModal({
           unit={goalDetail.numericConfig.unit}
           direction={goalDetail.numericConfig.direction}
           loading={checkInLoading}
+        />
+      )}
+      
+      {/* 打卡型记录弹窗 */}
+      {mainlineType === 'CHECK_IN' && goalDetail.checkInConfig && (
+        <CheckInModal
+          visible={showCheckInModal}
+          onClose={() => setShowCheckInModal(false)}
+          onSubmit={handleCheckInSubmit}
+          unit={goalDetail.checkInConfig.unit || 'TIMES'}
+          loading={checkInLoading}
+          quickDurations={goalDetail.checkInConfig.quickDurations || [5, 10, 15]}
+          dailyTargetMinutes={goalDetail.checkInConfig.dailyTargetMinutes || 15}
+          valueUnit={goalDetail.checkInConfig.valueUnit || '个'}
+          dailyTargetValue={goalDetail.checkInConfig.dailyTargetValue || 0}
+          todayValue={getTodayCheckInStatus().todayValue}
         />
       )}
     </Popup>

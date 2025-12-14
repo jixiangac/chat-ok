@@ -1,0 +1,191 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #000;
+}
+
+.description {
+  font-size: 14px;
+  color: #666;
+}
+
+.todayInfo {
+  font-size: 13px;
+  color: #666;
+  padding: 12px;
+  background: #f5f5f5;
+  border-radius: 8px;
+}
+
+.quickOptions {
+  display: flex;
+  gap: 8px;
+}
+
+.quickOption {
+  flex: 1;
+  padding: 14px 12px;
+  border: 1px solid #e5e5e5;
+  border-radius: 10px;
+  background: white;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.quickOption:hover {
+  background: #f5f5f5;
+}
+
+.quickOption.selected {
+  background: #000;
+  color: white;
+  border-color: #000;
+}
+
+.customInput {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.inputLabel {
+  font-size: 13px;
+  color: #666;
+}
+
+.inputWrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.input {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid #e5e5e5;
+  border-radius: 10px;
+  font-size: 14px;
+  outline: none;
+}
+
+.input:focus {
+  border-color: #000;
+}
+
+.inputUnit {
+  font-size: 14px;
+  color: #666;
+}
+
+.valueInputSection {
+  padding: 20px 0;
+}
+
+.valueControls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+}
+
+.controlButton {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid #e5e5e5;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.controlButton:hover {
+  background: #f5f5f5;
+}
+
+.controlButton:active {
+  background: #e5e5e5;
+}
+
+.valueDisplay {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.valueInput {
+  width: 80px;
+  font-size: 48px;
+  font-weight: 700;
+  text-align: center;
+  border: none;
+  outline: none;
+  background: transparent;
+}
+
+.valueInput::placeholder {
+  color: #ccc;
+}
+
+.valueUnit {
+  font-size: 18px;
+  color: #666;
+}
+
+.quickValues {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.quickValue {
+  padding: 8px 20px;
+  border: 1px solid #e5e5e5;
+  border-radius: 20px;
+  background: white;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.quickValue:hover {
+  background: #f5f5f5;
+}
+
+.submitButton {
+  width: 100%;
+  padding: 16px;
+  background: #000;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 8px;
+}
+
+.submitButton:hover {
+  background: #333;
+}
+
+.submitButton:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}

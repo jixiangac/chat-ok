@@ -11,8 +11,16 @@ export type NumericDirection = 'INCREASE' | 'DECREASE';
 // 清单项状态
 export type ChecklistItemStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'PAUSED';
 
-// 打卡单位
+// 打卡单位（打卡类型）
 export type CheckInUnit = 'TIMES' | 'DURATION' | 'QUANTITY';
+
+// 单次打卡记录（支持多轮打卡）
+export interface CheckInEntry {
+  id: string;
+  time: string; // 打卡时间 HH:mm:ss
+  value?: number; // 时长(分钟)或数值
+  note?: string;
+}
 
 // 数值型任务配置
 export interface NumericConfig {
@@ -52,11 +60,12 @@ export interface ChecklistConfig {
   items: ChecklistItem[];
 }
 
-// 打卡记录
+// 打卡记录（每日记录，包含多轮打卡）
 export interface CheckInRecord {
   date: string;
   checked: boolean;
-  time?: string;
+  entries: CheckInEntry[]; // 当日所有打卡记录
+  totalValue?: number; // 当日累计值（时长或数值）
   note?: string;
   reason?: string;
 }
@@ -71,11 +80,28 @@ export interface StreakRecord {
 
 // 打卡型任务配置
 export interface CheckInConfig {
-  dailyTarget: number;
-  unit: CheckInUnit;
-  allowMultiplePerDay: boolean;
-  weekendExempt: boolean;
-  perCycleTarget: number;
+  unit: CheckInUnit; // 打卡类型：次数/时长/数值
+  
+  // 次数型配置
+  dailyMaxTimes?: number; // 单日打卡次数上限，默认1
+  cycleTargetTimes?: number; // 周期总次数目标
+  
+  // 时长型配置
+  dailyTargetMinutes?: number; // 单日目标时长(分钟)，默认15
+  cycleTargetMinutes?: number; // 周期总时长目标(分钟)
+  quickDurations?: number[]; // 快捷时长选项，默认[5,10,15]
+  
+  // 数值型配置
+  dailyTargetValue?: number; // 单日目标数值
+  cycleTargetValue?: number; // 周期总目标数值
+  valueUnit?: string; // 数值单位，如"个"、"页"、"公里"
+  
+  // 通用配置
+  allowMultiplePerDay: boolean; // 是否允许每日多次打卡
+  weekendExempt: boolean; // 周末是否豁免
+  perCycleTarget: number; // 每周期目标（兼容旧字段）
+  
+  // 统计数据
   currentStreak: number;
   longestStreak: number;
   checkInRate: number;

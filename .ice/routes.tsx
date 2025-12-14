@@ -1,8 +1,10 @@
 import { createRouteLoader, WrapRouteComponent, RouteErrorComponent } from '@ice/runtime';
 import type { CreateRoutes } from '@ice/runtime';
+import * as dc_detail_CheckInHistoryPanel from '@/pages/dc/detail/CheckInHistoryPanel/index';
 import * as dc_happy_GoalDetailModal from '@/pages/dc/happy/GoalDetailModal/index';
 import * as dc_happy_TripDetailModal from '@/pages/dc/happy/TripDetailModal/index';
 import * as dc_detail_ChecklistCyclePanel from '@/pages/dc/detail/ChecklistCyclePanel';
+import * as dc_detail_CheckInModal from '@/pages/dc/detail/CheckInModal/index';
 import * as dc_detail_CheckInRecordPanel from '@/pages/dc/detail/CheckInRecordPanel';
 import * as dc_detail_CycleSummaryDialog from '@/pages/dc/detail/CycleSummaryDialog';
 import * as dc_detail_HistoryRecordPanel from '@/pages/dc/detail/HistoryRecordPanel';
@@ -13,7 +15,6 @@ import * as dc_detail_HistoryCyclePanel from '@/pages/dc/detail/HistoryCyclePane
 import * as dc_detail_NumericCyclePanel from '@/pages/dc/detail/NumericCyclePanel';
 import * as dc_utils_mainlineTaskHelper from '@/pages/dc/utils/mainlineTaskHelper';
 import * as dc_CreateMainlineTaskModal from '@/pages/dc/CreateMainlineTaskModal';
-import * as dc_CreateSidelineTaskModal from '@/pages/dc/CreateSidelineTaskModal';
 import * as dc_detail_ProgressSection from '@/pages/dc/detail/ProgressSection';
 import * as dc_detail_RecordDataModal from '@/pages/dc/detail/RecordDataModal';
 import * as dc_happy_TripSummaryModal from '@/pages/dc/happy/TripSummaryModal';
@@ -29,6 +30,7 @@ import * as dc_CreateGoalModal from '@/pages/dc/CreateGoalModal';
 import * as dc_detail_example from '@/pages/dc/detail/example';
 import * as dc_happy_GoalCard from '@/pages/dc/happy/GoalCard';
 import * as dc_happy_TripList from '@/pages/dc/happy/TripList';
+import * as dc_archive from '@/pages/dc/archive/index';
 import * as dc_context from '@/pages/dc/context/index';
 import * as dc_detail_TabBar from '@/pages/dc/detail/TabBar';
 import * as dc_happy_DayTabs from '@/pages/dc/happy/DayTabs';
@@ -56,6 +58,31 @@ const createRoutes: CreateRoutes = ({
   renderMode,
 }) => ([
   {
+    path: 'dc/detail/CheckInHistoryPanel',
+    async lazy() {
+      ;
+      return {
+        ...dc_detail_CheckInHistoryPanel,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/detail/CheckInHistoryPanel',
+          isLayout: false,
+          routeExports: dc_detail_CheckInHistoryPanel,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/detail/CheckInHistoryPanel',
+          requestContext,
+          renderMode,
+          module: dc_detail_CheckInHistoryPanel,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-detail-checkinhistorypanel-index',
+    index: true,
+    id: 'dc/detail/CheckInHistoryPanel',
+    exact: true,
+    exports: ["default"],
+  },{
     path: 'dc/happy/GoalDetailModal',
     async lazy() {
       ;
@@ -128,6 +155,31 @@ const createRoutes: CreateRoutes = ({
     componentName: 'dc-detail-checklistcyclepanel',
     index: undefined,
     id: 'dc/detail/ChecklistCyclePanel',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/detail/CheckInModal',
+    async lazy() {
+      ;
+      return {
+        ...dc_detail_CheckInModal,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/detail/CheckInModal',
+          isLayout: false,
+          routeExports: dc_detail_CheckInModal,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/detail/CheckInModal',
+          requestContext,
+          renderMode,
+          module: dc_detail_CheckInModal,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-detail-checkinmodal-index',
+    index: true,
+    id: 'dc/detail/CheckInModal',
     exact: true,
     exports: ["default"],
   },{
@@ -378,31 +430,6 @@ const createRoutes: CreateRoutes = ({
     componentName: 'dc-createmainlinetaskmodal',
     index: undefined,
     id: 'dc/CreateMainlineTaskModal',
-    exact: true,
-    exports: ["default"],
-  },{
-    path: 'dc/CreateSidelineTaskModal',
-    async lazy() {
-      ;
-      return {
-        ...dc_CreateSidelineTaskModal,
-        Component: () => WrapRouteComponent({
-          routeId: 'dc/CreateSidelineTaskModal',
-          isLayout: false,
-          routeExports: dc_CreateSidelineTaskModal,
-        }),
-        loader: createRouteLoader({
-          routeId: 'dc/CreateSidelineTaskModal',
-          requestContext,
-          renderMode,
-          module: dc_CreateSidelineTaskModal,
-        }),
-      };
-    },
-    errorElement: <RouteErrorComponent />,
-    componentName: 'dc-createsidelinetaskmodal',
-    index: undefined,
-    id: 'dc/CreateSidelineTaskModal',
     exact: true,
     exports: ["default"],
   },{
@@ -781,6 +808,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["default"],
   },{
+    path: 'dc/archive',
+    async lazy() {
+      ;
+      return {
+        ...dc_archive,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/archive',
+          isLayout: false,
+          routeExports: dc_archive,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/archive',
+          requestContext,
+          renderMode,
+          module: dc_archive,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-archive-index',
+    index: true,
+    id: 'dc/archive',
+    exact: true,
+    exports: ["default"],
+  },{
     path: 'dc/context',
     async lazy() {
       ;
@@ -804,7 +856,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/context',
     exact: true,
-    exports: [],
+    exports: ["TaskProvider","useTaskContext"],
   },{
     path: 'dc/detail/TabBar',
     async lazy() {
@@ -904,7 +956,7 @@ const createRoutes: CreateRoutes = ({
     index: undefined,
     id: 'dc/detail/hooks',
     exact: true,
-    exports: ["getCurrentCycle","useGoalDetail"],
+    exports: ["getCurrentCycle","getSimulatedToday","getSimulatedTodayDate","useGoalDetail"],
   },{
     path: 'dc/detail',
     async lazy() {

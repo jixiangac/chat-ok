@@ -11,7 +11,16 @@ export interface CheckIn {
   id: string;
   date: string;
   timestamp: number;
+  value?: number; // 时长(分钟)或数值
   note?: string;
+}
+
+// 每日打卡汇总（支持多轮打卡）
+export interface DailyCheckInSummary {
+  date: string;
+  entries: CheckIn[]; // 当日所有打卡记录
+  totalTimes: number; // 当日打卡次数
+  totalValue: number; // 当日累计值（时长或数值）
 }
 
 export interface GoalDetail {
@@ -73,7 +82,10 @@ export interface GoalDetail {
   customDuration?: boolean;
   targetCompletionRate?: number;
   createdAt?: string;
-  status?: 'active' | 'completed' | 'failed' | 'downgraded';
+  status?: 'active' | 'completed' | 'failed' | 'downgraded' | 'archived';
+  
+  // Debug模拟天数偏移（用于模拟时间推进）
+  debugDayOffset?: number;
 }
 
 export interface CurrentCycleInfo {
@@ -97,6 +109,10 @@ export interface GoalHeaderProps {
   currentCycle: number;
   remainingDays: number;
   onDebugNextCycle?: () => void;
+  onDebugNextDay?: () => void;
+  onEndPlanEarly?: () => void;
+  onConvertToSideline?: () => void;
+  isPlanEnded?: boolean;
 }
 
 export interface CurrentCycleCardProps {

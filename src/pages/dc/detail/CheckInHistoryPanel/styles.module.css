@@ -1,0 +1,109 @@
+.container {
+  padding: 16px 20px;
+}
+
+.listContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* 周期项 */
+.cycleItem {
+  position: relative;
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.currentCycle {
+  border: 2px solid #000;
+}
+
+.pastCycle {
+  border: 1px solid #e0e0e0;
+}
+
+.futureCycle {
+  border: 1px solid #e0e0e0;
+  opacity: 0.5;
+}
+
+.progressOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.06) 0%, rgba(0, 0, 0, 0.02) 100%);
+  border-radius: 10px 0 0 10px;
+  transition: width 0.3s ease;
+}
+
+.cycleContent {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+}
+
+.cycleInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cycleTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.currentBadge {
+  font-size: 11px;
+  padding: 2px 8px;
+  background: #000;
+  color: #fff;
+  border-radius: 10px;
+}
+
+.cycleDate {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #999;
+}
+
+.cycleRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.cycleData {
+  font-size: 12px;
+  color: #666;
+}
+
+.cycleRate {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.expandButton {
+  width: 100%;
+  padding: 10px 16px;
+  background: transparent;
+  border: none;
+  color: #999;
+  font-size: 13px;
+  cursor: pointer;
+  text-align: center;
+}

@@ -20,6 +20,7 @@ import AlgoList from './aloglist';
 import IntroList from './intro';
 import StockList from './stock'
 
+import DemoPage from './demo';
 import { createFingerprint, saveUuid } from '../utils';
 
 // const anchors = [100, window.innerHeight * 0.4, window.innerHeight * 0.8];
@@ -37,6 +38,14 @@ const demoAvatarImages = [
 const prefix = 'https://api.jixiang.chat';
 
 export default function IndexPage() {
+
+  // 检查 URL 参数，如果有 type=taskmode，直接返回 demo 模块
+  const urlParams = new URLSearchParams(window.location.search);
+  const type = urlParams.get('type');
+  
+  if (type === 'taskmode') {
+    return <DemoPage />;
+  }
 
   // const targetRef = useRef<HTMLDivElement>(null)
 
@@ -330,3 +339,4 @@ export default function IndexPage() {
     </div>
   );
 }
+

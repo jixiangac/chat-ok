@@ -1,0 +1,210 @@
+.container {
+  width: 100%;
+  height: 100vh;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  padding: 16px 24px;
+  background-color: white;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.backButton {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  background-color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.backButton:hover {
+  background-color: #f5f5f5;
+}
+
+.title {
+  font-size: 18px;
+  margin: 0;
+  font-weight: 500;
+  color: rgb(55, 53, 47);
+}
+
+.placeholder {
+  width: 32px;
+}
+
+.filterBar {
+  padding: 12px 16px;
+  background-color: white;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filterGroup {
+  display: flex;
+  gap: 8px;
+}
+
+.filterButton {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(55, 53, 47, 0.09);
+  background-color: white;
+  font-size: 13px;
+  color: rgba(55, 53, 47, 0.65);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filterButton:hover {
+  background-color: rgba(55, 53, 47, 0.04);
+}
+
+.filterButtonActive {
+  background-color: rgb(55, 53, 47);
+  color: white;
+  border-color: rgb(55, 53, 47);
+}
+
+.filterButtonActive:hover {
+  background-color: rgb(55, 53, 47);
+}
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: rgba(55, 53, 47, 0.5);
+}
+
+.emptyIcon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.emptyText {
+  font-size: 14px;
+  margin: 0;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.card {
+  background-color: white;
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid rgba(55, 53, 47, 0.09);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.card:hover {
+  border-color: rgba(55, 53, 47, 0.16);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.cardTitleWrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cardIcon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.cardTitle {
+  font-size: 15px;
+  font-weight: 500;
+  margin: 0;
+  color: rgb(55, 53, 47);
+  line-height: 1.4;
+}
+
+.cardBadge {
+  font-size: 11px;
+  color: rgba(55, 53, 47, 0.5);
+  background-color: rgba(55, 53, 47, 0.06);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.cardStats {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.statItem {
+  flex: 1;
+  padding: 10px 12px;
+  background-color: rgba(55, 53, 47, 0.04);
+  border-radius: 8px;
+}
+
+.statLabel {
+  font-size: 11px;
+  color: rgba(55, 53, 47, 0.5);
+  margin-bottom: 4px;
+}
+
+.statValue {
+  font-size: 14px;
+  color: rgb(55, 53, 47);
+  font-weight: 500;
+}
+
+.cardFooter {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 12px;
+  border-top: 1px solid rgba(55, 53, 47, 0.06);
+}
+
+.footerItem {
+  text-align: center;
+}
+
+.footerValue {
+  font-size: 15px;
+  font-weight: 500;
+  color: rgb(55, 53, 47);
+}
+
+.footerLabel {
+  font-size: 11px;
+  color: rgba(55, 53, 47, 0.5);
+}

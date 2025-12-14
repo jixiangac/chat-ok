@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Popup } from 'antd-mobile';
 import { Target, TrendingUp, Tent, Trophy, BarChart3, ClipboardList, CheckCircle, Calendar } from 'lucide-react';
 import type { MainlineTaskType, NumericDirection, CheckInUnit } from './types';
@@ -60,6 +60,29 @@ export default function CreateMainlineTaskModal({
   onClose,
   onSubmit
 }: CreateMainlineTaskModalProps) {
+  // 任务类别（主线/支线）- 根据localStorage中是否存在未归档的主线任务自动判断
+  const [taskCategory, setTaskCategory] = useState<'MAINLINE' | 'SIDELINE'>('MAINLINE');
+  
+  // 每次弹窗打开时，从localStorage判断应该创建主线还是支线任务
+  useEffect(() => {
+    if (visible) {
+      const storedTasks = localStorage.getItem('dc_tasks');
+      let hasActiveMainlineTask = false;
+      
+      if (storedTasks) {
+        try {
+          const parsedTasks = JSON.parse(storedTasks);
+          hasActiveMainlineTask = parsedTasks.some(
+            (t: any) => t.type === 'mainline' && t.status !== 'archived'
+          );
+        } catch (e) {
+          console.error('解析dc_tasks失败:', e);
+        }
+      }
+      
+      setTaskCategory(hasActiveMainlineTask ? 'SIDELINE' : 'MAINLINE');
+    }
+  }, [visible]);
   // 当前步骤
   const [currentStep, setCurrentStep] = useState<Step>('cycle');
   
@@ -86,10 +109,22 @@ export default function CreateMainlineTaskModal({
   const [checklistItems, setChecklistItems] = useState<string[]>(['', '', '', '']);
   
   // 打卡型配置
-  const [dailyTarget, setDailyTarget] = useState('1');
   const [checkInUnit, setCheckInUnit] = useState<CheckInUnit>('TIMES');
-  const [allowMultiple, setAllowMultiple] = useState(false);
+  const [allowMultiple, setAllowMultiple] = useState(true); // 默认允许多轮打卡
   const [weekendExempt, setWeekendExempt] = useState(false);
+  
+  // 次数型打卡配置
+  const [dailyMaxTimes, setDailyMaxTimes] = useState('1'); // 单日打卡次数上限
+  const [cycleTargetTimes, setCycleTargetTimes] = useState(''); // 周期总次数目标
+  
+  // 时长型打卡配置
+  const [dailyTargetMinutes, setDailyTargetMinutes] = useState('15'); // 单日目标时长
+  const [cycleTargetMinutes, setCycleTargetMinutes] = useState(''); // 周期总时长目标
+  
+  // 数值型打卡配置
+  const [dailyTargetValue, setDailyTargetValue] = useState(''); // 单日目标数值
+  const [cycleTargetValue, setCycleTargetValue] = useState(''); // 周期总目标数值
+  const [valueUnit, setValueUnit] = useState('个'); // 数值单位
   
   // 计算周期信息
   const cycleInfo = useMemo(() => {
@@ -119,10 +154,16 @@ export default function CreateMainlineTaskModal({
     setTargetValue('');
     setTotalItems('10');
     setChecklistItems(['', '', '', '']);
-    setDailyTarget('1');
     setCheckInUnit('TIMES');
-    setAllowMultiple(false);
+    setAllowMultiple(true);
     setWeekendExempt(false);
+    setDailyMaxTimes('1');
+    setCycleTargetTimes('');
+    setDailyTargetMinutes('15');
+    setCycleTargetMinutes('');
+    setDailyTargetValue('');
+    setCycleTargetValue('');
+    setValueUnit('个');
   };
   
   const handleClose = () => {
@@ -155,6 +196,7 @@ export default function CreateMainlineTaskModal({
     const baseData = {
       title: taskTitle,
       mainlineType: selectedType,
+      taskCategory, // 主线或支线
       totalDays,
       cycleDays,
       totalCycles: cycleInfo.totalCycles,
@@ -197,18 +239,55 @@ export default function CreateMainlineTaskModal({
         }))
       };
     } else if (selectedType === 'CHECK_IN') {
-      const target = parseInt(dailyTarget);
-      if (isNaN(target) || target < 1) {
-        alert('请输入有效的每日目标');
-        return;
-      }
-      taskData.checkInConfig = {
-        dailyTarget: target,
+      // 根据打卡类型构建配置
+      const checkInConfig: any = {
         unit: checkInUnit,
         allowMultiplePerDay: allowMultiple,
         weekendExempt: weekendExempt,
-        perCycleTarget: cycleDays * target
+        currentStreak: 0,
+        longestStreak: 0,
+        checkInRate: 0,
+        streaks: [],
+        records: []
       };
+      
+      if (checkInUnit === 'TIMES') {
+        // 次数型打卡
+        const maxTimes = parseInt(dailyMaxTimes) || 1;
+        const defaultCycleTarget = cycleDays * maxTimes;
+        const cycleTarget = cycleTargetTimes ? parseInt(cycleTargetTimes) : defaultCycleTarget;
+        
+        checkInConfig.dailyMaxTimes = maxTimes;
+        checkInConfig.cycleTargetTimes = cycleTarget;
+        checkInConfig.perCycleTarget = cycleTarget;
+      } else if (checkInUnit === 'DURATION') {
+        // 时长型打卡
+        const dailyMinutes = parseInt(dailyTargetMinutes) || 15;
+        const defaultCycleMinutes = cycleDays * dailyMinutes;
+        const cycleMinutes = cycleTargetMinutes ? parseInt(cycleTargetMinutes) : defaultCycleMinutes;
+        
+        checkInConfig.dailyTargetMinutes = dailyMinutes;
+        checkInConfig.cycleTargetMinutes = cycleMinutes;
+        checkInConfig.quickDurations = [5, 10, 15];
+        checkInConfig.perCycleTarget = cycleMinutes;
+      } else if (checkInUnit === 'QUANTITY') {
+        // 数值型打卡
+        const dailyValue = parseFloat(dailyTargetValue) || 0;
+        const defaultCycleValue = cycleDays * dailyValue;
+        const cycleValue = cycleTargetValue ? parseFloat(cycleTargetValue) : defaultCycleValue;
+        
+        if (!dailyValue) {
+          alert('请输入有效的单日目标数值');
+          return;
+        }
+        
+        checkInConfig.dailyTargetValue = dailyValue;
+        checkInConfig.cycleTargetValue = cycleValue;
+        checkInConfig.valueUnit = valueUnit;
+        checkInConfig.perCycleTarget = cycleValue;
+      }
+      
+      taskData.checkInConfig = checkInConfig;
     }
     
     onSubmit(taskData);
@@ -656,65 +735,207 @@ export default function CreateMainlineTaskModal({
           <>
             <div style={{ marginBottom: '20px' }}>
               <div style={{ fontSize: '14px', color: '#666', marginBottom: '12px', fontWeight: '500' }}>
-                ✅ 打卡规则
+                ✅ 选择打卡类型
               </div>
-              <div style={{ marginBottom: '12px' }}>
-                <div style={{ fontSize: '12px', color: '#999', marginBottom: '6px' }}>每日目标</div>
-                <input
-                  type="number"
-                  value={dailyTarget}
-                  onChange={(e) => setDailyTarget(e.target.value)}
-                  placeholder="1"
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    border: '1px solid #e5e5e5',
-                    borderRadius: '12px',
-                    fontSize: '14px',
-                    outline: 'none',
-                    boxSizing: 'border-box'
-                  }}
-                />
-                <div style={{ fontSize: '11px', color: '#999', marginTop: '4px' }}>
-                  每天需要打卡的次数
-                </div>
+              <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+                {[
+                  { value: 'TIMES', label: '次数型', desc: '记录打卡次数' },
+                  { value: 'DURATION', label: '时长型', desc: '记录时长' },
+                  { value: 'QUANTITY', label: '数值型', desc: '记录数值' }
+                ].map(option => (
+                  <button
+                    key={option.value}
+                    onClick={() => setCheckInUnit(option.value as CheckInUnit)}
+                    style={{
+                      flex: 1,
+                      padding: '12px 8px',
+                      backgroundColor: checkInUnit === option.value ? 'black' : 'white',
+                      color: checkInUnit === option.value ? 'white' : 'black',
+                      border: '1px solid #e5e5e5',
+                      borderRadius: '10px',
+                      cursor: 'pointer',
+                      textAlign: 'center'
+                    }}
+                  >
+                    <div style={{ fontSize: '14px', fontWeight: '600' }}>{option.label}</div>
+                    <div style={{ fontSize: '11px', opacity: 0.7, marginTop: '2px' }}>{option.desc}</div>
+                  </button>
+                ))}
               </div>
               
-              <div style={{ marginBottom: '12px' }}>
-                <div style={{ fontSize: '12px', color: '#999', marginBottom: '6px' }}>打卡单位</div>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  {[
-                    { value: 'TIMES', label: '次数' },
-                    { value: 'DURATION', label: '时长' },
-                    { value: 'QUANTITY', label: '数量' }
-                  ].map(option => (
-                    <button
-                      key={option.value}
-                      onClick={() => setCheckInUnit(option.value as CheckInUnit)}
+              {/* 次数型打卡配置 */}
+              {checkInUnit === 'TIMES' && (
+                <div style={{ marginBottom: '16px' }}>
+                  <div style={{ fontSize: '13px', color: '#666', marginBottom: '8px', fontWeight: '500' }}>
+                    📊 次数型打卡设置
+                  </div>
+                  <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: '12px', color: '#999', marginBottom: '6px' }}>单日打卡上限</div>
+                      <input
+                        type="number"
+                        value={dailyMaxTimes}
+                        onChange={(e) => setDailyMaxTimes(e.target.value)}
+                        placeholder="1"
+                        style={{
+                          width: '100%',
+                          padding: '12px',
+                          border: '1px solid #e5e5e5',
+                          borderRadius: '12px',
+                          fontSize: '14px',
+                          outline: 'none',
+                          boxSizing: 'border-box'
+                        }}
+                      />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: '12px', color: '#999', marginBottom: '6px' }}>周期总次数目标</div>
+                      <input
+                        type="number"
+                        value={cycleTargetTimes}
+                        onChange={(e) => setCycleTargetTimes(e.target.value)}
+                        placeholder={`${cycleDays * (parseInt(dailyMaxTimes) || 1)}`}
+                        style={{
+                          width: '100%',
+                          padding: '12px',
+                          border: '1px solid #e5e5e5',
+                          borderRadius: '12px',
+                          fontSize: '14px',
+                          outline: 'none',
+                          boxSizing: 'border-box'
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <div style={{ fontSize: '11px', color: '#999' }}>
+                    默认周期目标 = 天数 × 单日上限 = {cycleDays * (parseInt(dailyMaxTimes) || 1)} 次
+                  </div>
+                </div>
+              )}
+              
+              {/* 时长型打卡配置 */}
+              {checkInUnit === 'DURATION' && (
+                <div style={{ marginBottom: '16px' }}>
+                  <div style={{ fontSize: '13px', color: '#666', marginBottom: '8px', fontWeight: '500' }}>
+                    ⏱️ 时长型打卡设置
+                  </div>
+                  <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: '12px', color: '#999', marginBottom: '6px' }}>单日目标时长(分钟)</div>
+                      <input
+                        type="number"
+                        value={dailyTargetMinutes}
+                        onChange={(e) => setDailyTargetMinutes(e.target.value)}
+                        placeholder="15"
+                        style={{
+                          width: '100%',
+                          padding: '12px',
+                          border: '1px solid #e5e5e5',
+                          borderRadius: '12px',
+                          fontSize: '14px',
+                          outline: 'none',
+                          boxSizing: 'border-box'
+                        }}
+                      />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: '12px', color: '#999', marginBottom: '6px' }}>周期总时长目标(分钟)</div>
+                      <input
+                        type="number"
+                        value={cycleTargetMinutes}
+                        onChange={(e) => setCycleTargetMinutes(e.target.value)}
+                        placeholder={`${cycleDays * (parseInt(dailyTargetMinutes) || 15)}`}
+                        style={{
+                          width: '100%',
+                          padding: '12px',
+                          border: '1px solid #e5e5e5',
+                          borderRadius: '12px',
+                          fontSize: '14px',
+                          outline: 'none',
+                          boxSizing: 'border-box'
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <div style={{ fontSize: '11px', color: '#999' }}>
+                    打卡时可选择 5/10/15 分钟或自定义时长
+                  </div>
+                </div>
+              )}
+              
+              {/* 数值型打卡配置 */}
+              {checkInUnit === 'QUANTITY' && (
+                <div style={{ marginBottom: '16px' }}>
+                  <div style={{ fontSize: '13px', color: '#666', marginBottom: '8px', fontWeight: '500' }}>
+                    🔢 数值型打卡设置
+                  </div>
+                  <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: '12px', color: '#999', marginBottom: '6px' }}>单日目标数值</div>
+                      <input
+                        type="number"
+                        value={dailyTargetValue}
+                        onChange={(e) => setDailyTargetValue(e.target.value)}
+                        placeholder="10"
+                        style={{
+                          width: '100%',
+                          padding: '12px',
+                          border: '1px solid #e5e5e5',
+                          borderRadius: '12px',
+                          fontSize: '14px',
+                          outline: 'none',
+                          boxSizing: 'border-box'
+                        }}
+                      />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: '12px', color: '#999', marginBottom: '6px' }}>数值单位</div>
+                      <input
+                        type="text"
+                        value={valueUnit}
+                        onChange={(e) => setValueUnit(e.target.value)}
+                        placeholder="个"
+                        style={{
+                          width: '100%',
+                          padding: '12px',
+                          border: '1px solid #e5e5e5',
+                          borderRadius: '12px',
+                          fontSize: '14px',
+                          outline: 'none',
+                          boxSizing: 'border-box'
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <div style={{ marginBottom: '12px' }}>
+                    <div style={{ fontSize: '12px', color: '#999', marginBottom: '6px' }}>周期总目标数值</div>
+                    <input
+                      type="number"
+                      value={cycleTargetValue}
+                      onChange={(e) => setCycleTargetValue(e.target.value)}
+                      placeholder={`${cycleDays * (parseFloat(dailyTargetValue) || 0)}`}
                       style={{
-                        flex: 1,
-                        padding: '10px',
-                        backgroundColor: checkInUnit === option.value ? 'black' : 'white',
-                        color: checkInUnit === option.value ? 'white' : 'black',
+                        width: '100%',
+                        padding: '12px',
                         border: '1px solid #e5e5e5',
-                        borderRadius: '8px',
-                        cursor: 'pointer',
-                        fontSize: '13px'
+                        borderRadius: '12px',
+                        fontSize: '14px',
+                        outline: 'none',
+                        boxSizing: 'border-box'
                       }}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
+                    />
+                  </div>
                 </div>
-              </div>
+              )}
               
+              {/* 高级设置 */}
               <div style={{
                 backgroundColor: '#f8f8f8',
                 borderRadius: '12px',
                 padding: '12px'
               }}>
                 <div style={{ fontSize: '12px', color: '#666', marginBottom: '8px', fontWeight: '500' }}>
-                  高级设置（可选）
+                  高级设置
                 </div>
                 <label style={{ display: 'flex', alignItems: 'center', marginBottom: '8px', cursor: 'pointer' }}>
                   <input
@@ -723,7 +944,7 @@ export default function CreateMainlineTaskModal({
                     onChange={(e) => setAllowMultiple(e.target.checked)}
                     style={{ marginRight: '8px' }}
                   />
-                  <span style={{ fontSize: '13px' }}>允许每日多次打卡</span>
+                  <span style={{ fontSize: '13px' }}>允许每日多轮打卡</span>
                 </label>
                 <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
                   <input
@@ -738,22 +959,39 @@ export default function CreateMainlineTaskModal({
             </div>
             
             {/* 自动规划预览 */}
-            {dailyTarget && (
-              <div style={{
-                backgroundColor: '#f0f7ff',
-                border: '1px solid #4a9eff',
-                borderRadius: '12px',
-                padding: '16px'
-              }}>
-                <div style={{ fontSize: '14px', fontWeight: '600', marginBottom: '12px' }}>
-                  📊 系统自动规划
-                </div>
-                <div style={{ fontSize: '12px', color: '#666', lineHeight: '1.8' }}>
-                  • 每周期目标：{cycleDays * parseInt(dailyTarget)}次打卡<br/>
-                  • 预计总打卡：{totalDays * parseInt(dailyTarget)}次
-                </div>
+            <div style={{
+              backgroundColor: '#f0f7ff',
+              border: '1px solid #4a9eff',
+              borderRadius: '12px',
+              padding: '16px'
+            }}>
+              <div style={{ fontSize: '14px', fontWeight: '600', marginBottom: '12px' }}>
+                📊 系统自动规划
               </div>
-            )}
+              <div style={{ fontSize: '12px', color: '#666', lineHeight: '1.8' }}>
+                {checkInUnit === 'TIMES' && (
+                  <>
+                    • 单日打卡上限：{parseInt(dailyMaxTimes) || 1} 次<br/>
+                    • 每周期目标：{cycleTargetTimes || (cycleDays * (parseInt(dailyMaxTimes) || 1))} 次<br/>
+                    • 预计总打卡：{cycleInfo.totalCycles * (parseInt(cycleTargetTimes) || (cycleDays * (parseInt(dailyMaxTimes) || 1)))} 次
+                  </>
+                )}
+                {checkInUnit === 'DURATION' && (
+                  <>
+                    • 单日目标时长：{parseInt(dailyTargetMinutes) || 15} 分钟<br/>
+                    • 每周期目标：{cycleTargetMinutes || (cycleDays * (parseInt(dailyTargetMinutes) || 15))} 分钟<br/>
+                    • 预计总时长：{cycleInfo.totalCycles * (parseInt(cycleTargetMinutes) || (cycleDays * (parseInt(dailyTargetMinutes) || 15)))} 分钟
+                  </>
+                )}
+                {checkInUnit === 'QUANTITY' && dailyTargetValue && (
+                  <>
+                    • 单日目标：{parseFloat(dailyTargetValue)} {valueUnit}<br/>
+                    • 每周期目标：{cycleTargetValue || (cycleDays * parseFloat(dailyTargetValue))} {valueUnit}<br/>
+                    • 预计总目标：{cycleInfo.totalCycles * (parseFloat(cycleTargetValue) || (cycleDays * parseFloat(dailyTargetValue)))} {valueUnit}
+                  </>
+                )}
+              </div>
+            </div>
           </>
         )}
       </div>
@@ -790,7 +1028,7 @@ export default function CreateMainlineTaskModal({
           justifyContent: 'space-between'
         }}>
           <h2 style={{ fontSize: '18px', fontWeight: '600', margin: 0 }}>
-            创建主线任务
+            创建{taskCategory === 'MAINLINE' ? '主线' : '支线'}任务
           </h2>
           <button
             onClick={handleClose}

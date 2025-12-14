@@ -167,7 +167,9 @@ export function calculateRemainingDays(task: Task): number {
   const daysPassed = Math.floor((now.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
   const currentCycleDay = daysPassed % task.cycleDays;
   
-  return task.cycleDays - currentCycleDay;
+  // 剩余天数 = 周期天数 - 当前周期内已过天数 - 1（因为当天也算一天）
+  // 例如：10天周期，第2天（daysPassed=1），currentCycleDay=1，剩余 = 10 - 1 - 1 = 8天
+  return task.cycleDays - currentCycleDay - 1;
 }
 
 /**

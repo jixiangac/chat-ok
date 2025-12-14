@@ -121,7 +121,7 @@ export function useGoalDetail(goalId: string, onDataChange?: () => void) {
             let currentStreak = 0;
             let checkDate = new Date(effectiveToday);
             
-            while (uniqueDates.includes(checkDate.toISOString().split('T')[0])) {
+            while (uniqueDates.includes(formatLocalDate(checkDate))) {
               currentStreak++;
               checkDate.setDate(checkDate.getDate() - 1);
             }
@@ -373,7 +373,7 @@ export function useGoalDetail(goalId: string, onDataChange?: () => void) {
             if (updates.status) {
               items[itemIndex].status = updates.status;
               if (updates.status === 'COMPLETED') {
-                items[itemIndex].completedAt = new Date().toISOString().split('T')[0];
+                items[itemIndex].completedAt = formatLocalDate(new Date());
               }
             }
             if (updates.subProgress) {
@@ -869,12 +869,20 @@ export function useGoalDetail(goalId: string, onDataChange?: () => void) {
   };
 }
 
-// 获取模拟的"今天"日期（考虑debugDayOffset偏移）
+// 将 Date 对象格式化为本地时区的 YYYY-MM-DD 字符串
+export function formatLocalDate(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+// 获取模拟的"今天"日期（考虑debugDayOffset偏移，使用本地时区）
 export function getSimulatedToday(goalDetail: GoalDetail): string {
   const realToday = new Date();
   const offset = goalDetail.debugDayOffset || 0;
   realToday.setDate(realToday.getDate() + offset);
-  return realToday.toISOString().split('T')[0];
+  return formatLocalDate(realToday);
 }
 
 // 获取模拟的"今天"Date对象
@@ -952,8 +960,8 @@ export function getCurrentCycle(goalDetail: GoalDetail): CurrentCycleInfo {
   return {
     cycleNumber: currentCycleNumber,
     totalCycles: goalDetail.totalCycles,
-    startDate: currentCycleStart.toISOString().split('T')[0],
-    endDate: currentCycleEnd.toISOString().split('T')[0],
+    startDate: formatLocalDate(currentCycleStart),
+    endDate: formatLocalDate(currentCycleEnd),
     checkInCount: checkInDates.length,
     requiredCheckIns: goalDetail.minCheckInsPerCycle,
     remainingDays,

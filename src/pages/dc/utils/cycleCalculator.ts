@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import type { CycleInfo, ValidationResult } from '../types';
 
 /**
@@ -66,8 +67,6 @@ export class CycleCalculator {
    * @returns 结束日期（YYYY-MM-DD格式）
    */
   static calculateEndDate(startDate: string, totalDays: number): string {
-    const end = new Date(startDate);
-    end.setDate(end.getDate() + totalDays);
-    return end.toISOString().split('T')[0];
+    return dayjs(startDate).add(totalDays, 'day').format('YYYY-MM-DD');
   }
 }

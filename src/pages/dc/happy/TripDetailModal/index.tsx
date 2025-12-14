@@ -1,5 +1,6 @@
 // 行程详情弹窗组件 - Notion风格
 import React from 'react';
+import dayjs from 'dayjs';
 import { Trip } from '../types';
 import { calculateTripStats } from '../storage';
 import './styles.css';
@@ -34,9 +35,7 @@ const TripDetailModal: React.FC<TripDetailModalProps> = ({
 
   // 计算结束日期
   const getEndDate = () => {
-    const start = new Date(trip.startDate);
-    start.setDate(start.getDate() + trip.totalDays - 1);
-    return start.toISOString().split('T')[0];
+    return dayjs(trip.startDate).add(trip.totalDays - 1, 'day').format('YYYY-MM-DD');
   };
 
   // 获取第一个日程的开始时间

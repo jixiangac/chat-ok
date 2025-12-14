@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
+import dayjs from 'dayjs';
 import { Popup } from 'antd-mobile';
 import { Target, TrendingUp, Tent, Trophy, BarChart3, ClipboardList, CheckCircle, Calendar } from 'lucide-react';
 import type { MainlineTaskType, NumericDirection, CheckInUnit } from './types';
@@ -203,7 +204,7 @@ export default function CreateMainlineTaskModal({
       totalDays,
       cycleDays,
       totalCycles: cycleInfo.totalCycles,
-      startDate: new Date().toISOString().split('T')[0]
+      startDate: dayjs().format('YYYY-MM-DD')
     };
     
     let taskData: any = baseData;

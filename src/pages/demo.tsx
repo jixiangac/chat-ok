@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import dayjs from 'dayjs';
 import { Plus, X, Archive, Settings as SettingsIcon } from 'lucide-react';
 // import CreateGoalModal from './dc/CreateGoalModal';
 import CreateMainlineTaskModal from './dc/CreateMainlineTaskModal';
@@ -36,7 +37,7 @@ function DemoPageContent() {
 
   // 处理任务创建（统一处理主线和支线任务）
   const handleCreateTask = (taskData: any) => {
-    const today = new Date().toISOString().split('T')[0];
+    const today = dayjs().format('YYYY-MM-DD');
     const isMainline = taskData.taskCategory === 'MAINLINE';
     
     // 创建任务对象

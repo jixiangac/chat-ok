@@ -452,6 +452,7 @@
     "componentName": "dc-detail-hooks",
     "layout": false,
     "exports": [
+      "formatLocalDate",
       "getCurrentCycle",
       "getSimulatedToday",
       "getSimulatedTodayDate",

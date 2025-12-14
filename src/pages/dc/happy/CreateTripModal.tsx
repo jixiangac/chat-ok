@@ -1,5 +1,6 @@
 // 创建行程弹窗组件 - Notion风格
 import React, { useState } from 'react';
+import dayjs from 'dayjs';
 
 interface CreateTripModalProps {
   visible: boolean;
@@ -18,9 +19,7 @@ const CreateTripModal: React.FC<CreateTripModalProps> = ({
   onSubmit
 }) => {
   const [name, setName] = useState('');
-  const [startDate, setStartDate] = useState(
-    new Date().toISOString().split('T')[0]
-  );
+  const [startDate, setStartDate] = useState(dayjs().format('YYYY-MM-DD'));
   const [totalDays, setTotalDays] = useState(3);
   const [hasPreparation, setHasPreparation] = useState(true);
 
@@ -36,7 +35,7 @@ const CreateTripModal: React.FC<CreateTripModalProps> = ({
     
     // 重置表单
     setName('');
-    setStartDate(new Date().toISOString().split('T')[0]);
+    setStartDate(dayjs().format('YYYY-MM-DD'));
     setTotalDays(3);
     setHasPreparation(true);
     onClose();

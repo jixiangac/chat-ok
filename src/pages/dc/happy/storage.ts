@@ -1,4 +1,5 @@
 // 度假模式数据存储工具
+import dayjs from 'dayjs';
 import { Trip, TripGoal, TripSchedule, VacationModeState } from './types';
 
 const TRIPS_STORAGE_KEY = 'vacation_trips';
@@ -62,7 +63,7 @@ export const createTrip = (
       type: 'day',
       dayNumber: i,
       label: `D${i}`,
-      date: dayDate.toISOString().split('T')[0],
+      date: dayjs(dayDate).format('YYYY-MM-DD'),
       goals: [],
       isCompleted: false
     });

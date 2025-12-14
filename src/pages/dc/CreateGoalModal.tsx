@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import dayjs from 'dayjs';
 import { Popup } from 'antd-mobile';
 import type { GoalData, TaskType, Priority } from './types';
 import { CycleCalculator } from './utils/cycleCalculator';
@@ -77,7 +78,7 @@ export default function CreateGoalModal({
   const [goalTitle, setGoalTitle] = useState('');
   const [encouragement, setEncouragement] = useState('');
   const [selectedIcon, setSelectedIcon] = useState('⭐');
-  const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
+  const [startDate, setStartDate] = useState(dayjs().format('YYYY-MM-DD'));
   const [taskType, setTaskType] = useState<TaskType>('sidelineA');
   const [priority, setPriority] = useState<Priority>('medium');
   const [showWarning, setShowWarning] = useState(false);

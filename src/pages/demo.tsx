@@ -11,6 +11,8 @@ import { TaskProvider, useTaskContext } from './dc/context';
 import ArchiveList from './dc/archive';
 import Settings from './dc/settings';
 import { ThemeProvider } from './dc/settings/theme';
+import RandomTaskPicker from './dc/RandomTaskPicker';
+import MoonPhase from './dc/MoonPhase';
 
 function DemoPageContent() {
   const { tasks, addTask, refreshTasks } = useTaskContext();
@@ -338,12 +340,22 @@ function DemoPageContent() {
         ) : (
           // 常规模式内容
           <>
-            {/* Cute Ghost Character */}
+            {/* Cute Ghost Character with Moon and Random Task Button */}
             <div style={{
               display: 'flex',
               justifyContent: 'center',
-              marginBottom: '16px'
+              alignItems: 'flex-start',
+              marginBottom: '16px',
+              position: 'relative'
             }}>
+              {/* 左上角月亮 */}
+              <div style={{
+                position: 'absolute',
+                left: '0',
+                top: '10px'
+              }}>
+                <MoonPhase />
+              </div>
               <img 
                 src="https://img.alicdn.com/imgextra/i4/O1CN01FgLcMT1COZEIxZ3nG_!!6000000000071-2-tps-1248-832.png" 
                 alt="可爱的小精灵"
@@ -354,6 +366,14 @@ function DemoPageContent() {
                   objectFit: 'contain'
                 }}
               />
+              {/* 随机任务Tips按钮 */}
+              <div style={{
+                position: 'absolute',
+                right: '0',
+                top: '20px'
+              }}>
+                <RandomTaskPicker onSelectTask={(taskId) => setSelectedTaskId(taskId)} />
+              </div>
             </div>
 
             {/* Main Task Section */}

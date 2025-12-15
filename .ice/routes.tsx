@@ -18,6 +18,7 @@ import * as dc_detail_HistoryCyclePanel from '@/pages/dc/detail/HistoryCyclePane
 import * as dc_detail_NumericCyclePanel from '@/pages/dc/detail/NumericCyclePanel';
 import * as dc_utils_mainlineTaskHelper from '@/pages/dc/utils/mainlineTaskHelper';
 import * as dc_CreateMainlineTaskModal from '@/pages/dc/CreateMainlineTaskModal';
+import * as dc_RandomTaskPicker from '@/pages/dc/RandomTaskPicker/index';
 import * as dc_detail_ProgressSection from '@/pages/dc/detail/ProgressSection';
 import * as dc_detail_RecordDataModal from '@/pages/dc/detail/RecordDataModal';
 import * as dc_happy_TripSummaryModal from '@/pages/dc/happy/TripSummaryModal';
@@ -32,6 +33,7 @@ import * as dc_happy_AddGoalModal from '@/pages/dc/happy/AddGoalModal';
 import * as dc_detail_GoalHeader from '@/pages/dc/detail/GoalHeader';
 import * as dc_components from '@/pages/dc/components/index';
 import * as dc_CreateGoalModal from '@/pages/dc/CreateGoalModal';
+import * as dc_MoonPhase from '@/pages/dc/MoonPhase/index';
 import * as dc_detail_example from '@/pages/dc/detail/example';
 import * as dc_happy_GoalCard from '@/pages/dc/happy/GoalCard';
 import * as dc_happy_TripList from '@/pages/dc/happy/TripList';
@@ -514,6 +516,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["default"],
   },{
+    path: 'dc/RandomTaskPicker',
+    async lazy() {
+      ;
+      return {
+        ...dc_RandomTaskPicker,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/RandomTaskPicker',
+          isLayout: false,
+          routeExports: dc_RandomTaskPicker,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/RandomTaskPicker',
+          requestContext,
+          renderMode,
+          module: dc_RandomTaskPicker,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-randomtaskpicker-index',
+    index: true,
+    id: 'dc/RandomTaskPicker',
+    exact: true,
+    exports: ["default"],
+  },{
     path: 'dc/detail/ProgressSection',
     async lazy() {
       ;
@@ -861,6 +888,31 @@ const createRoutes: CreateRoutes = ({
     componentName: 'dc-creategoalmodal',
     index: undefined,
     id: 'dc/CreateGoalModal',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/MoonPhase',
+    async lazy() {
+      ;
+      return {
+        ...dc_MoonPhase,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/MoonPhase',
+          isLayout: false,
+          routeExports: dc_MoonPhase,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/MoonPhase',
+          requestContext,
+          renderMode,
+          module: dc_MoonPhase,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-moonphase-index',
+    index: true,
+    id: 'dc/MoonPhase',
     exact: true,
     exports: ["default"],
   },{

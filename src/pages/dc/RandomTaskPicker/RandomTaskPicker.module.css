@@ -1,0 +1,212 @@
+/* 云朵触发器 */
+.trigger {
+  cursor: pointer;
+}
+
+.cloud {
+  position: relative;
+  width: 110px;
+  height: 66px;
+  animation: float 5s ease-in-out infinite;
+}
+
+.cloudSvg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.06));
+  transition: all 0.3s ease;
+}
+
+.trigger:hover .cloudSvg {
+  filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.1));
+  transform: scale(1.05);
+}
+
+.trigger:hover .cloudText {
+  color: #666;
+}
+
+.cloudText {
+  position: absolute;
+  top: 54%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 12px;
+  color: #999;
+  font-weight: 400;
+  white-space: nowrap;
+  pointer-events: none;
+  transition: color 0.3s ease;
+  letter-spacing: 1px;
+}
+
+/* 缓慢飘动动画 */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) translateX(0);
+  }
+  33% {
+    transform: translateY(-4px) translateX(3px);
+  }
+  66% {
+    transform: translateY(-2px) translateX(-2px);
+  }
+}
+
+/* 弹层遮罩 */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+/* 弹层内容 */
+.modal {
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 24px;
+  width: 320px;
+  max-width: 90vw;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  animation: scaleIn 0.25s ease-out;
+}
+
+.modalHeader {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.modalTitle {
+  font-size: 18px;
+  font-weight: 500;
+  color: #333;
+  margin: 0 0 4px 0;
+}
+
+.modalSubtitle {
+  font-size: 13px;
+  color: #999;
+}
+
+/* 任务卡片 */
+.taskCard {
+  background-color: #f8f8f8;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.taskTitle {
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+  margin: 0 0 8px 0;
+}
+
+.taskMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.taskTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  background-color: rgba(0, 0, 0, 0.05);
+  color: #666;
+}
+
+.taskTagHighlight {
+  background-color: rgba(255, 107, 107, 0.1);
+  color: #ff6b6b;
+}
+
+/* 按钮区域 */
+.buttonGroup {
+  display: flex;
+  gap: 12px;
+}
+
+.button {
+  flex: 1;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.buttonPrimary {
+  background-color: #333;
+  color: white;
+}
+
+.buttonPrimary:hover {
+  background-color: #000;
+}
+
+.buttonSecondary {
+  background-color: #f0f0f0;
+  color: #666;
+}
+
+.buttonSecondary:hover {
+  background-color: #e5e5e5;
+}
+
+.buttonSecondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 空状态 */
+.emptyState {
+  text-align: center;
+  padding: 20px 0;
+  color: #999;
+}
+
+.emptyIcon {
+  font-size: 40px;
+  margin-bottom: 12px;
+}
+
+.emptyText {
+  font-size: 14px;
+}
+
+/* 动画 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

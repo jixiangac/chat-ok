@@ -194,6 +194,17 @@
     ]
   },
   {
+    "path": "dc/RandomTaskPicker",
+    "index": true,
+    "id": "dc/RandomTaskPicker",
+    "file": "dc/RandomTaskPicker/index.tsx",
+    "componentName": "dc-randomtaskpicker-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
     "path": "dc/detail/ProgressSection",
     "id": "dc/detail/ProgressSection",
     "file": "dc/detail/ProgressSection.tsx",
@@ -334,6 +345,17 @@
     "id": "dc/CreateGoalModal",
     "file": "dc/CreateGoalModal.tsx",
     "componentName": "dc-creategoalmodal",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/MoonPhase",
+    "index": true,
+    "id": "dc/MoonPhase",
+    "file": "dc/MoonPhase/index.tsx",
+    "componentName": "dc-moonphase-index",
     "layout": false,
     "exports": [
       "default"

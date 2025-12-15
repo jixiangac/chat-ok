@@ -1,7 +1,8 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
+import confetti from 'canvas-confetti';
 import dayjs from 'dayjs';
 import { Popup } from 'antd-mobile';
-import { Target, TrendingUp, Tent, Trophy, BarChart3, ClipboardList, CheckCircle, Calendar } from 'lucide-react';
+import { Target, TrendingUp, Tent, Trophy, BarChart3, ClipboardList, CheckCircle, Calendar, FileText, Hash, ListChecks, Clock, Calculator } from 'lucide-react';
 import type { MainlineTaskType, NumericDirection, CheckInUnit } from './types';
 import { CycleCalculator } from './utils/cycleCalculator';
 import { useTheme } from './settings/theme';
@@ -25,8 +26,9 @@ const TOTAL_DURATION_OPTIONS = [
 
 // 周期长度选项
 const CYCLE_LENGTH_OPTIONS = [
-  { label: '10天', value: 10, description: '适合短期冲刺', recommended: '<3个月' },
-  { label: '30天', value: 30, description: '适合月度计划', recommended: '≥3个月' },
+  { label: '10天', value: 10, description: '小步快跑' },
+  { label: '15天', value: 15, description: '张弛有度' },
+  { label: '30天', value: 30, description: '稳扎稳打' },
 ];
 
 // 任务类型选项
@@ -95,6 +97,9 @@ export default function CreateMainlineTaskModal({
   const [cycleDays, setCycleDays] = useState(10);
   const [customDays, setCustomDays] = useState('');
   const [isCustom, setIsCustom] = useState(false);
+  const [customCycleDays, setCustomCycleDays] = useState('');
+  const [isCustomCycle, setIsCustomCycle] = useState(false);
+  const [startDate, setStartDate] = useState(dayjs().format('YYYY-MM-DD'));
   
   // 步骤2：类型选择
   const [selectedType, setSelectedType] = useState<MainlineTaskType | null>(null);
@@ -140,8 +145,8 @@ export default function CreateMainlineTaskModal({
     };
   }, [totalDays, cycleDays]);
   
-  // 推荐周期长度
-  const recommendedCycleDays = totalDays < 90 ? 10 : 30;
+  // 推荐周期长度：只有1年(365天)时推荐30天，其他都推荐10天
+  const recommendedCycleDays = totalDays >= 365 ? 30 : 10;
   
   // 重置表单
   const resetForm = () => {
@@ -150,6 +155,9 @@ export default function CreateMainlineTaskModal({
     setCycleDays(10);
     setCustomDays('');
     setIsCustom(false);
+    setCustomCycleDays('');
+    setIsCustomCycle(false);
+    setStartDate(dayjs().format('YYYY-MM-DD'));
     setSelectedType(null);
     setTaskTitle('');
     setNumericDirection('DECREASE');
@@ -204,7 +212,7 @@ export default function CreateMainlineTaskModal({
       totalDays,
       cycleDays,
       totalCycles: cycleInfo.totalCycles,
-      startDate: dayjs().format('YYYY-MM-DD')
+      startDate
     };
     
     let taskData: any = baseData;
@@ -294,68 +302,323 @@ export default function CreateMainlineTaskModal({
       taskData.checkInConfig = checkInConfig;
     }
     
+    // 触发彩纸效果
+    const canvas = document.createElement('canvas');
+    canvas.style.position = 'fixed';
+    canvas.style.top = '0';
+    canvas.style.left = '0';
+    canvas.style.width = '100vw';
+    canvas.style.height = '100vh';
+    canvas.style.pointerEvents = 'none';
+    canvas.style.zIndex = '99999';
+    document.body.appendChild(canvas);
+    
+    const myConfetti = confetti.create(canvas, { resize: true });
+    myConfetti({
+      particleCount: 50,
+      spread: 60,
+      origin: { x: 0.5, y: 0.9 },
+      colors: ['#26ccff', '#a25afd', '#ff5e7e', '#88ff5a', '#fcff42', '#ffa62d', '#ff36ff'],
+      ticks: 200,
+      gravity: 1.2,
+      decay: 0.94,
+      startVelocity: 30,
+      shapes: ['circle']
+    }).then(() => {
+      document.body.removeChild(canvas);
+    });
+    
     onSubmit(taskData);
     handleClose();
   };
   
+  // 总时长选择的 refs 和高亮状态
+  const durationRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const [durationHighlight, setDurationHighlight] = useState({ top: 0, left: 0, height: 0, width: 0 });
+  
+  // 增减方向选择的 refs 和高亮状态
+  const directionRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const [directionHighlight, setDirectionHighlight] = useState({ top: 0, left: 0, height: 0, width: 0 });
+  
+  // 打卡类型选择的 refs 和高亮状态
+  const checkInTypeRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const [checkInTypeHighlight, setCheckInTypeHighlight] = useState({ top: 0, left: 0, height: 0, width: 0 });
+  
+  // 计算总时长高亮框位置
+  useEffect(() => {
+    if (isCustom) return;
+    const selectedIndex = TOTAL_DURATION_OPTIONS.findIndex(opt => opt.value === totalDays);
+    if (selectedIndex >= 0 && durationRefs.current[selectedIndex]) {
+      const card = durationRefs.current[selectedIndex];
+      if (card) {
+        setDurationHighlight({
+          top: card.offsetTop,
+          left: card.offsetLeft,
+          height: card.offsetHeight,
+          width: card.offsetWidth
+        });
+      }
+    }
+  }, [totalDays, isCustom]);
+  
+  // 周期长度选择的 refs 和高亮状态
+  const cycleRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const [cycleHighlight, setCycleHighlight] = useState({ top: 0, left: 0, height: 0, width: 0 });
+  
+  // 计算周期长度高亮框位置
+  useEffect(() => {
+    if (isCustomCycle) return;
+    const selectedIndex = CYCLE_LENGTH_OPTIONS.findIndex(opt => opt.value === cycleDays);
+    if (selectedIndex >= 0 && cycleRefs.current[selectedIndex]) {
+      const card = cycleRefs.current[selectedIndex];
+      if (card) {
+        setCycleHighlight({
+          top: card.offsetTop,
+          left: card.offsetLeft,
+          height: card.offsetHeight,
+          width: card.offsetWidth
+        });
+      }
+    }
+  }, [cycleDays, isCustomCycle]);
+  
+  // 计算增减方向高亮框位置
+  useEffect(() => {
+    const directionOptions = ['INCREASE', 'DECREASE'];
+    const selectedIndex = directionOptions.findIndex(opt => opt === numericDirection);
+    if (selectedIndex >= 0 && directionRefs.current[selectedIndex]) {
+      const card = directionRefs.current[selectedIndex];
+      if (card) {
+        setDirectionHighlight({
+          top: card.offsetTop,
+          left: card.offsetLeft,
+          height: card.offsetHeight,
+          width: card.offsetWidth
+        });
+      }
+    }
+  }, [numericDirection, currentStep]);
+  
+  // 计算打卡类型高亮框位置
+  useEffect(() => {
+    const checkInTypeOptions = ['TIMES', 'DURATION', 'QUANTITY'];
+    const selectedIndex = checkInTypeOptions.findIndex(opt => opt === checkInUnit);
+    if (selectedIndex >= 0 && checkInTypeRefs.current[selectedIndex]) {
+      const card = checkInTypeRefs.current[selectedIndex];
+      if (card) {
+        setCheckInTypeHighlight({
+          top: card.offsetTop,
+          left: card.offsetLeft,
+          height: card.offsetHeight,
+          width: card.offsetWidth
+        });
+      }
+    }
+  }, [checkInUnit, currentStep]);
+  
   // 渲染步骤1：周期设定
-  const renderCycleStep = () => (
-    <div style={{ padding: '24px' }}>
-      <h2 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '24px' }}>
-        步骤1：周期设定
-      </h2>
-      
-      {/* 总时长 */}
-      <div style={{ marginBottom: '24px' }}>
-        <div style={{ fontSize: '14px', color: '#666', marginBottom: '12px', fontWeight: '500' }}>
-          <Calendar size={16} style={{ display: 'inline', marginRight: '6px' }} /> 设定总时长
-        </div>
-        <div style={{ fontSize: '13px', color: '#999', marginBottom: '12px' }}>
-          我想用多久完成这个目标？
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px', marginBottom: '12px' }}>
-          {TOTAL_DURATION_OPTIONS.map(option => (
-            <button
-              key={option.value}
-              onClick={() => {
-                setTotalDays(option.value);
-                setIsCustom(false);
-                // 自动推荐周期长度
-                setCycleDays(option.value < 90 ? 10 : 30);
+  const renderCycleStep = () => {
+    const selectedDurationIndex = isCustom ? -1 : TOTAL_DURATION_OPTIONS.findIndex(opt => opt.value === totalDays);
+    
+    return (
+      <div style={{ padding: '24px' }}>
+        <h2 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '24px' }}>
+          步骤1：周期设定
+        </h2>
+        
+        {/* 总时长 */}
+        <div style={{ marginBottom: '24px' }}>
+          <div style={{ fontSize: '14px', color: '#666', marginBottom: '12px', fontWeight: '500' }}>
+            <Calendar size={16} style={{ display: 'inline', marginRight: '6px' }} /> 设定总时长
+          </div>
+          <div style={{ fontSize: '13px', color: '#999', marginBottom: '12px' }}>
+            我想用多久完成这个目标？
+          </div>
+          <div style={{ 
+            position: 'relative',
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(2, 1fr)', 
+            gap: '12px', 
+            marginBottom: '12px' 
+          }}>
+            {TOTAL_DURATION_OPTIONS.map((option, index) => {
+              const isSelected = !isCustom && totalDays === option.value;
+              return (
+                <button
+                  key={option.value}
+                  ref={el => durationRefs.current[index] = el}
+                  onClick={() => {
+                    setTotalDays(option.value);
+                    setIsCustom(false);
+                    setCustomDays('');
+                    setCycleDays(option.value === 365 ? 30 : 10);
+                  }}
+                  style={{
+                    width: '100%',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    cursor: 'pointer',
+                    border: '2px solid #9ca3af',
+                    padding: '16px',
+                    borderRadius: '16px',
+                    backgroundColor: 'white',
+                    textAlign: 'left',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <option.Icon size={24} />
+                    <div style={{ fontWeight: '600', fontSize: '16px' }}>{option.label}</div>
+                  </div>
+                </button>
+              );
+            })}
+            
+            {/* 选中高亮边框 */}
+            <div style={{
+              width: `${durationHighlight.width}px`,
+              height: `${durationHighlight.height}px`,
+              position: 'absolute',
+              top: `${durationHighlight.top}px`,
+              left: `${durationHighlight.left}px`,
+              borderRadius: '16px',
+              pointerEvents: 'none',
+              transition: 'top 0.3s, left 0.3s, height 0.3s, width 0.3s',
+              opacity: selectedDurationIndex >= 0 ? 1 : 0,
+              boxShadow: 'inset 0 0 0 3px #000'
+            }} />
+          </div>
+          
+          {/* 自定义天数 */}
+          <div>
+            <div style={{ fontSize: '13px', color: '#666', marginBottom: '8px' }}>自定义天数：</div>
+            <input
+              type="number"
+              value={customDays}
+              onChange={(e) => {
+                setCustomDays(e.target.value);
+                const days = parseInt(e.target.value);
+                if (days > 0) {
+                  setTotalDays(days);
+                  setIsCustom(true);
+                  setCycleDays(days >= 365 ? 30 : 10);
+                }
               }}
+              placeholder="输入天数"
               style={{
-                padding: '16px',
-                backgroundColor: !isCustom && totalDays === option.value ? 'black' : 'white',
-                color: !isCustom && totalDays === option.value ? 'white' : 'black',
+                width: '100%',
+                padding: '12px',
                 border: '1px solid #e5e5e5',
                 borderRadius: '12px',
-                cursor: 'pointer',
-                textAlign: 'left',
-                transition: 'all 0.2s'
+                fontSize: '14px',
+                outline: 'none',
+                boxSizing: 'border-box'
               }}
-            >
-              <option.Icon size={24} style={{ marginBottom: '4px' }} />
-              <div style={{ fontWeight: '600', fontSize: '14px' }}>{option.label}</div>
-            </button>
-          ))}
+            />
+          </div>
+        </div>
+      
+      {/* 周期长度 */}
+      <div style={{ marginBottom: '24px' }}>
+        <div style={{ fontSize: '14px', color: '#666', marginBottom: '12px', fontWeight: '500' }}>
+          <Target size={16} style={{ display: 'inline', marginRight: '6px' }} /> 选择周期长度
+        </div>
+        <div style={{ 
+          position: 'relative',
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(3, 1fr)', 
+          gap: '12px',
+          marginBottom: '12px'
+        }}>
+          {CYCLE_LENGTH_OPTIONS.map((option, index) => {
+            const isSelected = !isCustomCycle && cycleDays === option.value;
+            // 1个月(30天)时禁止选择30天周期
+            const isDisabled = totalDays === 30 && option.value === 30;
+            return (
+              <button
+                key={option.value}
+                ref={el => cycleRefs.current[index] = el}
+                onClick={() => {
+                  if (isDisabled) return;
+                  setCycleDays(option.value);
+                  setIsCustomCycle(false);
+                  setCustomCycleDays('');
+                }}
+                disabled={isDisabled}
+                style={{
+                  width: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: isDisabled ? 'not-allowed' : 'pointer',
+                  border: '2px solid #9ca3af',
+                  padding: '16px 8px',
+                  borderRadius: '16px',
+                  backgroundColor: 'white',
+                  textAlign: 'center',
+                  transition: 'all 0.2s',
+                  opacity: isDisabled ? 0.4 : 1
+                }}
+              >
+                <div style={{ fontWeight: '600', fontSize: '16px', marginBottom: '4px' }}>
+                  {option.label}
+                </div>
+                <div style={{ fontSize: '12px', color: '#666' }}>
+                  {option.description}
+                </div>
+              </button>
+            );
+          })}
+          
+          {/* 选中高亮边框 */}
+          <div style={{
+            width: `${cycleHighlight.width}px`,
+            height: `${cycleHighlight.height}px`,
+            position: 'absolute',
+            top: `${cycleHighlight.top}px`,
+            left: `${cycleHighlight.left}px`,
+            borderRadius: '16px',
+            pointerEvents: 'none',
+            transition: 'top 0.3s, left 0.3s, height 0.3s, width 0.3s',
+            opacity: isCustomCycle ? 0 : 1,
+            boxShadow: 'inset 0 0 0 3px #000'
+          }} />
         </div>
         
-        {/* 自定义天数 */}
+        {/* 自定义周期天数 */}
         <div>
-          <div style={{ fontSize: '13px', color: '#666', marginBottom: '8px' }}>自定义天数：</div>
+          <div style={{ fontSize: '13px', color: '#666', marginBottom: '8px' }}>自定义周期天数（5-30天）：</div>
           <input
             type="number"
-            value={customDays}
+            value={customCycleDays}
             onChange={(e) => {
-              setCustomDays(e.target.value);
-              const days = parseInt(e.target.value);
-              if (days > 0) {
-                setTotalDays(days);
-                setIsCustom(true);
-                setCycleDays(days < 90 ? 10 : 30);
+              const value = e.target.value;
+              // 允许清空输入
+              if (value === '') {
+                setCustomCycleDays('');
+                return;
+              }
+              const days = parseInt(value);
+              // 限制在5-30之间
+              if (days < 5) {
+                setCustomCycleDays('5');
+                setCycleDays(5);
+                setIsCustomCycle(true);
+              } else if (days > 30) {
+                setCustomCycleDays('30');
+                setCycleDays(30);
+                setIsCustomCycle(true);
+              } else {
+                setCustomCycleDays(value);
+                setCycleDays(days);
+                setIsCustomCycle(true);
               }
             }}
-            placeholder="输入天数"
+            placeholder="5-30"
+            min={5}
+            max={30}
             style={{
               width: '100%',
               padding: '12px',
@@ -369,123 +632,177 @@ export default function CreateMainlineTaskModal({
         </div>
       </div>
       
-      {/* 周期长度 */}
-      <div style={{ marginBottom: '24px' }}>
-        <div style={{ fontSize: '14px', color: '#666', marginBottom: '12px', fontWeight: '500' }}>
-          <Target size={16} style={{ display: 'inline', marginRight: '6px' }} /> 选择周期长度
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          {CYCLE_LENGTH_OPTIONS.map(option => (
-            <button
-              key={option.value}
-              onClick={() => setCycleDays(option.value)}
-              style={{
-                padding: '16px',
-                backgroundColor: cycleDays === option.value ? 'black' : 'white',
-                color: cycleDays === option.value ? 'white' : 'black',
-                border: '1px solid #e5e5e5',
-                borderRadius: '12px',
-                cursor: 'pointer',
-                textAlign: 'left',
-                transition: 'all 0.2s',
-                position: 'relative'
-              }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <div style={{ fontWeight: '600', fontSize: '15px', marginBottom: '4px' }}>
-                    {option.label}一个周期
-                  </div>
-                  <div style={{ fontSize: '12px', opacity: 0.7 }}>
-                    {option.description}
-                  </div>
-                </div>
-                {option.value === recommendedCycleDays && (
-                  <span style={{
-                    padding: '4px 8px',
-                    backgroundColor: cycleDays === option.value ? 'rgba(255,255,255,0.2)' : '#fff5f0',
-                    color: cycleDays === option.value ? 'white' : '#ff6b6b',
-                    borderRadius: '6px',
-                    fontSize: '11px',
-                    fontWeight: '600'
-                  }}>
-                    推荐
-                  </span>
-                )}
-              </div>
-            </button>
-          ))}
-        </div>
-      </div>
-      
       {/* 预览 */}
       <div style={{
-        backgroundColor: '#f0f7ff',
-        border: '1px solid #4a9eff',
+        backgroundColor: '#f9f9f9',
+        border: '2px solid #e0e0e0',
         borderRadius: '12px',
         padding: '16px'
       }}>
-        <div style={{ fontSize: '14px', fontWeight: '600', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span>ℹ️</span>
-          <span>预计将创建 {cycleInfo.totalCycles} 个周期</span>
+        <div style={{ fontSize: '14px', fontWeight: '600', marginBottom: '12px', color: '#37352f' }}>
+          预计将创建 {cycleInfo.totalCycles} 个周期
         </div>
-        <div style={{ fontSize: '12px', color: '#666', lineHeight: '1.6' }}>
-          • 总时长：{totalDays}天<br/>
-          • 周期长度：{cycleDays}天<br/>
-          • 总周期数：{cycleInfo.totalCycles}个<br/>
-          {cycleInfo.remainingDays > 0 && `• 剩余：${cycleInfo.remainingDays}天（缓冲期）`}
+        <div style={{ fontSize: '13px', color: '#6b6b6b', lineHeight: '1.8' }}>
+          <div>总时长：{totalDays}天</div>
+          <div>周期长度：{cycleDays}天</div>
+          <div>总周期数：{cycleInfo.totalCycles}个</div>
+          {cycleInfo.remainingDays > 0 && <div>剩余：{cycleInfo.remainingDays}天（缓冲期）</div>}
+        </div>
+      </div>
+      
+      {/* 起始时间 */}
+      <div style={{ marginTop: '24px' }}>
+        <div style={{ fontSize: '14px', color: '#666', marginBottom: '12px', fontWeight: '500' }}>
+          <Calendar size={16} style={{ display: 'inline', marginRight: '6px' }} /> 设定起始时间
+        </div>
+        <input
+          type="date"
+          value={startDate}
+          onChange={(e) => setStartDate(e.target.value)}
+          min={dayjs().subtract(7, 'day').format('YYYY-MM-DD')}
+          max={dayjs().add(1, 'month').format('YYYY-MM-DD')}
+          style={{
+            width: '100%',
+            padding: '12px',
+            border: '1px solid #e5e5e5',
+            borderRadius: '12px',
+            fontSize: '14px',
+            outline: 'none',
+            boxSizing: 'border-box'
+          }}
+        />
+        <div style={{ fontSize: '12px', color: '#999', marginTop: '8px' }}>
+          可选择过去1周内或未来1个月内的日期
         </div>
       </div>
     </div>
-  );
+    );
+  };
   
   // 渲染步骤2：类型选择
-  const renderTypeStep = () => (
-    <div style={{ padding: '24px' }}>
-      <h2 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '24px' }}>
-        步骤2：选择任务类型模板
-      </h2>
-      
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        {TASK_TYPE_OPTIONS.map(option => (
-          <button
-            key={option.type}
-            onClick={() => setSelectedType(option.type)}
-            style={{
-              padding: '20px',
-              backgroundColor: selectedType === option.type ? '#f0f7ff' : 'white',
-              border: selectedType === option.type ? '2px solid #4a9eff' : '1px solid #e5e5e5',
-              borderRadius: '16px',
-              cursor: 'pointer',
-              textAlign: 'left',
-              transition: 'all 0.2s'
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-              <option.Icon size={32} />
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: '16px', fontWeight: '600', marginBottom: '6px' }}>
-                  {option.label}
+  const cardRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const [highlightStyle, setHighlightStyle] = useState({ top: 0, height: 0, width: 0 });
+  
+  // 计算高亮框位置
+  useEffect(() => {
+    const selectedIndex = TASK_TYPE_OPTIONS.findIndex(opt => opt.type === selectedType);
+    if (selectedIndex >= 0 && cardRefs.current[selectedIndex]) {
+      const card = cardRefs.current[selectedIndex];
+      if (card) {
+        setHighlightStyle({
+          top: card.offsetTop,
+          height: card.offsetHeight,
+          width: card.offsetWidth
+        });
+      }
+    }
+  }, [selectedType]);
+  
+  const renderTypeStep = () => {
+    const selectedIndex = TASK_TYPE_OPTIONS.findIndex(opt => opt.type === selectedType);
+    
+    return (
+      <div style={{ padding: '24px' }}>
+        <h2 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '24px' }}>
+          步骤2：选择任务类型模板
+        </h2>
+        
+        <div style={{ 
+          width: '100%', 
+          position: 'relative',
+          display: 'flex', 
+          flexDirection: 'column', 
+          gap: '12px' 
+        }}>
+          {TASK_TYPE_OPTIONS.map((option, index) => {
+            const isSelected = selectedType === option.type;
+            return (
+              <button
+                key={option.type}
+                ref={el => cardRefs.current[index] = el}
+                onClick={() => setSelectedType(option.type)}
+                style={{
+                  width: '100%',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'flex-start',
+                  cursor: 'pointer',
+                  border: '2px solid #9ca3af',
+                  padding: '16px',
+                  borderRadius: '16px',
+                  backgroundColor: 'white',
+                  textAlign: 'left',
+                  transition: 'all 0.2s'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', flex: 1 }}>
+                  <option.Icon size={32} />
+                  <div style={{ flex: 1 }}>
+                    <div style={{ 
+                      fontSize: '16px', 
+                      fontWeight: '600', 
+                      marginBottom: '6px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px'
+                    }}>
+                      {option.label}
+                    </div>
+                    <div style={{ fontSize: '13px', color: '#666', marginBottom: '4px' }}>
+                      {option.description}
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#999', marginBottom: '4px' }}>
+                      {option.examples}
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#4a9eff', fontWeight: '500' }}>
+                      {option.feature}
+                    </div>
+                  </div>
                 </div>
-                <div style={{ fontSize: '13px', color: '#666', marginBottom: '4px' }}>
-                  {option.description}
+                <div style={{
+                  border: '1.5px solid',
+                  borderColor: isSelected ? '#000' : '#9ca3af',
+                  width: '18px',
+                  height: '18px',
+                  borderRadius: '50%',
+                  marginTop: '2px',
+                  padding: '3px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'border-color 0.2s',
+                  flexShrink: 0
+                }}>
+                  <div style={{
+                    width: '8px',
+                    height: '8px',
+                    backgroundColor: '#000',
+                    borderRadius: '50%',
+                    opacity: isSelected ? 1 : 0,
+                    transition: 'opacity 0.2s'
+                  }} />
                 </div>
-                <div style={{ fontSize: '12px', color: '#999', marginBottom: '4px' }}>
-                  {option.examples}
-                </div>
-                <div style={{ fontSize: '12px', color: '#4a9eff', fontWeight: '500' }}>
-                  {option.feature}
-                </div>
-              </div>
-              {selectedType === option.type && (
-                <CheckCircle size={24} color="#4a9eff" />
-              )}
-            </div>
-          </button>
-        ))}
+              </button>
+            );
+          })}
+          
+          {/* 选中高亮边框 */}
+          <div style={{
+            width: `${highlightStyle.width}px`,
+            height: `${highlightStyle.height}px`,
+            position: 'absolute',
+            top: `${highlightStyle.top}px`,
+            left: 0,
+            borderRadius: '16px',
+            pointerEvents: 'none',
+            transition: 'top 0.3s, height 0.3s, width 0.3s',
+            opacity: selectedIndex >= 0 ? 1 : 0,
+            boxShadow: 'inset 0 0 0 3px #000'
+          }} />
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
   
   // 渲染步骤3：具体配置
   const renderConfigStep = () => {
@@ -499,8 +816,8 @@ export default function CreateMainlineTaskModal({
         
         {/* 任务名称 */}
         <div style={{ marginBottom: '20px' }}>
-          <div style={{ fontSize: '14px', color: '#666', marginBottom: '8px', fontWeight: '500' }}>
-            📝 任务名称
+          <div style={{ fontSize: '14px', color: '#666', marginBottom: '8px', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <FileText size={16} /> 任务名称
           </div>
           <input
             type="text"
@@ -527,8 +844,8 @@ export default function CreateMainlineTaskModal({
         {selectedType === 'NUMERIC' && (
           <>
             <div style={{ marginBottom: '20px' }}>
-              <div style={{ fontSize: '14px', color: '#666', marginBottom: '12px', fontWeight: '500' }}>
-                🎯 数值目标
+              <div style={{ fontSize: '14px', color: '#666', marginBottom: '12px', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Target size={16} /> 数值目标
               </div>
               <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
                 <div style={{ flex: 1 }}>
@@ -588,37 +905,49 @@ export default function CreateMainlineTaskModal({
               </div>
               <div>
                 <div style={{ fontSize: '12px', color: '#999', marginBottom: '6px' }}>增减方向</div>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <button
-                    onClick={() => setNumericDirection('INCREASE')}
-                    style={{
-                      flex: 1,
-                      padding: '12px',
-                      backgroundColor: numericDirection === 'INCREASE' ? 'black' : 'white',
-                      color: numericDirection === 'INCREASE' ? 'white' : 'black',
-                      border: '1px solid #e5e5e5',
-                      borderRadius: '12px',
-                      cursor: 'pointer',
-                      fontSize: '14px'
-                    }}
-                  >
-                    增加
-                  </button>
-                  <button
-                    onClick={() => setNumericDirection('DECREASE')}
-                    style={{
-                      flex: 1,
-                      padding: '12px',
-                      backgroundColor: numericDirection === 'DECREASE' ? 'black' : 'white',
-                      color: numericDirection === 'DECREASE' ? 'white' : 'black',
-                      border: '1px solid #e5e5e5',
-                      borderRadius: '12px',
-                      cursor: 'pointer',
-                      fontSize: '14px'
-                    }}
-                  >
-                    减少
-                  </button>
+                <div style={{ position: 'relative', display: 'flex', gap: '12px' }}>
+                  {[
+                    { value: 'INCREASE' as NumericDirection, label: '增加' },
+                    { value: 'DECREASE' as NumericDirection, label: '减少' }
+                  ].map((option, index) => {
+                    const isSelected = numericDirection === option.value;
+                    return (
+                      <button
+                        key={option.value}
+                        ref={el => directionRefs.current[index] = el}
+                        onClick={() => setNumericDirection(option.value)}
+                        style={{
+                          flex: 1,
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          cursor: 'pointer',
+                          border: '2px solid #9ca3af',
+                          padding: '16px',
+                          borderRadius: '16px',
+                          backgroundColor: 'white',
+                          textAlign: 'left',
+                          transition: 'all 0.2s'
+                        }}
+                      >
+                        <div style={{ fontWeight: '600', fontSize: '16px' }}>{option.label}</div>
+                      </button>
+                    );
+                  })}
+                  
+                  {/* 选中高亮边框 */}
+                  <div style={{
+                    width: `${directionHighlight.width}px`,
+                    height: `${directionHighlight.height}px`,
+                    position: 'absolute',
+                    top: `${directionHighlight.top}px`,
+                    left: `${directionHighlight.left}px`,
+                    borderRadius: '16px',
+                    pointerEvents: 'none',
+                    transition: 'top 0.3s, left 0.3s, height 0.3s, width 0.3s',
+                    opacity: 1,
+                    boxShadow: 'inset 0 0 0 3px #000'
+                  }} />
                 </div>
               </div>
             </div>
@@ -626,16 +955,16 @@ export default function CreateMainlineTaskModal({
             {/* 自动规划预览 */}
             {startValue && targetValue && (
               <div style={{
-                backgroundColor: '#f0f7ff',
-                border: '1px solid #4a9eff',
+                backgroundColor: '#f9f9f9',
+                border: '2px solid #e0e0e0',
                 borderRadius: '12px',
                 padding: '16px',
                 marginBottom: '20px'
               }}>
-                <div style={{ fontSize: '14px', fontWeight: '600', marginBottom: '12px' }}>
-                  📊 系统自动规划
+                <div style={{ fontSize: '14px', fontWeight: '600', marginBottom: '12px', color: '#37352f', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <BarChart3 size={16} /> 系统自动规划
                 </div>
-                <div style={{ fontSize: '12px', color: '#666', lineHeight: '1.8' }}>
+                <div style={{ fontSize: '13px', color: '#6b6b6b', lineHeight: '1.8' }}>
                   • 总目标：{numericDirection === 'DECREASE' ? '减少' : '增加'} {Math.abs(parseFloat(targetValue) - parseFloat(startValue)).toFixed(2)}{numericUnit}<br/>
                   • 每周期目标：{(Math.abs(parseFloat(targetValue) - parseFloat(startValue)) / cycleInfo.totalCycles).toFixed(2)} {numericUnit}/周期<br/>
                   • 每日平均：{(Math.abs(parseFloat(targetValue) - parseFloat(startValue)) / totalDays).toFixed(2)} {numericUnit}/天
@@ -649,8 +978,8 @@ export default function CreateMainlineTaskModal({
         {selectedType === 'CHECKLIST' && (
           <>
             <div style={{ marginBottom: '20px' }}>
-              <div style={{ fontSize: '14px', color: '#666', marginBottom: '12px', fontWeight: '500' }}>
-                📋 清单设定
+              <div style={{ fontSize: '14px', color: '#666', marginBottom: '12px', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <ClipboardList size={16} /> 清单设定
               </div>
               <div style={{ marginBottom: '12px' }}>
                 <div style={{ fontSize: '12px', color: '#999', marginBottom: '6px' }}>总项数</div>
@@ -717,15 +1046,15 @@ export default function CreateMainlineTaskModal({
             {/* 自动规划预览 */}
             {totalItems && (
               <div style={{
-                backgroundColor: '#f0f7ff',
-                border: '1px solid #4a9eff',
+                backgroundColor: '#f9f9f9',
+                border: '2px solid #e0e0e0',
                 borderRadius: '12px',
                 padding: '16px'
               }}>
-                <div style={{ fontSize: '14px', fontWeight: '600', marginBottom: '12px' }}>
-                  📊 系统自动规划
+                <div style={{ fontSize: '14px', fontWeight: '600', marginBottom: '12px', color: '#37352f', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <BarChart3 size={16} /> 系统自动规划
                 </div>
-                <div style={{ fontSize: '12px', color: '#666', lineHeight: '1.8' }}>
+                <div style={{ fontSize: '13px', color: '#6b6b6b', lineHeight: '1.8' }}>
                   • 总项数：{totalItems}项<br/>
                   • 每周期目标：{Math.ceil(parseInt(totalItems) / cycleInfo.totalCycles)}项/周期
                 </div>
@@ -738,40 +1067,66 @@ export default function CreateMainlineTaskModal({
         {selectedType === 'CHECK_IN' && (
           <>
             <div style={{ marginBottom: '20px' }}>
-              <div style={{ fontSize: '14px', color: '#666', marginBottom: '12px', fontWeight: '500' }}>
-                ✅ 选择打卡类型
+              <div style={{ fontSize: '14px', color: '#666', marginBottom: '12px', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <CheckCircle size={16} /> 选择打卡类型
               </div>
-              <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+              <div style={{ position: 'relative', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '16px' }}>
                 {[
                   { value: 'TIMES', label: '次数型', desc: '记录打卡次数' },
                   { value: 'DURATION', label: '时长型', desc: '记录时长' },
                   { value: 'QUANTITY', label: '数值型', desc: '记录数值' }
-                ].map(option => (
-                  <button
-                    key={option.value}
-                    onClick={() => setCheckInUnit(option.value as CheckInUnit)}
-                    style={{
-                      flex: 1,
-                      padding: '12px 8px',
-                      backgroundColor: checkInUnit === option.value ? 'black' : 'white',
-                      color: checkInUnit === option.value ? 'white' : 'black',
-                      border: '1px solid #e5e5e5',
-                      borderRadius: '10px',
-                      cursor: 'pointer',
-                      textAlign: 'center'
-                    }}
-                  >
-                    <div style={{ fontSize: '14px', fontWeight: '600' }}>{option.label}</div>
-                    <div style={{ fontSize: '11px', opacity: 0.7, marginTop: '2px' }}>{option.desc}</div>
-                  </button>
-                ))}
+                ].map((option, index) => {
+                  const isSelected = checkInUnit === option.value;
+                  return (
+                    <button
+                      key={option.value}
+                      ref={el => checkInTypeRefs.current[index] = el}
+                      onClick={() => setCheckInUnit(option.value as CheckInUnit)}
+                      style={{
+                        width: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer',
+                        border: '2px solid #9ca3af',
+                        padding: '16px 8px',
+                        borderRadius: '16px',
+                        backgroundColor: 'white',
+                        textAlign: 'center',
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      <div style={{ fontWeight: '600', fontSize: '16px', marginBottom: '4px' }}>
+                        {option.label}
+                      </div>
+                      <div style={{ fontSize: '12px', color: '#666' }}>
+                        {option.desc}
+                      </div>
+                    </button>
+                  );
+                })}
+                
+                {/* 选中高亮边框 */}
+                <div style={{
+                  width: `${checkInTypeHighlight.width}px`,
+                  height: `${checkInTypeHighlight.height}px`,
+                  position: 'absolute',
+                  top: `${checkInTypeHighlight.top}px`,
+                  left: `${checkInTypeHighlight.left}px`,
+                  borderRadius: '16px',
+                  pointerEvents: 'none',
+                  transition: 'top 0.3s, left 0.3s, height 0.3s, width 0.3s',
+                  opacity: 1,
+                  boxShadow: 'inset 0 0 0 3px #000'
+                }} />
               </div>
               
               {/* 次数型打卡配置 */}
               {checkInUnit === 'TIMES' && (
                 <div style={{ marginBottom: '16px' }}>
-                  <div style={{ fontSize: '13px', color: '#666', marginBottom: '8px', fontWeight: '500' }}>
-                    📊 次数型打卡设置
+                  <div style={{ fontSize: '13px', color: '#666', marginBottom: '8px', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <Hash size={14} /> 次数型打卡设置
                   </div>
                   <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
                     <div style={{ flex: 1 }}>
@@ -820,8 +1175,8 @@ export default function CreateMainlineTaskModal({
               {/* 时长型打卡配置 */}
               {checkInUnit === 'DURATION' && (
                 <div style={{ marginBottom: '16px' }}>
-                  <div style={{ fontSize: '13px', color: '#666', marginBottom: '8px', fontWeight: '500' }}>
-                    ⏱️ 时长型打卡设置
+                  <div style={{ fontSize: '13px', color: '#666', marginBottom: '8px', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <Clock size={14} /> 时长型打卡设置
                   </div>
                   <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
                     <div style={{ flex: 1 }}>
@@ -870,8 +1225,8 @@ export default function CreateMainlineTaskModal({
               {/* 数值型打卡配置 */}
               {checkInUnit === 'QUANTITY' && (
                 <div style={{ marginBottom: '16px' }}>
-                  <div style={{ fontSize: '13px', color: '#666', marginBottom: '8px', fontWeight: '500' }}>
-                    🔢 数值型打卡设置
+                  <div style={{ fontSize: '13px', color: '#666', marginBottom: '8px', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <Calculator size={14} /> 数值型打卡设置
                   </div>
                   <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
                     <div style={{ flex: 1 }}>
@@ -933,7 +1288,7 @@ export default function CreateMainlineTaskModal({
               )}
               
               {/* 高级设置 */}
-              <div style={{
+              {/* <div style={{
                 backgroundColor: '#f8f8f8',
                 borderRadius: '12px',
                 padding: '12px'
@@ -959,20 +1314,20 @@ export default function CreateMainlineTaskModal({
                   />
                   <span style={{ fontSize: '13px' }}>周末豁免（周末不计入）</span>
                 </label>
-              </div>
+              </div> */}
             </div>
             
             {/* 自动规划预览 */}
             <div style={{
-              backgroundColor: '#f0f7ff',
-              border: '1px solid #4a9eff',
+              backgroundColor: '#f9f9f9',
+              border: '2px solid #e0e0e0',
               borderRadius: '12px',
               padding: '16px'
             }}>
-              <div style={{ fontSize: '14px', fontWeight: '600', marginBottom: '12px' }}>
-                📊 系统自动规划
+              <div style={{ fontSize: '14px', fontWeight: '600', marginBottom: '12px', color: '#37352f', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <BarChart3 size={16} /> 系统自动规划
               </div>
-              <div style={{ fontSize: '12px', color: '#666', lineHeight: '1.8' }}>
+              <div style={{ fontSize: '13px', color: '#6b6b6b', lineHeight: '1.8' }}>
                 {checkInUnit === 'TIMES' && (
                   <>
                     • 单日打卡上限：{parseInt(dailyMaxTimes) || 1} 次<br/>

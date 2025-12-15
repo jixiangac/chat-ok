@@ -1,5 +1,6 @@
 import { Task } from '../types';
 import styles from '../css/SidelineTaskCard.module.css';
+import dayjs from 'dayjs';
 import { 
   calculateRemainingDays, 
   calculateNumericProgress,
@@ -29,9 +30,11 @@ const getColorFromId = (id: string): string => {
 interface SidelineTaskCardProps {
   task: Task;
   onClick?: () => void;
+  isTodayCompleted?: boolean;
+  isCycleCompleted?: boolean;
 }
 
-export default function SidelineTaskCard({ task, onClick }: SidelineTaskCardProps) {
+export default function SidelineTaskCard({ task, onClick, isTodayCompleted, isCycleCompleted }: SidelineTaskCardProps) {
   const remainingDays = calculateRemainingDays(task);
   
   // 获取主题色（优先使用存储的，否则根据ID生成）
@@ -150,7 +153,7 @@ export default function SidelineTaskCard({ task, onClick }: SidelineTaskCardProp
   const gradientStyle = {
     background: cycleProgress > 0
       ? `linear-gradient(to right, ${hexToRgba(themeColor, 0.15)} 0%, ${hexToRgba(themeColor, 0.5)} ${Math.max(0, cycleProgress - 5)}%, ${hexToRgba(themeColor, 0.2)} ${cycleProgress}%, white ${Math.min(100, cycleProgress + 15)}%)`
-      : hexToRgba(themeColor, 0.08)
+      : '#fff'
   };
 
   return (
@@ -160,7 +163,20 @@ export default function SidelineTaskCard({ task, onClick }: SidelineTaskCardProp
       style={gradientStyle}
     >
       <div className={styles.header}>
-        <h3 className={styles.title}>{task.title}</h3>
+        <div className={styles.titleRow}>
+          {isCycleCompleted && (
+            <span className={styles.cycleDoneBadge}>周期完成</span>
+          )}
+          {isTodayCompleted && !isCycleCompleted && (
+            <span className={styles.todayDoneBadge}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.5"/>
+              </svg>
+            </span>
+          )}
+          <h3 className={styles.title}>{task.title}</h3>
+        </div>
         <span className={styles.cycleInfoText}>{cycleInfo || `${cycleProgress}%`}</span>
       </div>
       

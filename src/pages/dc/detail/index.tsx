@@ -1,4 +1,5 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
+import confetti from 'canvas-confetti';
 import { Popup, Toast } from 'antd-mobile';
 import { FileText, Check, Archive, Clock, Hash } from 'lucide-react';
 import { useTheme } from '../settings/theme';
@@ -75,6 +76,48 @@ export default function GoalDetailModal({
   const [activeTab, setActiveTab] = useState<string>('');
   const [showRecordModal, setShowRecordModal] = useState(false);
   const [showCheckInModal, setShowCheckInModal] = useState(false);
+  const checkInButtonRef = useRef<HTMLButtonElement>(null);
+  
+  // 触发彩纸效果
+  const triggerConfetti = () => {
+    // 计算发射位置：优先从按钮位置，否则从屏幕底部中央
+    let x = 0.5;
+    let y = 0.9;
+    
+    if (checkInButtonRef.current) {
+      const rect = checkInButtonRef.current.getBoundingClientRect();
+      x = (rect.left + rect.width / 2) / window.innerWidth;
+      y = (rect.top + rect.height / 2) / window.innerHeight;
+    }
+    
+    // 创建自定义 canvas 并设置高 z-index，避免被弹层遮挡
+    const canvas = document.createElement('canvas');
+    canvas.style.position = 'fixed';
+    canvas.style.top = '0';
+    canvas.style.left = '0';
+    canvas.style.width = '100vw';
+    canvas.style.height = '100vh';
+    canvas.style.pointerEvents = 'none';
+    canvas.style.zIndex = '99999';
+    document.body.appendChild(canvas);
+    
+    const myConfetti = confetti.create(canvas, { resize: true });
+    
+    myConfetti({
+      particleCount: 50,
+      spread: 60,
+      origin: { x, y },
+      colors: ['#26ccff', '#a25afd', '#ff5e7e', '#88ff5a', '#fcff42', '#ffa62d', '#ff36ff'],
+      ticks: 200,
+      gravity: 1.2,
+      decay: 0.94,
+      startVelocity: 30,
+      shapes: ['circle']
+    }).then(() => {
+      // 动画结束后移除 canvas
+      document.body.removeChild(canvas);
+    });
+  };
   
   // 每次打开时设置默认tab为周期目标
   useEffect(() => {
@@ -108,6 +151,8 @@ export default function GoalDetailModal({
   const handleCheckInSubmit = async (value?: number, note?: string) => {
     const success = await checkIn(value, note);
     if (success) {
+      // 触发彩纸效果
+      triggerConfetti();
       Toast.show({
         icon: 'success',
         content: '打卡成功！',
@@ -139,6 +184,7 @@ export default function GoalDetailModal({
   const handleRecordSubmit = async (value: number, note?: string) => {
     const success = await recordNumericData(value, note);
     if (success) {
+      triggerConfetti();
       Toast.show({
         icon: 'success',
         content: '记录成功！',
@@ -456,6 +502,7 @@ export default function GoalDetailModal({
           flexShrink: 0
         }}>
           <button
+            ref={checkInButtonRef}
             onClick={getButtonHandler()}
             disabled={checkInLoading || isCheckInButtonDisabled()}
             style={{

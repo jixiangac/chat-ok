@@ -147,6 +147,9 @@ export function useGoalDetail(goalId: string, onDataChange?: () => void) {
             checkIns: [...(goalDetail.checkIns || []), newCheckIn],
             checkInConfig: goals[goalIndex].checkInConfig
           });
+          
+          // 通知外部数据变化
+          onDataChange?.();
         }
       }
       return true;
@@ -156,7 +159,7 @@ export function useGoalDetail(goalId: string, onDataChange?: () => void) {
     } finally {
       setCheckInLoading(false);
     }
-  }, [goalDetail, goalId, checkInLoading]);
+  }, [goalDetail, goalId, checkInLoading, onDataChange]);
   
   // 获取今日打卡状态
   const getTodayCheckInStatus = useCallback(() => {
@@ -397,6 +400,9 @@ export function useGoalDetail(goalId: string, onDataChange?: () => void) {
                 completedItems: completedCount
               }
             });
+            
+            // 通知外部数据变化
+            onDataChange?.();
           }
         }
       }
@@ -407,7 +413,7 @@ export function useGoalDetail(goalId: string, onDataChange?: () => void) {
     } finally {
       setCheckInLoading(false);
     }
-  }, [goalDetail, goalId, checkInLoading]);
+  }, [goalDetail, goalId, checkInLoading, onDataChange]);
   
   useEffect(() => {
     fetchGoalDetail();

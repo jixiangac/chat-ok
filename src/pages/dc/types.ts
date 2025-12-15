@@ -142,6 +142,7 @@ export interface MainlineTask {
   title: string;
   status: 'ACTIVE' | 'COMPLETED' | 'FAILED' | 'DOWNGRADED' | 'PAUSED';
   createdAt: string;
+  startDate?: string;
   
   cycleConfig: CycleConfig;
   progress: ProgressInfo;

@@ -116,7 +116,9 @@ export default function CheckInModal({
           borderTopLeftRadius: '16px',
           borderTopRightRadius: '16px',
           padding: '24px',
-          paddingBottom: 'calc(24px + env(safe-area-inset-bottom))'
+          paddingBottom: 'calc(24px + env(safe-area-inset-bottom))',
+          boxSizing: 'border-box',
+          overflow: 'hidden'
         }}
       >
         <div className={styles.container}>

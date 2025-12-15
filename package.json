@@ -7,22 +7,23 @@
     "ant-mobile": "^0.0.0",
     "antd-mobile": "^5.32.0",
     "axios": "^1.4.0",
+    "canvas-confetti": "^1.9.4",
     "dayjs": "^1.11.9",
     "fingerprintjs2": "^2.1.4",
     "localforage": "^1.10.0",
     "lorem-ipsum": "^2.0.8",
+    "lucide-react": "*",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "lucide-react": "*"
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@ali/eslint-config-att": "^1.0.0",
     "@ali/ice-plugin-def": "^1.0.0",
     "@applint/spec": "^1.2.3",
     "@ice/app": "^3.0.0",
+    "@types/node": "^18.11.17",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
-    "@types/node": "^18.11.17",
     "eslint": "^8.35.0",
     "stylelint": "^15.2.0",
     "typescript": "^4.9.5"

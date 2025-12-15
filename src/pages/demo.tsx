@@ -30,8 +30,74 @@ function DemoPageContent() {
   // 检查是否有主线或支线任务（排除已归档）
   const hasMainOrSubTasks = activeTasks.some(t => t.type === 'mainline' || t.type === 'sidelineA' || t.type === 'sidelineB');
 
-  // 获取支线任务（排除已归档）
-  const sidelineTasks = activeTasks.filter(t => t.type === 'sidelineA' || t.type === 'sidelineB');
+  // 检查任务今日是否已完成打卡
+  const isTodayCompleted = (task: Task) => {
+    const today = dayjs().format('YYYY-MM-DD');
+    const mainlineTask = task.mainlineTask;
+    if (mainlineTask?.checkInConfig?.records) {
+      const todayRecord = mainlineTask.checkInConfig.records.find(r => r.date === today);
+      if (todayRecord?.checked) return true;
+    }
+    if (task.checkIns?.some(c => dayjs(c.date).format('YYYY-MM-DD') === today)) {
+      return true;
+    }
+    return false;
+  };
+
+  // 检查任务当前周期是否已完成目标
+  const isCycleCompleted = (task: Task) => {
+    const mainlineTask = task.mainlineTask;
+    if (!mainlineTask) return false;
+    if (mainlineTask.progress?.currentCyclePercentage >= 100) return true;
+    if (mainlineTask.checkInConfig) {
+      const config = mainlineTask.checkInConfig;
+      const records = config.records || [];
+      const startDate = task.startDate;
+      const cycleDays = task.cycleDays || 7;
+      const currentCycle = mainlineTask.cycleConfig?.currentCycle || 1;
+      if (startDate) {
+        const cycleStartDate = dayjs(startDate).add((currentCycle - 1) * cycleDays, 'day');
+        const cycleEndDate = cycleStartDate.add(cycleDays, 'day');
+        const cycleRecords = records.filter(r => {
+          const recordDate = dayjs(r.date);
+          return recordDate.isAfter(cycleStartDate.subtract(1, 'day')) && 
+                 recordDate.isBefore(cycleEndDate) && r.checked;
+        });
+        if (config.unit === 'TIMES') {
+          const target = config.cycleTargetTimes || config.perCycleTarget || cycleDays;
+          if (cycleRecords.length >= target) return true;
+        } else if (config.unit === 'DURATION') {
+          const totalMinutes = cycleRecords.reduce((sum, r) => sum + (r.totalValue || 0), 0);
+          const target = config.cycleTargetMinutes || (config.perCycleTarget * (config.dailyTargetMinutes || 15));
+          if (totalMinutes >= target) return true;
+        } else if (config.unit === 'QUANTITY') {
+          const totalValue = cycleRecords.reduce((sum, r) => sum + (r.totalValue || 0), 0);
+          const target = config.cycleTargetValue || config.perCycleTarget;
+          if (totalValue >= target) return true;
+        }
+      }
+    }
+    return false;
+  };
+
+  // 获取支线任务（排除已归档），并按完成状态排序
+  const sidelineTasks = activeTasks
+    .filter(t => t.type === 'sidelineA' || t.type === 'sidelineB')
+    .sort((a, b) => {
+      // 当前周期已完成的排最后
+      const aCycleCompleted = isCycleCompleted(a);
+      const bCycleCompleted = isCycleCompleted(b);
+      if (aCycleCompleted && !bCycleCompleted) return 1;
+      if (!aCycleCompleted && bCycleCompleted) return -1;
+      
+      // 今日已完成的排后面
+      const aTodayCompleted = isTodayCompleted(a);
+      const bTodayCompleted = isTodayCompleted(b);
+      if (aTodayCompleted && !bTodayCompleted) return 1;
+      if (!aTodayCompleted && bTodayCompleted) return -1;
+      
+      return 0;
+    });
   const displayedSidelineTasks = sidelineTasks.slice(0, 3);
 
   // 检查是否已有主线任务（排除已归档）
@@ -80,6 +146,7 @@ function DemoPageContent() {
   // 处理任务创建（统一处理主线和支线任务）
   const handleCreateTask = (taskData: any) => {
     const today = dayjs().format('YYYY-MM-DD');
+    const startDate = taskData.startDate || today;
     const isMainline = taskData.taskCategory === 'MAINLINE';
     
     // 创建任务对象
@@ -89,6 +156,7 @@ function DemoPageContent() {
       title: taskData.title,
       status: 'ACTIVE',
       createdAt: today,
+      startDate: startDate,
       cycleConfig: {
         totalDurationDays: taskData.totalDays,
         cycleLengthDays: taskData.cycleDays,
@@ -126,7 +194,7 @@ function DemoPageContent() {
       type: isMainline ? 'mainline' : 'sidelineA',
       mainlineType: taskData.mainlineType,
       mainlineTask: task,
-      startDate: today,
+      startDate: startDate,
       cycleDays: taskData.cycleDays,
       totalCycles: taskData.totalCycles,
       cycle: `1/${taskData.totalCycles}`,
@@ -490,6 +558,8 @@ function DemoPageContent() {
                     key={task.id} 
                     task={task}
                     onClick={() => setSelectedTaskId(task.id)}
+                    isTodayCompleted={isTodayCompleted(task)}
+                    isCycleCompleted={isCycleCompleted(task)}
                   />
                 ))}
                 
@@ -508,8 +578,6 @@ function DemoPageContent() {
                       color: '#666',
                       textAlign: 'center'
                     }}
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fafafa'}
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'white'}
                   >
                     显示更多 ({sidelineTasks.length - 3} 个任务)
                   </button>
@@ -639,6 +707,8 @@ function DemoPageContent() {
                     key={task.id} 
                     task={task}
                     onClick={() => setSelectedTaskId(task.id)}
+                    isTodayCompleted={isTodayCompleted(task)}
+                    isCycleCompleted={isCycleCompleted(task)}
                   />
                 ))}
               </div>

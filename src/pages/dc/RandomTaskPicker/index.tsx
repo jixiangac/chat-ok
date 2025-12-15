@@ -14,23 +14,91 @@ export default function RandomTaskPicker({ onSelectTask }: RandomTaskPickerProps
   const [pickedTask, setPickedTask] = useState<Task | null>(null);
   const [excludedIds, setExcludedIds] = useState<Set<string>>(new Set());
 
-  // 检查任务今日是否已完成
+  // 获取所有未归档的支线任务数量
+  const sidelineTaskCount = tasks.filter(t => 
+    (t.type === 'sidelineA' || t.type === 'sidelineB') &&
+    (t as any).status !== 'archived'
+  ).length;
+
+  // 检查任务今日是否已完成打卡
   const isTodayCompleted = useCallback((task: Task) => {
     const today = dayjs().format('YYYY-MM-DD');
-    return task.mainlineTask?.checkInConfig?.records?.some(
-      r => r.date === today && r.checked
-    ) || false;
+    const mainlineTask = task.mainlineTask;
+    
+    // 检查打卡类型任务
+    if (mainlineTask?.checkInConfig?.records) {
+      const todayRecord = mainlineTask.checkInConfig.records.find(r => r.date === today);
+      if (todayRecord?.checked) return true;
+    }
+    
+    // 检查旧版checkIns字段
+    if (task.checkIns?.some(c => dayjs(c.date).format('YYYY-MM-DD') === today)) {
+      return true;
+    }
+    
+    return false;
+  }, []);
+
+  // 检查任务当前周期是否已完成目标
+  const isCycleCompleted = useCallback((task: Task) => {
+    const mainlineTask = task.mainlineTask;
+    if (!mainlineTask) return false;
+    
+    // 检查当前周期进度是否达到100%
+    if (mainlineTask.progress?.currentCyclePercentage >= 100) {
+      return true;
+    }
+    
+    // 检查打卡类型任务的周期目标
+    if (mainlineTask.checkInConfig) {
+      const config = mainlineTask.checkInConfig;
+      const records = config.records || [];
+      
+      // 计算当前周期内的打卡次数/时长/数值
+      const startDate = task.startDate;
+      const cycleDays = task.cycleDays || 7;
+      const currentCycle = mainlineTask.cycleConfig?.currentCycle || 1;
+      
+      if (startDate) {
+        const cycleStartDate = dayjs(startDate).add((currentCycle - 1) * cycleDays, 'day');
+        const cycleEndDate = cycleStartDate.add(cycleDays, 'day');
+        
+        const cycleRecords = records.filter(r => {
+          const recordDate = dayjs(r.date);
+          return recordDate.isAfter(cycleStartDate.subtract(1, 'day')) && 
+                 recordDate.isBefore(cycleEndDate) && 
+                 r.checked;
+        });
+        
+        // 根据不同类型判断是否完成
+        if (config.unit === 'TIMES') {
+          const target = config.cycleTargetTimes || config.perCycleTarget || cycleDays;
+          if (cycleRecords.length >= target) return true;
+        } else if (config.unit === 'DURATION') {
+          const totalMinutes = cycleRecords.reduce((sum, r) => sum + (r.totalValue || 0), 0);
+          const target = config.cycleTargetMinutes || (config.perCycleTarget * (config.dailyTargetMinutes || 15));
+          if (totalMinutes >= target) return true;
+        } else if (config.unit === 'QUANTITY') {
+          const totalValue = cycleRecords.reduce((sum, r) => sum + (r.totalValue || 0), 0);
+          const target = config.cycleTargetValue || config.perCycleTarget;
+          if (totalValue >= target) return true;
+        }
+      }
+    }
+    
+    return false;
   }, []);
 
   // 获取未完成的支线任务并按优先级排序
   const getEligibleTasks = useCallback(() => {
-    // 筛选支线任务，排除已归档、已完成、今日已完成的
+    // 筛选支线任务，排除已归档、已完成、今日已完成、当前周期已完成的
     const sidelineTasks = tasks.filter(t => 
       (t.type === 'sidelineA' || t.type === 'sidelineB') &&
       (t as any).status !== 'archived' &&
       !t.completed &&
       t.mainlineTask?.status !== 'COMPLETED' &&
-      !isTodayCompleted(t) // 排除今日已完成的任务
+      !isTodayCompleted(t) && // 排除今日已完成的任务
+      !isCycleCompleted(t) // 排除当前周期已完成的任务
     );
 
     // 排除已经抽过的
@@ -47,7 +115,7 @@ export default function RandomTaskPicker({ onSelectTask }: RandomTaskPickerProps
 
       return 0;
     });
-  }, [tasks, excludedIds, isTodayCompleted]);
+  }, [tasks, excludedIds, isTodayCompleted, isCycleCompleted]);
 
   // 随机抽取任务（带权重）
   const pickRandomTask = useCallback(() => {
@@ -111,6 +179,7 @@ export default function RandomTaskPicker({ onSelectTask }: RandomTaskPickerProps
         !t.completed &&
         t.mainlineTask?.status !== 'COMPLETED' &&
         !isTodayCompleted(t) && // 排除今日已完成的任务
+        !isCycleCompleted(t) && // 排除当前周期已完成的任务
         !excludedIds.has(t.id) &&
         t.id !== pickedTask?.id
       );
@@ -172,11 +241,17 @@ export default function RandomTaskPicker({ onSelectTask }: RandomTaskPickerProps
       !t.completed &&
       t.mainlineTask?.status !== 'COMPLETED' &&
       !isTodayCompleted(t) && // 排除今日已完成的任务
+      !isCycleCompleted(t) && // 排除当前周期已完成的任务
       !excludedIds.has(t.id) &&
       t.id !== pickedTask?.id
     );
     return eligibleTasks.length;
   };
+
+  // 只有支线任务大于3个时才显示"试试手气"
+  if (sidelineTaskCount <= 3) {
+    return null;
+  }
 
   return (
     <>
@@ -211,6 +286,12 @@ export default function RandomTaskPicker({ onSelectTask }: RandomTaskPickerProps
       {showModal && (
         <div className={styles.overlay} onClick={handleClose}>
           <div className={styles.modal} onClick={e => e.stopPropagation()}>
+            <button className={styles.closeButton} onClick={handleClose}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
             <div className={styles.modalHeader}>
               <h3 className={styles.modalTitle}>随机任务</h3>
               <p className={styles.modalSubtitle}>从支线任务中为你抽取一个</p>

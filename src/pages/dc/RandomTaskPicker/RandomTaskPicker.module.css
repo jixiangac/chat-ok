@@ -70,6 +70,7 @@
 
 /* 弹层内容 */
 .modal {
+  position: relative;
   background-color: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   border-radius: 16px;
@@ -78,6 +79,29 @@
   max-width: 90vw;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
   animation: scaleIn 0.25s ease-out;
+}
+
+/* 关闭按钮 */
+.closeButton {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background-color: transparent;
+  color: #999;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.closeButton:hover {
+  background-color: #f0f0f0;
+  color: #666;
 }
 
 .modalHeader {

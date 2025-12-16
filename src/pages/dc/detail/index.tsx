@@ -107,7 +107,31 @@ export default function GoalDetailModal({
       particleCount: 50,
       spread: 60,
       origin: { x, y },
-      colors: ['#26ccff', '#a25afd', '#ff5e7e', '#88ff5a', '#fcff42', '#ffa62d', '#ff36ff'],
+      colors: ["hsl(var(--primary))","hsl(var(--accent))","hsl(var(--secondary))","hsl(var(--muted))"],
+      // colors: ["#26ccff","#a25afd","#ff5e7e","#88ff5a","#fcff42","#ffa62d","#ff36ff"],
+      // colors: [
+      //   '#F6EFEF', // 奶油粉
+      //   '#E0CEC6', // 淡玫瑰
+      //   '#F1F1E8', // 奶油绿
+      //   '#B9C9B9', // 薄荷绿
+      //   '#E7E6ED', // 淡紫
+      //   '#C0BDD1', // 紫灰
+      //   '#F2F0EB', // 奶油灰
+      //   '#D6CBBD', // 暖灰
+      //   '#EAECEF', // 淡蓝灰
+      //   '#B8BCC1', // 银灰
+      //   '#C6DDE5', // 日式青
+      //   '#E8E1B8', // 奶油黄
+      //   '#B3BEE5', // 淡紫蓝
+      //   '#E6D6BB', // 复古米
+      //   '#D5C4C0', // 肉桂粉
+      //   '#C9D4C9', // 鼠尾草绿
+      //   '#D4D1E0', // 薰衣草紫
+      //   '#E0DDD5', // 亚麻灰
+      //   '#D1D8E0', // 雾霹蓝
+      //   '#D5E0E0', // 淡青
+      // ],
+      // colors: ['#26ccff', '#a25afd', '#ff5e7e', '#88ff5a', '#fcff42', '#ffa62d', '#ff36ff'],
       ticks: 200,
       gravity: 1.2,
       decay: 0.94,

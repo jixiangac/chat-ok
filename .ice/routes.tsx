@@ -489,7 +489,7 @@ const createRoutes: CreateRoutes = ({
     index: undefined,
     id: 'dc/utils/mainlineTaskHelper',
     exact: true,
-    exports: ["calculateCheckInProgress","calculateChecklistProgress","calculateNumericProgress","calculateRemainingDays","isTodayCheckedIn","updateMainlineTaskProgress"],
+    exports: ["calculateCheckInProgress","calculateChecklistProgress","calculateCurrentCycleNumber","calculateNumericProgress","calculateRemainingDays","isTodayCheckedIn","updateMainlineTaskProgress"],
   },{
     path: 'dc/CreateMainlineTaskModal',
     async lazy() {

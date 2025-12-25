@@ -3,6 +3,7 @@ import dayjs from 'dayjs';
 import { BarChart3, ArrowRight, Calendar, PartyPopper, ChartNoAxesCombined } from 'lucide-react';
 import type { GoalDetail, CurrentCycleInfo } from './types';
 import { getSimulatedToday } from './hooks';
+import type { PreviousCycleDebtSnapshot } from '../types';
 import styles from '../css/NumericCyclePanel.module.css';
 
 // 千分位格式化
@@ -99,6 +100,101 @@ export default function NumericCyclePanel({
     : Math.max(0, rawChange);   // 增加目标：正变化才有效
   const totalProgress = totalChange > 0 ? Math.round((effectiveChange / totalChange) * 100) : 0;
   
+  // 获取已保存的欠账快照
+  const savedDebtSnapshot = (goal as any).previousCycleDebtSnapshot as PreviousCycleDebtSnapshot | undefined;
+  
+  // 判断是否有欠账快照数据（需要有 debtCycleSnapshot 且周期编号匹配）
+  const hasDebtSnapshot = savedDebtSnapshot?.debtCycleSnapshot !== undefined && savedDebtSnapshot?.currentCycleNumber === cycle.cycleNumber;
+  
+  // 获取欠账显示的配色（使用快照中保存的配色）
+  const debtColors = useMemo(() => {
+    if (hasDebtSnapshot && savedDebtSnapshot?.bgColor && savedDebtSnapshot?.progressColor) {
+      return { bgColor: savedDebtSnapshot.bgColor, progressColor: savedDebtSnapshot.progressColor };
+    }
+    return { bgColor: 'rgba(246, 239, 239, 0.6)', progressColor: 'linear-gradient(90deg, #F6EFEF 0%, #E0CEC6 100%)' };
+  }, [hasDebtSnapshot, savedDebtSnapshot]);
+  
+  // 检查上一周期是否有欠账
+  const previousCycleDebtInfo = useMemo(() => {
+    // 如果有已保存的快照且有 debtCycleSnapshot，直接使用
+    if (hasDebtSnapshot && savedDebtSnapshot) {
+      return { hasPreviousCycleDebt: true, previousCycleTarget: savedDebtSnapshot.targetValue, showDebt: true, useSavedSnapshot: true };
+    }
+    
+    // 否则实时计算
+    const cycleSnapshots = goal.cycleSnapshots || [];
+    const cycleDays = goal.cycleDays || 7;
+    
+    if (cycleSnapshots.length === 0) {
+      return { hasPreviousCycleDebt: false, previousCycleTarget: undefined, showDebt: false };
+    }
+    
+    const lastSnapshot = cycleSnapshots[cycleSnapshots.length - 1];
+    
+    // 检查上一周期是否完成（completionRate < 100）
+    const currentValue = config.currentValue;
+    
+    if (lastSnapshot.completionRate !== undefined && lastSnapshot.completionRate < 100) {
+      // 获取上一周期目标值
+      if (lastSnapshot.targetValue !== undefined) {
+        const lastTarget = Math.round(lastSnapshot.targetValue * 100) / 100;
+        
+        // 检查当前值是否已达到上一周期目标
+        let reachedLastTarget = false;
+        if (isDecrease) {
+          reachedLastTarget = currentValue <= lastTarget;
+        } else {
+          reachedLastTarget = currentValue >= lastTarget;
+        }
+        
+        if (!reachedLastTarget) {
+          // 当前值未达到上一周期目标，显示上一周期欠账
+          // 计算剩余天数
+          const today = dayjs(getSimulatedToday(goal));
+          const cycleEnd = dayjs(cycle.endDate);
+          const remainingDays = cycleEnd.diff(today, 'day');
+          
+          return { hasPreviousCycleDebt: true, previousCycleTarget: lastTarget, showDebt: false, remainingDays, cycleDays, useSavedSnapshot: false };
+        } else if (cycleSnapshots.length > 1) {
+          // 当前值已达到上一周期目标，检查上上周期
+          const prevPrevSnapshot = cycleSnapshots[cycleSnapshots.length - 2];
+          if (prevPrevSnapshot.completionRate !== undefined && prevPrevSnapshot.completionRate < 100) {
+            if (prevPrevSnapshot.targetValue !== undefined) {
+              const prevPrevTarget = Math.round(prevPrevSnapshot.targetValue * 100) / 100;
+              
+              // 检查当前值是否已达到上上周期目标
+              let reachedPrevPrevTarget = false;
+              if (isDecrease) {
+                reachedPrevPrevTarget = currentValue <= prevPrevTarget;
+              } else {
+                reachedPrevPrevTarget = currentValue >= prevPrevTarget;
+              }
+              
+              if (!reachedPrevPrevTarget) {
+                // 当前值未达到上上周期目标，显示上上周期欠账
+                const today = dayjs(getSimulatedToday(goal));
+                const cycleEnd = dayjs(cycle.endDate);
+                const remainingDays = cycleEnd.diff(today, 'day');
+                
+                return { hasPreviousCycleDebt: true, previousCycleTarget: prevPrevTarget, showDebt: false, remainingDays, cycleDays, useSavedSnapshot: false };
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    return { hasPreviousCycleDebt: false, previousCycleTarget: undefined, showDebt: false };
+  }, [goal.cycleSnapshots, goal.cycleDays, config.currentValue, isDecrease, cycle.endDate, goal, hasDebtSnapshot, savedDebtSnapshot]);
+  
+  // 获取显示用的欠账目标值
+  const displayDebtTarget = useMemo(() => {
+    if (hasDebtSnapshot && savedDebtSnapshot) {
+      return savedDebtSnapshot.targetValue;
+    }
+    return previousCycleDebtInfo.previousCycleTarget;
+  }, [hasDebtSnapshot, savedDebtSnapshot, previousCycleDebtInfo.previousCycleTarget]);
+  
   // 计算本周期目标 - 基于周期数和总目标
   const cycleData = useMemo(() => {
     const totalCycles = goal.totalCycles || 1;
@@ -176,11 +272,74 @@ export default function NumericCyclePanel({
       cycleTargetValue: Math.round(cycleTargetValue * 10) / 10,
       cycleAchieved: Math.round(cycleAchieved * 10) / 10,
       cycleRemaining: Math.round(cycleRemaining * 10) / 10,
-      cycleProgress
+      cycleProgress,
+      perCycleTarget
     };
   }, [config, goal.history, goal.totalCycles, goal.cycleSnapshots, cycle, isDecrease, totalChange]);
   
-  const { cycleStartValue, cycleTargetValue, cycleAchieved, cycleRemaining, cycleProgress } = cycleData;
+  const { cycleStartValue, cycleTargetValue, cycleAchieved, cycleRemaining, cycleProgress, perCycleTarget } = cycleData;
+  
+  // 判断是否显示上一周期欠账
+  const showPreviousCycleDebt = useMemo(() => {
+    // 如果有已保存的快照且有 debtCycleSnapshot，直接显示
+    if (hasDebtSnapshot) {
+      return true;
+    }
+    
+    if (!previousCycleDebtInfo.hasPreviousCycleDebt) return false;
+    
+    const { remainingDays, cycleDays } = previousCycleDebtInfo;
+    if (remainingDays === undefined || cycleDays === undefined) return false;
+    
+    // 如果当期已完成（>=100%）且剩余时间 > 1/2 周期，显示上一周期欠账
+    return cycleProgress >= 100 && remainingDays > cycleDays / 2;
+  }, [previousCycleDebtInfo, cycleProgress, hasDebtSnapshot]);
+  
+  // 计算包含欠账的进度
+  const displayProgress = useMemo(() => {
+    if (!showPreviousCycleDebt) return cycleProgress;
+    
+    // 欠账模式下，进度基于从起始值到欠账目标值的变化量来计算
+    if (displayDebtTarget === undefined) return cycleProgress;
+    
+    // 计算从起始值到欠账目标值需要的变化量
+    const targetChange = Math.abs(displayDebtTarget - cycleStartValue);
+    if (targetChange <= 0) return 100;
+    
+    // 计算实际变化量
+    const rawCycleChange = config.currentValue - cycleStartValue;
+    const effectiveCycleChange = isDecrease ? Math.max(0, -rawCycleChange) : Math.max(0, rawCycleChange);
+    
+    return Math.min(100, Math.round((effectiveCycleChange / targetChange) * 100));
+  }, [showPreviousCycleDebt, config.currentValue, cycleStartValue, isDecrease, cycleProgress, displayDebtTarget]);
+  
+  // 欠账模式下使用副本中的起始值和目标值
+  const displayCycleStart = useMemo(() => {
+    if (showPreviousCycleDebt && savedDebtSnapshot?.debtCycleSnapshot?.startValue !== undefined) {
+      return savedDebtSnapshot.debtCycleSnapshot.startValue;
+    }
+    return cycleStartValue;
+  }, [showPreviousCycleDebt, savedDebtSnapshot, cycleStartValue]);
+  
+  const displayCycleTarget = useMemo(() => {
+    if (showPreviousCycleDebt && displayDebtTarget !== undefined) {
+      return displayDebtTarget;
+    }
+    return cycleTargetValue;
+  }, [showPreviousCycleDebt, displayDebtTarget, cycleTargetValue]);
+  
+  // 欠账模式下重新计算"还需"值（基于欠账目标）
+  const displayCycleRemaining = useMemo(() => {
+    if (showPreviousCycleDebt && displayDebtTarget !== undefined) {
+      // 使用欠账目标值计算还需
+      if (isDecrease) {
+        return Math.max(0, Math.round((config.currentValue - displayDebtTarget) * 10) / 10);
+      } else {
+        return Math.max(0, Math.round((displayDebtTarget - config.currentValue) * 10) / 10);
+      }
+    }
+    return cycleRemaining;
+  }, [showPreviousCycleDebt, displayDebtTarget, config.currentValue, isDecrease, cycleRemaining]);
   
   // 如果计划已结束，显示总结视图
   if (planEndInfo.isPlanEnded) {
@@ -261,13 +420,23 @@ export default function NumericCyclePanel({
         <div className={styles.targetRange}>
           <span className={styles.targetValue}>{formatNumber(cycleStartValue)}{config.unit}</span>
           <ArrowRight size={16} className={styles.targetArrow} />
-          <span className={styles.targetValue}>{formatNumber(cycleTargetValue)}{config.unit}</span>
+          <span className={styles.targetValue}>
+            {formatNumber(cycleTargetValue)}{config.unit}
+            {showPreviousCycleDebt && displayDebtTarget !== undefined && (
+              <span style={{ marginLeft: '8px', fontSize: '0.85em', fontWeight: '500' }}>
+                ({formatNumber(displayDebtTarget)}{config.unit})
+              </span>
+            )}
+          </span>
         </div>
         
-        <div className={styles.progressBar}>
+        <div className={styles.progressBar} style={showPreviousCycleDebt ? { backgroundColor: debtColors.bgColor } : {}}>
           <div 
             className={styles.progressFill}
-            style={{ width: `${Math.min(cycleProgress, 100)}%` }}
+            style={{ 
+              width: `${Math.min(showPreviousCycleDebt ? displayProgress : cycleProgress, 100)}%`,
+              background: showPreviousCycleDebt ? debtColors.progressColor : undefined
+            }}
           />
         </div>
         
@@ -289,7 +458,12 @@ export default function NumericCyclePanel({
           </div>
           <div className={styles.statItem}>
             <span className={styles.statLabel}>还需</span>
-            <span className={styles.statValue}>{formatNumber(cycleRemaining)}{config.unit}</span>
+            <span className={styles.statValue}>
+              {formatNumber(cycleRemaining)}{config.unit}
+              {showPreviousCycleDebt && displayCycleRemaining !== cycleRemaining && (
+                <span style={{ fontSize: '0.85em', fontWeight: '400', marginLeft: '4px' }}>({formatNumber(displayCycleRemaining)}{config.unit})</span>
+              )}
+            </span>
           </div>
         </div>
       </div>
@@ -301,7 +475,7 @@ export default function NumericCyclePanel({
           <div className={styles.gridLabel}>当前{isDecrease ? '体重' : '数值'}</div>
         </div>
         <div className={styles.gridItem}>
-          <div className={styles.gridValue}>{cycleProgress}%</div>
+          <div className={styles.gridValue}>{showPreviousCycleDebt ? displayProgress : cycleProgress}%</div>
           <div className={styles.gridLabel}>周期完成率</div>
         </div>
       </div>
@@ -314,3 +488,17 @@ export default function NumericCyclePanel({
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+

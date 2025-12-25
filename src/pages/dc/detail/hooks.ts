@@ -2,6 +2,23 @@ import { useState, useEffect, useCallback } from 'react';
 import type { GoalDetail, CurrentCycleInfo, CheckIn } from './types';
 import type { NumericConfig, ChecklistItem } from '../types';
 
+// 欠账快照配色方案 - 参考 roleConfig.ts
+const DEBT_COLOR_SCHEMES = [
+  // 奶油粉 -> 淡玫瑰
+  { bgColor: 'rgba(246, 239, 239, 0.6)', progressColor: 'linear-gradient(90deg, #F6EFEF 0%, #E0CEC6 100%)', borderColor: '#E0CEC6' },
+  // 奶油绿 -> 薄荷绿
+  { bgColor: 'rgba(241, 241, 232, 0.6)', progressColor: 'linear-gradient(90deg, #F1F1E8 0%, #B9C9B9 100%)', borderColor: '#B9C9B9' },
+  // 淡紫 -> 紫灰
+  { bgColor: 'rgba(231, 230, 237, 0.6)', progressColor: 'linear-gradient(90deg, #E7E6ED 0%, #C0BDD1 100%)', borderColor: '#C0BDD1' },
+  // 淡蓝灰 -> 银灰
+  { bgColor: 'rgba(234, 236, 239, 0.6)', progressColor: 'linear-gradient(90deg, #EAECEF 0%, #B8BCC1 100%)', borderColor: '#B8BCC1' },
+];
+
+// 随机获取一个配色方案
+const getRandomColorScheme = () => {
+  return DEBT_COLOR_SCHEMES[Math.floor(Math.random() * DEBT_COLOR_SCHEMES.length)];
+};
+
 export function useGoalDetail(goalId: string, onDataChange?: () => void) {
   const [goalDetail, setGoalDetail] = useState<GoalDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -321,6 +338,114 @@ export function useGoalDetail(goalId: string, onDataChange?: () => void) {
           goal.progress.totalPercentage = totalPercentage;
           goal.progress.currentCyclePercentage = cyclePercentage;
           
+          // 检查是否需要创建上一周期欠账快照
+          // 条件：当期已完成（>=100%）且剩余时间 > 1/2 周期 且上一周期未完成 且当前值未达到上一周期目标
+          const cycleSnapshots = goal.cycleSnapshots || [];
+          if (cycleSnapshots.length > 0 && cyclePercentage >= 100) {
+            const lastSnapshot = cycleSnapshots[cycleSnapshots.length - 1];
+            
+            // 检查上一周期是否未完成
+            if (lastSnapshot.completionRate !== undefined && lastSnapshot.completionRate < 100) {
+              const previousCycleTarget = lastSnapshot.targetValue;
+              
+              // 检查当前值是否未达到上一周期目标
+              let reachedLastTarget = false;
+              if (isDecrease) {
+                reachedLastTarget = value <= previousCycleTarget;
+              } else {
+                reachedLastTarget = value >= previousCycleTarget;
+              }
+              
+              if (!reachedLastTarget) {
+                // 当前值未达到上一周期目标，创建上一周期欠账快照
+                // 计算剩余天数
+                const simulatedToday = getSimulatedToday(goalDetail);
+                const cycleEnd = new Date(cycleInfo.endDate);
+                const today = new Date(simulatedToday);
+                const remainingDays = Math.floor((cycleEnd.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+                
+                // 如果剩余时间 > 1/2 周期，且没有已保存的快照，创建欠账快照
+                if (remainingDays > goalDetail.cycleDays / 2 && !goal.previousCycleDebtSnapshot) {
+                  const colorScheme = getRandomColorScheme();
+                  const lastSnapshot = cycleSnapshots[cycleSnapshots.length - 1];
+                  goal.previousCycleDebtSnapshot = {
+                    cycleNumber: lastSnapshot.cycleNumber,
+                    targetValue: previousCycleTarget,
+                    createdAt: new Date().toISOString(),
+                    currentCycleNumber: cycleInfo.cycleNumber,
+                    currentCycleProgress: cyclePercentage,
+                    bgColor: colorScheme.bgColor,
+                    progressColor: colorScheme.progressColor,
+                    borderColor: colorScheme.borderColor,
+                    // 保存欠账周期的数据副本
+                    debtCycleSnapshot: {
+                      startDate: lastSnapshot.startDate,
+                      endDate: lastSnapshot.endDate,
+                      startValue: cycleStartValue, // 当前周期起始值（即上一周期结算值）
+                      actualValue: lastSnapshot.actualValue,
+                      completionRate: lastSnapshot.completionRate,
+                      unit: config.unit,
+                      perCycleTarget: config.perCycleTarget || 0
+                    }
+                  };
+                }
+              } else if (cycleSnapshots.length > 1) {
+                // 当前值已达到上一周期目标，检查上上周期
+                const prevPrevSnapshot = cycleSnapshots[cycleSnapshots.length - 2];
+                if (prevPrevSnapshot.completionRate !== undefined && prevPrevSnapshot.completionRate < 100) {
+                  const prevPrevTarget = prevPrevSnapshot.targetValue;
+                  
+                  // 检查当前值是否未达到上上周期目标
+                  let reachedPrevPrevTarget = false;
+                  if (isDecrease) {
+                    reachedPrevPrevTarget = value <= prevPrevTarget;
+                  } else {
+                    reachedPrevPrevTarget = value >= prevPrevTarget;
+                  }
+                  
+                  if (!reachedPrevPrevTarget) {
+                    // 当前值未达到上上周期目标，创建上上周期欠账快照
+                    const simulatedToday = getSimulatedToday(goalDetail);
+                    const cycleEnd = new Date(cycleInfo.endDate);
+                    const today = new Date(simulatedToday);
+                    const remainingDays = Math.floor((cycleEnd.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+                    
+                    if (remainingDays > goalDetail.cycleDays / 2 && !goal.previousCycleDebtSnapshot) {
+                      const colorScheme = getRandomColorScheme();
+                      const prevPrevSnapshot = cycleSnapshots[cycleSnapshots.length - 2];
+                      goal.previousCycleDebtSnapshot = {
+                        cycleNumber: prevPrevSnapshot.cycleNumber,
+                        targetValue: prevPrevTarget,
+                        createdAt: new Date().toISOString(),
+                        currentCycleNumber: cycleInfo.cycleNumber,
+                        currentCycleProgress: cyclePercentage,
+                        bgColor: colorScheme.bgColor,
+                        progressColor: colorScheme.progressColor,
+                        borderColor: colorScheme.borderColor,
+                        // 保存欠账周期的数据副本
+                        debtCycleSnapshot: {
+                          startDate: prevPrevSnapshot.startDate,
+                          endDate: prevPrevSnapshot.endDate,
+                          startValue: prevPrevSnapshot.actualValue, // 上上周期结算值
+                          actualValue: prevPrevSnapshot.actualValue,
+                          completionRate: prevPrevSnapshot.completionRate,
+                          unit: config.unit,
+                          perCycleTarget: config.perCycleTarget || 0
+                        }
+                      };
+                    }
+                  } else {
+                    // 当前值已达到上上周期目标，清除欠账快照
+                    goal.previousCycleDebtSnapshot = undefined;
+                  }
+                } else {
+                  // 上上周期已完成，清除欠账快照
+                  goal.previousCycleDebtSnapshot = undefined;
+                }
+              }
+            }
+          }
+          
           localStorage.setItem('dc_tasks', JSON.stringify(goals));
           
           // 更新状态 - 同步更新所有相关数据
@@ -601,6 +726,15 @@ export function useGoalDetail(goalId: string, onDataChange?: () => void) {
           newCycleStartDate.setHours(0, 0, 0, 0);
           const newCycleOffset = Math.floor((newCycleStartDate.getTime() - realTodayForOffset.getTime()) / (1000 * 60 * 60 * 24));
           
+          // 更新 mainlineTask.cycleConfig.currentCycle
+          if (goal.mainlineTask?.cycleConfig) {
+            goal.mainlineTask.cycleConfig.currentCycle = newCycleNumber;
+          }
+          // 同时更新顶层的 cycleConfig（如果存在）
+          if (goal.cycleConfig) {
+            goal.cycleConfig.currentCycle = newCycleNumber;
+          }
+          
           goal.debugDayOffset = newCycleOffset;
           if (goal.mainlineTask) {
             goal.mainlineTask.debugDayOffset = newCycleOffset;
@@ -735,6 +869,15 @@ export function useGoalDetail(goalId: string, onDataChange?: () => void) {
             realTodayForOffset.setHours(0, 0, 0, 0);
             newCycleStartDate.setHours(0, 0, 0, 0);
             const newCycleOffset = Math.floor((newCycleStartDate.getTime() - realTodayForOffset.getTime()) / (1000 * 60 * 60 * 24));
+            
+            // 更新 mainlineTask.cycleConfig.currentCycle
+            if (goal.mainlineTask?.cycleConfig) {
+              goal.mainlineTask.cycleConfig.currentCycle = newCycleNumber;
+            }
+            // 同时更新顶层的 cycleConfig（如果存在）
+            if (goal.cycleConfig) {
+              goal.cycleConfig.currentCycle = newCycleNumber;
+            }
             
             goal.debugDayOffset = newCycleOffset;
             if (goal.mainlineTask) {
@@ -974,4 +1117,11 @@ export function getCurrentCycle(goalDetail: GoalDetail): CurrentCycleInfo {
     checkInDates
   };
 }
+
+
+
+
+
+
+
 

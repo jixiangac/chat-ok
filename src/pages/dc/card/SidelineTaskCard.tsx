@@ -5,7 +5,8 @@ import {
   calculateRemainingDays, 
   calculateNumericProgress,
   calculateChecklistProgress,
-  calculateCheckInProgress
+  calculateCheckInProgress,
+  calculateCurrentCycleNumber
 } from '../utils/mainlineTaskHelper';
 
 // 默认主题色列表（用于兼容旧数据，基于用户提供的配色图）
@@ -27,6 +28,41 @@ const getColorFromId = (id: string): string => {
   return DEFAULT_THEME_COLORS[Math.abs(hash) % DEFAULT_THEME_COLORS.length];
 };
 
+// 截止时间颜色配置
+const DEADLINE_COLORS = {
+  urgent: '#5c0011',      // 乌梅红 - 0天（今天截止）
+  warning: '#c41d7f',     // 玫瑰红 - 剩余1/3周期
+  caution: '#d48806',     // 烟黄 - 剩余2/3周期
+  normal: 'rgba(55, 53, 47, 0.5)'  // 默认灰色
+};
+
+// 根据剩余天数和周期天数获取截止时间颜色
+// 只有在剩余天数 ≤ 变色起始点时才开始变色，在这个范围内按3个阶段依次变色
+// 如果周期完成率小于50%，从1/2时间开始变色
+const getDeadlineColor = (remainingDays: number, cycleDays: number, cycleProgress: number): string => {
+  // 根据周期完成率决定变色起始点
+  // 完成率 < 50%：从剩余 1/2 周期开始变色
+  // 完成率 >= 50%：从剩余 1/3 周期开始变色
+  const startThreshold = cycleProgress < 50 ? cycleDays / 2 : cycleDays / 3;
+  
+  // 如果剩余天数 > 变色起始点，使用默认颜色
+  if (remainingDays > startThreshold) return DEADLINE_COLORS.normal;
+  
+  // 在变色范围内，按3个阶段变色
+  if (remainingDays <= 0) return DEADLINE_COLORS.urgent;
+  if (remainingDays <= startThreshold / 3) return DEADLINE_COLORS.warning;
+  if (remainingDays <= (startThreshold * 2) / 3) return DEADLINE_COLORS.caution;
+  
+  return DEADLINE_COLORS.normal;
+};
+
+// 获取截止时间文案
+const getDeadlineText = (remainingDays: number): string => {
+  if (remainingDays <= 0) return '今天截止';
+  if (remainingDays === 1) return '明天截止';
+  return `${remainingDays}天后截止`;
+};
+
 interface SidelineTaskCardProps {
   task: Task;
   onClick?: () => void;
@@ -40,13 +76,42 @@ export default function SidelineTaskCard({ task, onClick, isTodayCompleted, isCy
   // 获取主题色（优先使用存储的，否则根据ID生成）
   const themeColor = task.themeColor || getColorFromId(task.id);
   
+  // 计算当前周期（基于cycleSnapshots，与详情页逻辑一致）
+  const currentCycleNumber = calculateCurrentCycleNumber(task);
+  
+  // 获取周期天数用于计算颜色
+  const cycleDays = task.cycleDays || 7;
+  
+  // 计算周期起始值（从cycleSnapshots获取上一周期的结算值）
+  const getCycleStartValue = (): number | undefined => {
+    if (!task.mainlineTask?.numericConfig) return undefined;
+    
+    const config = task.mainlineTask.numericConfig;
+    const cycleSnapshots = (task as any).cycleSnapshots || [];
+    
+    // 如果有快照数据，使用上一周期的结算值作为本周期起始值
+    if (cycleSnapshots.length > 0) {
+      const lastSnapshot = cycleSnapshots[cycleSnapshots.length - 1];
+      if (lastSnapshot.actualValue !== undefined) {
+        return lastSnapshot.actualValue;
+      }
+    }
+    
+    // 没有快照时，使用配置的起始值
+    return config.startValue;
+  };
+  const cycleStartValue = getCycleStartValue();
+  
   // 计算总进度和周期进度
   const getProgressData = () => {
     if (!task.mainlineTask) return { totalProgress: task.progress || 0, cycleProgress: 0, cycleInfo: '' };
     
     switch (task.mainlineType) {
       case 'NUMERIC': {
-        const progressData = calculateNumericProgress(task.mainlineTask);
+        const progressData = calculateNumericProgress(task.mainlineTask, {
+          currentCycleNumber,
+          cycleStartValue
+        });
         const config = task.mainlineTask.numericConfig;
         const cycleInfo = config ? `${config.currentValue}/${progressData.currentCycleTarget}${config.unit}` : '';
         return { 
@@ -140,6 +205,10 @@ export default function SidelineTaskCard({ task, onClick, isTodayCompleted, isCy
   
   const { totalProgress, cycleProgress, cycleInfo } = getProgressData();
   
+  // 计算截止时间颜色和文案（需要在获取cycleProgress之后）
+  const deadlineColor = getDeadlineColor(remainingDays, cycleDays, cycleProgress);
+  const deadlineText = getDeadlineText(remainingDays);
+  
   // 将hex转为rgba
   const hexToRgba = (hex: string, alpha: number) => {
     const r = parseInt(hex.slice(1, 3), 16);
@@ -188,13 +257,13 @@ export default function SidelineTaskCard({ task, onClick, isTodayCompleted, isCy
       </div>
       
       <div className={styles.footer}>
-        <span className={styles.daysText}>
-          {remainingDays > 0 ? `${remainingDays}天后截止` : '已截止'}
+        <span className={styles.daysText} style={{ color: deadlineColor }}>
+          {deadlineText}
         </span>
         <div className={styles.footerRight}>
           {task.totalCycles && task.mainlineTask?.cycleConfig && (
             <span className={styles.cycleText}>
-              {task.mainlineTask.cycleConfig.currentCycle}/{task.totalCycles}
+              {currentCycleNumber}/{task.totalCycles}
             </span>
           )}
           <span className={styles.totalProgressText}>{totalProgress}%</span>
@@ -203,3 +272,7 @@ export default function SidelineTaskCard({ task, onClick, isTodayCompleted, isCy
     </div>
   );
 }
+
+
+
+

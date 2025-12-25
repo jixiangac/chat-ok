@@ -1,12 +1,13 @@
 import dayjs from 'dayjs';
-import { Task } from '../types';
+import { Task, PreviousCycleDebtSnapshot } from '../types';
 import styles from '../css/MainlineTaskCard.module.css';
 import { 
   calculateRemainingDays, 
   calculateNumericProgress,
   calculateChecklistProgress,
   calculateCheckInProgress,
-  isTodayCheckedIn 
+  isTodayCheckedIn,
+  calculateCurrentCycleNumber
 } from '../utils/mainlineTaskHelper';
 
 interface MainlineTaskCardProps {
@@ -50,9 +51,189 @@ const getCompletionText = (completionRate: number): string => {
   return '下次加油';
 };
 
+// 截止时间颜色配置
+const DEADLINE_COLORS = {
+  urgent: '#5c0011',      // 乌梅红 - 0天（今天截止）
+  warning: '#c41d7f',     // 玫瑰红 - 剩余1/3周期
+  caution: '#d48806',     // 烟黄 - 剩余2/3周期
+  normal: 'rgba(55, 53, 47, 0.5)'  // 默认灰色
+};
+
+// 根据剩余天数和周期天数获取截止时间颜色
+// 只有在剩余天数 ≤ 1/3 周期天数时才开始变色，在这个范围内按3个阶段依次变色
+// 如果周期完成率小于50%，从1/2时间开始变色
+const getDeadlineColor = (remainingDays: number, cycleDays: number, cycleProgress: number): string => {
+  // 根据周期完成率决定变色起始点
+  // 完成率 < 50%：从剩余 1/2 周期开始变色
+  // 完成率 >= 50%：从剩余 1/3 周期开始变色
+  const startThreshold = cycleProgress < 50 ? cycleDays / 2 : cycleDays / 3;
+  
+  // 如果剩余天数 > 变色起始点，使用默认颜色
+  if (remainingDays > startThreshold) return DEADLINE_COLORS.normal;
+  
+  // 在变色范围内，按3个阶段变色
+  if (remainingDays <= 0) return DEADLINE_COLORS.urgent;
+  if (remainingDays <= startThreshold / 3) return DEADLINE_COLORS.warning;
+  if (remainingDays <= (startThreshold * 2) / 3) return DEADLINE_COLORS.caution;
+  
+  return DEADLINE_COLORS.normal;
+};
+
+// 获取截止时间文案
+const getDeadlineText = (remainingDays: number): string => {
+  if (remainingDays <= 0) return '今天截止';
+  if (remainingDays === 1) return '明天截止';
+  return `${remainingDays}天后截止`;
+};
+
 export default function MainlineTaskCard({ task, onClick }: MainlineTaskCardProps) {
   const remainingDays = calculateRemainingDays(task);
   
+  // 计算当前周期（基于cycleSnapshots，与详情页逻辑一致）
+  const currentCycleNumber = calculateCurrentCycleNumber(task);
+
+  // 获取周期天数用于计算颜色
+  const cycleDays = task.cycleDays || 7;
+  
+  // 计算周期起始值和是否需要补上一周期欠账
+  const getCycleInfo = (): { 
+    cycleStartValue: number | undefined; 
+    hasPreviousCycleDebt: boolean;
+    previousCycleTarget: number | undefined;
+    debtCycleNumber: number | undefined;
+  } => {
+    if (!task.mainlineTask?.numericConfig) {
+      return { cycleStartValue: undefined, hasPreviousCycleDebt: false, previousCycleTarget: undefined, debtCycleNumber: undefined };
+    }
+    
+    const config = task.mainlineTask.numericConfig;
+    const cycleSnapshots = (task as any).cycleSnapshots || [];
+    const isDecrease = config.targetValue < (config.originalStartValue ?? config.startValue);
+    
+    // 默认值
+    let cycleStartValue = config.startValue;
+    let hasPreviousCycleDebt = false;
+    let previousCycleTarget: number | undefined = undefined;
+    let debtCycleNumber: number | undefined = undefined;
+    
+    // 如果有快照数据
+    if (cycleSnapshots.length > 0) {
+      const lastSnapshot = cycleSnapshots[cycleSnapshots.length - 1];
+      if (lastSnapshot.actualValue !== undefined) {
+        cycleStartValue = lastSnapshot.actualValue;
+        
+        // 检查上一周期是否完成（completionRate < 100）
+        if (lastSnapshot.completionRate !== undefined && lastSnapshot.completionRate < 100) {
+          // 直接从快照中获取上一周期的目标值
+          if (lastSnapshot.targetValue !== undefined) {
+            const lastTarget = Math.round(lastSnapshot.targetValue * 100) / 100;
+            
+            // 检查当前值是否已达到上一周期目标
+            const currentValue = config.currentValue;
+            let reachedLastTarget = false;
+            if (isDecrease) {
+              reachedLastTarget = currentValue <= lastTarget;
+            } else {
+              reachedLastTarget = currentValue >= lastTarget;
+            }
+            
+            if (!reachedLastTarget) {
+              // 当前值未达到上一周期目标，显示上一周期欠账
+              hasPreviousCycleDebt = true;
+              previousCycleTarget = lastTarget;
+              debtCycleNumber = lastSnapshot.cycleNumber;
+            } else if (cycleSnapshots.length > 1) {
+              // 当前值已达到上一周期目标，检查上上周期
+              const prevPrevSnapshot = cycleSnapshots[cycleSnapshots.length - 2];
+              if (prevPrevSnapshot.completionRate !== undefined && prevPrevSnapshot.completionRate < 100) {
+                if (prevPrevSnapshot.targetValue !== undefined) {
+                  const prevPrevTarget = Math.round(prevPrevSnapshot.targetValue * 100) / 100;
+                  
+                  // 检查当前值是否已达到上上周期目标
+                  let reachedPrevPrevTarget = false;
+                  if (isDecrease) {
+                    reachedPrevPrevTarget = currentValue <= prevPrevTarget;
+                  } else {
+                    reachedPrevPrevTarget = currentValue >= prevPrevTarget;
+                  }
+                  
+                  if (!reachedPrevPrevTarget) {
+                    // 当前值未达到上上周期目标，显示上上周期欠账
+                    hasPreviousCycleDebt = true;
+                    previousCycleTarget = prevPrevTarget;
+                    debtCycleNumber = prevPrevSnapshot.cycleNumber;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    return { cycleStartValue, hasPreviousCycleDebt, previousCycleTarget, debtCycleNumber };
+  };
+  
+  const { cycleStartValue, hasPreviousCycleDebt, previousCycleTarget, debtCycleNumber } = getCycleInfo();
+  
+  // 获取已保存的欠账快照
+  const savedDebtSnapshot = (task as any).previousCycleDebtSnapshot as PreviousCycleDebtSnapshot | undefined;
+  
+  // 判断是否有欠账快照数据（需要有 debtCycleSnapshot 且周期编号匹配）
+  const hasDebtSnapshot = savedDebtSnapshot?.debtCycleSnapshot !== undefined && savedDebtSnapshot?.currentCycleNumber === currentCycleNumber;
+  
+  // 获取欠账显示的配色（使用快照中保存的配色）
+  const debtColors = hasDebtSnapshot && savedDebtSnapshot
+    ? { bgColor: savedDebtSnapshot.bgColor, progressColor: savedDebtSnapshot.progressColor, borderColor: savedDebtSnapshot.borderColor }
+    : { bgColor: 'rgba(246, 239, 239, 0.6)', progressColor: 'linear-gradient(90deg, #F6EFEF 0%, #E0CEC6 100%)', borderColor: '#E0CEC6' };
+  
+  // 判断是否显示上一周期欠账
+  // 优先使用已保存的快照数据，如果没有则实时计算
+  const getDebtDisplayInfo = (): { showDebt: boolean; debtTarget: number | undefined } => {
+    // 如果有已保存的快照且有 debtCycleSnapshot，直接使用
+    if (hasDebtSnapshot && savedDebtSnapshot) {
+      return { showDebt: true, debtTarget: savedDebtSnapshot.targetValue };
+    }
+    
+    // 否则实时计算
+    if (!hasPreviousCycleDebt || !task.mainlineTask?.numericConfig) return { showDebt: false, debtTarget: undefined };
+    if (previousCycleTarget === undefined) return { showDebt: false, debtTarget: undefined };
+    
+    // 计算当前周期进度
+    const progressData = calculateNumericProgress(task.mainlineTask, {
+      currentCycleNumber,
+      cycleStartValue
+    });
+    
+    // 如果当期已完成（>=100%）且剩余时间 > 1/2 周期，显示上一周期欠账
+    const shouldShow = progressData.cycleProgress >= 100 && remainingDays > cycleDays / 2;
+    return { showDebt: shouldShow, debtTarget: shouldShow ? previousCycleTarget : undefined };
+  };
+  
+  const debtDisplayInfo = getDebtDisplayInfo();
+  const showPreviousCycleDebt = debtDisplayInfo.showDebt;
+  const displayDebtTarget = debtDisplayInfo.debtTarget;
+  
+  // 计算周期完成率
+  const getCycleProgress = (): number => {
+    if (!task.mainlineTask) return 0;
+    switch (task.mainlineType) {
+      case 'NUMERIC':
+        return calculateNumericProgress(task.mainlineTask, {
+          currentCycleNumber,
+          cycleStartValue
+        }).cycleProgress;
+      case 'CHECKLIST':
+        return calculateChecklistProgress(task.mainlineTask).cycleProgress;
+      case 'CHECK_IN':
+        return calculateCheckInProgress(task.mainlineTask).cycleProgress;
+      default:
+        return 0;
+    }
+  };
+  const cycleProgress = getCycleProgress();
+  const deadlineColor = getDeadlineColor(remainingDays, cycleDays, cycleProgress);
+  const deadlineText = getDeadlineText(remainingDays);
   // 检查任务是否已完成（检查task.status、mainlineTask.status、时间或cycleSnapshots）
   const isPlanEnded = (() => {
     // 基于status判断
@@ -250,9 +431,41 @@ export default function MainlineTaskCard({ task, onClick }: MainlineTaskCardProp
     const { numericConfig, cycleConfig } = mainlineTask;
     const { unit } = numericConfig;
     
-    // 计算进度
-    const progressData = calculateNumericProgress(mainlineTask);
-
+    // 计算进度（如果需要显示上一周期欠账，使用上一周期目标）
+    let progressData = calculateNumericProgress(mainlineTask, {
+      currentCycleNumber,
+      cycleStartValue
+    });
+    
+    // 如果需要显示上一周期欠账，重新计算进度
+    let displayTarget = progressData.currentCycleTarget;
+    let displayProgress = progressData.cycleProgress;
+    let debtPerCycleTarget = numericConfig.perCycleTarget || 0;
+    
+    // 欠账模式下使用副本中的起始值和目标值
+    let displayCycleStart = progressData.currentCycleStart;
+    let displayCycleTarget = progressData.currentCycleTarget;
+    
+    if (showPreviousCycleDebt && savedDebtSnapshot?.debtCycleSnapshot) {
+      // 使用副本中保存的起始值
+      displayCycleStart = savedDebtSnapshot.debtCycleSnapshot.startValue;
+    }
+    
+    if (showPreviousCycleDebt && displayDebtTarget !== undefined) {
+      // 欠账模式下，进度基于从起始值到欠账目标值的变化量来计算
+      // 计算从起始值到欠账目标值需要的变化量
+      const targetChange = Math.abs(displayDebtTarget - (cycleStartValue || numericConfig.startValue));
+      
+      const isDecrease = numericConfig.targetValue < (numericConfig.originalStartValue ?? numericConfig.startValue);
+      const rawCycleChange = numericConfig.currentValue - (cycleStartValue || numericConfig.startValue);
+      const effectiveCycleChange = isDecrease ? Math.max(0, -rawCycleChange) : Math.max(0, rawCycleChange);
+      
+      // 基于欠账目标计算进度
+      displayProgress = targetChange > 0 ? Math.min(100, Math.round((effectiveCycleChange / targetChange) * 100)) : 100;
+      
+      // 使用副本中的目标值
+      displayCycleTarget = displayDebtTarget;
+    }
     return (
       <>
         {/* 标题和周期信息 */}
@@ -282,10 +495,10 @@ export default function MainlineTaskCard({ task, onClick }: MainlineTaskCardProp
           }}>
             <span style={{ 
               fontSize: '12px',
-              color: 'rgba(55, 53, 47, 0.5)',
+              color: deadlineColor,
               fontWeight: '400'
             }}>
-              {remainingDays}天后截止
+              {deadlineText}
             </span>
             <span style={{ 
               fontSize: '11px',
@@ -294,7 +507,7 @@ export default function MainlineTaskCard({ task, onClick }: MainlineTaskCardProp
               padding: '2px 6px',
               borderRadius: '3px'
             }}>
-              {cycleConfig.currentCycle}/{cycleConfig.totalCycles}
+              {currentCycleNumber}/{cycleConfig.totalCycles}
             </span>
           </div>
         </div>
@@ -309,26 +522,31 @@ export default function MainlineTaskCard({ task, onClick }: MainlineTaskCardProp
           }}>
             <span style={{ fontSize: '13px', color: 'rgba(55, 53, 47, 0.65)' }}>
               本周期 · {progressData.currentCycleStart}{unit} → {progressData.currentCycleTarget}{unit}
+              {showPreviousCycleDebt && displayDebtTarget !== undefined && (
+                <span style={{ marginLeft: '4px', fontWeight: '500' }}>
+                  ({Math.round(displayDebtTarget * 100) / 100}{unit})
+                </span>
+              )}
             </span>
             <span style={{ 
               fontSize: '13px', 
               fontWeight: '500',
               color: 'rgb(55, 53, 47)'
             }}>
-              {progressData.cycleProgress}%
+              {showPreviousCycleDebt ? displayProgress : progressData.cycleProgress}%
             </span>
           </div>
           
           <div style={{ 
             height: '4px',
-            backgroundColor: 'rgba(55, 53, 47, 0.08)',
+            backgroundColor: showPreviousCycleDebt ? debtColors.bgColor : 'rgba(55, 53, 47, 0.08)',
             borderRadius: '2px',
             overflow: 'hidden'
           }}>
             <div style={{ 
-              width: `${progressData.cycleProgress}%`,
+              width: `${showPreviousCycleDebt ? displayProgress : progressData.cycleProgress}%`,
               height: '100%',
-              backgroundColor: 'rgb(55, 53, 47)',
+              background: showPreviousCycleDebt ? debtColors.progressColor : 'rgb(55, 53, 47)',
               borderRadius: '2px',
               transition: 'width 0.3s ease'
             }}></div>
@@ -413,10 +631,10 @@ export default function MainlineTaskCard({ task, onClick }: MainlineTaskCardProp
           }}>
             <span style={{ 
               fontSize: '12px',
-              color: 'rgba(55, 53, 47, 0.5)',
+              color: deadlineColor,
               fontWeight: '400'
             }}>
-              {remainingDays}天后截止
+              {deadlineText}
             </span>
             <span style={{ 
               fontSize: '11px',
@@ -425,7 +643,7 @@ export default function MainlineTaskCard({ task, onClick }: MainlineTaskCardProp
               padding: '2px 6px',
               borderRadius: '3px'
             }}>
-              {cycleConfig.currentCycle}/{cycleConfig.totalCycles}
+              {currentCycleNumber}/{cycleConfig.totalCycles}
             </span>
           </div>
         </div>
@@ -535,6 +753,7 @@ export default function MainlineTaskCard({ task, onClick }: MainlineTaskCardProp
   // 打卡型任务卡片
   const renderCheckInContent = () => {
     const mainlineTask = task.mainlineTask;
+    console.log(mainlineTask,'mainlineTask')
     if (!mainlineTask?.checkInConfig) return renderLegacyContent();
 
     const { checkInConfig, cycleConfig } = mainlineTask;
@@ -576,10 +795,10 @@ export default function MainlineTaskCard({ task, onClick }: MainlineTaskCardProp
           }}>
             <span style={{ 
               fontSize: '12px',
-              color: 'rgba(55, 53, 47, 0.5)',
+              color: deadlineColor,
               fontWeight: '400'
             }}>
-              {remainingDays}天后截止
+              {deadlineText}
             </span>
             <span style={{ 
               fontSize: '11px',
@@ -588,7 +807,7 @@ export default function MainlineTaskCard({ task, onClick }: MainlineTaskCardProp
               padding: '2px 6px',
               borderRadius: '3px'
             }}>
-              {cycleConfig.currentCycle}/{cycleConfig.totalCycles}
+              {currentCycleNumber}/{cycleConfig.totalCycles}
             </span>
           </div>
         </div>
@@ -725,6 +944,11 @@ export default function MainlineTaskCard({ task, onClick }: MainlineTaskCardProp
     <div
       onClick={onClick}
       className={styles.card}
+      style={showPreviousCycleDebt ? {
+        borderColor: debtColors.borderColor,
+        borderWidth: '1px',
+        borderStyle: 'solid'
+      } : undefined}
     >
       <div className={styles.content}>
         {renderContent()}
@@ -732,3 +956,22 @@ export default function MainlineTaskCard({ task, onClick }: MainlineTaskCardProp
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

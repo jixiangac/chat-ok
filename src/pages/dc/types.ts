@@ -127,6 +127,29 @@ export interface ProgressInfo {
   currentCycleRemaining?: number;
 }
 
+// 上一周期欠账快照
+export interface PreviousCycleDebtSnapshot {
+  cycleNumber: number;              // 欠账的周期编号
+  targetValue: number;              // 上一周期目标值
+  createdAt: string;                // 创建时间
+  currentCycleNumber: number;       // 当前周期编号（创建时）
+  currentCycleProgress: number;     // 当前周期进度（创建时）
+  bgColor: string;                  // 背景色
+  progressColor: string;            // 进度条渐变色
+  borderColor: string;              // 边框颜色
+  
+  // 欠账周期的数据副本（用于展示）
+  debtCycleSnapshot?: {
+    startDate: string;              // 欠账周期起始日期
+    endDate: string;                // 欠账周期结束日期
+    startValue: number;             // 欠账周期起始值
+    actualValue: number;            // 欠账周期实际结算值
+    completionRate: number;         // 欠账周期完成率
+    unit: string;                   // 单位
+    perCycleTarget: number;         // 每周期目标量
+  };
+}
+
 // 提醒配置
 export interface ReminderConfig {
   strategy: 'SMART' | 'DAILY' | 'NONE';
@@ -193,6 +216,9 @@ export interface Task {
     timestamp: number;
     value?: number; // 时长(分钟)或数值
   }>;
+  
+  // 上一周期欠账快照（用于在前1/2时间完成当期目标时记录）
+  previousCycleDebtSnapshot?: PreviousCycleDebtSnapshot;
 }
 
 // 目标数据接口
@@ -259,3 +285,8 @@ export interface ValidationResult {
   valid: boolean;
   message?: string;
 }
+
+
+
+
+

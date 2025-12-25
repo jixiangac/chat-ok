@@ -177,6 +177,7 @@
     "exports": [
       "calculateCheckInProgress",
       "calculateChecklistProgress",
+      "calculateCurrentCycleNumber",
       "calculateNumericProgress",
       "calculateRemainingDays",
       "isTodayCheckedIn",

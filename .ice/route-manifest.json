@@ -206,6 +206,17 @@
     ]
   },
   {
+    "path": "dc/SidelineTaskGrid",
+    "index": true,
+    "id": "dc/SidelineTaskGrid",
+    "file": "dc/SidelineTaskGrid/index.tsx",
+    "componentName": "dc-sidelinetaskgrid-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
     "path": "dc/detail/ProgressSection",
     "id": "dc/detail/ProgressSection",
     "file": "dc/detail/ProgressSection.tsx",
@@ -296,6 +307,28 @@
       "ThemeProvider",
       "themePresets",
       "useTheme"
+    ]
+  },
+  {
+    "path": "dc/DailyProgress",
+    "index": true,
+    "id": "dc/DailyProgress",
+    "file": "dc/DailyProgress/index.tsx",
+    "componentName": "dc-dailyprogress-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/TodayProgress",
+    "index": true,
+    "id": "dc/TodayProgress",
+    "file": "dc/TodayProgress/index.tsx",
+    "componentName": "dc-todayprogress-index",
+    "layout": false,
+    "exports": [
+      "default"
     ]
   },
   {

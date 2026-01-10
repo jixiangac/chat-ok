@@ -11,8 +11,10 @@ import { TaskProvider, useTaskContext } from './dc/context';
 import ArchiveList from './dc/archive';
 import Settings from './dc/settings';
 import { ThemeProvider } from './dc/settings/theme';
-import RandomTaskPicker from './dc/RandomTaskPicker';
 import MoonPhase from './dc/MoonPhase';
+import DailyProgress from './dc/DailyProgress';
+import SidelineTaskGrid from './dc/SidelineTaskGrid';
+import TodayProgress from './dc/TodayProgress';
 
 function DemoPageContent() {
   const { tasks, addTask, refreshTasks } = useTaskContext();
@@ -20,9 +22,60 @@ function DemoPageContent() {
   const [mainlineModalVisible, setMainlineModalVisible] = useState(false);
   const [showAllSidelineTasks, setShowAllSidelineTasks] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'normal' | 'vacation' | 'memorial'>('normal');
+  const [activeTab, setActiveTab] = useState<'home' | 'normal' | 'vacation' | 'memorial'>('normal');
   const [showArchive, setShowArchive] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [currentSpriteIndex, setCurrentSpriteIndex] = useState(0);
+
+  // 小精灵图片配置
+  const SPRITE_IMAGES = {
+    morning: [
+      'https://img.alicdn.com/imgextra/i1/O1CN01D7qMyZ1Yzanp7cvn1_!!6000000003130-2-tps-1080-938.png',
+      'https://img.alicdn.com/imgextra/i3/O1CN01L8CqQY1rlNCp99Pt4_!!6000000005671-2-tps-1406-1260.png'
+    ],
+    afternoon: [
+      'https://img.alicdn.com/imgextra/i3/O1CN01J34xYC1WIQEsC45B7_!!6000000002765-2-tps-1264-848.png'
+    ],
+    evening: [
+      'https://img.alicdn.com/imgextra/i4/O1CN01AM78k01vhUJCsV32R_!!6000000006204-2-tps-2528-1696.png',
+      'https://img.alicdn.com/imgextra/i2/O1CN01kfj2r71l0Io0gAsQ6_!!6000000004756-2-tps-1264-848.png'
+    ]
+  };
+
+  // 获取当前时间段的小精灵图片
+  const getCurrentSpriteImage = () => {
+    const hour = new Date().getHours();
+    let timeSlot: 'morning' | 'afternoon' | 'evening';
+    
+    if (hour >= 6 && hour < 12) {
+      timeSlot = 'morning';
+    } else if (hour >= 12 && hour < 18) {
+      timeSlot = 'afternoon';
+    } else {
+      timeSlot = 'evening';
+    }
+    
+    const images = SPRITE_IMAGES[timeSlot];
+    return images[currentSpriteIndex % images.length];
+  };
+
+  // 随机切换小精灵图片
+  const randomizeSpriteImage = () => {
+    const hour = new Date().getHours();
+    let timeSlot: 'morning' | 'afternoon' | 'evening';
+    
+    if (hour >= 6 && hour < 12) {
+      timeSlot = 'morning';
+    } else if (hour >= 12 && hour < 18) {
+      timeSlot = 'afternoon';
+    } else {
+      timeSlot = 'evening';
+    }
+    
+    const images = SPRITE_IMAGES[timeSlot];
+    const randomIndex = Math.floor(Math.random() * images.length);
+    setCurrentSpriteIndex(randomIndex);
+  };
 
   // 过滤掉已归档的任务
   const activeTasks = tasks.filter(t => (t as any).status !== 'archived');
@@ -217,11 +270,9 @@ function DemoPageContent() {
       minWidth: '390px',
       height: '100vh',
       backgroundColor: 'white',
-      borderRadius: '40px',
       overflow: 'hidden',
       display: 'flex',
-      flexDirection: 'column',
-      margin: '0 auto'
+      flexDirection: 'column'
     }}>
       {/* Header */}
       <div style={{
@@ -237,13 +288,14 @@ function DemoPageContent() {
           {/* TAB区域 */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
             {[
+              // { key: 'home', label: '首页' },
               { key: 'normal', label: '常规' },
               { key: 'vacation', label: '度假' },
               { key: 'memorial', label: '纪念' }
             ].map((tab) => (
               <button
                 key={tab.key}
-                onClick={() => setActiveTab(tab.key as 'normal' | 'vacation' | 'memorial')}
+                onClick={() => setActiveTab(tab.key as 'home' | 'normal' | 'vacation' | 'memorial')}
                 style={{
                   position: 'relative',
                   padding: '4px 0',
@@ -341,41 +393,12 @@ function DemoPageContent() {
         </div>
       </div>
 
-      {/* Empty State - 常规模式下当没有主线和支线任务时显示 */}
-      {/* {!isVacationMode && !hasMainOrSubTasks && (
-        <div 
-          onClick={handleAddClick}
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: 'white',
-            cursor: 'pointer',
-            zIndex: 1
-          }}
-        >
-          <img 
-            src="https://img.alicdn.com/imgextra/i4/O1CN01yTnklC1ia4tDwlksJ_!!6000000004428-2-tps-2528-1696.png"
-            alt="暂无任务"
-            style={{
-              maxWidth: '90%',
-              maxHeight: '90%',
-              objectFit: 'contain'
-            }}
-          />
-        </div>
-      )} */}
-
       {/* Content */}
       <div style={{
         flex: 1,
         // overflowY: 'auto',
-        padding: '12px 16px'
+        padding: '12px 16px',
+        paddingBottom: activeTab === 'normal' ? '80px' : '12px' // 为底部进度条预留空间
       }}>
         {activeTab === 'vacation' ? (
           // 度假模式内容
@@ -405,7 +428,7 @@ function DemoPageContent() {
               color: '#999'
             }}>纪念功能即将上线</div>
           </div>
-        ) : (
+        ) : activeTab === 'normal' ? (
           // 常规模式内容
           <>
             {/* Cute Ghost Character with Moon and Random Task Button */}
@@ -422,10 +445,10 @@ function DemoPageContent() {
                 left: '0',
                 top: '10px'
               }}>
-                <MoonPhase />
+                <MoonPhase onClick={randomizeSpriteImage} />
               </div>
               <img 
-                src="https://img.alicdn.com/imgextra/i4/O1CN01FgLcMT1COZEIxZ3nG_!!6000000000071-2-tps-1248-832.png" 
+                src={getCurrentSpriteImage()} 
                 alt="可爱的小精灵"
                 style={{
                   width: '100%',
@@ -434,14 +457,6 @@ function DemoPageContent() {
                   objectFit: 'contain'
                 }}
               />
-              {/* 随机任务Tips按钮 */}
-              <div style={{
-                position: 'absolute',
-                right: '0',
-                top: '20px'
-              }}>
-                <RandomTaskPicker onSelectTask={(taskId) => setSelectedTaskId(taskId)} />
-              </div>
             </div>
 
             {/* Main Task Section */}
@@ -552,39 +567,78 @@ function DemoPageContent() {
                 }}>支线任务</h2>
               </div>
               
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {displayedSidelineTasks.map(task => (
-                  <SidelineTaskCard 
-                    key={task.id} 
-                    task={task}
-                    onClick={() => setSelectedTaskId(task.id)}
-                    isTodayCompleted={isTodayCompleted(task)}
-                    isCycleCompleted={isCycleCompleted(task)}
-                  />
-                ))}
-                
-                {/* Show More Button */}
-                {sidelineTasks.length > 3 && (
-                  <button
-                    onClick={() => setShowAllSidelineTasks(true)}
-                    style={{
-                      backgroundColor: 'white',
-                      borderRadius: '12px',
-                      padding: '12px 16px',
-                      border: '1px solid #f0f0f0',
-                      cursor: 'pointer',
-                      transition: 'background-color 0.2s',
-                      fontSize: '14px',
-                      color: '#666',
-                      textAlign: 'center'
-                    }}
-                  >
-                    显示更多 ({sidelineTasks.length - 3} 个任务)
-                  </button>
-                )}
-              </div>
+              {/* 支线任务网格 */}
+              <SidelineTaskGrid 
+                tasks={sidelineTasks}
+                onTaskClick={(taskId) => setSelectedTaskId(taskId)}
+                onRandomOpen={() => {
+                  // 随机打开一个支线任务
+                  if (sidelineTasks.length > 0) {
+                    const randomIndex = Math.floor(Math.random() * sidelineTasks.length);
+                    const randomTask = sidelineTasks[randomIndex];
+                    setSelectedTaskId(randomTask.id);
+                  }
+                }}
+                onShowAll={() => setShowAllSidelineTasks(true)}
+              />
+              
+              {/* 现有支线任务列表 - 显示用户创建的支线任务 */}
+              {/* {sidelineTasks.length > 0 && (
+                <div style={{ 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  gap: '8px',
+                  marginTop: '16px'
+                }}>
+                  {displayedSidelineTasks.map(task => (
+                    <SidelineTaskCard 
+                      key={task.id} 
+                      task={task}
+                      onClick={() => setSelectedTaskId(task.id)}
+                      isTodayCompleted={isTodayCompleted(task)}
+                      isCycleCompleted={isCycleCompleted(task)}
+                    />
+                  ))}
+                  
+                  {sidelineTasks.length > 3 && (
+                    <button
+                      onClick={() => setShowAllSidelineTasks(true)}
+                      style={{
+                        backgroundColor: 'white',
+                        borderRadius: '12px',
+                        padding: '12px 16px',
+                        border: '1px solid #f0f0f0',
+                        cursor: 'pointer',
+                        transition: 'background-color 0.2s',
+                        fontSize: '14px',
+                        color: '#666',
+                        textAlign: 'center'
+                      }}
+                    >
+                      显示更多 ({sidelineTasks.length - 3} 个任务)
+                    </button>
+                  )}
+                </div>
+              )} */}
             </div>
           </>
+        ) : (
+          // 首页模式内容
+          <DailyProgress 
+            onTaskClick={(taskId) => {
+              if (taskId) {
+                setSelectedTaskId(taskId);
+              } else {
+                // 空taskId表示查看任务详情或创建主线任务
+                const mainTask = activeTasks.find(t => t.type === 'mainline');
+                if (mainTask) {
+                  setSelectedTaskId(mainTask.id);
+                } else {
+                  setMainlineModalVisible(true);
+                }
+              }
+            }}
+          />
         )}
       </div>
 
@@ -770,6 +824,11 @@ function DemoPageContent() {
         visible={showSettings}
         onClose={() => setShowSettings(false)}
       />
+
+      {/* Today Progress - Bottom Bar */}
+      {activeTab === 'normal' && (
+        <TodayProgress onTaskSelect={(taskId) => setSelectedTaskId(taskId)} />
+      )}
     </div>
   );
 }

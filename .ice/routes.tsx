@@ -19,6 +19,7 @@ import * as dc_detail_NumericCyclePanel from '@/pages/dc/detail/NumericCyclePane
 import * as dc_utils_mainlineTaskHelper from '@/pages/dc/utils/mainlineTaskHelper';
 import * as dc_CreateMainlineTaskModal from '@/pages/dc/CreateMainlineTaskModal';
 import * as dc_RandomTaskPicker from '@/pages/dc/RandomTaskPicker/index';
+import * as dc_SidelineTaskGrid from '@/pages/dc/SidelineTaskGrid/index';
 import * as dc_detail_ProgressSection from '@/pages/dc/detail/ProgressSection';
 import * as dc_detail_RecordDataModal from '@/pages/dc/detail/RecordDataModal';
 import * as dc_happy_TripSummaryModal from '@/pages/dc/happy/TripSummaryModal';
@@ -28,6 +29,8 @@ import * as dc_happy_CreateTripModal from '@/pages/dc/happy/CreateTripModal';
 import * as dc_happy_VacationContent from '@/pages/dc/happy/VacationContent';
 import * as dc_utils_cycleCalculator from '@/pages/dc/utils/cycleCalculator';
 import * as dc_settings_theme from '@/pages/dc/settings/theme/index';
+import * as dc_DailyProgress from '@/pages/dc/DailyProgress/index';
+import * as dc_TodayProgress from '@/pages/dc/TodayProgress/index';
 import * as dc_context_TaskContext from '@/pages/dc/context/TaskContext';
 import * as dc_happy_AddGoalModal from '@/pages/dc/happy/AddGoalModal';
 import * as dc_detail_GoalHeader from '@/pages/dc/detail/GoalHeader';
@@ -541,6 +544,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["default"],
   },{
+    path: 'dc/SidelineTaskGrid',
+    async lazy() {
+      ;
+      return {
+        ...dc_SidelineTaskGrid,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/SidelineTaskGrid',
+          isLayout: false,
+          routeExports: dc_SidelineTaskGrid,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/SidelineTaskGrid',
+          requestContext,
+          renderMode,
+          module: dc_SidelineTaskGrid,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-sidelinetaskgrid-index',
+    index: true,
+    id: 'dc/SidelineTaskGrid',
+    exact: true,
+    exports: ["default"],
+  },{
     path: 'dc/detail/ProgressSection',
     async lazy() {
       ;
@@ -765,6 +793,56 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/settings/theme',
     exact: true,
     exports: ["ThemeProvider","themePresets","useTheme"],
+  },{
+    path: 'dc/DailyProgress',
+    async lazy() {
+      ;
+      return {
+        ...dc_DailyProgress,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/DailyProgress',
+          isLayout: false,
+          routeExports: dc_DailyProgress,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/DailyProgress',
+          requestContext,
+          renderMode,
+          module: dc_DailyProgress,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-dailyprogress-index',
+    index: true,
+    id: 'dc/DailyProgress',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/TodayProgress',
+    async lazy() {
+      ;
+      return {
+        ...dc_TodayProgress,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/TodayProgress',
+          isLayout: false,
+          routeExports: dc_TodayProgress,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/TodayProgress',
+          requestContext,
+          renderMode,
+          module: dc_TodayProgress,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-todayprogress-index',
+    index: true,
+    id: 'dc/TodayProgress',
+    exact: true,
+    exports: ["default"],
   },{
     path: 'dc/context/TaskContext',
     async lazy() {

@@ -1,0 +1,265 @@
+.daily-progress {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 16px;
+  background: linear-gradient(180deg, #FDF6F0 0%, #FFFFFF 100%);
+  border-radius: 16px;
+}
+
+/* 小精灵区域 */
+.daily-progress-sprite {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.daily-progress-sprite-img {
+  width: 160px;
+  height: auto;
+  object-fit: contain;
+}
+
+/* 老黄历挂件 - 调整为右上角悬浮小图标风格 */
+.daily-progress-almanac-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #fff;
+  border: 1px solid rgba(0,0,0,0.05);
+  border-radius: 50%;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.daily-progress-almanac-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+/* 运势弹窗优化 */
+.daily-progress-fortune-popup {
+  position: absolute;
+  top: 50px;
+  right: 10px;
+  left: auto;
+  transform: none;
+  margin-top: 0;
+  padding: 16px;
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  z-index: 100;
+  min-width: 120px;
+  border: 1px solid rgba(0,0,0,0.05);
+  animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.9) translateY(-10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.daily-progress-fortune-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.daily-progress-fortune-advice {
+  font-size: 13px;
+  color: #666;
+}
+
+/* 完成率区域优化 */
+.daily-progress-rate {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 10px 0 24px 0;
+}
+
+.daily-progress-rate-number {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 64px;
+  font-weight: 700;
+  color: #333;
+  line-height: 1;
+  letter-spacing: -2px;
+  text-shadow: 2px 2px 0px rgba(0,0,0,0.05);
+}
+
+.daily-progress-rate-label {
+  font-size: 15px;
+  color: #999;
+  margin-top: 8px;
+  font-weight: 500;
+  letter-spacing: 1px;
+}
+
+/* 快捷任务按钮优化 */
+.daily-progress-quick-tasks {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin: 0 0 24px 0;
+  max-width: 340px;
+}
+
+.daily-progress-quick-btn {
+  padding: 12px 20px;
+  background-color: #FFAB73; /* 调整为更柔和的橙色 */
+  border: none;
+  border-radius: 24px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(255, 171, 115, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.daily-progress-quick-btn:hover {
+  background-color: #FF9A52;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(255, 171, 115, 0.4);
+}
+
+.daily-progress-quick-btn:active {
+  transform: scale(0.96);
+}
+
+.daily-progress-quick-btn.completed {
+  background-color: #F0F0F0;
+  color: #BBB;
+  box-shadow: none;
+}
+
+/* 提示文字 */
+.daily-progress-hint {
+  font-size: 13px;
+  color: #999;
+  margin: 12px 0;
+}
+
+/* 换一换按钮 */
+.daily-progress-refresh-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  margin: 0 0 16px 0;
+  background: #FFF;
+  border: 1px solid #EAEAEA;
+  border-radius: 20px;
+  font-size: 13px;
+  color: #888;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+}
+
+.daily-progress-refresh-btn:hover {
+  background-color: #FAFAFA;
+  color: #555;
+  border-color: #DDD;
+  transform: translateY(-1px);
+}
+
+/* 空状态提示 */
+.daily-progress-empty-hint {
+  font-size: 14px;
+  color: #999;
+  padding: 20px 0;
+}
+
+/* 任务详情链接 */
+.daily-progress-detail-link {
+  background: none;
+  border: none;
+  font-size: 14px;
+  color: #666;
+  text-decoration: underline;
+  cursor: pointer;
+  margin-bottom: 20px;
+  transition: color 0.2s;
+}
+
+.daily-progress-detail-link:hover {
+  color: #333;
+}
+
+/* 主线任务卡片容器 */
+.daily-progress-mainline-card {
+  width: 100%;
+  margin-top: 12px;
+}
+
+/* 主线任务入口（无主线任务时显示） */
+.daily-progress-mainline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 20px 24px;
+  background-color: #fff;
+  border-radius: 24px; /* 更大的圆角 */
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04); /* 更柔和的阴影 */
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(0,0,0,0.02);
+}
+
+.daily-progress-mainline:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+.daily-progress-mainline-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.daily-progress-mainline-icon {
+  color: #FFAB73;
+  width: 24px;
+  height: 24px;
+}
+
+.daily-progress-mainline-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: #444;
+}
+
+.daily-progress-mainline-right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.daily-progress-mainline-count {
+  font-size: 16px;
+  color: #999;
+}
+
+.daily-progress-mainline-arrow {
+  color: #ccc;
+}

@@ -1,0 +1,39 @@
+.today-progress-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: white;
+  border-top: 1px solid rgb(138 135 126 / 9%);
+  padding: 0px 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 100;
+  /* box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.04); */
+}
+
+.today-progress-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.today-progress-label {
+  font-size: 14px;
+  color: rgba(55, 53, 47, 0.65);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+
+.today-progress-value {
+  font-size: 20px;
+  color: rgba(55, 53, 47, 0.95);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.today-progress-try-luck {
+  display: flex;
+  align-items: center;
+}

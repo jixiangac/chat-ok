@@ -3,7 +3,11 @@ import styles from './MoonPhase.module.css';
 
 type MoonPhaseType = 'new' | 'waxingCrescent' | 'firstQuarter' | 'waxingGibbous' | 'full' | 'waningGibbous' | 'lastQuarter' | 'waningCrescent';
 
-export default function MoonPhase() {
+interface MoonPhaseProps {
+  onClick?: () => void;
+}
+
+export default function MoonPhase({ onClick }: MoonPhaseProps) {
   // 根据当前时间计算月相
   const moonPhase = useMemo((): MoonPhaseType => {
     const now = new Date();
@@ -145,7 +149,11 @@ export default function MoonPhase() {
   };
 
   return (
-    <div className={styles.moonContainer}>
+    <div 
+      className={styles.moonContainer}
+      onClick={onClick}
+      style={{ cursor: onClick ? 'pointer' : 'default' }}
+    >
       {renderMoon()}
     </div>
   );

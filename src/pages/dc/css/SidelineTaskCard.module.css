@@ -168,3 +168,52 @@
   transition: width 0.3s;
   border-radius: 1.5px;
 }
+
+/* Grid模式样式 */
+.gridCard {
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: left;
+  min-height: 52px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.gridCard:active {
+  opacity: 0.9;
+}
+
+.gridContent {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  flex: 1;
+  gap: 4px;
+}
+
+.gridTitle {
+  font-size: 13px;
+  font-weight: 400;
+  color: #37352f;
+  line-height: 1.2;
+}
+
+.gridInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.gridInfo span {
+  font-size: 11px;
+  color: #9b9b9b;
+  font-weight: 400;
+}

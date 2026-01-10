@@ -1,3 +1,4 @@
+import React from 'react';
 import { Task } from '../types';
 import styles from '../css/SidelineTaskCard.module.css';
 import dayjs from 'dayjs';
@@ -8,6 +9,7 @@ import {
   calculateCheckInProgress,
   calculateCurrentCycleNumber
 } from '../utils/mainlineTaskHelper';
+import { getTodayCheckInStatusForTask } from '../detail/hooks';
 
 // 默认主题色列表（用于兼容旧数据，基于用户提供的配色图）
 const DEFAULT_THEME_COLORS = [
@@ -26,6 +28,102 @@ const getColorFromId = (id: string): string => {
     hash = hash & hash;
   }
   return DEFAULT_THEME_COLORS[Math.abs(hash) % DEFAULT_THEME_COLORS.length];
+};
+
+// 将hex转为rgba
+const hexToRgba = (hex: string, alpha: number) => {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
+
+// 圆圈进度条组件（用于grid模式）
+interface CircleProgressProps {
+  progress: number;
+  size?: number;
+  strokeWidth?: number;
+  isCompleted?: boolean;
+}
+
+const CircleProgress: React.FC<CircleProgressProps> = ({ 
+  progress, 
+  size = 16, 
+  strokeWidth = 2,
+  isCompleted = false 
+}) => {
+  const radius = (size - strokeWidth) / 2;
+  const circumference = radius * 2 * Math.PI;
+  const strokeDasharray = circumference;
+  const strokeDashoffset = circumference - (progress / 100) * circumference;
+
+  if (isCompleted) {
+    return (
+      <div style={{
+        width: size,
+        height: size,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexShrink: 0
+      }}>
+        <svg width={size * 0.75} height={size * 0.75} viewBox="0 0 12 12" fill="none">
+          <path
+            d="M2 6L5 9L10 3"
+            stroke="#37352f"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ width: size, height: size, flexShrink: 0 }}>
+      <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke="#e5e5e5"
+          strokeWidth={strokeWidth}
+          fill="none"
+        />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke="#37352f"
+          strokeWidth={strokeWidth}
+          fill="none"
+          strokeDasharray={strokeDasharray}
+          strokeDashoffset={strokeDashoffset}
+          strokeLinecap="round"
+          style={{
+            transition: 'stroke-dashoffset 0.3s ease'
+          }}
+        />
+      </svg>
+    </div>
+  );
+};
+
+// 计算当日打卡任务完成状态和进度
+const calculateDailyProgress = (task: Task): { isCompleted: boolean; progress: number } => {
+  const status = getTodayCheckInStatusForTask(task);
+  
+  if (status.isCompleted) {
+    return { isCompleted: true, progress: 100 };
+  }
+  
+  let progress = 0;
+  if (status.dailyTarget && status.dailyTarget > 0) {
+    progress = Math.min(100, Math.round((status.todayValue / status.dailyTarget) * 100));
+  }
+  
+  return { isCompleted: false, progress };
 };
 
 // 截止时间颜色配置
@@ -68,9 +166,10 @@ interface SidelineTaskCardProps {
   onClick?: () => void;
   isTodayCompleted?: boolean;
   isCycleCompleted?: boolean;
+  variant?: 'card' | 'grid';
 }
 
-export default function SidelineTaskCard({ task, onClick, isTodayCompleted, isCycleCompleted }: SidelineTaskCardProps) {
+export default function SidelineTaskCard({ task, onClick, isTodayCompleted, isCycleCompleted, variant = 'card' }: SidelineTaskCardProps) {
   const remainingDays = calculateRemainingDays(task);
   
   // 获取主题色（优先使用存储的，否则根据ID生成）
@@ -209,22 +308,42 @@ export default function SidelineTaskCard({ task, onClick, isTodayCompleted, isCy
   const deadlineColor = getDeadlineColor(remainingDays, cycleDays, cycleProgress);
   const deadlineText = getDeadlineText(remainingDays);
   
-  // 将hex转为rgba
-  const hexToRgba = (hex: string, alpha: number) => {
-    const r = parseInt(hex.slice(1, 3), 16);
-    const g = parseInt(hex.slice(3, 5), 16);
-    const b = parseInt(hex.slice(5, 7), 16);
-    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-  };
-
   // 渐变背景样式（从左到右渐变，进度范围内从浅到深，边缘柔和过渡）
-  // 即使进度为0也显示淡淡的主题色底色
   const gradientStyle = {
     background: cycleProgress > 0
       ? `linear-gradient(to right, ${hexToRgba(themeColor, 0.15)} 0%, ${hexToRgba(themeColor, 0.5)} ${Math.max(0, cycleProgress - 5)}%, ${hexToRgba(themeColor, 0.2)} ${cycleProgress}%, white ${Math.min(100, cycleProgress + 15)}%)`
       : '#fff'
   };
 
+  // 计算当日打卡进度（用于grid模式）
+  const dailyStatus = calculateDailyProgress(task);
+
+  // Grid模式UI
+  if (variant === 'grid') {
+    return (
+      <button
+        onClick={onClick}
+        className={styles.gridCard}
+        style={gradientStyle}
+      >
+        <div className={styles.gridContent}>
+          <div className={styles.gridTitle}>{task.title}</div>
+          <div className={styles.gridInfo}>
+            <span>{currentCycleNumber}/{task.totalCycles || 1}次</span>
+            <span>{Math.round(cycleProgress)}%</span>
+          </div>
+        </div>
+        <CircleProgress
+          progress={dailyStatus.progress}
+          isCompleted={dailyStatus.isCompleted}
+          size={16}
+          strokeWidth={2}
+        />
+      </button>
+    );
+  }
+
+  // Card模式UI（默认）
   return (
     <div
       onClick={onClick}
@@ -236,7 +355,7 @@ export default function SidelineTaskCard({ task, onClick, isTodayCompleted, isCy
           {isCycleCompleted && (
             <span className={styles.cycleDoneBadge}>周期完成</span>
           )}
-          {isTodayCompleted && !isCycleCompleted && (
+          {dailyStatus.isCompleted && (
             <span className={styles.todayDoneBadge}>
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>

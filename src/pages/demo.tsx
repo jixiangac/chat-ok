@@ -6,6 +6,8 @@ import CreateMainlineTaskModal from './dc/CreateMainlineTaskModal';
 import { MainlineTaskCard, SidelineTaskCard } from './dc/card';
 import GoalDetailModal from './dc/detail';
 import { Task, MainlineTask } from './dc/types';
+import { calculateRemainingDays } from './dc/utils/mainlineTaskHelper';
+import { getTodayCheckInStatusForTask } from './dc/detail/hooks';
 import VacationContent from './dc/happy/VacationContent';
 import { TaskProvider, useTaskContext } from './dc/context';
 import ArchiveList from './dc/archive';
@@ -25,54 +27,67 @@ function DemoPageContent() {
   const [activeTab, setActiveTab] = useState<'home' | 'normal' | 'vacation' | 'memorial'>('normal');
   const [showArchive, setShowArchive] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const [currentSpriteIndex, setCurrentSpriteIndex] = useState(0);
+  const [currentSpriteIndex, setCurrentSpriteIndex] = useState(-1);
 
   // 小精灵图片配置
   const SPRITE_IMAGES = {
     morning: [
       'https://img.alicdn.com/imgextra/i1/O1CN01D7qMyZ1Yzanp7cvn1_!!6000000003130-2-tps-1080-938.png',
-      'https://img.alicdn.com/imgextra/i3/O1CN01L8CqQY1rlNCp99Pt4_!!6000000005671-2-tps-1406-1260.png'
+      'https://img.alicdn.com/imgextra/i3/O1CN01L8CqQY1rlNCp99Pt4_!!6000000005671-2-tps-1406-1260.png',
+      'https://img.alicdn.com/imgextra/i4/O1CN01v4XwU51lD7taaUmq1_!!6000000004784-2-tps-1080-724.png',
+      'https://img.alicdn.com/imgextra/i1/O1CN01R0uIFN1D0a6rajp99_!!6000000000154-2-tps-1080-820.png',
+      'https://img.alicdn.com/imgextra/i1/O1CN01lmaP8j1hurFaAFYDn_!!6000000004338-2-tps-1080-960.png'
     ],
     afternoon: [
-      'https://img.alicdn.com/imgextra/i3/O1CN01J34xYC1WIQEsC45B7_!!6000000002765-2-tps-1264-848.png'
+      'https://img.alicdn.com/imgextra/i3/O1CN01J34xYC1WIQEsC45B7_!!6000000002765-2-tps-1264-848.png',
+      'https://img.alicdn.com/imgextra/i1/O1CN013gAALL1jTxDT1kcBK_!!6000000004550-2-tps-1080-911.png',
+      'https://img.alicdn.com/imgextra/i4/O1CN01DwFMrL1SiI9AaAtrn_!!6000000002280-2-tps-1080-724.png',
+      'https://img.alicdn.com/imgextra/i4/O1CN01TuNL2z1IrmBuuzpmR_!!6000000000947-2-tps-1080-831.png'
     ],
     evening: [
+      'https://img.alicdn.com/imgextra/i1/O1CN01UxBnwA1zGhbo1Ouqo_!!6000000006687-2-tps-1080-885.png',
+      'https://img.alicdn.com/imgextra/i4/O1CN01bWibXF1sNO4zV86yT_!!6000000005754-2-tps-1080-927.png',
+      'https://img.alicdn.com/imgextra/i2/O1CN01kmxbMh1wcjojgkCmS_!!6000000006329-2-tps-1080-962.png',
+      'https://img.alicdn.com/imgextra/i3/O1CN01Joonce1KKv0ZejYGw_!!6000000001146-2-tps-1080-897.png',
+      'https://img.alicdn.com/imgextra/i2/O1CN01Lb61F91Wo1ZEvQxIX_!!6000000002834-2-tps-1080-841.png'
+    ],
+    night: [
       'https://img.alicdn.com/imgextra/i4/O1CN01AM78k01vhUJCsV32R_!!6000000006204-2-tps-2528-1696.png',
-      'https://img.alicdn.com/imgextra/i2/O1CN01kfj2r71l0Io0gAsQ6_!!6000000004756-2-tps-1264-848.png'
+      'https://img.alicdn.com/imgextra/i2/O1CN01zZ29ix1dNe48XJPxk_!!6000000003724-2-tps-1080-902.png',
+      'https://img.alicdn.com/imgextra/i2/O1CN01kfj2r71l0Io0gAsQ6_!!6000000004756-2-tps-1264-848.png',
+      'https://img.alicdn.com/imgextra/i4/O1CN0178ybi729bRhldc1oz_!!6000000008086-2-tps-1080-854.png'
     ]
   };
 
-  // 获取当前时间段的小精灵图片
-  const getCurrentSpriteImage = () => {
+  const getImagesList = ()=>{
     const hour = new Date().getHours();
-    let timeSlot: 'morning' | 'afternoon' | 'evening';
+    let timeSlot: 'morning' | 'afternoon' | 'evening' | 'night';
     
     if (hour >= 6 && hour < 12) {
       timeSlot = 'morning';
     } else if (hour >= 12 && hour < 18) {
       timeSlot = 'afternoon';
-    } else {
+    } else if (hour >= 18 && hour < 20) {
       timeSlot = 'evening';
+    } else {
+      timeSlot = 'night';
     }
     
     const images = SPRITE_IMAGES[timeSlot];
-    return images[currentSpriteIndex % images.length];
+    return images;
+  }
+
+  // 获取当前时间段的小精灵图片
+  const getCurrentSpriteImage = () => {    
+    const images = getImagesList();
+    const randomIndex = Math.floor(Math.random() * images.length);
+    const lastIndex = currentSpriteIndex === -1 ? randomIndex : currentSpriteIndex;
+    return images[lastIndex % images.length];
   };
 
   // 随机切换小精灵图片
-  const randomizeSpriteImage = () => {
-    const hour = new Date().getHours();
-    let timeSlot: 'morning' | 'afternoon' | 'evening';
-    
-    if (hour >= 6 && hour < 12) {
-      timeSlot = 'morning';
-    } else if (hour >= 12 && hour < 18) {
-      timeSlot = 'afternoon';
-    } else {
-      timeSlot = 'evening';
-    }
-    
-    const images = SPRITE_IMAGES[timeSlot];
+  const randomizeSpriteImage = () => {    
+    const images = getImagesList();
     const randomIndex = Math.floor(Math.random() * images.length);
     setCurrentSpriteIndex(randomIndex);
   };
@@ -83,18 +98,10 @@ function DemoPageContent() {
   // 检查是否有主线或支线任务（排除已归档）
   const hasMainOrSubTasks = activeTasks.some(t => t.type === 'mainline' || t.type === 'sidelineA' || t.type === 'sidelineB');
 
-  // 检查任务今日是否已完成打卡
+  // 检查任务今日是否已完成打卡（使用统一的判断函数）
   const isTodayCompleted = (task: Task) => {
-    const today = dayjs().format('YYYY-MM-DD');
-    const mainlineTask = task.mainlineTask;
-    if (mainlineTask?.checkInConfig?.records) {
-      const todayRecord = mainlineTask.checkInConfig.records.find(r => r.date === today);
-      if (todayRecord?.checked) return true;
-    }
-    if (task.checkIns?.some(c => dayjs(c.date).format('YYYY-MM-DD') === today)) {
-      return true;
-    }
-    return false;
+    const status = getTodayCheckInStatusForTask(task);
+    return status.isCompleted;
   };
 
   // 检查任务当前周期是否已完成目标
@@ -133,21 +140,61 @@ function DemoPageContent() {
     return false;
   };
 
+  // 获取周期完成率
+  const getCycleProgress = (task: Task): number => {
+    return task.mainlineTask?.progress?.currentCyclePercentage || 0;
+  };
+
   // 获取支线任务（排除已归档），并按完成状态排序
+  // 排序规则：
+  // 1. 今日未完成优先（周期快到期且完成率低的更前）
+  // 2. 本周期未完成次之（周期快到期的更前）
+  // 3. 今日已完成、周期已完成的排最后
   const sidelineTasks = activeTasks
     .filter(t => t.type === 'sidelineA' || t.type === 'sidelineB')
     .sort((a, b) => {
-      // 当前周期已完成的排最后
-      const aCycleCompleted = isCycleCompleted(a);
-      const bCycleCompleted = isCycleCompleted(b);
-      if (aCycleCompleted && !bCycleCompleted) return 1;
-      if (!aCycleCompleted && bCycleCompleted) return -1;
-      
-      // 今日已完成的排后面
       const aTodayCompleted = isTodayCompleted(a);
       const bTodayCompleted = isTodayCompleted(b);
-      if (aTodayCompleted && !bTodayCompleted) return 1;
+      const aCycleCompleted = isCycleCompleted(a);
+      const bCycleCompleted = isCycleCompleted(b);
+      
+      // 1. 今日未完成 vs 今日已完成
       if (!aTodayCompleted && bTodayCompleted) return -1;
+      if (aTodayCompleted && !bTodayCompleted) return 1;
+      
+      // 2. 如果都是今日未完成
+      if (!aTodayCompleted && !bTodayCompleted) {
+        // 周期未完成 vs 周期已完成
+        if (!aCycleCompleted && bCycleCompleted) return -1;
+        if (aCycleCompleted && !bCycleCompleted) return 1;
+        
+        // 都是周期未完成，按剩余天数排序（快到期的前面）
+        if (!aCycleCompleted && !bCycleCompleted) {
+          const aRemainingDays = calculateRemainingDays(a);
+          const bRemainingDays = calculateRemainingDays(b);
+          if (aRemainingDays !== bRemainingDays) {
+            return aRemainingDays - bRemainingDays;
+          }
+          // 剩余天数相同，周期完成率低的前面
+          const aCycleProgress = getCycleProgress(a);
+          const bCycleProgress = getCycleProgress(b);
+          return aCycleProgress - bCycleProgress;
+        }
+      }
+      
+      // 3. 如果都是今日已完成
+      if (aTodayCompleted && bTodayCompleted) {
+        // 周期未完成 vs 周期已完成
+        if (!aCycleCompleted && bCycleCompleted) return -1;
+        if (aCycleCompleted && !bCycleCompleted) return 1;
+        
+        // 都是周期未完成，按剩余天数排序
+        if (!aCycleCompleted && !bCycleCompleted) {
+          const aRemainingDays = calculateRemainingDays(a);
+          const bRemainingDays = calculateRemainingDays(b);
+          return aRemainingDays - bRemainingDays;
+        }
+      }
       
       return 0;
     });
@@ -453,7 +500,7 @@ function DemoPageContent() {
                 style={{
                   width: '100%',
                   maxWidth: '350px',
-                  height: 'auto',
+                  height: '250px',
                   objectFit: 'contain'
                 }}
               />
@@ -554,73 +601,75 @@ function DemoPageContent() {
               )}
             </div>
 
-            {/* Sub Tasks Section */}
-            <div>
-              <div style={{ padding: '0 8px', marginBottom: '8px' }}>
-                <h2 style={{
-                  fontSize: '12px',
-                  color: '#999',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em',
-                  margin: 0,
-                  fontWeight: 'normal'
-                }}>支线任务</h2>
-              </div>
-              
-              {/* 支线任务网格 */}
-              <SidelineTaskGrid 
-                tasks={sidelineTasks}
-                onTaskClick={(taskId) => setSelectedTaskId(taskId)}
-                onRandomOpen={() => {
-                  // 随机打开一个支线任务
-                  if (sidelineTasks.length > 0) {
-                    const randomIndex = Math.floor(Math.random() * sidelineTasks.length);
-                    const randomTask = sidelineTasks[randomIndex];
-                    setSelectedTaskId(randomTask.id);
-                  }
-                }}
-                onShowAll={() => setShowAllSidelineTasks(true)}
-              />
-              
-              {/* 现有支线任务列表 - 显示用户创建的支线任务 */}
-              {/* {sidelineTasks.length > 0 && (
-                <div style={{ 
-                  display: 'flex', 
-                  flexDirection: 'column', 
-                  gap: '8px',
-                  marginTop: '16px'
-                }}>
-                  {displayedSidelineTasks.map(task => (
-                    <SidelineTaskCard 
-                      key={task.id} 
-                      task={task}
-                      onClick={() => setSelectedTaskId(task.id)}
-                      isTodayCompleted={isTodayCompleted(task)}
-                      isCycleCompleted={isCycleCompleted(task)}
-                    />
-                  ))}
-                  
-                  {sidelineTasks.length > 3 && (
-                    <button
-                      onClick={() => setShowAllSidelineTasks(true)}
-                      style={{
-                        backgroundColor: 'white',
-                        borderRadius: '12px',
-                        padding: '12px 16px',
-                        border: '1px solid #f0f0f0',
-                        cursor: 'pointer',
-                        transition: 'background-color 0.2s',
-                        fontSize: '14px',
-                        color: '#666',
-                        textAlign: 'center'
-                      }}
-                    >
-                      显示更多 ({sidelineTasks.length - 3} 个任务)
-                    </button>
-                  )}
+            {/* Sub Tasks Section - 只在有支线任务时显示 */}
+            {sidelineTasks.length > 0 && (
+              <div>
+                <div style={{ padding: '0 8px', marginBottom: '8px' }}>
+                  <h2 style={{
+                    fontSize: '12px',
+                    color: '#999',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    margin: 0,
+                    fontWeight: 'normal'
+                  }}>支线任务</h2>
                 </div>
-              )} */}
-            </div>
+                
+                {/* 支线任务网格 */}
+                <SidelineTaskGrid 
+                  tasks={sidelineTasks}
+                  onTaskClick={(taskId) => setSelectedTaskId(taskId)}
+                  onRandomOpen={() => {
+                    // 随机打开一个支线任务
+                    if (sidelineTasks.length > 0) {
+                      const randomIndex = Math.floor(Math.random() * sidelineTasks.length);
+                      const randomTask = sidelineTasks[randomIndex];
+                      setSelectedTaskId(randomTask.id);
+                    }
+                  }}
+                  onShowAll={() => setShowAllSidelineTasks(true)}
+                />
+                
+                {/* 现有支线任务列表 - 显示用户创建的支线任务 */}
+                {/* {sidelineTasks.length > 0 && (
+                  <div style={{ 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    gap: '8px',
+                    marginTop: '16px'
+                  }}>
+                    {displayedSidelineTasks.map(task => (
+                      <SidelineTaskCard 
+                        key={task.id} 
+                        task={task}
+                        onClick={() => setSelectedTaskId(task.id)}
+                        isTodayCompleted={isTodayCompleted(task)}
+                        isCycleCompleted={isCycleCompleted(task)}
+                      />
+                    ))}
+                    
+                    {sidelineTasks.length > 3 && (
+                      <button
+                        onClick={() => setShowAllSidelineTasks(true)}
+                        style={{
+                          backgroundColor: 'white',
+                          borderRadius: '12px',
+                          padding: '12px 16px',
+                          border: '1px solid #f0f0f0',
+                          cursor: 'pointer',
+                          transition: 'background-color 0.2s',
+                          fontSize: '14px',
+                          color: '#666',
+                          textAlign: 'center'
+                        }}
+                      >
+                        显示更多 ({sidelineTasks.length - 3} 个任务)
+                      </button>
+                    )}
+                  </div>
+                )} */}
+              </div>
+            )}
           </>
         ) : (
           // 首页模式内容
@@ -740,8 +789,6 @@ function DemoPageContent() {
                   cursor: 'pointer',
                   transition: 'background-color 0.2s'
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
               >
                 <X size={20} />
               </button>
@@ -826,7 +873,7 @@ function DemoPageContent() {
       />
 
       {/* Today Progress - Bottom Bar */}
-      {activeTab === 'normal' && (
+      {activeTab === 'normal' && (hasMainlineTask || sidelineTasks.length > 0) && (
         <TodayProgress onTaskSelect={(taskId) => setSelectedTaskId(taskId)} />
       )}
     </div>

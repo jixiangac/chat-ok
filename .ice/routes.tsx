@@ -1242,7 +1242,7 @@ const createRoutes: CreateRoutes = ({
     index: undefined,
     id: 'dc/detail/hooks',
     exact: true,
-    exports: ["formatLocalDate","getCurrentCycle","getSimulatedToday","getSimulatedTodayDate","useGoalDetail"],
+    exports: ["formatLocalDate","getCurrentCycle","getSimulatedToday","getSimulatedTodayDate","getTodayCheckInStatusForTask","useGoalDetail"],
   },{
     path: 'dc/detail',
     async lazy() {

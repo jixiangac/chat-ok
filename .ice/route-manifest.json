@@ -512,6 +512,7 @@
       "getCurrentCycle",
       "getSimulatedToday",
       "getSimulatedTodayDate",
+      "getTodayCheckInStatusForTask",
       "useGoalDetail"
     ]
   },

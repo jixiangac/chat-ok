@@ -2,7 +2,7 @@
 export { default as GoalDetailModal } from './detail';
 
 // Happy Panel (Vacation Mode)
-export { default as VacationContent } from './happy/VacationContent';
+export { default as HappyPanel } from './happy';
 
 // Settings Panel
 export { default as Settings } from './settings';

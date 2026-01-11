@@ -30,22 +30,33 @@ import * as dc_panels_detail_components_NumericCyclePanel from '@/pages/dc/panel
 import * as dc_components_CreateMainlineTaskModal_steps from '@/pages/dc/components/CreateMainlineTaskModal/steps/index';
 import * as dc_panels_detail_components_ProgressSection from '@/pages/dc/panels/detail/components/ProgressSection/index';
 import * as dc_panels_detail_components_RecordDataModal from '@/pages/dc/panels/detail/components/RecordDataModal/index';
+import * as dc_panels_happy_components_TripSummaryModal from '@/pages/dc/panels/happy/components/TripSummaryModal/index';
+import * as dc_panels_happy_components_CreateTripModal from '@/pages/dc/panels/happy/components/CreateTripModal/index';
+import * as dc_panels_happy_components_GoalDetailModal from '@/pages/dc/panels/happy/components/GoalDetailModal/index';
+import * as dc_panels_happy_components_TripDetailModal from '@/pages/dc/panels/happy/components/TripDetailModal/index';
+import * as dc_panels_happy_components_VacationContent from '@/pages/dc/panels/happy/components/VacationContent/index';
 import * as dc_components_CreateMainlineTaskModal_constants from '@/pages/dc/components/CreateMainlineTaskModal/constants';
 import * as dc_components_CreateGoalModal_components from '@/pages/dc/components/CreateGoalModal/components/index';
 import * as dc_panels_detail_components_CheckInModal from '@/pages/dc/panels/detail/components/CheckInModal/index';
+import * as dc_panels_happy_components_AddGoalModal from '@/pages/dc/panels/happy/components/AddGoalModal/index';
 import * as dc_panels_detail_components_GoalHeader from '@/pages/dc/panels/detail/components/GoalHeader/index';
+import * as dc_panels_happy_components_TripList_TripCard from '@/pages/dc/panels/happy/components/TripList/TripCard';
 import * as dc_components_CreateMainlineTaskModal from '@/pages/dc/components/CreateMainlineTaskModal/index';
 import * as dc_components_CreateMainlineTaskModal_types from '@/pages/dc/components/CreateMainlineTaskModal/types';
 import * as dc_components_shared_CircleProgress from '@/pages/dc/components/shared/CircleProgress/index';
+import * as dc_panels_happy_components_GoalCard from '@/pages/dc/panels/happy/components/GoalCard/index';
+import * as dc_panels_happy_components_TripList from '@/pages/dc/panels/happy/components/TripList/index';
 import * as dc_panels_detail_components_TabBar from '@/pages/dc/panels/detail/components/TabBar/index';
+import * as dc_panels_happy_components_DayTabs from '@/pages/dc/panels/happy/components/DayTabs/index';
+import * as dc_panels_happy_contexts_VacationContext from '@/pages/dc/panels/happy/contexts/VacationContext';
 import * as dc_components_CreateGoalModal_constants from '@/pages/dc/components/CreateGoalModal/constants';
+import * as dc_panels_happy_hooks_useTripNavigation from '@/pages/dc/panels/happy/hooks/useTripNavigation';
 import * as dc_components_shared_ProgressBar from '@/pages/dc/components/shared/ProgressBar/index';
 import * as dc_panels_settings_ThemeSettings from '@/pages/dc/panels/settings/ThemeSettings/index';
-import * as dc_panels_happy_GoalDetailModal from '@/pages/dc/panels/happy/GoalDetailModal/index';
-import * as dc_panels_happy_TripDetailModal from '@/pages/dc/panels/happy/TripDetailModal/index';
 import * as dc_components_RandomTaskPicker from '@/pages/dc/components/RandomTaskPicker/index';
 import * as dc_components_SidelineTaskGrid from '@/pages/dc/components/SidelineTaskGrid/index';
 import * as dc_panels_detail_hooks_checkInStatus from '@/pages/dc/panels/detail/hooks/checkInStatus';
+import * as dc_panels_happy_utils_scheduleHelper from '@/pages/dc/panels/happy/utils/scheduleHelper';
 import * as dc_components_CreateGoalModal from '@/pages/dc/components/CreateGoalModal/index';
 import * as dc_components_CreateGoalModal_types from '@/pages/dc/components/CreateGoalModal/types';
 import * as dc_components_card_MainlineTaskCard from '@/pages/dc/components/card/MainlineTaskCard';
@@ -54,34 +65,36 @@ import * as dc_components_shared_StatCard from '@/pages/dc/components/shared/Sta
 import * as dc_components_DailyProgress from '@/pages/dc/components/DailyProgress/index';
 import * as dc_components_TodayProgress from '@/pages/dc/components/TodayProgress/index';
 import * as dc_panels_detail_components from '@/pages/dc/panels/detail/components/index';
+import * as dc_panels_happy_hooks_useSchedule from '@/pages/dc/panels/happy/hooks/useSchedule';
 import * as dc_components_ThemedButton from '@/pages/dc/components/ThemedButton/index';
 import * as dc_panels_detail_constants from '@/pages/dc/panels/detail/constants/index';
 import * as dc_panels_detail_hooks_constants from '@/pages/dc/panels/detail/hooks/constants';
 import * as dc_panels_detail_hooks_dateUtils from '@/pages/dc/panels/detail/hooks/dateUtils';
-import * as dc_panels_happy_TripSummaryModal from '@/pages/dc/panels/happy/TripSummaryModal';
-import * as dc_panels_happy_CreateTripModal from '@/pages/dc/panels/happy/CreateTripModal';
-import * as dc_panels_happy_VacationContent from '@/pages/dc/panels/happy/VacationContent';
+import * as dc_panels_happy_components from '@/pages/dc/panels/happy/components/index';
+import * as dc_panels_happy_utils_dateHelper from '@/pages/dc/panels/happy/utils/dateHelper';
+import * as dc_panels_happy_contexts from '@/pages/dc/panels/happy/contexts/index';
+import * as dc_panels_happy_hooks_useGoals from '@/pages/dc/panels/happy/hooks/useGoals';
+import * as dc_panels_happy_hooks_useTrips from '@/pages/dc/panels/happy/hooks/useTrips';
 import * as dc_panels_settings_theme from '@/pages/dc/panels/settings/theme/index';
 import * as dc_components_MoonPhase from '@/pages/dc/components/MoonPhase/index';
 import * as dc_panels_detail_hooks from '@/pages/dc/panels/detail/hooks';
 import * as dc_panels_detail_utils from '@/pages/dc/panels/detail/utils/index';
-import * as dc_panels_happy_AddGoalModal from '@/pages/dc/panels/happy/AddGoalModal';
+import * as dc_panels_happy_hooks from '@/pages/dc/panels/happy/hooks/index';
+import * as dc_panels_happy_utils from '@/pages/dc/panels/happy/utils/index';
 import * as dc_utils_mainlineTaskHelper from '@/pages/dc/utils/mainlineTaskHelper';
 import * as dc_utils_progressCalculator from '@/pages/dc/utils/progressCalculator';
 import * as dc_components_shared from '@/pages/dc/components/shared/index';
 import * as dc_components_card from '@/pages/dc/components/card/index';
 import * as dc_contexts_ThemeContext from '@/pages/dc/contexts/ThemeContext';
-import * as dc_panels_happy_GoalCard from '@/pages/dc/panels/happy/GoalCard';
-import * as dc_panels_happy_TripList from '@/pages/dc/panels/happy/TripList';
 import * as dc_panels_settings from '@/pages/dc/panels/settings/index';
 import * as dc_utils_cycleCalculator from '@/pages/dc/utils/cycleCalculator';
 import * as dc_contexts_TaskContext from '@/pages/dc/contexts/TaskContext';
 import * as dc_hooks_useSpriteImage from '@/pages/dc/hooks/useSpriteImage';
 import * as dc_panels_archive from '@/pages/dc/panels/archive/index';
-import * as dc_panels_happy_DayTabs from '@/pages/dc/panels/happy/DayTabs';
 import * as dc_panels_happy_storage from '@/pages/dc/panels/happy/storage';
 import * as dc_panels_detail from '@/pages/dc/panels/detail/index';
 import * as dc_panels_detail_types from '@/pages/dc/panels/detail/types';
+import * as dc_panels_happy from '@/pages/dc/panels/happy/index';
 import * as dc_panels_happy_types from '@/pages/dc/panels/happy/types';
 import * as dc_constants_sprites from '@/pages/dc/constants/sprites';
 import * as dc_hooks_useProgress from '@/pages/dc/hooks/useProgress';
@@ -862,6 +875,131 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["default"],
   },{
+    path: 'dc/panels/happy/components/TripSummaryModal',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_happy_components_TripSummaryModal,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/happy/components/TripSummaryModal',
+          isLayout: false,
+          routeExports: dc_panels_happy_components_TripSummaryModal,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/happy/components/TripSummaryModal',
+          requestContext,
+          renderMode,
+          module: dc_panels_happy_components_TripSummaryModal,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-happy-components-tripsummarymodal-index',
+    index: true,
+    id: 'dc/panels/happy/components/TripSummaryModal',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/panels/happy/components/CreateTripModal',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_happy_components_CreateTripModal,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/happy/components/CreateTripModal',
+          isLayout: false,
+          routeExports: dc_panels_happy_components_CreateTripModal,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/happy/components/CreateTripModal',
+          requestContext,
+          renderMode,
+          module: dc_panels_happy_components_CreateTripModal,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-happy-components-createtripmodal-index',
+    index: true,
+    id: 'dc/panels/happy/components/CreateTripModal',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/panels/happy/components/GoalDetailModal',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_happy_components_GoalDetailModal,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/happy/components/GoalDetailModal',
+          isLayout: false,
+          routeExports: dc_panels_happy_components_GoalDetailModal,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/happy/components/GoalDetailModal',
+          requestContext,
+          renderMode,
+          module: dc_panels_happy_components_GoalDetailModal,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-happy-components-goaldetailmodal-index',
+    index: true,
+    id: 'dc/panels/happy/components/GoalDetailModal',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/panels/happy/components/TripDetailModal',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_happy_components_TripDetailModal,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/happy/components/TripDetailModal',
+          isLayout: false,
+          routeExports: dc_panels_happy_components_TripDetailModal,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/happy/components/TripDetailModal',
+          requestContext,
+          renderMode,
+          module: dc_panels_happy_components_TripDetailModal,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-happy-components-tripdetailmodal-index',
+    index: true,
+    id: 'dc/panels/happy/components/TripDetailModal',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/panels/happy/components/VacationContent',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_happy_components_VacationContent,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/happy/components/VacationContent',
+          isLayout: false,
+          routeExports: dc_panels_happy_components_VacationContent,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/happy/components/VacationContent',
+          requestContext,
+          renderMode,
+          module: dc_panels_happy_components_VacationContent,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-happy-components-vacationcontent-index',
+    index: true,
+    id: 'dc/panels/happy/components/VacationContent',
+    exact: true,
+    exports: ["default"],
+  },{
     path: 'dc/components/CreateMainlineTaskModal/constants',
     async lazy() {
       ;
@@ -937,6 +1075,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["default"],
   },{
+    path: 'dc/panels/happy/components/AddGoalModal',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_happy_components_AddGoalModal,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/happy/components/AddGoalModal',
+          isLayout: false,
+          routeExports: dc_panels_happy_components_AddGoalModal,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/happy/components/AddGoalModal',
+          requestContext,
+          renderMode,
+          module: dc_panels_happy_components_AddGoalModal,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-happy-components-addgoalmodal-index',
+    index: true,
+    id: 'dc/panels/happy/components/AddGoalModal',
+    exact: true,
+    exports: ["default"],
+  },{
     path: 'dc/panels/detail/components/GoalHeader',
     async lazy() {
       ;
@@ -961,6 +1124,31 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/panels/detail/components/GoalHeader',
     exact: true,
     exports: ["GoalHeader","default"],
+  },{
+    path: 'dc/panels/happy/components/TripList/TripCard',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_happy_components_TripList_TripCard,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/happy/components/TripList/TripCard',
+          isLayout: false,
+          routeExports: dc_panels_happy_components_TripList_TripCard,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/happy/components/TripList/TripCard',
+          requestContext,
+          renderMode,
+          module: dc_panels_happy_components_TripList_TripCard,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-happy-components-triplist-tripcard',
+    index: undefined,
+    id: 'dc/panels/happy/components/TripList/TripCard',
+    exact: true,
+    exports: ["default"],
   },{
     path: 'dc/components/CreateMainlineTaskModal',
     async lazy() {
@@ -1037,6 +1225,56 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["CircleProgress","default"],
   },{
+    path: 'dc/panels/happy/components/GoalCard',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_happy_components_GoalCard,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/happy/components/GoalCard',
+          isLayout: false,
+          routeExports: dc_panels_happy_components_GoalCard,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/happy/components/GoalCard',
+          requestContext,
+          renderMode,
+          module: dc_panels_happy_components_GoalCard,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-happy-components-goalcard-index',
+    index: true,
+    id: 'dc/panels/happy/components/GoalCard',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/panels/happy/components/TripList',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_happy_components_TripList,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/happy/components/TripList',
+          isLayout: false,
+          routeExports: dc_panels_happy_components_TripList,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/happy/components/TripList',
+          requestContext,
+          renderMode,
+          module: dc_panels_happy_components_TripList,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-happy-components-triplist-index',
+    index: true,
+    id: 'dc/panels/happy/components/TripList',
+    exact: true,
+    exports: ["default"],
+  },{
     path: 'dc/panels/detail/components/TabBar',
     async lazy() {
       ;
@@ -1062,6 +1300,56 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["default"],
   },{
+    path: 'dc/panels/happy/components/DayTabs',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_happy_components_DayTabs,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/happy/components/DayTabs',
+          isLayout: false,
+          routeExports: dc_panels_happy_components_DayTabs,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/happy/components/DayTabs',
+          requestContext,
+          renderMode,
+          module: dc_panels_happy_components_DayTabs,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-happy-components-daytabs-index',
+    index: true,
+    id: 'dc/panels/happy/components/DayTabs',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/panels/happy/contexts/VacationContext',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_happy_contexts_VacationContext,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/happy/contexts/VacationContext',
+          isLayout: false,
+          routeExports: dc_panels_happy_contexts_VacationContext,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/happy/contexts/VacationContext',
+          requestContext,
+          renderMode,
+          module: dc_panels_happy_contexts_VacationContext,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-happy-contexts-vacationcontext',
+    index: undefined,
+    id: 'dc/panels/happy/contexts/VacationContext',
+    exact: true,
+    exports: ["VacationProvider","default","useVacation"],
+  },{
     path: 'dc/components/CreateGoalModal/constants',
     async lazy() {
       ;
@@ -1086,6 +1374,31 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/components/CreateGoalModal/constants',
     exact: true,
     exports: ["CYCLE_LENGTH_OPTIONS","ICONS","MIN_CHECK_INS_PER_CYCLE","POPULAR_GOALS","PRIORITY_OPTIONS","TASK_TYPES","TOTAL_DURATION_OPTIONS"],
+  },{
+    path: 'dc/panels/happy/hooks/useTripNavigation',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_happy_hooks_useTripNavigation,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/happy/hooks/useTripNavigation',
+          isLayout: false,
+          routeExports: dc_panels_happy_hooks_useTripNavigation,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/happy/hooks/useTripNavigation',
+          requestContext,
+          renderMode,
+          module: dc_panels_happy_hooks_useTripNavigation,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-happy-hooks-usetripnavigation',
+    index: undefined,
+    id: 'dc/panels/happy/hooks/useTripNavigation',
+    exact: true,
+    exports: ["default","useTripNavigation"],
   },{
     path: 'dc/components/shared/ProgressBar',
     async lazy() {
@@ -1134,56 +1447,6 @@ const createRoutes: CreateRoutes = ({
     componentName: 'dc-panels-settings-themesettings-index',
     index: true,
     id: 'dc/panels/settings/ThemeSettings',
-    exact: true,
-    exports: ["default"],
-  },{
-    path: 'dc/panels/happy/GoalDetailModal',
-    async lazy() {
-      ;
-      return {
-        ...dc_panels_happy_GoalDetailModal,
-        Component: () => WrapRouteComponent({
-          routeId: 'dc/panels/happy/GoalDetailModal',
-          isLayout: false,
-          routeExports: dc_panels_happy_GoalDetailModal,
-        }),
-        loader: createRouteLoader({
-          routeId: 'dc/panels/happy/GoalDetailModal',
-          requestContext,
-          renderMode,
-          module: dc_panels_happy_GoalDetailModal,
-        }),
-      };
-    },
-    errorElement: <RouteErrorComponent />,
-    componentName: 'dc-panels-happy-goaldetailmodal-index',
-    index: true,
-    id: 'dc/panels/happy/GoalDetailModal',
-    exact: true,
-    exports: ["default"],
-  },{
-    path: 'dc/panels/happy/TripDetailModal',
-    async lazy() {
-      ;
-      return {
-        ...dc_panels_happy_TripDetailModal,
-        Component: () => WrapRouteComponent({
-          routeId: 'dc/panels/happy/TripDetailModal',
-          isLayout: false,
-          routeExports: dc_panels_happy_TripDetailModal,
-        }),
-        loader: createRouteLoader({
-          routeId: 'dc/panels/happy/TripDetailModal',
-          requestContext,
-          renderMode,
-          module: dc_panels_happy_TripDetailModal,
-        }),
-      };
-    },
-    errorElement: <RouteErrorComponent />,
-    componentName: 'dc-panels-happy-tripdetailmodal-index',
-    index: true,
-    id: 'dc/panels/happy/TripDetailModal',
     exact: true,
     exports: ["default"],
   },{
@@ -1261,6 +1524,31 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/panels/detail/hooks/checkInStatus',
     exact: true,
     exports: ["getTodayCheckInStatusForTask"],
+  },{
+    path: 'dc/panels/happy/utils/scheduleHelper',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_happy_utils_scheduleHelper,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/happy/utils/scheduleHelper',
+          isLayout: false,
+          routeExports: dc_panels_happy_utils_scheduleHelper,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/happy/utils/scheduleHelper',
+          requestContext,
+          renderMode,
+          module: dc_panels_happy_utils_scheduleHelper,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-happy-utils-schedulehelper',
+    index: undefined,
+    id: 'dc/panels/happy/utils/scheduleHelper',
+    exact: true,
+    exports: ["getGoalBorderStyle","getGoalStatusColor","getScheduleStats","getScheduleStatusColor","hasFailedGoals","isScheduleCompleted","isScheduleExpired"],
   },{
     path: 'dc/components/CreateGoalModal',
     async lazy() {
@@ -1462,6 +1750,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["CalendarViewPanel","CheckInCyclePanel","CheckInHistoryPanel","CheckInModal","CheckInRecordPanel","ChecklistCyclePanel","CurrentCyclePanel","GoalHeader","HistoryCyclePanel","HistoryRecordPanel","NumericCyclePanel","ProgressSection","RecordDataModal","TabBar","showCycleSummaryDialog"],
   },{
+    path: 'dc/panels/happy/hooks/useSchedule',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_happy_hooks_useSchedule,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/happy/hooks/useSchedule',
+          isLayout: false,
+          routeExports: dc_panels_happy_hooks_useSchedule,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/happy/hooks/useSchedule',
+          requestContext,
+          renderMode,
+          module: dc_panels_happy_hooks_useSchedule,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-happy-hooks-useschedule',
+    index: undefined,
+    id: 'dc/panels/happy/hooks/useSchedule',
+    exact: true,
+    exports: ["default","useSchedule"],
+  },{
     path: 'dc/components/ThemedButton',
     async lazy() {
       ;
@@ -1562,80 +1875,130 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["formatLocalDate","getCurrentCycle","getSimulatedToday","getSimulatedTodayDate"],
   },{
-    path: 'dc/panels/happy/TripSummaryModal',
+    path: 'dc/panels/happy/components',
     async lazy() {
       ;
       return {
-        ...dc_panels_happy_TripSummaryModal,
+        ...dc_panels_happy_components,
         Component: () => WrapRouteComponent({
-          routeId: 'dc/panels/happy/TripSummaryModal',
+          routeId: 'dc/panels/happy/components',
           isLayout: false,
-          routeExports: dc_panels_happy_TripSummaryModal,
+          routeExports: dc_panels_happy_components,
         }),
         loader: createRouteLoader({
-          routeId: 'dc/panels/happy/TripSummaryModal',
+          routeId: 'dc/panels/happy/components',
           requestContext,
           renderMode,
-          module: dc_panels_happy_TripSummaryModal,
+          module: dc_panels_happy_components,
         }),
       };
     },
     errorElement: <RouteErrorComponent />,
-    componentName: 'dc-panels-happy-tripsummarymodal',
-    index: undefined,
-    id: 'dc/panels/happy/TripSummaryModal',
+    componentName: 'dc-panels-happy-components-index',
+    index: true,
+    id: 'dc/panels/happy/components',
     exact: true,
-    exports: ["default"],
+    exports: ["AddGoalModal","CreateTripModal","DayTabs","GoalCard","GoalDetailModal","TripDetailModal","TripList","TripSummaryModal","VacationContent"],
   },{
-    path: 'dc/panels/happy/CreateTripModal',
+    path: 'dc/panels/happy/utils/dateHelper',
     async lazy() {
       ;
       return {
-        ...dc_panels_happy_CreateTripModal,
+        ...dc_panels_happy_utils_dateHelper,
         Component: () => WrapRouteComponent({
-          routeId: 'dc/panels/happy/CreateTripModal',
+          routeId: 'dc/panels/happy/utils/dateHelper',
           isLayout: false,
-          routeExports: dc_panels_happy_CreateTripModal,
+          routeExports: dc_panels_happy_utils_dateHelper,
         }),
         loader: createRouteLoader({
-          routeId: 'dc/panels/happy/CreateTripModal',
+          routeId: 'dc/panels/happy/utils/dateHelper',
           requestContext,
           renderMode,
-          module: dc_panels_happy_CreateTripModal,
+          module: dc_panels_happy_utils_dateHelper,
         }),
       };
     },
     errorElement: <RouteErrorComponent />,
-    componentName: 'dc-panels-happy-createtripmodal',
+    componentName: 'dc-panels-happy-utils-datehelper',
     index: undefined,
-    id: 'dc/panels/happy/CreateTripModal',
+    id: 'dc/panels/happy/utils/dateHelper',
     exact: true,
-    exports: ["default"],
+    exports: ["formatDate","formatDateISO","getDateOnly","getDaysDiff","getToday","getTripDayIndex","getTripEndDate","isDateInRange","isTripActive","isTripExpired","isTripUpcoming"],
   },{
-    path: 'dc/panels/happy/VacationContent',
+    path: 'dc/panels/happy/contexts',
     async lazy() {
       ;
       return {
-        ...dc_panels_happy_VacationContent,
+        ...dc_panels_happy_contexts,
         Component: () => WrapRouteComponent({
-          routeId: 'dc/panels/happy/VacationContent',
+          routeId: 'dc/panels/happy/contexts',
           isLayout: false,
-          routeExports: dc_panels_happy_VacationContent,
+          routeExports: dc_panels_happy_contexts,
         }),
         loader: createRouteLoader({
-          routeId: 'dc/panels/happy/VacationContent',
+          routeId: 'dc/panels/happy/contexts',
           requestContext,
           renderMode,
-          module: dc_panels_happy_VacationContent,
+          module: dc_panels_happy_contexts,
         }),
       };
     },
     errorElement: <RouteErrorComponent />,
-    componentName: 'dc-panels-happy-vacationcontent',
-    index: undefined,
-    id: 'dc/panels/happy/VacationContent',
+    componentName: 'dc-panels-happy-contexts-index',
+    index: true,
+    id: 'dc/panels/happy/contexts',
     exact: true,
-    exports: ["default"],
+    exports: ["VacationProvider","useVacation"],
+  },{
+    path: 'dc/panels/happy/hooks/useGoals',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_happy_hooks_useGoals,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/happy/hooks/useGoals',
+          isLayout: false,
+          routeExports: dc_panels_happy_hooks_useGoals,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/happy/hooks/useGoals',
+          requestContext,
+          renderMode,
+          module: dc_panels_happy_hooks_useGoals,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-happy-hooks-usegoals',
+    index: undefined,
+    id: 'dc/panels/happy/hooks/useGoals',
+    exact: true,
+    exports: ["default","useGoals"],
+  },{
+    path: 'dc/panels/happy/hooks/useTrips',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_happy_hooks_useTrips,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/happy/hooks/useTrips',
+          isLayout: false,
+          routeExports: dc_panels_happy_hooks_useTrips,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/happy/hooks/useTrips',
+          requestContext,
+          renderMode,
+          module: dc_panels_happy_hooks_useTrips,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-happy-hooks-usetrips',
+    index: undefined,
+    id: 'dc/panels/happy/hooks/useTrips',
+    exact: true,
+    exports: ["default","useTrips"],
   },{
     path: 'dc/panels/settings/theme',
     async lazy() {
@@ -1737,30 +2100,55 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["formatLargeNumber","formatNumber","getDefaultTab","getTabsConfig","isCycleTab"],
   },{
-    path: 'dc/panels/happy/AddGoalModal',
+    path: 'dc/panels/happy/hooks',
     async lazy() {
       ;
       return {
-        ...dc_panels_happy_AddGoalModal,
+        ...dc_panels_happy_hooks,
         Component: () => WrapRouteComponent({
-          routeId: 'dc/panels/happy/AddGoalModal',
+          routeId: 'dc/panels/happy/hooks',
           isLayout: false,
-          routeExports: dc_panels_happy_AddGoalModal,
+          routeExports: dc_panels_happy_hooks,
         }),
         loader: createRouteLoader({
-          routeId: 'dc/panels/happy/AddGoalModal',
+          routeId: 'dc/panels/happy/hooks',
           requestContext,
           renderMode,
-          module: dc_panels_happy_AddGoalModal,
+          module: dc_panels_happy_hooks,
         }),
       };
     },
     errorElement: <RouteErrorComponent />,
-    componentName: 'dc-panels-happy-addgoalmodal',
-    index: undefined,
-    id: 'dc/panels/happy/AddGoalModal',
+    componentName: 'dc-panels-happy-hooks-index',
+    index: true,
+    id: 'dc/panels/happy/hooks',
     exact: true,
-    exports: ["default"],
+    exports: ["useGoals","useSchedule","useTripNavigation","useTrips"],
+  },{
+    path: 'dc/panels/happy/utils',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_happy_utils,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/happy/utils',
+          isLayout: false,
+          routeExports: dc_panels_happy_utils,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/happy/utils',
+          requestContext,
+          renderMode,
+          module: dc_panels_happy_utils,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-happy-utils-index',
+    index: true,
+    id: 'dc/panels/happy/utils',
+    exact: true,
+    exports: [],
   },{
     path: 'dc/utils/mainlineTaskHelper',
     async lazy() {
@@ -1887,56 +2275,6 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["ThemeProvider","default","themePresets","useTheme"],
   },{
-    path: 'dc/panels/happy/GoalCard',
-    async lazy() {
-      ;
-      return {
-        ...dc_panels_happy_GoalCard,
-        Component: () => WrapRouteComponent({
-          routeId: 'dc/panels/happy/GoalCard',
-          isLayout: false,
-          routeExports: dc_panels_happy_GoalCard,
-        }),
-        loader: createRouteLoader({
-          routeId: 'dc/panels/happy/GoalCard',
-          requestContext,
-          renderMode,
-          module: dc_panels_happy_GoalCard,
-        }),
-      };
-    },
-    errorElement: <RouteErrorComponent />,
-    componentName: 'dc-panels-happy-goalcard',
-    index: undefined,
-    id: 'dc/panels/happy/GoalCard',
-    exact: true,
-    exports: ["default"],
-  },{
-    path: 'dc/panels/happy/TripList',
-    async lazy() {
-      ;
-      return {
-        ...dc_panels_happy_TripList,
-        Component: () => WrapRouteComponent({
-          routeId: 'dc/panels/happy/TripList',
-          isLayout: false,
-          routeExports: dc_panels_happy_TripList,
-        }),
-        loader: createRouteLoader({
-          routeId: 'dc/panels/happy/TripList',
-          requestContext,
-          renderMode,
-          module: dc_panels_happy_TripList,
-        }),
-      };
-    },
-    errorElement: <RouteErrorComponent />,
-    componentName: 'dc-panels-happy-triplist',
-    index: undefined,
-    id: 'dc/panels/happy/TripList',
-    exact: true,
-    exports: ["default"],
-  },{
     path: 'dc/panels/settings',
     async lazy() {
       ;
@@ -2062,31 +2400,6 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["default"],
   },{
-    path: 'dc/panels/happy/DayTabs',
-    async lazy() {
-      ;
-      return {
-        ...dc_panels_happy_DayTabs,
-        Component: () => WrapRouteComponent({
-          routeId: 'dc/panels/happy/DayTabs',
-          isLayout: false,
-          routeExports: dc_panels_happy_DayTabs,
-        }),
-        loader: createRouteLoader({
-          routeId: 'dc/panels/happy/DayTabs',
-          requestContext,
-          renderMode,
-          module: dc_panels_happy_DayTabs,
-        }),
-      };
-    },
-    errorElement: <RouteErrorComponent />,
-    componentName: 'dc-panels-happy-daytabs',
-    index: undefined,
-    id: 'dc/panels/happy/DayTabs',
-    exact: true,
-    exports: ["default"],
-  },{
     path: 'dc/panels/happy/storage',
     async lazy() {
       ;
@@ -2161,6 +2474,31 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/panels/detail/types',
     exact: true,
     exports: [],
+  },{
+    path: 'dc/panels/happy',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_happy,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/happy',
+          isLayout: false,
+          routeExports: dc_panels_happy,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/happy',
+          requestContext,
+          renderMode,
+          module: dc_panels_happy,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-happy-index',
+    index: true,
+    id: 'dc/panels/happy',
+    exact: true,
+    exports: ["DayTabs","GoalCard","TripList","VacationContent","VacationProvider","default","useGoals","useSchedule","useTripNavigation","useTrips","useVacation"],
   },{
     path: 'dc/panels/happy/types',
     async lazy() {

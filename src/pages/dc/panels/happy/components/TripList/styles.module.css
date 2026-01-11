@@ -1,0 +1,149 @@
+/* TripList 组件样式 */
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.title {
+  padding: 0 8px;
+  margin-bottom: 8px;
+}
+
+.titleText {
+  font-size: 12px;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0;
+  font-weight: normal;
+}
+
+/* TripCard 样式 */
+.card {
+  background-color: white;
+  border-radius: 12px;
+  padding: 12px 16px;
+  border: 1px solid #f0f0f0;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.card:hover {
+  background-color: #fafafa;
+}
+
+.cardContent {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* 完成状态图标 */
+.statusIcon {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.statusIconPending {
+  border: 2px solid #ddd;
+  background-color: transparent;
+}
+
+.statusIconCompleted {
+  border: none;
+  background-color: #333;
+}
+
+/* 行程信息 */
+.info {
+  flex: 1;
+  min-width: 0;
+}
+
+.name {
+  font-size: 15px;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.nameCompleted {
+  color: #999;
+  text-decoration: line-through;
+}
+
+.meta {
+  font-size: 13px;
+  color: #888;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* 删除按钮 */
+.deleteBtn {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+  flex-shrink: 0;
+}
+
+.deleteBtn:hover {
+  background-color: #fee;
+}
+
+/* 创建按钮 */
+.createBtn {
+  background-color: white;
+  border-radius: 12px;
+  padding: 12px 16px;
+  border: 1px solid #f0f0f0;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.createBtn:hover {
+  background-color: #fafafa;
+}
+
+.createIcon {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.createText {
+  font-size: 14px;
+  color: #999;
+}
+
+/* 空状态 */
+.empty {
+  text-align: center;
+  padding: 20px;
+  color: #999;
+  font-size: 14px;
+}

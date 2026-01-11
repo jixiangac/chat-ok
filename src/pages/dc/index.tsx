@@ -12,7 +12,7 @@ import TodayProgress from './components/TodayProgress';
 
 // Panels
 import GoalDetailModal from './panels/detail';
-import VacationContent from './panels/happy/VacationContent';
+import HappyPanel from './panels/happy';
 import ArchiveList from './panels/archive';
 import Settings from './panels/settings';
 
@@ -213,7 +213,7 @@ function DCPageContent() {
   const renderContent = () => {
     switch (activeTab) {
       case 'vacation':
-        return <VacationContent onAddClick={handleAddClick} />;
+        return <HappyPanel onAddClick={handleAddClick} />;
       case 'memorial':
         return renderUnderConstruction();
       case 'normal':

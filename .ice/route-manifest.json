@@ -316,6 +316,61 @@
     ]
   },
   {
+    "path": "dc/panels/happy/components/TripSummaryModal",
+    "index": true,
+    "id": "dc/panels/happy/components/TripSummaryModal",
+    "file": "dc/panels/happy/components/TripSummaryModal/index.tsx",
+    "componentName": "dc-panels-happy-components-tripsummarymodal-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/panels/happy/components/CreateTripModal",
+    "index": true,
+    "id": "dc/panels/happy/components/CreateTripModal",
+    "file": "dc/panels/happy/components/CreateTripModal/index.tsx",
+    "componentName": "dc-panels-happy-components-createtripmodal-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/panels/happy/components/GoalDetailModal",
+    "index": true,
+    "id": "dc/panels/happy/components/GoalDetailModal",
+    "file": "dc/panels/happy/components/GoalDetailModal/index.tsx",
+    "componentName": "dc-panels-happy-components-goaldetailmodal-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/panels/happy/components/TripDetailModal",
+    "index": true,
+    "id": "dc/panels/happy/components/TripDetailModal",
+    "file": "dc/panels/happy/components/TripDetailModal/index.tsx",
+    "componentName": "dc-panels-happy-components-tripdetailmodal-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/panels/happy/components/VacationContent",
+    "index": true,
+    "id": "dc/panels/happy/components/VacationContent",
+    "file": "dc/panels/happy/components/VacationContent/index.tsx",
+    "componentName": "dc-panels-happy-components-vacationcontent-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
     "path": "dc/components/CreateMainlineTaskModal/constants",
     "id": "dc/components/CreateMainlineTaskModal/constants",
     "file": "dc/components/CreateMainlineTaskModal/constants.ts",
@@ -362,6 +417,17 @@
     ]
   },
   {
+    "path": "dc/panels/happy/components/AddGoalModal",
+    "index": true,
+    "id": "dc/panels/happy/components/AddGoalModal",
+    "file": "dc/panels/happy/components/AddGoalModal/index.tsx",
+    "componentName": "dc-panels-happy-components-addgoalmodal-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
     "path": "dc/panels/detail/components/GoalHeader",
     "index": true,
     "id": "dc/panels/detail/components/GoalHeader",
@@ -370,6 +436,16 @@
     "layout": false,
     "exports": [
       "GoalHeader",
+      "default"
+    ]
+  },
+  {
+    "path": "dc/panels/happy/components/TripList/TripCard",
+    "id": "dc/panels/happy/components/TripList/TripCard",
+    "file": "dc/panels/happy/components/TripList/TripCard.tsx",
+    "componentName": "dc-panels-happy-components-triplist-tripcard",
+    "layout": false,
+    "exports": [
       "default"
     ]
   },
@@ -405,6 +481,28 @@
     ]
   },
   {
+    "path": "dc/panels/happy/components/GoalCard",
+    "index": true,
+    "id": "dc/panels/happy/components/GoalCard",
+    "file": "dc/panels/happy/components/GoalCard/index.tsx",
+    "componentName": "dc-panels-happy-components-goalcard-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/panels/happy/components/TripList",
+    "index": true,
+    "id": "dc/panels/happy/components/TripList",
+    "file": "dc/panels/happy/components/TripList/index.tsx",
+    "componentName": "dc-panels-happy-components-triplist-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
     "path": "dc/panels/detail/components/TabBar",
     "index": true,
     "id": "dc/panels/detail/components/TabBar",
@@ -413,6 +511,29 @@
     "layout": false,
     "exports": [
       "default"
+    ]
+  },
+  {
+    "path": "dc/panels/happy/components/DayTabs",
+    "index": true,
+    "id": "dc/panels/happy/components/DayTabs",
+    "file": "dc/panels/happy/components/DayTabs/index.tsx",
+    "componentName": "dc-panels-happy-components-daytabs-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/panels/happy/contexts/VacationContext",
+    "id": "dc/panels/happy/contexts/VacationContext",
+    "file": "dc/panels/happy/contexts/VacationContext.tsx",
+    "componentName": "dc-panels-happy-contexts-vacationcontext",
+    "layout": false,
+    "exports": [
+      "VacationProvider",
+      "default",
+      "useVacation"
     ]
   },
   {
@@ -429,6 +550,17 @@
       "PRIORITY_OPTIONS",
       "TASK_TYPES",
       "TOTAL_DURATION_OPTIONS"
+    ]
+  },
+  {
+    "path": "dc/panels/happy/hooks/useTripNavigation",
+    "id": "dc/panels/happy/hooks/useTripNavigation",
+    "file": "dc/panels/happy/hooks/useTripNavigation.ts",
+    "componentName": "dc-panels-happy-hooks-usetripnavigation",
+    "layout": false,
+    "exports": [
+      "default",
+      "useTripNavigation"
     ]
   },
   {
@@ -449,28 +581,6 @@
     "id": "dc/panels/settings/ThemeSettings",
     "file": "dc/panels/settings/ThemeSettings/index.tsx",
     "componentName": "dc-panels-settings-themesettings-index",
-    "layout": false,
-    "exports": [
-      "default"
-    ]
-  },
-  {
-    "path": "dc/panels/happy/GoalDetailModal",
-    "index": true,
-    "id": "dc/panels/happy/GoalDetailModal",
-    "file": "dc/panels/happy/GoalDetailModal/index.tsx",
-    "componentName": "dc-panels-happy-goaldetailmodal-index",
-    "layout": false,
-    "exports": [
-      "default"
-    ]
-  },
-  {
-    "path": "dc/panels/happy/TripDetailModal",
-    "index": true,
-    "id": "dc/panels/happy/TripDetailModal",
-    "file": "dc/panels/happy/TripDetailModal/index.tsx",
-    "componentName": "dc-panels-happy-tripdetailmodal-index",
     "layout": false,
     "exports": [
       "default"
@@ -506,6 +616,22 @@
     "layout": false,
     "exports": [
       "getTodayCheckInStatusForTask"
+    ]
+  },
+  {
+    "path": "dc/panels/happy/utils/scheduleHelper",
+    "id": "dc/panels/happy/utils/scheduleHelper",
+    "file": "dc/panels/happy/utils/scheduleHelper.ts",
+    "componentName": "dc-panels-happy-utils-schedulehelper",
+    "layout": false,
+    "exports": [
+      "getGoalBorderStyle",
+      "getGoalStatusColor",
+      "getScheduleStats",
+      "getScheduleStatusColor",
+      "hasFailedGoals",
+      "isScheduleCompleted",
+      "isScheduleExpired"
     ]
   },
   {
@@ -608,6 +734,17 @@
     ]
   },
   {
+    "path": "dc/panels/happy/hooks/useSchedule",
+    "id": "dc/panels/happy/hooks/useSchedule",
+    "file": "dc/panels/happy/hooks/useSchedule.ts",
+    "componentName": "dc-panels-happy-hooks-useschedule",
+    "layout": false,
+    "exports": [
+      "default",
+      "useSchedule"
+    ]
+  },
+  {
     "path": "dc/components/ThemedButton",
     "index": true,
     "id": "dc/components/ThemedButton",
@@ -659,33 +796,76 @@
     ]
   },
   {
-    "path": "dc/panels/happy/TripSummaryModal",
-    "id": "dc/panels/happy/TripSummaryModal",
-    "file": "dc/panels/happy/TripSummaryModal.tsx",
-    "componentName": "dc-panels-happy-tripsummarymodal",
+    "path": "dc/panels/happy/components",
+    "index": true,
+    "id": "dc/panels/happy/components",
+    "file": "dc/panels/happy/components/index.ts",
+    "componentName": "dc-panels-happy-components-index",
     "layout": false,
     "exports": [
-      "default"
+      "AddGoalModal",
+      "CreateTripModal",
+      "DayTabs",
+      "GoalCard",
+      "GoalDetailModal",
+      "TripDetailModal",
+      "TripList",
+      "TripSummaryModal",
+      "VacationContent"
     ]
   },
   {
-    "path": "dc/panels/happy/CreateTripModal",
-    "id": "dc/panels/happy/CreateTripModal",
-    "file": "dc/panels/happy/CreateTripModal.tsx",
-    "componentName": "dc-panels-happy-createtripmodal",
+    "path": "dc/panels/happy/utils/dateHelper",
+    "id": "dc/panels/happy/utils/dateHelper",
+    "file": "dc/panels/happy/utils/dateHelper.ts",
+    "componentName": "dc-panels-happy-utils-datehelper",
     "layout": false,
     "exports": [
-      "default"
+      "formatDate",
+      "formatDateISO",
+      "getDateOnly",
+      "getDaysDiff",
+      "getToday",
+      "getTripDayIndex",
+      "getTripEndDate",
+      "isDateInRange",
+      "isTripActive",
+      "isTripExpired",
+      "isTripUpcoming"
     ]
   },
   {
-    "path": "dc/panels/happy/VacationContent",
-    "id": "dc/panels/happy/VacationContent",
-    "file": "dc/panels/happy/VacationContent.tsx",
-    "componentName": "dc-panels-happy-vacationcontent",
+    "path": "dc/panels/happy/contexts",
+    "index": true,
+    "id": "dc/panels/happy/contexts",
+    "file": "dc/panels/happy/contexts/index.ts",
+    "componentName": "dc-panels-happy-contexts-index",
     "layout": false,
     "exports": [
-      "default"
+      "VacationProvider",
+      "useVacation"
+    ]
+  },
+  {
+    "path": "dc/panels/happy/hooks/useGoals",
+    "id": "dc/panels/happy/hooks/useGoals",
+    "file": "dc/panels/happy/hooks/useGoals.ts",
+    "componentName": "dc-panels-happy-hooks-usegoals",
+    "layout": false,
+    "exports": [
+      "default",
+      "useGoals"
+    ]
+  },
+  {
+    "path": "dc/panels/happy/hooks/useTrips",
+    "id": "dc/panels/happy/hooks/useTrips",
+    "file": "dc/panels/happy/hooks/useTrips.ts",
+    "componentName": "dc-panels-happy-hooks-usetrips",
+    "layout": false,
+    "exports": [
+      "default",
+      "useTrips"
     ]
   },
   {
@@ -743,14 +923,27 @@
     ]
   },
   {
-    "path": "dc/panels/happy/AddGoalModal",
-    "id": "dc/panels/happy/AddGoalModal",
-    "file": "dc/panels/happy/AddGoalModal.tsx",
-    "componentName": "dc-panels-happy-addgoalmodal",
+    "path": "dc/panels/happy/hooks",
+    "index": true,
+    "id": "dc/panels/happy/hooks",
+    "file": "dc/panels/happy/hooks/index.ts",
+    "componentName": "dc-panels-happy-hooks-index",
     "layout": false,
     "exports": [
-      "default"
+      "useGoals",
+      "useSchedule",
+      "useTripNavigation",
+      "useTrips"
     ]
+  },
+  {
+    "path": "dc/panels/happy/utils",
+    "index": true,
+    "id": "dc/panels/happy/utils",
+    "file": "dc/panels/happy/utils/index.ts",
+    "componentName": "dc-panels-happy-utils-index",
+    "layout": false,
+    "exports": []
   },
   {
     "path": "dc/utils/mainlineTaskHelper",
@@ -823,26 +1016,6 @@
     ]
   },
   {
-    "path": "dc/panels/happy/GoalCard",
-    "id": "dc/panels/happy/GoalCard",
-    "file": "dc/panels/happy/GoalCard.tsx",
-    "componentName": "dc-panels-happy-goalcard",
-    "layout": false,
-    "exports": [
-      "default"
-    ]
-  },
-  {
-    "path": "dc/panels/happy/TripList",
-    "id": "dc/panels/happy/TripList",
-    "file": "dc/panels/happy/TripList.tsx",
-    "componentName": "dc-panels-happy-triplist",
-    "layout": false,
-    "exports": [
-      "default"
-    ]
-  },
-  {
     "path": "dc/panels/settings",
     "index": true,
     "id": "dc/panels/settings",
@@ -897,16 +1070,6 @@
     ]
   },
   {
-    "path": "dc/panels/happy/DayTabs",
-    "id": "dc/panels/happy/DayTabs",
-    "file": "dc/panels/happy/DayTabs.tsx",
-    "componentName": "dc-panels-happy-daytabs",
-    "layout": false,
-    "exports": [
-      "default"
-    ]
-  },
-  {
     "path": "dc/panels/happy/storage",
     "id": "dc/panels/happy/storage",
     "file": "dc/panels/happy/storage.ts",
@@ -946,6 +1109,27 @@
     "componentName": "dc-panels-detail-types",
     "layout": false,
     "exports": []
+  },
+  {
+    "path": "dc/panels/happy",
+    "index": true,
+    "id": "dc/panels/happy",
+    "file": "dc/panels/happy/index.tsx",
+    "componentName": "dc-panels-happy-index",
+    "layout": false,
+    "exports": [
+      "DayTabs",
+      "GoalCard",
+      "TripList",
+      "VacationContent",
+      "VacationProvider",
+      "default",
+      "useGoals",
+      "useSchedule",
+      "useTripNavigation",
+      "useTrips",
+      "useVacation"
+    ]
   },
   {
     "path": "dc/panels/happy/types",

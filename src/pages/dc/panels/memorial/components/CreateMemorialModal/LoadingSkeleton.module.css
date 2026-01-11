@@ -1,0 +1,40 @@
+/* 加载骨架屏样式 */
+
+.container {
+  padding: 16px 0;
+}
+
+.skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.skeletonLine {
+  height: 16px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+  border-radius: 4px;
+}
+
+.skeletonLine:nth-child(1) {
+  width: 80%;
+}
+
+.skeletonLine:nth-child(2) {
+  width: 60%;
+}
+
+.skeletonLine:nth-child(3) {
+  width: 90%;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}

@@ -1,5 +1,5 @@
 // 度假模式主内容组件（重构版）
-import React, { useState } from 'react';
+import React, { useState, forwardRef, useImperativeHandle } from 'react';
 import { useVacation } from '../../contexts';
 import { useSchedule } from '../../hooks';
 import { isScheduleExpired, getScheduleStats } from '../../utils';
@@ -11,6 +11,10 @@ import AddGoalModal from '../AddGoalModal';
 import CreateTripModal from '../CreateTripModal';
 import TripSummaryModal from '../TripSummaryModal';
 import styles from './styles.module.css';
+
+export interface VacationContentRef {
+  triggerAdd: () => void;
+}
 
 interface VacationContentProps {
   onAddClick?: () => void;
@@ -35,7 +39,7 @@ const HERO_IMAGE_EVEN = 'https://img.alicdn.com/imgextra/i3/O1CN010YyJmP1kfgyamh
 const HERO_IMAGE_ODD = 'https://img.alicdn.com/imgextra/i1/O1CN01Smhsov1Y7Y3oIzUY1_!!6000000003012-2-tps-2528-1696.png';
 const EMPTY_IMAGE = 'https://img.alicdn.com/imgextra/i4/O1CN01TriqaL25lHkCEqChd_!!6000000007566-2-tps-1298-1199.png';
 
-const VacationContent: React.FC<VacationContentProps> = ({ onAddClick }) => {
+const VacationContent = forwardRef<VacationContentRef, VacationContentProps>(({ onAddClick }, ref) => {
   const {
     trips,
     currentTrip,
@@ -63,6 +67,20 @@ const VacationContent: React.FC<VacationContentProps> = ({ onAddClick }) => {
   // 当前日程是否过期
   const isCurrentScheduleExpired = currentSchedule ? isScheduleExpired(currentSchedule) : false;
   const currentStats = getScheduleStats(currentSchedule);
+
+  // 暴露方法给父组件
+  useImperativeHandle(ref, () => ({
+    triggerAdd: () => {
+      if (!currentTrip) {
+        // 没有行程时，打开创建行程弹窗
+        setShowCreateModal(true);
+      } else if (!isCurrentScheduleExpired) {
+        // 有行程且当前日程未过期时，打开添加目标弹窗
+        setEditingGoal(null);
+        setShowAddGoalModal(true);
+      }
+    }
+  }));
 
   // 处理创建行程
   const handleCreateTrip = (data: { name: string; startDate: string; totalDays: number; hasPreparation: boolean }) => {
@@ -111,14 +129,6 @@ const VacationContent: React.FC<VacationContentProps> = ({ onAddClick }) => {
 
   return (
     <div className={styles.container}>
-      {/* 顶部图片 */}
-      <div className={styles.heroImage}>
-        <img
-          src={currentTrip ? (isEvenSchedule ? HERO_IMAGE_EVEN : HERO_IMAGE_ODD) : HERO_IMAGE_EVEN}
-          alt="度假模式"
-          className={styles.heroImg}
-        />
-      </div>
 
       {!currentTrip ? (
         // 行程列表视图
@@ -242,6 +252,9 @@ const VacationContent: React.FC<VacationContentProps> = ({ onAddClick }) => {
       />
     </div>
   );
-};
+});
+
+VacationContent.displayName = 'VacationContent';
 
 export default VacationContent;
+

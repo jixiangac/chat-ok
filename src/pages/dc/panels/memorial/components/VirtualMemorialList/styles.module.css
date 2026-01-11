@@ -1,0 +1,40 @@
+/* 虚拟列表样式 */
+
+.container {
+  width: 100%;
+  height: 400px;
+}
+
+.virtualList {
+  width: 100% !important;
+  outline: none;
+}
+
+.listItem {
+  padding: 8px 16px;
+}
+
+.regularList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  /* padding: 0 16px; */
+}
+
+/* 滚动条样式优化 */
+.virtualList::-webkit-scrollbar {
+  width: 6px;
+}
+
+.virtualList::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.virtualList::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 3px;
+}
+
+.virtualList::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.2);
+}

@@ -1,4 +1,4 @@
-export { SPRITE_IMAGES, getCurrentTimeSlot, EMPTY_STATE_IMAGE } from './sprites';
+export { SPRITE_IMAGES, MEMORIAL_SPRITE_IMAGES, TRIP_SPRITE_IMAGES, VACATION_SPRITE_IMAGES, getCurrentTimeSlot, EMPTY_STATE_IMAGE } from './sprites';
 export type { TimeSlot } from './sprites';
 
 export {

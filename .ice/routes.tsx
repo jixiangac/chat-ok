@@ -3,11 +3,16 @@ import type { CreateRoutes } from '@ice/runtime';
 import * as dc_components_CreateMainlineTaskModal_steps_configs_ChecklistConfig from '@/pages/dc/components/CreateMainlineTaskModal/steps/configs/ChecklistConfig';
 import * as dc_components_CreateMainlineTaskModal_steps_configs_CheckInConfig from '@/pages/dc/components/CreateMainlineTaskModal/steps/configs/CheckInConfig';
 import * as dc_components_CreateMainlineTaskModal_steps_configs_NumericConfig from '@/pages/dc/components/CreateMainlineTaskModal/steps/configs/NumericConfig';
+import * as dc_panels_memorial_components_CreateMemorialModal_LoadingSkeleton from '@/pages/dc/panels/memorial/components/CreateMemorialModal/LoadingSkeleton';
 import * as dc_components_CreateGoalModal_components_EncouragementInput from '@/pages/dc/components/CreateGoalModal/components/EncouragementInput';
 import * as dc_components_CreateGoalModal_components_DurationSelector from '@/pages/dc/components/CreateGoalModal/components/DurationSelector';
 import * as dc_components_CreateGoalModal_components_PrioritySelector from '@/pages/dc/components/CreateGoalModal/components/PrioritySelector';
 import * as dc_components_CreateGoalModal_components_RulesExplanation from '@/pages/dc/components/CreateGoalModal/components/RulesExplanation';
 import * as dc_components_CreateGoalModal_components_TaskTypeSelector from '@/pages/dc/components/CreateGoalModal/components/TaskTypeSelector';
+import * as dc_panels_memorial_components_MemorialCardSkeleton from '@/pages/dc/panels/memorial/components/MemorialCardSkeleton/index';
+import * as dc_panels_memorial_components_MemorialListSkeleton from '@/pages/dc/panels/memorial/components/MemorialListSkeleton/index';
+import * as dc_panels_memorial_components_CreateMemorialModal from '@/pages/dc/panels/memorial/components/CreateMemorialModal/index';
+import * as dc_panels_memorial_components_VirtualMemorialList from '@/pages/dc/panels/memorial/components/VirtualMemorialList/index';
 import * as dc_components_CreateGoalModal_components_CycleSelector from '@/pages/dc/components/CreateGoalModal/components/CycleSelector';
 import * as dc_components_CreateMainlineTaskModal_steps_ConfigStep from '@/pages/dc/components/CreateMainlineTaskModal/steps/ConfigStep';
 import * as dc_components_CreateGoalModal_components_CyclePreview from '@/pages/dc/components/CreateGoalModal/components/CyclePreview';
@@ -22,11 +27,13 @@ import * as dc_components_CreateMainlineTaskModal_steps_TypeStep from '@/pages/d
 import * as dc_panels_detail_components_CheckInRecordPanel from '@/pages/dc/panels/detail/components/CheckInRecordPanel/index';
 import * as dc_panels_detail_components_CycleSummaryDialog from '@/pages/dc/panels/detail/components/CycleSummaryDialog/index';
 import * as dc_panels_detail_components_HistoryRecordPanel from '@/pages/dc/panels/detail/components/HistoryRecordPanel/index';
+import * as dc_panels_memorial_components_BackgroundPicker from '@/pages/dc/panels/memorial/components/BackgroundPicker/index';
 import * as dc_panels_detail_components_CalendarViewPanel from '@/pages/dc/panels/detail/components/CalendarViewPanel/index';
 import * as dc_panels_detail_components_CheckInCyclePanel from '@/pages/dc/panels/detail/components/CheckInCyclePanel/index';
 import * as dc_panels_detail_components_CurrentCyclePanel from '@/pages/dc/panels/detail/components/CurrentCyclePanel/index';
 import * as dc_panels_detail_components_HistoryCyclePanel from '@/pages/dc/panels/detail/components/HistoryCyclePanel/index';
 import * as dc_panels_detail_components_NumericCyclePanel from '@/pages/dc/panels/detail/components/NumericCyclePanel/index';
+import * as dc_panels_memorial_components_MemorialDetail from '@/pages/dc/panels/memorial/components/MemorialDetail/index';
 import * as dc_components_CreateMainlineTaskModal_steps from '@/pages/dc/components/CreateMainlineTaskModal/steps/index';
 import * as dc_panels_detail_components_ProgressSection from '@/pages/dc/panels/detail/components/ProgressSection/index';
 import * as dc_panels_detail_components_RecordDataModal from '@/pages/dc/panels/detail/components/RecordDataModal/index';
@@ -35,9 +42,11 @@ import * as dc_panels_happy_components_CreateTripModal from '@/pages/dc/panels/h
 import * as dc_panels_happy_components_GoalDetailModal from '@/pages/dc/panels/happy/components/GoalDetailModal/index';
 import * as dc_panels_happy_components_TripDetailModal from '@/pages/dc/panels/happy/components/TripDetailModal/index';
 import * as dc_panels_happy_components_VacationContent from '@/pages/dc/panels/happy/components/VacationContent/index';
+import * as dc_panels_memorial_components_MemorialCard from '@/pages/dc/panels/memorial/components/MemorialCard/index';
 import * as dc_components_CreateMainlineTaskModal_constants from '@/pages/dc/components/CreateMainlineTaskModal/constants';
 import * as dc_components_CreateGoalModal_components from '@/pages/dc/components/CreateGoalModal/components/index';
 import * as dc_panels_detail_components_CheckInModal from '@/pages/dc/panels/detail/components/CheckInModal/index';
+import * as dc_panels_memorial_components_IconPicker from '@/pages/dc/panels/memorial/components/IconPicker/index';
 import * as dc_panels_happy_components_AddGoalModal from '@/pages/dc/panels/happy/components/AddGoalModal/index';
 import * as dc_panels_detail_components_GoalHeader from '@/pages/dc/panels/detail/components/GoalHeader/index';
 import * as dc_panels_happy_components_TripList_TripCard from '@/pages/dc/panels/happy/components/TripList/TripCard';
@@ -49,10 +58,14 @@ import * as dc_panels_happy_components_TripList from '@/pages/dc/panels/happy/co
 import * as dc_panels_detail_components_TabBar from '@/pages/dc/panels/detail/components/TabBar/index';
 import * as dc_panels_happy_components_DayTabs from '@/pages/dc/panels/happy/components/DayTabs/index';
 import * as dc_panels_happy_contexts_VacationContext from '@/pages/dc/panels/happy/contexts/VacationContext';
+import * as dc_panels_memorial_constants_backgrounds from '@/pages/dc/panels/memorial/constants/backgrounds';
 import * as dc_components_CreateGoalModal_constants from '@/pages/dc/components/CreateGoalModal/constants';
 import * as dc_panels_happy_hooks_useTripNavigation from '@/pages/dc/panels/happy/hooks/useTripNavigation';
+import * as dc_panels_memorial_utils_dateCalculator from '@/pages/dc/panels/memorial/utils/dateCalculator';
 import * as dc_components_shared_ProgressBar from '@/pages/dc/components/shared/ProgressBar/index';
+import * as dc_panels_memorial_hooks_useDateFormat from '@/pages/dc/panels/memorial/hooks/useDateFormat';
 import * as dc_panels_settings_ThemeSettings from '@/pages/dc/panels/settings/ThemeSettings/index';
+import * as dc_panels_memorial_hooks_useMemorials from '@/pages/dc/panels/memorial/hooks/useMemorials';
 import * as dc_components_RandomTaskPicker from '@/pages/dc/components/RandomTaskPicker/index';
 import * as dc_components_SidelineTaskGrid from '@/pages/dc/components/SidelineTaskGrid/index';
 import * as dc_panels_detail_hooks_checkInStatus from '@/pages/dc/panels/detail/hooks/checkInStatus';
@@ -62,6 +75,9 @@ import * as dc_components_CreateGoalModal_types from '@/pages/dc/components/Crea
 import * as dc_components_card_MainlineTaskCard from '@/pages/dc/components/card/MainlineTaskCard';
 import * as dc_components_card_SidelineTaskCard from '@/pages/dc/components/card/SidelineTaskCard';
 import * as dc_components_shared_StatCard from '@/pages/dc/components/shared/StatCard/index';
+import * as dc_panels_memorial_components from '@/pages/dc/panels/memorial/components/index';
+import * as dc_panels_memorial_constants_icons from '@/pages/dc/panels/memorial/constants/icons';
+import * as dc_panels_memorial_constants from '@/pages/dc/panels/memorial/constants/index';
 import * as dc_components_DailyProgress from '@/pages/dc/components/DailyProgress/index';
 import * as dc_components_TodayProgress from '@/pages/dc/components/TodayProgress/index';
 import * as dc_panels_detail_components from '@/pages/dc/panels/detail/components/index';
@@ -75,6 +91,8 @@ import * as dc_panels_happy_utils_dateHelper from '@/pages/dc/panels/happy/utils
 import * as dc_panels_happy_contexts from '@/pages/dc/panels/happy/contexts/index';
 import * as dc_panels_happy_hooks_useGoals from '@/pages/dc/panels/happy/hooks/useGoals';
 import * as dc_panels_happy_hooks_useTrips from '@/pages/dc/panels/happy/hooks/useTrips';
+import * as dc_panels_memorial_hooks from '@/pages/dc/panels/memorial/hooks/index';
+import * as dc_panels_memorial_utils from '@/pages/dc/panels/memorial/utils/index';
 import * as dc_panels_settings_theme from '@/pages/dc/panels/settings/theme/index';
 import * as dc_components_MoonPhase from '@/pages/dc/components/MoonPhase/index';
 import * as dc_panels_detail_hooks from '@/pages/dc/panels/detail/hooks';
@@ -84,8 +102,12 @@ import * as dc_panels_happy_utils from '@/pages/dc/panels/happy/utils/index';
 import * as dc_utils_mainlineTaskHelper from '@/pages/dc/utils/mainlineTaskHelper';
 import * as dc_utils_progressCalculator from '@/pages/dc/utils/progressCalculator';
 import * as dc_components_shared from '@/pages/dc/components/shared/index';
+import * as dc_contexts_UIStateContext from '@/pages/dc/contexts/UIStateContext';
+import * as dc_panels_memorial_storage from '@/pages/dc/panels/memorial/storage';
 import * as dc_components_card from '@/pages/dc/components/card/index';
 import * as dc_contexts_ThemeContext from '@/pages/dc/contexts/ThemeContext';
+import * as dc_panels_memorial from '@/pages/dc/panels/memorial/index';
+import * as dc_panels_memorial_types from '@/pages/dc/panels/memorial/types';
 import * as dc_panels_settings from '@/pages/dc/panels/settings/index';
 import * as dc_utils_cycleCalculator from '@/pages/dc/utils/cycleCalculator';
 import * as dc_contexts_TaskContext from '@/pages/dc/contexts/TaskContext';
@@ -94,6 +116,7 @@ import * as dc_panels_archive from '@/pages/dc/panels/archive/index';
 import * as dc_panels_happy_storage from '@/pages/dc/panels/happy/storage';
 import * as dc_panels_detail from '@/pages/dc/panels/detail/index';
 import * as dc_panels_detail_types from '@/pages/dc/panels/detail/types';
+import * as dc_panels_normal from '@/pages/dc/panels/normal/index';
 import * as dc_panels_happy from '@/pages/dc/panels/happy/index';
 import * as dc_panels_happy_types from '@/pages/dc/panels/happy/types';
 import * as dc_constants_sprites from '@/pages/dc/constants/sprites';
@@ -199,6 +222,31 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/components/CreateMainlineTaskModal/steps/configs/NumericConfig',
     exact: true,
     exports: ["default"],
+  },{
+    path: 'dc/panels/memorial/components/CreateMemorialModal/LoadingSkeleton',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_memorial_components_CreateMemorialModal_LoadingSkeleton,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/memorial/components/CreateMemorialModal/LoadingSkeleton',
+          isLayout: false,
+          routeExports: dc_panels_memorial_components_CreateMemorialModal_LoadingSkeleton,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/memorial/components/CreateMemorialModal/LoadingSkeleton',
+          requestContext,
+          renderMode,
+          module: dc_panels_memorial_components_CreateMemorialModal_LoadingSkeleton,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-memorial-components-creatememorialmodal-loadingskeleton',
+    index: undefined,
+    id: 'dc/panels/memorial/components/CreateMemorialModal/LoadingSkeleton',
+    exact: true,
+    exports: ["LoadingSkeleton"],
   },{
     path: 'dc/components/CreateGoalModal/components/EncouragementInput',
     async lazy() {
@@ -324,6 +372,106 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/components/CreateGoalModal/components/TaskTypeSelector',
     exact: true,
     exports: ["default"],
+  },{
+    path: 'dc/panels/memorial/components/MemorialCardSkeleton',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_memorial_components_MemorialCardSkeleton,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/memorial/components/MemorialCardSkeleton',
+          isLayout: false,
+          routeExports: dc_panels_memorial_components_MemorialCardSkeleton,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/memorial/components/MemorialCardSkeleton',
+          requestContext,
+          renderMode,
+          module: dc_panels_memorial_components_MemorialCardSkeleton,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-memorial-components-memorialcardskeleton-index',
+    index: true,
+    id: 'dc/panels/memorial/components/MemorialCardSkeleton',
+    exact: true,
+    exports: ["MemorialCardSkeleton","default"],
+  },{
+    path: 'dc/panels/memorial/components/MemorialListSkeleton',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_memorial_components_MemorialListSkeleton,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/memorial/components/MemorialListSkeleton',
+          isLayout: false,
+          routeExports: dc_panels_memorial_components_MemorialListSkeleton,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/memorial/components/MemorialListSkeleton',
+          requestContext,
+          renderMode,
+          module: dc_panels_memorial_components_MemorialListSkeleton,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-memorial-components-memoriallistskeleton-index',
+    index: true,
+    id: 'dc/panels/memorial/components/MemorialListSkeleton',
+    exact: true,
+    exports: ["MemorialListSkeleton","default"],
+  },{
+    path: 'dc/panels/memorial/components/CreateMemorialModal',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_memorial_components_CreateMemorialModal,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/memorial/components/CreateMemorialModal',
+          isLayout: false,
+          routeExports: dc_panels_memorial_components_CreateMemorialModal,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/memorial/components/CreateMemorialModal',
+          requestContext,
+          renderMode,
+          module: dc_panels_memorial_components_CreateMemorialModal,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-memorial-components-creatememorialmodal-index',
+    index: true,
+    id: 'dc/panels/memorial/components/CreateMemorialModal',
+    exact: true,
+    exports: ["CreateMemorialModal","default"],
+  },{
+    path: 'dc/panels/memorial/components/VirtualMemorialList',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_memorial_components_VirtualMemorialList,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/memorial/components/VirtualMemorialList',
+          isLayout: false,
+          routeExports: dc_panels_memorial_components_VirtualMemorialList,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/memorial/components/VirtualMemorialList',
+          requestContext,
+          renderMode,
+          module: dc_panels_memorial_components_VirtualMemorialList,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-memorial-components-virtualmemoriallist-index',
+    index: true,
+    id: 'dc/panels/memorial/components/VirtualMemorialList',
+    exact: true,
+    exports: ["VirtualMemorialList","default"],
   },{
     path: 'dc/components/CreateGoalModal/components/CycleSelector',
     async lazy() {
@@ -675,6 +823,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["default"],
   },{
+    path: 'dc/panels/memorial/components/BackgroundPicker',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_memorial_components_BackgroundPicker,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/memorial/components/BackgroundPicker',
+          isLayout: false,
+          routeExports: dc_panels_memorial_components_BackgroundPicker,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/memorial/components/BackgroundPicker',
+          requestContext,
+          renderMode,
+          module: dc_panels_memorial_components_BackgroundPicker,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-memorial-components-backgroundpicker-index',
+    index: true,
+    id: 'dc/panels/memorial/components/BackgroundPicker',
+    exact: true,
+    exports: ["BackgroundPicker","default"],
+  },{
     path: 'dc/panels/detail/components/CalendarViewPanel',
     async lazy() {
       ;
@@ -799,6 +972,31 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/panels/detail/components/NumericCyclePanel',
     exact: true,
     exports: ["NumericCyclePanel","default"],
+  },{
+    path: 'dc/panels/memorial/components/MemorialDetail',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_memorial_components_MemorialDetail,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/memorial/components/MemorialDetail',
+          isLayout: false,
+          routeExports: dc_panels_memorial_components_MemorialDetail,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/memorial/components/MemorialDetail',
+          requestContext,
+          renderMode,
+          module: dc_panels_memorial_components_MemorialDetail,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-memorial-components-memorialdetail-index',
+    index: true,
+    id: 'dc/panels/memorial/components/MemorialDetail',
+    exact: true,
+    exports: ["MemorialDetail","default"],
   },{
     path: 'dc/components/CreateMainlineTaskModal/steps',
     async lazy() {
@@ -1000,6 +1198,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["default"],
   },{
+    path: 'dc/panels/memorial/components/MemorialCard',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_memorial_components_MemorialCard,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/memorial/components/MemorialCard',
+          isLayout: false,
+          routeExports: dc_panels_memorial_components_MemorialCard,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/memorial/components/MemorialCard',
+          requestContext,
+          renderMode,
+          module: dc_panels_memorial_components_MemorialCard,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-memorial-components-memorialcard-index',
+    index: true,
+    id: 'dc/panels/memorial/components/MemorialCard',
+    exact: true,
+    exports: ["MemorialCard","default"],
+  },{
     path: 'dc/components/CreateMainlineTaskModal/constants',
     async lazy() {
       ;
@@ -1074,6 +1297,31 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/panels/detail/components/CheckInModal',
     exact: true,
     exports: ["default"],
+  },{
+    path: 'dc/panels/memorial/components/IconPicker',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_memorial_components_IconPicker,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/memorial/components/IconPicker',
+          isLayout: false,
+          routeExports: dc_panels_memorial_components_IconPicker,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/memorial/components/IconPicker',
+          requestContext,
+          renderMode,
+          module: dc_panels_memorial_components_IconPicker,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-memorial-components-iconpicker-index',
+    index: true,
+    id: 'dc/panels/memorial/components/IconPicker',
+    exact: true,
+    exports: ["IconPicker","default"],
   },{
     path: 'dc/panels/happy/components/AddGoalModal',
     async lazy() {
@@ -1350,6 +1598,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["VacationProvider","default","useVacation"],
   },{
+    path: 'dc/panels/memorial/constants/backgrounds',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_memorial_constants_backgrounds,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/memorial/constants/backgrounds',
+          isLayout: false,
+          routeExports: dc_panels_memorial_constants_backgrounds,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/memorial/constants/backgrounds',
+          requestContext,
+          renderMode,
+          module: dc_panels_memorial_constants_backgrounds,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-memorial-constants-backgrounds',
+    index: undefined,
+    id: 'dc/panels/memorial/constants/backgrounds',
+    exact: true,
+    exports: ["ALL_BACKGROUNDS","COLOR_BACKGROUNDS","GRADIENT_BACKGROUNDS","getBackgroundStyle","getDefaultBackground"],
+  },{
     path: 'dc/components/CreateGoalModal/constants',
     async lazy() {
       ;
@@ -1400,6 +1673,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["default","useTripNavigation"],
   },{
+    path: 'dc/panels/memorial/utils/dateCalculator',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_memorial_utils_dateCalculator,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/memorial/utils/dateCalculator',
+          isLayout: false,
+          routeExports: dc_panels_memorial_utils_dateCalculator,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/memorial/utils/dateCalculator',
+          requestContext,
+          renderMode,
+          module: dc_panels_memorial_utils_dateCalculator,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-memorial-utils-datecalculator',
+    index: undefined,
+    id: 'dc/panels/memorial/utils/dateCalculator',
+    exact: true,
+    exports: ["calculateDays","formatDate","formatDays","getDaysDisplayText","getNextDateFormat","getShortDaysText","isFuture","isPast","isToday"],
+  },{
     path: 'dc/components/shared/ProgressBar',
     async lazy() {
       ;
@@ -1425,6 +1723,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["ProgressBar","default"],
   },{
+    path: 'dc/panels/memorial/hooks/useDateFormat',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_memorial_hooks_useDateFormat,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/memorial/hooks/useDateFormat',
+          isLayout: false,
+          routeExports: dc_panels_memorial_hooks_useDateFormat,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/memorial/hooks/useDateFormat',
+          requestContext,
+          renderMode,
+          module: dc_panels_memorial_hooks_useDateFormat,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-memorial-hooks-usedateformat',
+    index: undefined,
+    id: 'dc/panels/memorial/hooks/useDateFormat',
+    exact: true,
+    exports: ["useDateFormat"],
+  },{
     path: 'dc/panels/settings/ThemeSettings',
     async lazy() {
       ;
@@ -1449,6 +1772,31 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/panels/settings/ThemeSettings',
     exact: true,
     exports: ["default"],
+  },{
+    path: 'dc/panels/memorial/hooks/useMemorials',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_memorial_hooks_useMemorials,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/memorial/hooks/useMemorials',
+          isLayout: false,
+          routeExports: dc_panels_memorial_hooks_useMemorials,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/memorial/hooks/useMemorials',
+          requestContext,
+          renderMode,
+          module: dc_panels_memorial_hooks_useMemorials,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-memorial-hooks-usememorials',
+    index: undefined,
+    id: 'dc/panels/memorial/hooks/useMemorials',
+    exact: true,
+    exports: ["useMemorials"],
   },{
     path: 'dc/components/RandomTaskPicker',
     async lazy() {
@@ -1674,6 +2022,81 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/components/shared/StatCard',
     exact: true,
     exports: ["StatCard","StatCardGrid","default"],
+  },{
+    path: 'dc/panels/memorial/components',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_memorial_components,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/memorial/components',
+          isLayout: false,
+          routeExports: dc_panels_memorial_components,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/memorial/components',
+          requestContext,
+          renderMode,
+          module: dc_panels_memorial_components,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-memorial-components-index',
+    index: true,
+    id: 'dc/panels/memorial/components',
+    exact: true,
+    exports: ["BackgroundPicker","CreateMemorialModal","IconPicker","MemorialCard","MemorialCardSkeleton","MemorialDetail","MemorialListSkeleton","VirtualMemorialList"],
+  },{
+    path: 'dc/panels/memorial/constants/icons',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_memorial_constants_icons,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/memorial/constants/icons',
+          isLayout: false,
+          routeExports: dc_panels_memorial_constants_icons,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/memorial/constants/icons',
+          requestContext,
+          renderMode,
+          module: dc_panels_memorial_constants_icons,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-memorial-constants-icons',
+    index: undefined,
+    id: 'dc/panels/memorial/constants/icons',
+    exact: true,
+    exports: ["CRAYON_COLORS","PRESET_ICONS","getDefaultColor","getDefaultIcon","getIconConfig"],
+  },{
+    path: 'dc/panels/memorial/constants',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_memorial_constants,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/memorial/constants',
+          isLayout: false,
+          routeExports: dc_panels_memorial_constants,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/memorial/constants',
+          requestContext,
+          renderMode,
+          module: dc_panels_memorial_constants,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-memorial-constants-index',
+    index: true,
+    id: 'dc/panels/memorial/constants',
+    exact: true,
+    exports: [],
   },{
     path: 'dc/components/DailyProgress',
     async lazy() {
@@ -2000,6 +2423,56 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["default","useTrips"],
   },{
+    path: 'dc/panels/memorial/hooks',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_memorial_hooks,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/memorial/hooks',
+          isLayout: false,
+          routeExports: dc_panels_memorial_hooks,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/memorial/hooks',
+          requestContext,
+          renderMode,
+          module: dc_panels_memorial_hooks,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-memorial-hooks-index',
+    index: true,
+    id: 'dc/panels/memorial/hooks',
+    exact: true,
+    exports: ["useDateFormat","useMemorials"],
+  },{
+    path: 'dc/panels/memorial/utils',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_memorial_utils,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/memorial/utils',
+          isLayout: false,
+          routeExports: dc_panels_memorial_utils,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/memorial/utils',
+          requestContext,
+          renderMode,
+          module: dc_panels_memorial_utils,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-memorial-utils-index',
+    index: true,
+    id: 'dc/panels/memorial/utils',
+    exact: true,
+    exports: [],
+  },{
     path: 'dc/panels/settings/theme',
     async lazy() {
       ;
@@ -2225,6 +2698,56 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["CircleProgress","ProgressBar","StatCard","StatCardGrid"],
   },{
+    path: 'dc/contexts/UIStateContext',
+    async lazy() {
+      ;
+      return {
+        ...dc_contexts_UIStateContext,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/contexts/UIStateContext',
+          isLayout: false,
+          routeExports: dc_contexts_UIStateContext,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/contexts/UIStateContext',
+          requestContext,
+          renderMode,
+          module: dc_contexts_UIStateContext,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-contexts-uistatecontext',
+    index: undefined,
+    id: 'dc/contexts/UIStateContext',
+    exact: true,
+    exports: ["UIStateProvider","default","useUIState"],
+  },{
+    path: 'dc/panels/memorial/storage',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_memorial_storage,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/memorial/storage',
+          isLayout: false,
+          routeExports: dc_panels_memorial_storage,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/memorial/storage',
+          requestContext,
+          renderMode,
+          module: dc_panels_memorial_storage,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-memorial-storage',
+    index: undefined,
+    id: 'dc/panels/memorial/storage',
+    exact: true,
+    exports: ["generateId","loadDateFormat","loadMemorials","saveDateFormat","saveMemorials"],
+  },{
     path: 'dc/components/card',
     async lazy() {
       ;
@@ -2274,6 +2797,56 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/contexts/ThemeContext',
     exact: true,
     exports: ["ThemeProvider","default","themePresets","useTheme"],
+  },{
+    path: 'dc/panels/memorial',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_memorial,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/memorial',
+          isLayout: false,
+          routeExports: dc_panels_memorial,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/memorial',
+          requestContext,
+          renderMode,
+          module: dc_panels_memorial,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-memorial-index',
+    index: true,
+    id: 'dc/panels/memorial',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/panels/memorial/types',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_memorial_types,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/memorial/types',
+          isLayout: false,
+          routeExports: dc_panels_memorial_types,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/memorial/types',
+          requestContext,
+          renderMode,
+          module: dc_panels_memorial_types,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-memorial-types',
+    index: undefined,
+    id: 'dc/panels/memorial/types',
+    exact: true,
+    exports: [],
   },{
     path: 'dc/panels/settings',
     async lazy() {
@@ -2475,6 +3048,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: [],
   },{
+    path: 'dc/panels/normal',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_normal,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/normal',
+          isLayout: false,
+          routeExports: dc_panels_normal,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/normal',
+          requestContext,
+          renderMode,
+          module: dc_panels_normal,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-normal-index',
+    index: true,
+    id: 'dc/panels/normal',
+    exact: true,
+    exports: [],
+  },{
     path: 'dc/panels/happy',
     async lazy() {
       ;
@@ -2548,7 +3146,7 @@ const createRoutes: CreateRoutes = ({
     index: undefined,
     id: 'dc/constants/sprites',
     exact: true,
-    exports: ["EMPTY_STATE_IMAGE","SPRITE_IMAGES","getCurrentTimeSlot"],
+    exports: ["EMPTY_STATE_IMAGE","MEMORIAL_SPRITE_IMAGES","SPRITE_IMAGES","TRIP_SPRITE_IMAGES","VACATION_SPRITE_IMAGES","getCurrentTimeSlot"],
   },{
     path: 'dc/hooks/useProgress',
     async lazy() {
@@ -2673,7 +3271,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/constants',
     exact: true,
-    exports: ["DEBT_COLOR_SCHEMES","EMPTY_STATE_IMAGE","SIDELINE_THEME_COLORS","SPRITE_IMAGES","getCurrentTimeSlot","getNextThemeColor","getRandomDebtColorScheme"],
+    exports: ["DEBT_COLOR_SCHEMES","EMPTY_STATE_IMAGE","MEMORIAL_SPRITE_IMAGES","SIDELINE_THEME_COLORS","SPRITE_IMAGES","TRIP_SPRITE_IMAGES","VACATION_SPRITE_IMAGES","getCurrentTimeSlot","getNextThemeColor","getRandomDebtColorScheme"],
   },{
     path: 'dc/contexts',
     async lazy() {
@@ -2698,7 +3296,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/contexts',
     exact: true,
-    exports: ["TaskProvider","ThemeProvider","themePresets","useTaskContext","useTheme"],
+    exports: ["TaskProvider","ThemeProvider","UIStateProvider","themePresets","useTaskContext","useTheme","useUIState"],
   },{
     path: 'dc/panels',
     async lazy() {
@@ -2723,7 +3321,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/panels',
     exact: true,
-    exports: ["ArchiveList","GoalDetailModal","Settings","VacationContent"],
+    exports: ["ArchiveList","GoalDetailModal","HappyPanel","Settings"],
   },{
     path: 'dc/hooks',
     async lazy() {

@@ -51,6 +51,30 @@ export function getCurrentTimeSlot(): TimeSlot {
 }
 
 /**
+ * 纪念日模式专属精灵图片
+ */
+export const MEMORIAL_SPRITE_IMAGES = [
+  'https://img.alicdn.com/imgextra/i2/O1CN01F8l0Tl1mu0awjBaMv_!!6000000005013-2-tps-1080-913.png',
+  'https://img.alicdn.com/imgextra/i2/O1CN014inOqq1ir1YDFC7dU_!!6000000004465-2-tps-1080-1001.png',
+  'https://img.alicdn.com/imgextra/i3/O1CN010etw8y22Bc3SeGWsQ_!!6000000007082-2-tps-1080-944.png',
+  'https://img.alicdn.com/imgextra/i2/O1CN01z4bPnp1KoEM5j3N5E_!!6000000001210-2-tps-1080-932.png',
+  'https://img.alicdn.com/imgextra/i4/O1CN014kAwOY1Rgd5shGzLy_!!6000000002141-2-tps-1080-994.png',
+];
+
+/**
+ * 度假模式专属精灵图片
+ */
+export const VACATION_SPRITE_IMAGES = [
+  'https://img.alicdn.com/imgextra/i2/O1CN01W4MwCM1qOBXJfTbyJ_!!6000000005485-2-tps-1080-850.png',
+  'https://img.alicdn.com/imgextra/i3/O1CN01Y3uIe11K90i2oxIab_!!6000000001120-2-tps-1080-964.png',
+  'https://img.alicdn.com/imgextra/i2/O1CN01LPseEd1eyZcGyNuJm_!!6000000003940-2-tps-1080-792.png',
+  'https://img.alicdn.com/imgextra/i2/O1CN01TAuVKv1wfUC51TPIv_!!6000000006335-2-tps-1080-831.png',
+];
+
+// 保持向后兼容
+export const TRIP_SPRITE_IMAGES = VACATION_SPRITE_IMAGES;
+
+/**
  * 空状态占位图
  */
 export const EMPTY_STATE_IMAGE = 'https://img.alicdn.com/imgextra/i4/O1CN01yTnklC1ia4tDwlksJ_!!6000000004428-2-tps-2528-1696.png';

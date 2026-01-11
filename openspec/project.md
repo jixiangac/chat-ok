@@ -411,6 +411,7 @@ const saveTasksToStorage = (tasks: Task[]) => {
 - 移动端优先设计，需要适配各种屏幕尺寸
 - 使用 localforage 进行本地数据持久化，需考虑存储限制
 - 部分功能依赖外部 API（api.jixiang.chat）
+- 单个文件大小最好保持在500行以下，如果超过最好拆成多个模块来实现
 
 ### 代码约束
 - 部分文件使用 `@ts-nocheck` 跳过类型检查（如 `src/pages/index.tsx`、`src/utils.ts`），建议逐步修复

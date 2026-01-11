@@ -1,0 +1,144 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.spriteSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  position: relative;
+}
+
+.spriteImage {
+  max-width: 200px;
+  max-height: 200px;
+  object-fit: contain;
+}
+
+.listSection {
+  /* padding: 0 16px 16px; */
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.sectionTitle {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(55, 53, 47, 0.65);
+  margin: 0;
+}
+
+.memorialList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.emptyIcon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.emptyTitle {
+  font-size: 16px;
+  font-weight: 500;
+  color: rgb(55, 53, 47);
+  margin-bottom: 8px;
+}
+
+.emptyDescription {
+  font-size: 14px;
+  color: rgba(55, 53, 47, 0.5);
+  margin-bottom: 20px;
+  max-width: 240px;
+}
+
+.addButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border: none;
+  background: rgb(55, 53, 47);
+  color: white;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.addButton:hover {
+  background: rgb(35, 33, 27);
+}
+
+/* 示例卡片样式 */
+.exampleCards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 320px;
+  margin-bottom: 24px;
+}
+
+.exampleCard {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid rgba(55, 53, 47, 0.09);
+  gap: 12px;
+  opacity: 0.6;
+}
+
+.exampleIconWrapper {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.exampleContent {
+  flex: 1;
+}
+
+.exampleName {
+  font-size: 15px;
+  font-weight: 500;
+  color: rgb(55, 53, 47);
+  margin: 0;
+}
+
+.exampleDate {
+  font-size: 12px;
+  color: rgba(55, 53, 47, 0.5);
+  margin-top: 2px;
+}
+
+.exampleDays {
+  font-size: 14px;
+  color: rgba(55, 53, 47, 0.65);
+  font-weight: 500;
+}

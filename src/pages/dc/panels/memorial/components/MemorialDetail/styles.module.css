@@ -1,0 +1,338 @@
+.container {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.backgroundArea {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  padding: 60px 24px 40px;
+}
+
+/* 深色背景（图片背景）- 使用白色文字 */
+.darkBg .dateText,
+.darkBg .nameText,
+.darkBg .todayText,
+.darkBg .daysNumber,
+.darkBg .daysUnit,
+.darkBg .note {
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.darkBg .dateText {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.darkBg .nameText {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.darkBg .daysUnit {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.darkBg .note {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/* 浅色背景（纯色/渐变）- 使用深色文字 */
+.lightBg .dateText,
+.lightBg .nameText,
+.lightBg .todayText,
+.lightBg .daysNumber,
+.lightBg .daysUnit,
+.lightBg .note {
+  color: rgb(55, 53, 47);
+  text-shadow: none;
+}
+
+.lightBg .dateText {
+  color: rgba(55, 53, 47, 0.8);
+}
+
+.lightBg .nameText {
+  color: rgba(55, 53, 47, 0.7);
+}
+
+.lightBg .daysUnit {
+  color: rgba(55, 53, 47, 0.85);
+}
+
+.lightBg .note {
+  color: rgba(55, 53, 47, 0.6);
+}
+
+.closeButton {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgb(55, 53, 47);
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.closeButton:hover {
+  background: rgba(255, 255, 255, 0.95);
+}
+
+/* 左上角信息区域（可点击） */
+.topInfo {
+  position: absolute;
+  top: 100px;
+  left: 24px;
+  z-index: 5;
+  cursor: pointer;
+  padding: 8px 12px;
+  margin: -8px -12px;
+  border-radius: 8px;
+  transition: background 0.2s ease;
+}
+
+.topInfo:hover {
+  background: rgba(128, 128, 128, 0.1);
+}
+
+.topInfo:active {
+  background: rgba(128, 128, 128, 0.2);
+}
+
+.dateText {
+  font-size: 26px;
+  font-weight: 300;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+
+.nameText {
+  font-size: 18px;
+  font-weight: 400;
+}
+
+/* 左下角天数显示区域 */
+.bottomInfo {
+  position: absolute;
+  bottom: 80px;
+  left: 24px;
+  z-index: 5;
+  cursor: pointer;
+  user-select: none;
+  padding: 12px;
+  margin: -12px;
+  border-radius: 12px;
+  transition: background 0.2s ease;
+}
+
+.bottomInfo:hover {
+  background: rgba(128, 128, 128, 0.1);
+}
+
+.bottomInfo:active {
+  background: rgba(128, 128, 128, 0.2);
+}
+
+.todayText {
+  font-size: 80px;
+  font-weight: 200;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+}
+
+.daysContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.daysRow {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  line-height: 1.05;
+}
+
+.daysNumber {
+  font-size: 80px;
+  font-weight: 200;
+  letter-spacing: -2px;
+}
+
+.daysUnit {
+  font-size: 42px;
+  font-weight: 200;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+/* 备注区域 */
+.noteWrapper {
+  position: absolute;
+  bottom: 40px;
+  right: 24px;
+  max-width: 200px;
+  z-index: 5;
+}
+
+.note {
+  font-size: 14px;
+  font-style: italic;
+  text-align: right;
+  line-height: 1.5;
+}
+
+/* 操作浮层菜单 */
+.menuOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 1100;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 160px 24px;
+  animation: fadeIn 0.2s ease;
+}
+
+.menuDialog {
+  background: white;
+  border-radius: 12px;
+  padding: 8px 0;
+  min-width: 160px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  animation: slideIn 0.2s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 15px;
+  color: rgb(55, 53, 47);
+  transition: background 0.15s ease;
+  text-align: left;
+}
+
+.menuItem:hover {
+  background: #f5f5f5;
+}
+
+.menuItem:active {
+  background: #ebebeb;
+}
+
+.menuItemActive {
+  color: rgb(55, 53, 47);
+  font-weight: 500;
+}
+
+.menuItemDanger {
+  color: #dc3545;
+}
+
+.menuItemDanger:hover {
+  background: #fff5f5;
+}
+
+/* 确认对话框 */
+.confirmOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.confirmDialog {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 300px;
+  width: 100%;
+  text-align: center;
+}
+
+.confirmTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: rgb(55, 53, 47);
+  margin-bottom: 8px;
+}
+
+.confirmMessage {
+  font-size: 14px;
+  color: rgba(55, 53, 47, 0.65);
+  margin-bottom: 20px;
+}
+
+.confirmButtons {
+  display: flex;
+  gap: 12px;
+}
+
+.confirmCancel {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid rgba(55, 53, 47, 0.2);
+  background: white;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 500;
+  color: rgb(55, 53, 47);
+  cursor: pointer;
+}
+
+.confirmDelete {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  background: #dc3545;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 500;
+  color: white;
+  cursor: pointer;
+}

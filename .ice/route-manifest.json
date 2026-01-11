@@ -30,6 +30,16 @@
     ]
   },
   {
+    "path": "dc/panels/memorial/components/CreateMemorialModal/LoadingSkeleton",
+    "id": "dc/panels/memorial/components/CreateMemorialModal/LoadingSkeleton",
+    "file": "dc/panels/memorial/components/CreateMemorialModal/LoadingSkeleton.tsx",
+    "componentName": "dc-panels-memorial-components-creatememorialmodal-loadingskeleton",
+    "layout": false,
+    "exports": [
+      "LoadingSkeleton"
+    ]
+  },
+  {
     "path": "dc/components/CreateGoalModal/components/EncouragementInput",
     "id": "dc/components/CreateGoalModal/components/EncouragementInput",
     "file": "dc/components/CreateGoalModal/components/EncouragementInput.tsx",
@@ -76,6 +86,54 @@
     "componentName": "dc-components-creategoalmodal-components-tasktypeselector",
     "layout": false,
     "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/panels/memorial/components/MemorialCardSkeleton",
+    "index": true,
+    "id": "dc/panels/memorial/components/MemorialCardSkeleton",
+    "file": "dc/panels/memorial/components/MemorialCardSkeleton/index.tsx",
+    "componentName": "dc-panels-memorial-components-memorialcardskeleton-index",
+    "layout": false,
+    "exports": [
+      "MemorialCardSkeleton",
+      "default"
+    ]
+  },
+  {
+    "path": "dc/panels/memorial/components/MemorialListSkeleton",
+    "index": true,
+    "id": "dc/panels/memorial/components/MemorialListSkeleton",
+    "file": "dc/panels/memorial/components/MemorialListSkeleton/index.tsx",
+    "componentName": "dc-panels-memorial-components-memoriallistskeleton-index",
+    "layout": false,
+    "exports": [
+      "MemorialListSkeleton",
+      "default"
+    ]
+  },
+  {
+    "path": "dc/panels/memorial/components/CreateMemorialModal",
+    "index": true,
+    "id": "dc/panels/memorial/components/CreateMemorialModal",
+    "file": "dc/panels/memorial/components/CreateMemorialModal/index.tsx",
+    "componentName": "dc-panels-memorial-components-creatememorialmodal-index",
+    "layout": false,
+    "exports": [
+      "CreateMemorialModal",
+      "default"
+    ]
+  },
+  {
+    "path": "dc/panels/memorial/components/VirtualMemorialList",
+    "index": true,
+    "id": "dc/panels/memorial/components/VirtualMemorialList",
+    "file": "dc/panels/memorial/components/VirtualMemorialList/index.tsx",
+    "componentName": "dc-panels-memorial-components-virtualmemoriallist-index",
+    "layout": false,
+    "exports": [
+      "VirtualMemorialList",
       "default"
     ]
   },
@@ -225,6 +283,18 @@
     ]
   },
   {
+    "path": "dc/panels/memorial/components/BackgroundPicker",
+    "index": true,
+    "id": "dc/panels/memorial/components/BackgroundPicker",
+    "file": "dc/panels/memorial/components/BackgroundPicker/index.tsx",
+    "componentName": "dc-panels-memorial-components-backgroundpicker-index",
+    "layout": false,
+    "exports": [
+      "BackgroundPicker",
+      "default"
+    ]
+  },
+  {
     "path": "dc/panels/detail/components/CalendarViewPanel",
     "index": true,
     "id": "dc/panels/detail/components/CalendarViewPanel",
@@ -277,6 +347,18 @@
     "layout": false,
     "exports": [
       "NumericCyclePanel",
+      "default"
+    ]
+  },
+  {
+    "path": "dc/panels/memorial/components/MemorialDetail",
+    "index": true,
+    "id": "dc/panels/memorial/components/MemorialDetail",
+    "file": "dc/panels/memorial/components/MemorialDetail/index.tsx",
+    "componentName": "dc-panels-memorial-components-memorialdetail-index",
+    "layout": false,
+    "exports": [
+      "MemorialDetail",
       "default"
     ]
   },
@@ -371,6 +453,18 @@
     ]
   },
   {
+    "path": "dc/panels/memorial/components/MemorialCard",
+    "index": true,
+    "id": "dc/panels/memorial/components/MemorialCard",
+    "file": "dc/panels/memorial/components/MemorialCard/index.tsx",
+    "componentName": "dc-panels-memorial-components-memorialcard-index",
+    "layout": false,
+    "exports": [
+      "MemorialCard",
+      "default"
+    ]
+  },
+  {
     "path": "dc/components/CreateMainlineTaskModal/constants",
     "id": "dc/components/CreateMainlineTaskModal/constants",
     "file": "dc/components/CreateMainlineTaskModal/constants.ts",
@@ -413,6 +507,18 @@
     "componentName": "dc-panels-detail-components-checkinmodal-index",
     "layout": false,
     "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/panels/memorial/components/IconPicker",
+    "index": true,
+    "id": "dc/panels/memorial/components/IconPicker",
+    "file": "dc/panels/memorial/components/IconPicker/index.tsx",
+    "componentName": "dc-panels-memorial-components-iconpicker-index",
+    "layout": false,
+    "exports": [
+      "IconPicker",
       "default"
     ]
   },
@@ -537,6 +643,20 @@
     ]
   },
   {
+    "path": "dc/panels/memorial/constants/backgrounds",
+    "id": "dc/panels/memorial/constants/backgrounds",
+    "file": "dc/panels/memorial/constants/backgrounds.ts",
+    "componentName": "dc-panels-memorial-constants-backgrounds",
+    "layout": false,
+    "exports": [
+      "ALL_BACKGROUNDS",
+      "COLOR_BACKGROUNDS",
+      "GRADIENT_BACKGROUNDS",
+      "getBackgroundStyle",
+      "getDefaultBackground"
+    ]
+  },
+  {
     "path": "dc/components/CreateGoalModal/constants",
     "id": "dc/components/CreateGoalModal/constants",
     "file": "dc/components/CreateGoalModal/constants.ts",
@@ -564,6 +684,24 @@
     ]
   },
   {
+    "path": "dc/panels/memorial/utils/dateCalculator",
+    "id": "dc/panels/memorial/utils/dateCalculator",
+    "file": "dc/panels/memorial/utils/dateCalculator.ts",
+    "componentName": "dc-panels-memorial-utils-datecalculator",
+    "layout": false,
+    "exports": [
+      "calculateDays",
+      "formatDate",
+      "formatDays",
+      "getDaysDisplayText",
+      "getNextDateFormat",
+      "getShortDaysText",
+      "isFuture",
+      "isPast",
+      "isToday"
+    ]
+  },
+  {
     "path": "dc/components/shared/ProgressBar",
     "index": true,
     "id": "dc/components/shared/ProgressBar",
@@ -576,6 +714,16 @@
     ]
   },
   {
+    "path": "dc/panels/memorial/hooks/useDateFormat",
+    "id": "dc/panels/memorial/hooks/useDateFormat",
+    "file": "dc/panels/memorial/hooks/useDateFormat.ts",
+    "componentName": "dc-panels-memorial-hooks-usedateformat",
+    "layout": false,
+    "exports": [
+      "useDateFormat"
+    ]
+  },
+  {
     "path": "dc/panels/settings/ThemeSettings",
     "index": true,
     "id": "dc/panels/settings/ThemeSettings",
@@ -584,6 +732,16 @@
     "layout": false,
     "exports": [
       "default"
+    ]
+  },
+  {
+    "path": "dc/panels/memorial/hooks/useMemorials",
+    "id": "dc/panels/memorial/hooks/useMemorials",
+    "file": "dc/panels/memorial/hooks/useMemorials.ts",
+    "componentName": "dc-panels-memorial-hooks-usememorials",
+    "layout": false,
+    "exports": [
+      "useMemorials"
     ]
   },
   {
@@ -685,6 +843,47 @@
       "StatCardGrid",
       "default"
     ]
+  },
+  {
+    "path": "dc/panels/memorial/components",
+    "index": true,
+    "id": "dc/panels/memorial/components",
+    "file": "dc/panels/memorial/components/index.ts",
+    "componentName": "dc-panels-memorial-components-index",
+    "layout": false,
+    "exports": [
+      "BackgroundPicker",
+      "CreateMemorialModal",
+      "IconPicker",
+      "MemorialCard",
+      "MemorialCardSkeleton",
+      "MemorialDetail",
+      "MemorialListSkeleton",
+      "VirtualMemorialList"
+    ]
+  },
+  {
+    "path": "dc/panels/memorial/constants/icons",
+    "id": "dc/panels/memorial/constants/icons",
+    "file": "dc/panels/memorial/constants/icons.ts",
+    "componentName": "dc-panels-memorial-constants-icons",
+    "layout": false,
+    "exports": [
+      "CRAYON_COLORS",
+      "PRESET_ICONS",
+      "getDefaultColor",
+      "getDefaultIcon",
+      "getIconConfig"
+    ]
+  },
+  {
+    "path": "dc/panels/memorial/constants",
+    "index": true,
+    "id": "dc/panels/memorial/constants",
+    "file": "dc/panels/memorial/constants/index.ts",
+    "componentName": "dc-panels-memorial-constants-index",
+    "layout": false,
+    "exports": []
   },
   {
     "path": "dc/components/DailyProgress",
@@ -869,6 +1068,27 @@
     ]
   },
   {
+    "path": "dc/panels/memorial/hooks",
+    "index": true,
+    "id": "dc/panels/memorial/hooks",
+    "file": "dc/panels/memorial/hooks/index.ts",
+    "componentName": "dc-panels-memorial-hooks-index",
+    "layout": false,
+    "exports": [
+      "useDateFormat",
+      "useMemorials"
+    ]
+  },
+  {
+    "path": "dc/panels/memorial/utils",
+    "index": true,
+    "id": "dc/panels/memorial/utils",
+    "file": "dc/panels/memorial/utils/index.ts",
+    "componentName": "dc-panels-memorial-utils-index",
+    "layout": false,
+    "exports": []
+  },
+  {
     "path": "dc/panels/settings/theme",
     "index": true,
     "id": "dc/panels/settings/theme",
@@ -991,6 +1211,32 @@
     ]
   },
   {
+    "path": "dc/contexts/UIStateContext",
+    "id": "dc/contexts/UIStateContext",
+    "file": "dc/contexts/UIStateContext.tsx",
+    "componentName": "dc-contexts-uistatecontext",
+    "layout": false,
+    "exports": [
+      "UIStateProvider",
+      "default",
+      "useUIState"
+    ]
+  },
+  {
+    "path": "dc/panels/memorial/storage",
+    "id": "dc/panels/memorial/storage",
+    "file": "dc/panels/memorial/storage.ts",
+    "componentName": "dc-panels-memorial-storage",
+    "layout": false,
+    "exports": [
+      "generateId",
+      "loadDateFormat",
+      "loadMemorials",
+      "saveDateFormat",
+      "saveMemorials"
+    ]
+  },
+  {
     "path": "dc/components/card",
     "index": true,
     "id": "dc/components/card",
@@ -1014,6 +1260,25 @@
       "themePresets",
       "useTheme"
     ]
+  },
+  {
+    "path": "dc/panels/memorial",
+    "index": true,
+    "id": "dc/panels/memorial",
+    "file": "dc/panels/memorial/index.tsx",
+    "componentName": "dc-panels-memorial-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/panels/memorial/types",
+    "id": "dc/panels/memorial/types",
+    "file": "dc/panels/memorial/types.ts",
+    "componentName": "dc-panels-memorial-types",
+    "layout": false,
+    "exports": []
   },
   {
     "path": "dc/panels/settings",
@@ -1111,6 +1376,15 @@
     "exports": []
   },
   {
+    "path": "dc/panels/normal",
+    "index": true,
+    "id": "dc/panels/normal",
+    "file": "dc/panels/normal/index.tsx",
+    "componentName": "dc-panels-normal-index",
+    "layout": false,
+    "exports": []
+  },
+  {
     "path": "dc/panels/happy",
     "index": true,
     "id": "dc/panels/happy",
@@ -1147,7 +1421,10 @@
     "layout": false,
     "exports": [
       "EMPTY_STATE_IMAGE",
+      "MEMORIAL_SPRITE_IMAGES",
       "SPRITE_IMAGES",
+      "TRIP_SPRITE_IMAGES",
+      "VACATION_SPRITE_IMAGES",
       "getCurrentTimeSlot"
     ]
   },
@@ -1220,8 +1497,11 @@
     "exports": [
       "DEBT_COLOR_SCHEMES",
       "EMPTY_STATE_IMAGE",
+      "MEMORIAL_SPRITE_IMAGES",
       "SIDELINE_THEME_COLORS",
       "SPRITE_IMAGES",
+      "TRIP_SPRITE_IMAGES",
+      "VACATION_SPRITE_IMAGES",
       "getCurrentTimeSlot",
       "getNextThemeColor",
       "getRandomDebtColorScheme"
@@ -1237,9 +1517,11 @@
     "exports": [
       "TaskProvider",
       "ThemeProvider",
+      "UIStateProvider",
       "themePresets",
       "useTaskContext",
-      "useTheme"
+      "useTheme",
+      "useUIState"
     ]
   },
   {
@@ -1252,8 +1534,8 @@
     "exports": [
       "ArchiveList",
       "GoalDetailModal",
-      "Settings",
-      "VacationContent"
+      "HappyPanel",
+      "Settings"
     ]
   },
   {

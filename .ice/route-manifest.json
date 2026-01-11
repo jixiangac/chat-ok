@@ -653,7 +653,8 @@
       "COLOR_BACKGROUNDS",
       "GRADIENT_BACKGROUNDS",
       "getBackgroundStyle",
-      "getDefaultBackground"
+      "getDefaultBackground",
+      "isDarkBackground"
     ]
   },
   {
@@ -696,6 +697,7 @@
       "getDaysDisplayText",
       "getNextDateFormat",
       "getShortDaysText",
+      "getStructuredDaysData",
       "isFuture",
       "isPast",
       "isToday"
@@ -1382,7 +1384,9 @@
     "file": "dc/panels/normal/index.tsx",
     "componentName": "dc-panels-normal-index",
     "layout": false,
-    "exports": []
+    "exports": [
+      "default"
+    ]
   },
   {
     "path": "dc/panels/happy",
@@ -1535,6 +1539,8 @@
       "ArchiveList",
       "GoalDetailModal",
       "HappyPanel",
+      "MemorialPanel",
+      "NormalPanel",
       "Settings"
     ]
   },
@@ -1675,6 +1681,16 @@
     "exports": [
       "default",
       "lorem"
+    ]
+  },
+  {
+    "path": "quant",
+    "id": "quant",
+    "file": "quant.tsx",
+    "componentName": "quant",
+    "layout": false,
+    "exports": [
+      "default"
     ]
   },
   {

@@ -138,6 +138,7 @@ import * as apply from '@/pages/apply';
 import * as image from '@/pages/image';
 import * as _ from '@/pages/index';
 import * as intro from '@/pages/intro';
+import * as quant from '@/pages/quant';
 import * as stock from '@/pages/stock';
 import * as demo from '@/pages/demo';
 import * as open from '@/pages/open';
@@ -1621,7 +1622,7 @@ const createRoutes: CreateRoutes = ({
     index: undefined,
     id: 'dc/panels/memorial/constants/backgrounds',
     exact: true,
-    exports: ["ALL_BACKGROUNDS","COLOR_BACKGROUNDS","GRADIENT_BACKGROUNDS","getBackgroundStyle","getDefaultBackground"],
+    exports: ["ALL_BACKGROUNDS","COLOR_BACKGROUNDS","GRADIENT_BACKGROUNDS","getBackgroundStyle","getDefaultBackground","isDarkBackground"],
   },{
     path: 'dc/components/CreateGoalModal/constants',
     async lazy() {
@@ -1696,7 +1697,7 @@ const createRoutes: CreateRoutes = ({
     index: undefined,
     id: 'dc/panels/memorial/utils/dateCalculator',
     exact: true,
-    exports: ["calculateDays","formatDate","formatDays","getDaysDisplayText","getNextDateFormat","getShortDaysText","isFuture","isPast","isToday"],
+    exports: ["calculateDays","formatDate","formatDays","getDaysDisplayText","getNextDateFormat","getShortDaysText","getStructuredDaysData","isFuture","isPast","isToday"],
   },{
     path: 'dc/components/shared/ProgressBar',
     async lazy() {
@@ -3071,7 +3072,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/panels/normal',
     exact: true,
-    exports: [],
+    exports: ["default"],
   },{
     path: 'dc/panels/happy',
     async lazy() {
@@ -3321,7 +3322,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/panels',
     exact: true,
-    exports: ["ArchiveList","GoalDetailModal","HappyPanel","Settings"],
+    exports: ["ArchiveList","GoalDetailModal","HappyPanel","MemorialPanel","NormalPanel","Settings"],
   },{
     path: 'dc/hooks',
     async lazy() {
@@ -3597,6 +3598,31 @@ const createRoutes: CreateRoutes = ({
     id: 'intro',
     exact: true,
     exports: ["default","lorem"],
+  },{
+    path: 'quant',
+    async lazy() {
+      ;
+      return {
+        ...quant,
+        Component: () => WrapRouteComponent({
+          routeId: 'quant',
+          isLayout: false,
+          routeExports: quant,
+        }),
+        loader: createRouteLoader({
+          routeId: 'quant',
+          requestContext,
+          renderMode,
+          module: quant,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'quant',
+    index: undefined,
+    id: 'quant',
+    exact: true,
+    exports: ["default"],
   },{
     path: 'stock',
     async lazy() {

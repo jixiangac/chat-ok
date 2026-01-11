@@ -1,58 +1,101 @@
 import { createRouteLoader, WrapRouteComponent, RouteErrorComponent } from '@ice/runtime';
 import type { CreateRoutes } from '@ice/runtime';
-import * as dc_detail_CheckInHistoryPanel from '@/pages/dc/detail/CheckInHistoryPanel/index';
+import * as dc_components_CreateMainlineTaskModal_steps_configs_ChecklistConfig from '@/pages/dc/components/CreateMainlineTaskModal/steps/configs/ChecklistConfig';
+import * as dc_components_CreateMainlineTaskModal_steps_configs_CheckInConfig from '@/pages/dc/components/CreateMainlineTaskModal/steps/configs/CheckInConfig';
+import * as dc_components_CreateMainlineTaskModal_steps_configs_NumericConfig from '@/pages/dc/components/CreateMainlineTaskModal/steps/configs/NumericConfig';
+import * as dc_components_CreateGoalModal_components_EncouragementInput from '@/pages/dc/components/CreateGoalModal/components/EncouragementInput';
+import * as dc_components_CreateGoalModal_components_DurationSelector from '@/pages/dc/components/CreateGoalModal/components/DurationSelector';
+import * as dc_components_CreateGoalModal_components_PrioritySelector from '@/pages/dc/components/CreateGoalModal/components/PrioritySelector';
+import * as dc_components_CreateGoalModal_components_RulesExplanation from '@/pages/dc/components/CreateGoalModal/components/RulesExplanation';
+import * as dc_components_CreateGoalModal_components_TaskTypeSelector from '@/pages/dc/components/CreateGoalModal/components/TaskTypeSelector';
+import * as dc_components_CreateGoalModal_components_CycleSelector from '@/pages/dc/components/CreateGoalModal/components/CycleSelector';
+import * as dc_components_CreateMainlineTaskModal_steps_ConfigStep from '@/pages/dc/components/CreateMainlineTaskModal/steps/ConfigStep';
+import * as dc_components_CreateGoalModal_components_CyclePreview from '@/pages/dc/components/CreateGoalModal/components/CyclePreview';
+import * as dc_components_CreateGoalModal_components_DateSelector from '@/pages/dc/components/CreateGoalModal/components/DateSelector';
+import * as dc_components_CreateGoalModal_components_IconSelector from '@/pages/dc/components/CreateGoalModal/components/IconSelector';
+import * as dc_components_CreateGoalModal_components_PopularGoals from '@/pages/dc/components/CreateGoalModal/components/PopularGoals';
+import * as dc_components_CreateGoalModal_components_WarningAlert from '@/pages/dc/components/CreateGoalModal/components/WarningAlert';
+import * as dc_components_CreateMainlineTaskModal_steps_CycleStep from '@/pages/dc/components/CreateMainlineTaskModal/steps/CycleStep';
+import * as dc_panels_detail_components_CheckInHistoryPanel from '@/pages/dc/panels/detail/components/CheckInHistoryPanel/index';
+import * as dc_panels_detail_components_ChecklistCyclePanel from '@/pages/dc/panels/detail/components/ChecklistCyclePanel/index';
+import * as dc_components_CreateMainlineTaskModal_steps_TypeStep from '@/pages/dc/components/CreateMainlineTaskModal/steps/TypeStep';
+import * as dc_panels_detail_components_CheckInRecordPanel from '@/pages/dc/panels/detail/components/CheckInRecordPanel/index';
+import * as dc_panels_detail_components_CycleSummaryDialog from '@/pages/dc/panels/detail/components/CycleSummaryDialog/index';
+import * as dc_panels_detail_components_HistoryRecordPanel from '@/pages/dc/panels/detail/components/HistoryRecordPanel/index';
+import * as dc_panels_detail_components_CalendarViewPanel from '@/pages/dc/panels/detail/components/CalendarViewPanel/index';
+import * as dc_panels_detail_components_CheckInCyclePanel from '@/pages/dc/panels/detail/components/CheckInCyclePanel/index';
+import * as dc_panels_detail_components_CurrentCyclePanel from '@/pages/dc/panels/detail/components/CurrentCyclePanel/index';
+import * as dc_panels_detail_components_HistoryCyclePanel from '@/pages/dc/panels/detail/components/HistoryCyclePanel/index';
+import * as dc_panels_detail_components_NumericCyclePanel from '@/pages/dc/panels/detail/components/NumericCyclePanel/index';
+import * as dc_components_CreateMainlineTaskModal_steps from '@/pages/dc/components/CreateMainlineTaskModal/steps/index';
+import * as dc_panels_detail_components_ProgressSection from '@/pages/dc/panels/detail/components/ProgressSection/index';
+import * as dc_panels_detail_components_RecordDataModal from '@/pages/dc/panels/detail/components/RecordDataModal/index';
+import * as dc_components_CreateMainlineTaskModal_constants from '@/pages/dc/components/CreateMainlineTaskModal/constants';
+import * as dc_components_CreateGoalModal_components from '@/pages/dc/components/CreateGoalModal/components/index';
+import * as dc_panels_detail_components_CheckInModal from '@/pages/dc/panels/detail/components/CheckInModal/index';
+import * as dc_panels_detail_components_GoalHeader from '@/pages/dc/panels/detail/components/GoalHeader/index';
+import * as dc_components_CreateMainlineTaskModal from '@/pages/dc/components/CreateMainlineTaskModal/index';
+import * as dc_components_CreateMainlineTaskModal_types from '@/pages/dc/components/CreateMainlineTaskModal/types';
+import * as dc_components_shared_CircleProgress from '@/pages/dc/components/shared/CircleProgress/index';
+import * as dc_panels_detail_components_TabBar from '@/pages/dc/panels/detail/components/TabBar/index';
+import * as dc_components_CreateGoalModal_constants from '@/pages/dc/components/CreateGoalModal/constants';
+import * as dc_components_shared_ProgressBar from '@/pages/dc/components/shared/ProgressBar/index';
+import * as dc_panels_settings_ThemeSettings from '@/pages/dc/panels/settings/ThemeSettings/index';
+import * as dc_panels_happy_GoalDetailModal from '@/pages/dc/panels/happy/GoalDetailModal/index';
+import * as dc_panels_happy_TripDetailModal from '@/pages/dc/panels/happy/TripDetailModal/index';
+import * as dc_components_RandomTaskPicker from '@/pages/dc/components/RandomTaskPicker/index';
+import * as dc_components_SidelineTaskGrid from '@/pages/dc/components/SidelineTaskGrid/index';
+import * as dc_panels_detail_hooks_checkInStatus from '@/pages/dc/panels/detail/hooks/checkInStatus';
+import * as dc_components_CreateGoalModal from '@/pages/dc/components/CreateGoalModal/index';
+import * as dc_components_CreateGoalModal_types from '@/pages/dc/components/CreateGoalModal/types';
+import * as dc_components_card_MainlineTaskCard from '@/pages/dc/components/card/MainlineTaskCard';
+import * as dc_components_card_SidelineTaskCard from '@/pages/dc/components/card/SidelineTaskCard';
+import * as dc_components_shared_StatCard from '@/pages/dc/components/shared/StatCard/index';
+import * as dc_components_DailyProgress from '@/pages/dc/components/DailyProgress/index';
+import * as dc_components_TodayProgress from '@/pages/dc/components/TodayProgress/index';
+import * as dc_panels_detail_components from '@/pages/dc/panels/detail/components/index';
 import * as dc_components_ThemedButton from '@/pages/dc/components/ThemedButton/index';
-import * as dc_settings_ThemeSettings from '@/pages/dc/settings/ThemeSettings/index';
-import * as dc_happy_GoalDetailModal from '@/pages/dc/happy/GoalDetailModal/index';
-import * as dc_happy_TripDetailModal from '@/pages/dc/happy/TripDetailModal/index';
-import * as dc_settings_theme_ThemeContext from '@/pages/dc/settings/theme/ThemeContext';
-import * as dc_detail_ChecklistCyclePanel from '@/pages/dc/detail/ChecklistCyclePanel';
-import * as dc_detail_CheckInModal from '@/pages/dc/detail/CheckInModal/index';
-import * as dc_detail_CheckInRecordPanel from '@/pages/dc/detail/CheckInRecordPanel';
-import * as dc_detail_CycleSummaryDialog from '@/pages/dc/detail/CycleSummaryDialog';
-import * as dc_detail_HistoryRecordPanel from '@/pages/dc/detail/HistoryRecordPanel';
-import * as dc_detail_CalendarViewPanel from '@/pages/dc/detail/CalendarViewPanel';
-import * as dc_detail_CheckInCyclePanel from '@/pages/dc/detail/CheckInCyclePanel';
-import * as dc_detail_CurrentCyclePanel from '@/pages/dc/detail/CurrentCyclePanel';
-import * as dc_detail_HistoryCyclePanel from '@/pages/dc/detail/HistoryCyclePanel';
-import * as dc_detail_NumericCyclePanel from '@/pages/dc/detail/NumericCyclePanel';
+import * as dc_panels_detail_constants from '@/pages/dc/panels/detail/constants/index';
+import * as dc_panels_detail_hooks_constants from '@/pages/dc/panels/detail/hooks/constants';
+import * as dc_panels_detail_hooks_dateUtils from '@/pages/dc/panels/detail/hooks/dateUtils';
+import * as dc_panels_happy_TripSummaryModal from '@/pages/dc/panels/happy/TripSummaryModal';
+import * as dc_panels_happy_CreateTripModal from '@/pages/dc/panels/happy/CreateTripModal';
+import * as dc_panels_happy_VacationContent from '@/pages/dc/panels/happy/VacationContent';
+import * as dc_panels_settings_theme from '@/pages/dc/panels/settings/theme/index';
+import * as dc_components_MoonPhase from '@/pages/dc/components/MoonPhase/index';
+import * as dc_panels_detail_hooks from '@/pages/dc/panels/detail/hooks';
+import * as dc_panels_detail_utils from '@/pages/dc/panels/detail/utils/index';
+import * as dc_panels_happy_AddGoalModal from '@/pages/dc/panels/happy/AddGoalModal';
 import * as dc_utils_mainlineTaskHelper from '@/pages/dc/utils/mainlineTaskHelper';
-import * as dc_CreateMainlineTaskModal from '@/pages/dc/CreateMainlineTaskModal';
-import * as dc_RandomTaskPicker from '@/pages/dc/RandomTaskPicker/index';
-import * as dc_SidelineTaskGrid from '@/pages/dc/SidelineTaskGrid/index';
-import * as dc_detail_ProgressSection from '@/pages/dc/detail/ProgressSection';
-import * as dc_detail_RecordDataModal from '@/pages/dc/detail/RecordDataModal';
-import * as dc_happy_TripSummaryModal from '@/pages/dc/happy/TripSummaryModal';
-import * as dc_card_MainlineTaskCard from '@/pages/dc/card/MainlineTaskCard';
-import * as dc_card_SidelineTaskCard from '@/pages/dc/card/SidelineTaskCard';
-import * as dc_happy_CreateTripModal from '@/pages/dc/happy/CreateTripModal';
-import * as dc_happy_VacationContent from '@/pages/dc/happy/VacationContent';
+import * as dc_utils_progressCalculator from '@/pages/dc/utils/progressCalculator';
+import * as dc_components_shared from '@/pages/dc/components/shared/index';
+import * as dc_components_card from '@/pages/dc/components/card/index';
+import * as dc_contexts_ThemeContext from '@/pages/dc/contexts/ThemeContext';
+import * as dc_panels_happy_GoalCard from '@/pages/dc/panels/happy/GoalCard';
+import * as dc_panels_happy_TripList from '@/pages/dc/panels/happy/TripList';
+import * as dc_panels_settings from '@/pages/dc/panels/settings/index';
 import * as dc_utils_cycleCalculator from '@/pages/dc/utils/cycleCalculator';
-import * as dc_settings_theme from '@/pages/dc/settings/theme/index';
-import * as dc_DailyProgress from '@/pages/dc/DailyProgress/index';
-import * as dc_TodayProgress from '@/pages/dc/TodayProgress/index';
-import * as dc_context_TaskContext from '@/pages/dc/context/TaskContext';
-import * as dc_happy_AddGoalModal from '@/pages/dc/happy/AddGoalModal';
-import * as dc_detail_GoalHeader from '@/pages/dc/detail/GoalHeader';
+import * as dc_contexts_TaskContext from '@/pages/dc/contexts/TaskContext';
+import * as dc_hooks_useSpriteImage from '@/pages/dc/hooks/useSpriteImage';
+import * as dc_panels_archive from '@/pages/dc/panels/archive/index';
+import * as dc_panels_happy_DayTabs from '@/pages/dc/panels/happy/DayTabs';
+import * as dc_panels_happy_storage from '@/pages/dc/panels/happy/storage';
+import * as dc_panels_detail from '@/pages/dc/panels/detail/index';
+import * as dc_panels_detail_types from '@/pages/dc/panels/detail/types';
+import * as dc_panels_happy_types from '@/pages/dc/panels/happy/types';
+import * as dc_constants_sprites from '@/pages/dc/constants/sprites';
+import * as dc_hooks_useProgress from '@/pages/dc/hooks/useProgress';
+import * as dc_hooks_useTaskSort from '@/pages/dc/hooks/useTaskSort';
 import * as dc_components from '@/pages/dc/components/index';
-import * as dc_CreateGoalModal from '@/pages/dc/CreateGoalModal';
-import * as dc_MoonPhase from '@/pages/dc/MoonPhase/index';
-import * as dc_detail_example from '@/pages/dc/detail/example';
-import * as dc_happy_GoalCard from '@/pages/dc/happy/GoalCard';
-import * as dc_happy_TripList from '@/pages/dc/happy/TripList';
-import * as dc_settings from '@/pages/dc/settings/index';
-import * as dc_archive from '@/pages/dc/archive/index';
-import * as dc_context from '@/pages/dc/context/index';
-import * as dc_detail_TabBar from '@/pages/dc/detail/TabBar';
-import * as dc_happy_DayTabs from '@/pages/dc/happy/DayTabs';
-import * as dc_happy_storage from '@/pages/dc/happy/storage';
-import * as dc_detail_hooks from '@/pages/dc/detail/hooks';
-import * as dc_detail from '@/pages/dc/detail/index';
-import * as dc_detail_types from '@/pages/dc/detail/types';
-import * as dc_happy_types from '@/pages/dc/happy/types';
-import * as dc_card from '@/pages/dc/card/index';
+import * as dc_constants_colors from '@/pages/dc/constants/colors';
+import * as dc_constants from '@/pages/dc/constants/index';
+import * as dc_contexts from '@/pages/dc/contexts/index';
+import * as dc_panels from '@/pages/dc/panels/index';
+import * as dc_hooks from '@/pages/dc/hooks/index';
+import * as dc_utils from '@/pages/dc/utils/index';
 import * as stock_self from '@/pages/stock_self';
 import * as aloglist from '@/pages/aloglist';
+import * as dc from '@/pages/dc/index';
 import * as dc_types from '@/pages/dc/types';
 import * as aitrend from '@/pages/aitrend';
 import * as apply from '@/pages/apply';
@@ -69,30 +112,1355 @@ const createRoutes: CreateRoutes = ({
   renderMode,
 }) => ([
   {
-    path: 'dc/detail/CheckInHistoryPanel',
+    path: 'dc/components/CreateMainlineTaskModal/steps/configs/ChecklistConfig',
     async lazy() {
       ;
       return {
-        ...dc_detail_CheckInHistoryPanel,
+        ...dc_components_CreateMainlineTaskModal_steps_configs_ChecklistConfig,
         Component: () => WrapRouteComponent({
-          routeId: 'dc/detail/CheckInHistoryPanel',
+          routeId: 'dc/components/CreateMainlineTaskModal/steps/configs/ChecklistConfig',
           isLayout: false,
-          routeExports: dc_detail_CheckInHistoryPanel,
+          routeExports: dc_components_CreateMainlineTaskModal_steps_configs_ChecklistConfig,
         }),
         loader: createRouteLoader({
-          routeId: 'dc/detail/CheckInHistoryPanel',
+          routeId: 'dc/components/CreateMainlineTaskModal/steps/configs/ChecklistConfig',
           requestContext,
           renderMode,
-          module: dc_detail_CheckInHistoryPanel,
+          module: dc_components_CreateMainlineTaskModal_steps_configs_ChecklistConfig,
         }),
       };
     },
     errorElement: <RouteErrorComponent />,
-    componentName: 'dc-detail-checkinhistorypanel-index',
-    index: true,
-    id: 'dc/detail/CheckInHistoryPanel',
+    componentName: 'dc-components-createmainlinetaskmodal-steps-configs-checklistconfig',
+    index: undefined,
+    id: 'dc/components/CreateMainlineTaskModal/steps/configs/ChecklistConfig',
     exact: true,
     exports: ["default"],
+  },{
+    path: 'dc/components/CreateMainlineTaskModal/steps/configs/CheckInConfig',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_CreateMainlineTaskModal_steps_configs_CheckInConfig,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/CreateMainlineTaskModal/steps/configs/CheckInConfig',
+          isLayout: false,
+          routeExports: dc_components_CreateMainlineTaskModal_steps_configs_CheckInConfig,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/CreateMainlineTaskModal/steps/configs/CheckInConfig',
+          requestContext,
+          renderMode,
+          module: dc_components_CreateMainlineTaskModal_steps_configs_CheckInConfig,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-createmainlinetaskmodal-steps-configs-checkinconfig',
+    index: undefined,
+    id: 'dc/components/CreateMainlineTaskModal/steps/configs/CheckInConfig',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/components/CreateMainlineTaskModal/steps/configs/NumericConfig',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_CreateMainlineTaskModal_steps_configs_NumericConfig,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/CreateMainlineTaskModal/steps/configs/NumericConfig',
+          isLayout: false,
+          routeExports: dc_components_CreateMainlineTaskModal_steps_configs_NumericConfig,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/CreateMainlineTaskModal/steps/configs/NumericConfig',
+          requestContext,
+          renderMode,
+          module: dc_components_CreateMainlineTaskModal_steps_configs_NumericConfig,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-createmainlinetaskmodal-steps-configs-numericconfig',
+    index: undefined,
+    id: 'dc/components/CreateMainlineTaskModal/steps/configs/NumericConfig',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/components/CreateGoalModal/components/EncouragementInput',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_CreateGoalModal_components_EncouragementInput,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/CreateGoalModal/components/EncouragementInput',
+          isLayout: false,
+          routeExports: dc_components_CreateGoalModal_components_EncouragementInput,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/CreateGoalModal/components/EncouragementInput',
+          requestContext,
+          renderMode,
+          module: dc_components_CreateGoalModal_components_EncouragementInput,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-creategoalmodal-components-encouragementinput',
+    index: undefined,
+    id: 'dc/components/CreateGoalModal/components/EncouragementInput',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/components/CreateGoalModal/components/DurationSelector',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_CreateGoalModal_components_DurationSelector,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/CreateGoalModal/components/DurationSelector',
+          isLayout: false,
+          routeExports: dc_components_CreateGoalModal_components_DurationSelector,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/CreateGoalModal/components/DurationSelector',
+          requestContext,
+          renderMode,
+          module: dc_components_CreateGoalModal_components_DurationSelector,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-creategoalmodal-components-durationselector',
+    index: undefined,
+    id: 'dc/components/CreateGoalModal/components/DurationSelector',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/components/CreateGoalModal/components/PrioritySelector',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_CreateGoalModal_components_PrioritySelector,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/CreateGoalModal/components/PrioritySelector',
+          isLayout: false,
+          routeExports: dc_components_CreateGoalModal_components_PrioritySelector,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/CreateGoalModal/components/PrioritySelector',
+          requestContext,
+          renderMode,
+          module: dc_components_CreateGoalModal_components_PrioritySelector,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-creategoalmodal-components-priorityselector',
+    index: undefined,
+    id: 'dc/components/CreateGoalModal/components/PrioritySelector',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/components/CreateGoalModal/components/RulesExplanation',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_CreateGoalModal_components_RulesExplanation,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/CreateGoalModal/components/RulesExplanation',
+          isLayout: false,
+          routeExports: dc_components_CreateGoalModal_components_RulesExplanation,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/CreateGoalModal/components/RulesExplanation',
+          requestContext,
+          renderMode,
+          module: dc_components_CreateGoalModal_components_RulesExplanation,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-creategoalmodal-components-rulesexplanation',
+    index: undefined,
+    id: 'dc/components/CreateGoalModal/components/RulesExplanation',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/components/CreateGoalModal/components/TaskTypeSelector',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_CreateGoalModal_components_TaskTypeSelector,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/CreateGoalModal/components/TaskTypeSelector',
+          isLayout: false,
+          routeExports: dc_components_CreateGoalModal_components_TaskTypeSelector,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/CreateGoalModal/components/TaskTypeSelector',
+          requestContext,
+          renderMode,
+          module: dc_components_CreateGoalModal_components_TaskTypeSelector,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-creategoalmodal-components-tasktypeselector',
+    index: undefined,
+    id: 'dc/components/CreateGoalModal/components/TaskTypeSelector',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/components/CreateGoalModal/components/CycleSelector',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_CreateGoalModal_components_CycleSelector,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/CreateGoalModal/components/CycleSelector',
+          isLayout: false,
+          routeExports: dc_components_CreateGoalModal_components_CycleSelector,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/CreateGoalModal/components/CycleSelector',
+          requestContext,
+          renderMode,
+          module: dc_components_CreateGoalModal_components_CycleSelector,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-creategoalmodal-components-cycleselector',
+    index: undefined,
+    id: 'dc/components/CreateGoalModal/components/CycleSelector',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/components/CreateMainlineTaskModal/steps/ConfigStep',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_CreateMainlineTaskModal_steps_ConfigStep,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/CreateMainlineTaskModal/steps/ConfigStep',
+          isLayout: false,
+          routeExports: dc_components_CreateMainlineTaskModal_steps_ConfigStep,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/CreateMainlineTaskModal/steps/ConfigStep',
+          requestContext,
+          renderMode,
+          module: dc_components_CreateMainlineTaskModal_steps_ConfigStep,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-createmainlinetaskmodal-steps-configstep',
+    index: undefined,
+    id: 'dc/components/CreateMainlineTaskModal/steps/ConfigStep',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/components/CreateGoalModal/components/CyclePreview',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_CreateGoalModal_components_CyclePreview,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/CreateGoalModal/components/CyclePreview',
+          isLayout: false,
+          routeExports: dc_components_CreateGoalModal_components_CyclePreview,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/CreateGoalModal/components/CyclePreview',
+          requestContext,
+          renderMode,
+          module: dc_components_CreateGoalModal_components_CyclePreview,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-creategoalmodal-components-cyclepreview',
+    index: undefined,
+    id: 'dc/components/CreateGoalModal/components/CyclePreview',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/components/CreateGoalModal/components/DateSelector',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_CreateGoalModal_components_DateSelector,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/CreateGoalModal/components/DateSelector',
+          isLayout: false,
+          routeExports: dc_components_CreateGoalModal_components_DateSelector,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/CreateGoalModal/components/DateSelector',
+          requestContext,
+          renderMode,
+          module: dc_components_CreateGoalModal_components_DateSelector,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-creategoalmodal-components-dateselector',
+    index: undefined,
+    id: 'dc/components/CreateGoalModal/components/DateSelector',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/components/CreateGoalModal/components/IconSelector',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_CreateGoalModal_components_IconSelector,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/CreateGoalModal/components/IconSelector',
+          isLayout: false,
+          routeExports: dc_components_CreateGoalModal_components_IconSelector,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/CreateGoalModal/components/IconSelector',
+          requestContext,
+          renderMode,
+          module: dc_components_CreateGoalModal_components_IconSelector,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-creategoalmodal-components-iconselector',
+    index: undefined,
+    id: 'dc/components/CreateGoalModal/components/IconSelector',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/components/CreateGoalModal/components/PopularGoals',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_CreateGoalModal_components_PopularGoals,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/CreateGoalModal/components/PopularGoals',
+          isLayout: false,
+          routeExports: dc_components_CreateGoalModal_components_PopularGoals,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/CreateGoalModal/components/PopularGoals',
+          requestContext,
+          renderMode,
+          module: dc_components_CreateGoalModal_components_PopularGoals,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-creategoalmodal-components-populargoals',
+    index: undefined,
+    id: 'dc/components/CreateGoalModal/components/PopularGoals',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/components/CreateGoalModal/components/WarningAlert',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_CreateGoalModal_components_WarningAlert,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/CreateGoalModal/components/WarningAlert',
+          isLayout: false,
+          routeExports: dc_components_CreateGoalModal_components_WarningAlert,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/CreateGoalModal/components/WarningAlert',
+          requestContext,
+          renderMode,
+          module: dc_components_CreateGoalModal_components_WarningAlert,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-creategoalmodal-components-warningalert',
+    index: undefined,
+    id: 'dc/components/CreateGoalModal/components/WarningAlert',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/components/CreateMainlineTaskModal/steps/CycleStep',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_CreateMainlineTaskModal_steps_CycleStep,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/CreateMainlineTaskModal/steps/CycleStep',
+          isLayout: false,
+          routeExports: dc_components_CreateMainlineTaskModal_steps_CycleStep,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/CreateMainlineTaskModal/steps/CycleStep',
+          requestContext,
+          renderMode,
+          module: dc_components_CreateMainlineTaskModal_steps_CycleStep,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-createmainlinetaskmodal-steps-cyclestep',
+    index: undefined,
+    id: 'dc/components/CreateMainlineTaskModal/steps/CycleStep',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/panels/detail/components/CheckInHistoryPanel',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_detail_components_CheckInHistoryPanel,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/detail/components/CheckInHistoryPanel',
+          isLayout: false,
+          routeExports: dc_panels_detail_components_CheckInHistoryPanel,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/detail/components/CheckInHistoryPanel',
+          requestContext,
+          renderMode,
+          module: dc_panels_detail_components_CheckInHistoryPanel,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-detail-components-checkinhistorypanel-index',
+    index: true,
+    id: 'dc/panels/detail/components/CheckInHistoryPanel',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/panels/detail/components/ChecklistCyclePanel',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_detail_components_ChecklistCyclePanel,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/detail/components/ChecklistCyclePanel',
+          isLayout: false,
+          routeExports: dc_panels_detail_components_ChecklistCyclePanel,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/detail/components/ChecklistCyclePanel',
+          requestContext,
+          renderMode,
+          module: dc_panels_detail_components_ChecklistCyclePanel,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-detail-components-checklistcyclepanel-index',
+    index: true,
+    id: 'dc/panels/detail/components/ChecklistCyclePanel',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/components/CreateMainlineTaskModal/steps/TypeStep',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_CreateMainlineTaskModal_steps_TypeStep,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/CreateMainlineTaskModal/steps/TypeStep',
+          isLayout: false,
+          routeExports: dc_components_CreateMainlineTaskModal_steps_TypeStep,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/CreateMainlineTaskModal/steps/TypeStep',
+          requestContext,
+          renderMode,
+          module: dc_components_CreateMainlineTaskModal_steps_TypeStep,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-createmainlinetaskmodal-steps-typestep',
+    index: undefined,
+    id: 'dc/components/CreateMainlineTaskModal/steps/TypeStep',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/panels/detail/components/CheckInRecordPanel',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_detail_components_CheckInRecordPanel,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/detail/components/CheckInRecordPanel',
+          isLayout: false,
+          routeExports: dc_panels_detail_components_CheckInRecordPanel,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/detail/components/CheckInRecordPanel',
+          requestContext,
+          renderMode,
+          module: dc_panels_detail_components_CheckInRecordPanel,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-detail-components-checkinrecordpanel-index',
+    index: true,
+    id: 'dc/panels/detail/components/CheckInRecordPanel',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/panels/detail/components/CycleSummaryDialog',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_detail_components_CycleSummaryDialog,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/detail/components/CycleSummaryDialog',
+          isLayout: false,
+          routeExports: dc_panels_detail_components_CycleSummaryDialog,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/detail/components/CycleSummaryDialog',
+          requestContext,
+          renderMode,
+          module: dc_panels_detail_components_CycleSummaryDialog,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-detail-components-cyclesummarydialog-index',
+    index: true,
+    id: 'dc/panels/detail/components/CycleSummaryDialog',
+    exact: true,
+    exports: ["showCycleSummaryDialog"],
+  },{
+    path: 'dc/panels/detail/components/HistoryRecordPanel',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_detail_components_HistoryRecordPanel,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/detail/components/HistoryRecordPanel',
+          isLayout: false,
+          routeExports: dc_panels_detail_components_HistoryRecordPanel,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/detail/components/HistoryRecordPanel',
+          requestContext,
+          renderMode,
+          module: dc_panels_detail_components_HistoryRecordPanel,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-detail-components-historyrecordpanel-index',
+    index: true,
+    id: 'dc/panels/detail/components/HistoryRecordPanel',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/panels/detail/components/CalendarViewPanel',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_detail_components_CalendarViewPanel,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/detail/components/CalendarViewPanel',
+          isLayout: false,
+          routeExports: dc_panels_detail_components_CalendarViewPanel,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/detail/components/CalendarViewPanel',
+          requestContext,
+          renderMode,
+          module: dc_panels_detail_components_CalendarViewPanel,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-detail-components-calendarviewpanel-index',
+    index: true,
+    id: 'dc/panels/detail/components/CalendarViewPanel',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/panels/detail/components/CheckInCyclePanel',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_detail_components_CheckInCyclePanel,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/detail/components/CheckInCyclePanel',
+          isLayout: false,
+          routeExports: dc_panels_detail_components_CheckInCyclePanel,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/detail/components/CheckInCyclePanel',
+          requestContext,
+          renderMode,
+          module: dc_panels_detail_components_CheckInCyclePanel,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-detail-components-checkincyclepanel-index',
+    index: true,
+    id: 'dc/panels/detail/components/CheckInCyclePanel',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/panels/detail/components/CurrentCyclePanel',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_detail_components_CurrentCyclePanel,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/detail/components/CurrentCyclePanel',
+          isLayout: false,
+          routeExports: dc_panels_detail_components_CurrentCyclePanel,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/detail/components/CurrentCyclePanel',
+          requestContext,
+          renderMode,
+          module: dc_panels_detail_components_CurrentCyclePanel,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-detail-components-currentcyclepanel-index',
+    index: true,
+    id: 'dc/panels/detail/components/CurrentCyclePanel',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/panels/detail/components/HistoryCyclePanel',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_detail_components_HistoryCyclePanel,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/detail/components/HistoryCyclePanel',
+          isLayout: false,
+          routeExports: dc_panels_detail_components_HistoryCyclePanel,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/detail/components/HistoryCyclePanel',
+          requestContext,
+          renderMode,
+          module: dc_panels_detail_components_HistoryCyclePanel,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-detail-components-historycyclepanel-index',
+    index: true,
+    id: 'dc/panels/detail/components/HistoryCyclePanel',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/panels/detail/components/NumericCyclePanel',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_detail_components_NumericCyclePanel,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/detail/components/NumericCyclePanel',
+          isLayout: false,
+          routeExports: dc_panels_detail_components_NumericCyclePanel,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/detail/components/NumericCyclePanel',
+          requestContext,
+          renderMode,
+          module: dc_panels_detail_components_NumericCyclePanel,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-detail-components-numericcyclepanel-index',
+    index: true,
+    id: 'dc/panels/detail/components/NumericCyclePanel',
+    exact: true,
+    exports: ["NumericCyclePanel","default"],
+  },{
+    path: 'dc/components/CreateMainlineTaskModal/steps',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_CreateMainlineTaskModal_steps,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/CreateMainlineTaskModal/steps',
+          isLayout: false,
+          routeExports: dc_components_CreateMainlineTaskModal_steps,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/CreateMainlineTaskModal/steps',
+          requestContext,
+          renderMode,
+          module: dc_components_CreateMainlineTaskModal_steps,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-createmainlinetaskmodal-steps-index',
+    index: true,
+    id: 'dc/components/CreateMainlineTaskModal/steps',
+    exact: true,
+    exports: ["ConfigStep","CycleStep","TypeStep"],
+  },{
+    path: 'dc/panels/detail/components/ProgressSection',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_detail_components_ProgressSection,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/detail/components/ProgressSection',
+          isLayout: false,
+          routeExports: dc_panels_detail_components_ProgressSection,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/detail/components/ProgressSection',
+          requestContext,
+          renderMode,
+          module: dc_panels_detail_components_ProgressSection,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-detail-components-progresssection-index',
+    index: true,
+    id: 'dc/panels/detail/components/ProgressSection',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/panels/detail/components/RecordDataModal',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_detail_components_RecordDataModal,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/detail/components/RecordDataModal',
+          isLayout: false,
+          routeExports: dc_panels_detail_components_RecordDataModal,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/detail/components/RecordDataModal',
+          requestContext,
+          renderMode,
+          module: dc_panels_detail_components_RecordDataModal,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-detail-components-recorddatamodal-index',
+    index: true,
+    id: 'dc/panels/detail/components/RecordDataModal',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/components/CreateMainlineTaskModal/constants',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_CreateMainlineTaskModal_constants,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/CreateMainlineTaskModal/constants',
+          isLayout: false,
+          routeExports: dc_components_CreateMainlineTaskModal_constants,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/CreateMainlineTaskModal/constants',
+          requestContext,
+          renderMode,
+          module: dc_components_CreateMainlineTaskModal_constants,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-createmainlinetaskmodal-constants',
+    index: undefined,
+    id: 'dc/components/CreateMainlineTaskModal/constants',
+    exact: true,
+    exports: ["CHECK_IN_TYPE_OPTIONS","CYCLE_LENGTH_OPTIONS","DIRECTION_OPTIONS","TASK_TYPE_OPTIONS","TOTAL_DURATION_OPTIONS"],
+  },{
+    path: 'dc/components/CreateGoalModal/components',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_CreateGoalModal_components,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/CreateGoalModal/components',
+          isLayout: false,
+          routeExports: dc_components_CreateGoalModal_components,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/CreateGoalModal/components',
+          requestContext,
+          renderMode,
+          module: dc_components_CreateGoalModal_components,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-creategoalmodal-components-index',
+    index: true,
+    id: 'dc/components/CreateGoalModal/components',
+    exact: true,
+    exports: ["CyclePreview","CycleSelector","DateSelector","DurationSelector","EncouragementInput","IconSelector","PopularGoals","PrioritySelector","RulesExplanation","TaskTypeSelector","WarningAlert"],
+  },{
+    path: 'dc/panels/detail/components/CheckInModal',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_detail_components_CheckInModal,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/detail/components/CheckInModal',
+          isLayout: false,
+          routeExports: dc_panels_detail_components_CheckInModal,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/detail/components/CheckInModal',
+          requestContext,
+          renderMode,
+          module: dc_panels_detail_components_CheckInModal,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-detail-components-checkinmodal-index',
+    index: true,
+    id: 'dc/panels/detail/components/CheckInModal',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/panels/detail/components/GoalHeader',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_detail_components_GoalHeader,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/detail/components/GoalHeader',
+          isLayout: false,
+          routeExports: dc_panels_detail_components_GoalHeader,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/detail/components/GoalHeader',
+          requestContext,
+          renderMode,
+          module: dc_panels_detail_components_GoalHeader,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-detail-components-goalheader-index',
+    index: true,
+    id: 'dc/panels/detail/components/GoalHeader',
+    exact: true,
+    exports: ["GoalHeader","default"],
+  },{
+    path: 'dc/components/CreateMainlineTaskModal',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_CreateMainlineTaskModal,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/CreateMainlineTaskModal',
+          isLayout: false,
+          routeExports: dc_components_CreateMainlineTaskModal,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/CreateMainlineTaskModal',
+          requestContext,
+          renderMode,
+          module: dc_components_CreateMainlineTaskModal,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-createmainlinetaskmodal-index',
+    index: true,
+    id: 'dc/components/CreateMainlineTaskModal',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/components/CreateMainlineTaskModal/types',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_CreateMainlineTaskModal_types,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/CreateMainlineTaskModal/types',
+          isLayout: false,
+          routeExports: dc_components_CreateMainlineTaskModal_types,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/CreateMainlineTaskModal/types',
+          requestContext,
+          renderMode,
+          module: dc_components_CreateMainlineTaskModal_types,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-createmainlinetaskmodal-types',
+    index: undefined,
+    id: 'dc/components/CreateMainlineTaskModal/types',
+    exact: true,
+    exports: [],
+  },{
+    path: 'dc/components/shared/CircleProgress',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_shared_CircleProgress,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/shared/CircleProgress',
+          isLayout: false,
+          routeExports: dc_components_shared_CircleProgress,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/shared/CircleProgress',
+          requestContext,
+          renderMode,
+          module: dc_components_shared_CircleProgress,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-shared-circleprogress-index',
+    index: true,
+    id: 'dc/components/shared/CircleProgress',
+    exact: true,
+    exports: ["CircleProgress","default"],
+  },{
+    path: 'dc/panels/detail/components/TabBar',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_detail_components_TabBar,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/detail/components/TabBar',
+          isLayout: false,
+          routeExports: dc_panels_detail_components_TabBar,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/detail/components/TabBar',
+          requestContext,
+          renderMode,
+          module: dc_panels_detail_components_TabBar,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-detail-components-tabbar-index',
+    index: true,
+    id: 'dc/panels/detail/components/TabBar',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/components/CreateGoalModal/constants',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_CreateGoalModal_constants,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/CreateGoalModal/constants',
+          isLayout: false,
+          routeExports: dc_components_CreateGoalModal_constants,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/CreateGoalModal/constants',
+          requestContext,
+          renderMode,
+          module: dc_components_CreateGoalModal_constants,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-creategoalmodal-constants',
+    index: undefined,
+    id: 'dc/components/CreateGoalModal/constants',
+    exact: true,
+    exports: ["CYCLE_LENGTH_OPTIONS","ICONS","MIN_CHECK_INS_PER_CYCLE","POPULAR_GOALS","PRIORITY_OPTIONS","TASK_TYPES","TOTAL_DURATION_OPTIONS"],
+  },{
+    path: 'dc/components/shared/ProgressBar',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_shared_ProgressBar,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/shared/ProgressBar',
+          isLayout: false,
+          routeExports: dc_components_shared_ProgressBar,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/shared/ProgressBar',
+          requestContext,
+          renderMode,
+          module: dc_components_shared_ProgressBar,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-shared-progressbar-index',
+    index: true,
+    id: 'dc/components/shared/ProgressBar',
+    exact: true,
+    exports: ["ProgressBar","default"],
+  },{
+    path: 'dc/panels/settings/ThemeSettings',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_settings_ThemeSettings,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/settings/ThemeSettings',
+          isLayout: false,
+          routeExports: dc_panels_settings_ThemeSettings,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/settings/ThemeSettings',
+          requestContext,
+          renderMode,
+          module: dc_panels_settings_ThemeSettings,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-settings-themesettings-index',
+    index: true,
+    id: 'dc/panels/settings/ThemeSettings',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/panels/happy/GoalDetailModal',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_happy_GoalDetailModal,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/happy/GoalDetailModal',
+          isLayout: false,
+          routeExports: dc_panels_happy_GoalDetailModal,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/happy/GoalDetailModal',
+          requestContext,
+          renderMode,
+          module: dc_panels_happy_GoalDetailModal,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-happy-goaldetailmodal-index',
+    index: true,
+    id: 'dc/panels/happy/GoalDetailModal',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/panels/happy/TripDetailModal',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_happy_TripDetailModal,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/happy/TripDetailModal',
+          isLayout: false,
+          routeExports: dc_panels_happy_TripDetailModal,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/happy/TripDetailModal',
+          requestContext,
+          renderMode,
+          module: dc_panels_happy_TripDetailModal,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-happy-tripdetailmodal-index',
+    index: true,
+    id: 'dc/panels/happy/TripDetailModal',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/components/RandomTaskPicker',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_RandomTaskPicker,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/RandomTaskPicker',
+          isLayout: false,
+          routeExports: dc_components_RandomTaskPicker,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/RandomTaskPicker',
+          requestContext,
+          renderMode,
+          module: dc_components_RandomTaskPicker,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-randomtaskpicker-index',
+    index: true,
+    id: 'dc/components/RandomTaskPicker',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/components/SidelineTaskGrid',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_SidelineTaskGrid,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/SidelineTaskGrid',
+          isLayout: false,
+          routeExports: dc_components_SidelineTaskGrid,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/SidelineTaskGrid',
+          requestContext,
+          renderMode,
+          module: dc_components_SidelineTaskGrid,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-sidelinetaskgrid-index',
+    index: true,
+    id: 'dc/components/SidelineTaskGrid',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/panels/detail/hooks/checkInStatus',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_detail_hooks_checkInStatus,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/detail/hooks/checkInStatus',
+          isLayout: false,
+          routeExports: dc_panels_detail_hooks_checkInStatus,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/detail/hooks/checkInStatus',
+          requestContext,
+          renderMode,
+          module: dc_panels_detail_hooks_checkInStatus,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-detail-hooks-checkinstatus',
+    index: undefined,
+    id: 'dc/panels/detail/hooks/checkInStatus',
+    exact: true,
+    exports: ["getTodayCheckInStatusForTask"],
+  },{
+    path: 'dc/components/CreateGoalModal',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_CreateGoalModal,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/CreateGoalModal',
+          isLayout: false,
+          routeExports: dc_components_CreateGoalModal,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/CreateGoalModal',
+          requestContext,
+          renderMode,
+          module: dc_components_CreateGoalModal,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-creategoalmodal-index',
+    index: true,
+    id: 'dc/components/CreateGoalModal',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/components/CreateGoalModal/types',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_CreateGoalModal_types,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/CreateGoalModal/types',
+          isLayout: false,
+          routeExports: dc_components_CreateGoalModal_types,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/CreateGoalModal/types',
+          requestContext,
+          renderMode,
+          module: dc_components_CreateGoalModal_types,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-creategoalmodal-types',
+    index: undefined,
+    id: 'dc/components/CreateGoalModal/types',
+    exact: true,
+    exports: [],
+  },{
+    path: 'dc/components/card/MainlineTaskCard',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_card_MainlineTaskCard,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/card/MainlineTaskCard',
+          isLayout: false,
+          routeExports: dc_components_card_MainlineTaskCard,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/card/MainlineTaskCard',
+          requestContext,
+          renderMode,
+          module: dc_components_card_MainlineTaskCard,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-card-mainlinetaskcard',
+    index: undefined,
+    id: 'dc/components/card/MainlineTaskCard',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/components/card/SidelineTaskCard',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_card_SidelineTaskCard,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/card/SidelineTaskCard',
+          isLayout: false,
+          routeExports: dc_components_card_SidelineTaskCard,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/card/SidelineTaskCard',
+          requestContext,
+          renderMode,
+          module: dc_components_card_SidelineTaskCard,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-card-sidelinetaskcard',
+    index: undefined,
+    id: 'dc/components/card/SidelineTaskCard',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/components/shared/StatCard',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_shared_StatCard,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/shared/StatCard',
+          isLayout: false,
+          routeExports: dc_components_shared_StatCard,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/shared/StatCard',
+          requestContext,
+          renderMode,
+          module: dc_components_shared_StatCard,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-shared-statcard-index',
+    index: true,
+    id: 'dc/components/shared/StatCard',
+    exact: true,
+    exports: ["StatCard","StatCardGrid","default"],
+  },{
+    path: 'dc/components/DailyProgress',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_DailyProgress,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/DailyProgress',
+          isLayout: false,
+          routeExports: dc_components_DailyProgress,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/DailyProgress',
+          requestContext,
+          renderMode,
+          module: dc_components_DailyProgress,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-dailyprogress-index',
+    index: true,
+    id: 'dc/components/DailyProgress',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/components/TodayProgress',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_TodayProgress,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/TodayProgress',
+          isLayout: false,
+          routeExports: dc_components_TodayProgress,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/TodayProgress',
+          requestContext,
+          renderMode,
+          module: dc_components_TodayProgress,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-todayprogress-index',
+    index: true,
+    id: 'dc/components/TodayProgress',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/panels/detail/components',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_detail_components,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/detail/components',
+          isLayout: false,
+          routeExports: dc_panels_detail_components,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/detail/components',
+          requestContext,
+          renderMode,
+          module: dc_panels_detail_components,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-detail-components-index',
+    index: true,
+    id: 'dc/panels/detail/components',
+    exact: true,
+    exports: ["CalendarViewPanel","CheckInCyclePanel","CheckInHistoryPanel","CheckInModal","CheckInRecordPanel","ChecklistCyclePanel","CurrentCyclePanel","GoalHeader","HistoryCyclePanel","HistoryRecordPanel","NumericCyclePanel","ProgressSection","RecordDataModal","TabBar","showCycleSummaryDialog"],
   },{
     path: 'dc/components/ThemedButton',
     async lazy() {
@@ -119,353 +1487,278 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["default"],
   },{
-    path: 'dc/settings/ThemeSettings',
+    path: 'dc/panels/detail/constants',
     async lazy() {
       ;
       return {
-        ...dc_settings_ThemeSettings,
+        ...dc_panels_detail_constants,
         Component: () => WrapRouteComponent({
-          routeId: 'dc/settings/ThemeSettings',
+          routeId: 'dc/panels/detail/constants',
           isLayout: false,
-          routeExports: dc_settings_ThemeSettings,
+          routeExports: dc_panels_detail_constants,
         }),
         loader: createRouteLoader({
-          routeId: 'dc/settings/ThemeSettings',
+          routeId: 'dc/panels/detail/constants',
           requestContext,
           renderMode,
-          module: dc_settings_ThemeSettings,
+          module: dc_panels_detail_constants,
         }),
       };
     },
     errorElement: <RouteErrorComponent />,
-    componentName: 'dc-settings-themesettings-index',
+    componentName: 'dc-panels-detail-constants-index',
     index: true,
-    id: 'dc/settings/ThemeSettings',
+    id: 'dc/panels/detail/constants',
     exact: true,
-    exports: ["default"],
+    exports: ["COMPLETION_IMAGES","DEFAULT_TABS","PROGRESS_IMAGES","TAB_KEYS","getCompletionImage","getProgressImage"],
   },{
-    path: 'dc/happy/GoalDetailModal',
+    path: 'dc/panels/detail/hooks/constants',
     async lazy() {
       ;
       return {
-        ...dc_happy_GoalDetailModal,
+        ...dc_panels_detail_hooks_constants,
         Component: () => WrapRouteComponent({
-          routeId: 'dc/happy/GoalDetailModal',
+          routeId: 'dc/panels/detail/hooks/constants',
           isLayout: false,
-          routeExports: dc_happy_GoalDetailModal,
+          routeExports: dc_panels_detail_hooks_constants,
         }),
         loader: createRouteLoader({
-          routeId: 'dc/happy/GoalDetailModal',
+          routeId: 'dc/panels/detail/hooks/constants',
           requestContext,
           renderMode,
-          module: dc_happy_GoalDetailModal,
+          module: dc_panels_detail_hooks_constants,
         }),
       };
     },
     errorElement: <RouteErrorComponent />,
-    componentName: 'dc-happy-goaldetailmodal-index',
+    componentName: 'dc-panels-detail-hooks-constants',
+    index: undefined,
+    id: 'dc/panels/detail/hooks/constants',
+    exact: true,
+    exports: ["DEBT_COLOR_SCHEMES","getRandomColorScheme"],
+  },{
+    path: 'dc/panels/detail/hooks/dateUtils',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_detail_hooks_dateUtils,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/detail/hooks/dateUtils',
+          isLayout: false,
+          routeExports: dc_panels_detail_hooks_dateUtils,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/detail/hooks/dateUtils',
+          requestContext,
+          renderMode,
+          module: dc_panels_detail_hooks_dateUtils,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-detail-hooks-dateutils',
+    index: undefined,
+    id: 'dc/panels/detail/hooks/dateUtils',
+    exact: true,
+    exports: ["formatLocalDate","getCurrentCycle","getSimulatedToday","getSimulatedTodayDate"],
+  },{
+    path: 'dc/panels/happy/TripSummaryModal',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_happy_TripSummaryModal,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/happy/TripSummaryModal',
+          isLayout: false,
+          routeExports: dc_panels_happy_TripSummaryModal,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/happy/TripSummaryModal',
+          requestContext,
+          renderMode,
+          module: dc_panels_happy_TripSummaryModal,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-happy-tripsummarymodal',
+    index: undefined,
+    id: 'dc/panels/happy/TripSummaryModal',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/panels/happy/CreateTripModal',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_happy_CreateTripModal,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/happy/CreateTripModal',
+          isLayout: false,
+          routeExports: dc_panels_happy_CreateTripModal,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/happy/CreateTripModal',
+          requestContext,
+          renderMode,
+          module: dc_panels_happy_CreateTripModal,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-happy-createtripmodal',
+    index: undefined,
+    id: 'dc/panels/happy/CreateTripModal',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/panels/happy/VacationContent',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_happy_VacationContent,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/happy/VacationContent',
+          isLayout: false,
+          routeExports: dc_panels_happy_VacationContent,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/happy/VacationContent',
+          requestContext,
+          renderMode,
+          module: dc_panels_happy_VacationContent,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-happy-vacationcontent',
+    index: undefined,
+    id: 'dc/panels/happy/VacationContent',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/panels/settings/theme',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_settings_theme,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/settings/theme',
+          isLayout: false,
+          routeExports: dc_panels_settings_theme,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/settings/theme',
+          requestContext,
+          renderMode,
+          module: dc_panels_settings_theme,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-settings-theme-index',
     index: true,
-    id: 'dc/happy/GoalDetailModal',
+    id: 'dc/panels/settings/theme',
     exact: true,
-    exports: ["default"],
+    exports: ["ThemeProvider","themePresets","useTheme"],
   },{
-    path: 'dc/happy/TripDetailModal',
+    path: 'dc/components/MoonPhase',
     async lazy() {
       ;
       return {
-        ...dc_happy_TripDetailModal,
+        ...dc_components_MoonPhase,
         Component: () => WrapRouteComponent({
-          routeId: 'dc/happy/TripDetailModal',
+          routeId: 'dc/components/MoonPhase',
           isLayout: false,
-          routeExports: dc_happy_TripDetailModal,
+          routeExports: dc_components_MoonPhase,
         }),
         loader: createRouteLoader({
-          routeId: 'dc/happy/TripDetailModal',
+          routeId: 'dc/components/MoonPhase',
           requestContext,
           renderMode,
-          module: dc_happy_TripDetailModal,
+          module: dc_components_MoonPhase,
         }),
       };
     },
     errorElement: <RouteErrorComponent />,
-    componentName: 'dc-happy-tripdetailmodal-index',
+    componentName: 'dc-components-moonphase-index',
     index: true,
-    id: 'dc/happy/TripDetailModal',
+    id: 'dc/components/MoonPhase',
     exact: true,
     exports: ["default"],
   },{
-    path: 'dc/settings/theme/ThemeContext',
+    path: 'dc/panels/detail/hooks',
     async lazy() {
       ;
       return {
-        ...dc_settings_theme_ThemeContext,
+        ...dc_panels_detail_hooks,
         Component: () => WrapRouteComponent({
-          routeId: 'dc/settings/theme/ThemeContext',
+          routeId: 'dc/panels/detail/hooks',
           isLayout: false,
-          routeExports: dc_settings_theme_ThemeContext,
+          routeExports: dc_panels_detail_hooks,
         }),
         loader: createRouteLoader({
-          routeId: 'dc/settings/theme/ThemeContext',
+          routeId: 'dc/panels/detail/hooks',
           requestContext,
           renderMode,
-          module: dc_settings_theme_ThemeContext,
+          module: dc_panels_detail_hooks,
         }),
       };
     },
     errorElement: <RouteErrorComponent />,
-    componentName: 'dc-settings-theme-themecontext',
+    componentName: 'dc-panels-detail-hooks',
     index: undefined,
-    id: 'dc/settings/theme/ThemeContext',
+    id: 'dc/panels/detail/hooks',
     exact: true,
-    exports: ["ThemeProvider","default","themePresets","useTheme"],
+    exports: ["formatLocalDate","getCurrentCycle","getSimulatedToday","getSimulatedTodayDate","getTodayCheckInStatusForTask","useGoalDetail"],
   },{
-    path: 'dc/detail/ChecklistCyclePanel',
+    path: 'dc/panels/detail/utils',
     async lazy() {
       ;
       return {
-        ...dc_detail_ChecklistCyclePanel,
+        ...dc_panels_detail_utils,
         Component: () => WrapRouteComponent({
-          routeId: 'dc/detail/ChecklistCyclePanel',
+          routeId: 'dc/panels/detail/utils',
           isLayout: false,
-          routeExports: dc_detail_ChecklistCyclePanel,
+          routeExports: dc_panels_detail_utils,
         }),
         loader: createRouteLoader({
-          routeId: 'dc/detail/ChecklistCyclePanel',
+          routeId: 'dc/panels/detail/utils',
           requestContext,
           renderMode,
-          module: dc_detail_ChecklistCyclePanel,
+          module: dc_panels_detail_utils,
         }),
       };
     },
     errorElement: <RouteErrorComponent />,
-    componentName: 'dc-detail-checklistcyclepanel',
-    index: undefined,
-    id: 'dc/detail/ChecklistCyclePanel',
-    exact: true,
-    exports: ["default"],
-  },{
-    path: 'dc/detail/CheckInModal',
-    async lazy() {
-      ;
-      return {
-        ...dc_detail_CheckInModal,
-        Component: () => WrapRouteComponent({
-          routeId: 'dc/detail/CheckInModal',
-          isLayout: false,
-          routeExports: dc_detail_CheckInModal,
-        }),
-        loader: createRouteLoader({
-          routeId: 'dc/detail/CheckInModal',
-          requestContext,
-          renderMode,
-          module: dc_detail_CheckInModal,
-        }),
-      };
-    },
-    errorElement: <RouteErrorComponent />,
-    componentName: 'dc-detail-checkinmodal-index',
+    componentName: 'dc-panels-detail-utils-index',
     index: true,
-    id: 'dc/detail/CheckInModal',
+    id: 'dc/panels/detail/utils',
     exact: true,
-    exports: ["default"],
+    exports: ["formatLargeNumber","formatNumber","getDefaultTab","getTabsConfig","isCycleTab"],
   },{
-    path: 'dc/detail/CheckInRecordPanel',
+    path: 'dc/panels/happy/AddGoalModal',
     async lazy() {
       ;
       return {
-        ...dc_detail_CheckInRecordPanel,
+        ...dc_panels_happy_AddGoalModal,
         Component: () => WrapRouteComponent({
-          routeId: 'dc/detail/CheckInRecordPanel',
+          routeId: 'dc/panels/happy/AddGoalModal',
           isLayout: false,
-          routeExports: dc_detail_CheckInRecordPanel,
+          routeExports: dc_panels_happy_AddGoalModal,
         }),
         loader: createRouteLoader({
-          routeId: 'dc/detail/CheckInRecordPanel',
+          routeId: 'dc/panels/happy/AddGoalModal',
           requestContext,
           renderMode,
-          module: dc_detail_CheckInRecordPanel,
+          module: dc_panels_happy_AddGoalModal,
         }),
       };
     },
     errorElement: <RouteErrorComponent />,
-    componentName: 'dc-detail-checkinrecordpanel',
+    componentName: 'dc-panels-happy-addgoalmodal',
     index: undefined,
-    id: 'dc/detail/CheckInRecordPanel',
-    exact: true,
-    exports: ["default"],
-  },{
-    path: 'dc/detail/CycleSummaryDialog',
-    async lazy() {
-      ;
-      return {
-        ...dc_detail_CycleSummaryDialog,
-        Component: () => WrapRouteComponent({
-          routeId: 'dc/detail/CycleSummaryDialog',
-          isLayout: false,
-          routeExports: dc_detail_CycleSummaryDialog,
-        }),
-        loader: createRouteLoader({
-          routeId: 'dc/detail/CycleSummaryDialog',
-          requestContext,
-          renderMode,
-          module: dc_detail_CycleSummaryDialog,
-        }),
-      };
-    },
-    errorElement: <RouteErrorComponent />,
-    componentName: 'dc-detail-cyclesummarydialog',
-    index: undefined,
-    id: 'dc/detail/CycleSummaryDialog',
-    exact: true,
-    exports: ["showCycleSummaryDialog"],
-  },{
-    path: 'dc/detail/HistoryRecordPanel',
-    async lazy() {
-      ;
-      return {
-        ...dc_detail_HistoryRecordPanel,
-        Component: () => WrapRouteComponent({
-          routeId: 'dc/detail/HistoryRecordPanel',
-          isLayout: false,
-          routeExports: dc_detail_HistoryRecordPanel,
-        }),
-        loader: createRouteLoader({
-          routeId: 'dc/detail/HistoryRecordPanel',
-          requestContext,
-          renderMode,
-          module: dc_detail_HistoryRecordPanel,
-        }),
-      };
-    },
-    errorElement: <RouteErrorComponent />,
-    componentName: 'dc-detail-historyrecordpanel',
-    index: undefined,
-    id: 'dc/detail/HistoryRecordPanel',
-    exact: true,
-    exports: ["default"],
-  },{
-    path: 'dc/detail/CalendarViewPanel',
-    async lazy() {
-      ;
-      return {
-        ...dc_detail_CalendarViewPanel,
-        Component: () => WrapRouteComponent({
-          routeId: 'dc/detail/CalendarViewPanel',
-          isLayout: false,
-          routeExports: dc_detail_CalendarViewPanel,
-        }),
-        loader: createRouteLoader({
-          routeId: 'dc/detail/CalendarViewPanel',
-          requestContext,
-          renderMode,
-          module: dc_detail_CalendarViewPanel,
-        }),
-      };
-    },
-    errorElement: <RouteErrorComponent />,
-    componentName: 'dc-detail-calendarviewpanel',
-    index: undefined,
-    id: 'dc/detail/CalendarViewPanel',
-    exact: true,
-    exports: ["default"],
-  },{
-    path: 'dc/detail/CheckInCyclePanel',
-    async lazy() {
-      ;
-      return {
-        ...dc_detail_CheckInCyclePanel,
-        Component: () => WrapRouteComponent({
-          routeId: 'dc/detail/CheckInCyclePanel',
-          isLayout: false,
-          routeExports: dc_detail_CheckInCyclePanel,
-        }),
-        loader: createRouteLoader({
-          routeId: 'dc/detail/CheckInCyclePanel',
-          requestContext,
-          renderMode,
-          module: dc_detail_CheckInCyclePanel,
-        }),
-      };
-    },
-    errorElement: <RouteErrorComponent />,
-    componentName: 'dc-detail-checkincyclepanel',
-    index: undefined,
-    id: 'dc/detail/CheckInCyclePanel',
-    exact: true,
-    exports: ["default"],
-  },{
-    path: 'dc/detail/CurrentCyclePanel',
-    async lazy() {
-      ;
-      return {
-        ...dc_detail_CurrentCyclePanel,
-        Component: () => WrapRouteComponent({
-          routeId: 'dc/detail/CurrentCyclePanel',
-          isLayout: false,
-          routeExports: dc_detail_CurrentCyclePanel,
-        }),
-        loader: createRouteLoader({
-          routeId: 'dc/detail/CurrentCyclePanel',
-          requestContext,
-          renderMode,
-          module: dc_detail_CurrentCyclePanel,
-        }),
-      };
-    },
-    errorElement: <RouteErrorComponent />,
-    componentName: 'dc-detail-currentcyclepanel',
-    index: undefined,
-    id: 'dc/detail/CurrentCyclePanel',
-    exact: true,
-    exports: ["default"],
-  },{
-    path: 'dc/detail/HistoryCyclePanel',
-    async lazy() {
-      ;
-      return {
-        ...dc_detail_HistoryCyclePanel,
-        Component: () => WrapRouteComponent({
-          routeId: 'dc/detail/HistoryCyclePanel',
-          isLayout: false,
-          routeExports: dc_detail_HistoryCyclePanel,
-        }),
-        loader: createRouteLoader({
-          routeId: 'dc/detail/HistoryCyclePanel',
-          requestContext,
-          renderMode,
-          module: dc_detail_HistoryCyclePanel,
-        }),
-      };
-    },
-    errorElement: <RouteErrorComponent />,
-    componentName: 'dc-detail-historycyclepanel',
-    index: undefined,
-    id: 'dc/detail/HistoryCyclePanel',
-    exact: true,
-    exports: ["default"],
-  },{
-    path: 'dc/detail/NumericCyclePanel',
-    async lazy() {
-      ;
-      return {
-        ...dc_detail_NumericCyclePanel,
-        Component: () => WrapRouteComponent({
-          routeId: 'dc/detail/NumericCyclePanel',
-          isLayout: false,
-          routeExports: dc_detail_NumericCyclePanel,
-        }),
-        loader: createRouteLoader({
-          routeId: 'dc/detail/NumericCyclePanel',
-          requestContext,
-          renderMode,
-          module: dc_detail_NumericCyclePanel,
-        }),
-      };
-    },
-    errorElement: <RouteErrorComponent />,
-    componentName: 'dc-detail-numericcyclepanel',
-    index: undefined,
-    id: 'dc/detail/NumericCyclePanel',
+    id: 'dc/panels/happy/AddGoalModal',
     exact: true,
     exports: ["default"],
   },{
@@ -494,253 +1787,178 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["calculateCheckInProgress","calculateChecklistProgress","calculateCurrentCycleNumber","calculateNumericProgress","calculateRemainingDays","isTodayCheckedIn","updateMainlineTaskProgress"],
   },{
-    path: 'dc/CreateMainlineTaskModal',
+    path: 'dc/utils/progressCalculator',
     async lazy() {
       ;
       return {
-        ...dc_CreateMainlineTaskModal,
+        ...dc_utils_progressCalculator,
         Component: () => WrapRouteComponent({
-          routeId: 'dc/CreateMainlineTaskModal',
+          routeId: 'dc/utils/progressCalculator',
           isLayout: false,
-          routeExports: dc_CreateMainlineTaskModal,
+          routeExports: dc_utils_progressCalculator,
         }),
         loader: createRouteLoader({
-          routeId: 'dc/CreateMainlineTaskModal',
+          routeId: 'dc/utils/progressCalculator',
           requestContext,
           renderMode,
-          module: dc_CreateMainlineTaskModal,
+          module: dc_utils_progressCalculator,
         }),
       };
     },
     errorElement: <RouteErrorComponent />,
-    componentName: 'dc-createmainlinetaskmodal',
+    componentName: 'dc-utils-progresscalculator',
     index: undefined,
-    id: 'dc/CreateMainlineTaskModal',
+    id: 'dc/utils/progressCalculator',
     exact: true,
-    exports: ["default"],
+    exports: ["calculateCheckInProgress","calculateChecklistProgress","calculateNumericProgress","formatLargeNumber","formatNumber","getEffectiveMainlineType"],
   },{
-    path: 'dc/RandomTaskPicker',
+    path: 'dc/components/shared',
     async lazy() {
       ;
       return {
-        ...dc_RandomTaskPicker,
+        ...dc_components_shared,
         Component: () => WrapRouteComponent({
-          routeId: 'dc/RandomTaskPicker',
+          routeId: 'dc/components/shared',
           isLayout: false,
-          routeExports: dc_RandomTaskPicker,
+          routeExports: dc_components_shared,
         }),
         loader: createRouteLoader({
-          routeId: 'dc/RandomTaskPicker',
+          routeId: 'dc/components/shared',
           requestContext,
           renderMode,
-          module: dc_RandomTaskPicker,
+          module: dc_components_shared,
         }),
       };
     },
     errorElement: <RouteErrorComponent />,
-    componentName: 'dc-randomtaskpicker-index',
+    componentName: 'dc-components-shared-index',
     index: true,
-    id: 'dc/RandomTaskPicker',
+    id: 'dc/components/shared',
     exact: true,
-    exports: ["default"],
+    exports: ["CircleProgress","ProgressBar","StatCard","StatCardGrid"],
   },{
-    path: 'dc/SidelineTaskGrid',
+    path: 'dc/components/card',
     async lazy() {
       ;
       return {
-        ...dc_SidelineTaskGrid,
+        ...dc_components_card,
         Component: () => WrapRouteComponent({
-          routeId: 'dc/SidelineTaskGrid',
+          routeId: 'dc/components/card',
           isLayout: false,
-          routeExports: dc_SidelineTaskGrid,
+          routeExports: dc_components_card,
         }),
         loader: createRouteLoader({
-          routeId: 'dc/SidelineTaskGrid',
+          routeId: 'dc/components/card',
           requestContext,
           renderMode,
-          module: dc_SidelineTaskGrid,
+          module: dc_components_card,
         }),
       };
     },
     errorElement: <RouteErrorComponent />,
-    componentName: 'dc-sidelinetaskgrid-index',
+    componentName: 'dc-components-card-index',
     index: true,
-    id: 'dc/SidelineTaskGrid',
+    id: 'dc/components/card',
     exact: true,
-    exports: ["default"],
+    exports: ["MainlineTaskCard","SidelineTaskCard"],
   },{
-    path: 'dc/detail/ProgressSection',
+    path: 'dc/contexts/ThemeContext',
     async lazy() {
       ;
       return {
-        ...dc_detail_ProgressSection,
+        ...dc_contexts_ThemeContext,
         Component: () => WrapRouteComponent({
-          routeId: 'dc/detail/ProgressSection',
+          routeId: 'dc/contexts/ThemeContext',
           isLayout: false,
-          routeExports: dc_detail_ProgressSection,
+          routeExports: dc_contexts_ThemeContext,
         }),
         loader: createRouteLoader({
-          routeId: 'dc/detail/ProgressSection',
+          routeId: 'dc/contexts/ThemeContext',
           requestContext,
           renderMode,
-          module: dc_detail_ProgressSection,
+          module: dc_contexts_ThemeContext,
         }),
       };
     },
     errorElement: <RouteErrorComponent />,
-    componentName: 'dc-detail-progresssection',
+    componentName: 'dc-contexts-themecontext',
     index: undefined,
-    id: 'dc/detail/ProgressSection',
+    id: 'dc/contexts/ThemeContext',
     exact: true,
-    exports: ["default"],
+    exports: ["ThemeProvider","default","themePresets","useTheme"],
   },{
-    path: 'dc/detail/RecordDataModal',
+    path: 'dc/panels/happy/GoalCard',
     async lazy() {
       ;
       return {
-        ...dc_detail_RecordDataModal,
+        ...dc_panels_happy_GoalCard,
         Component: () => WrapRouteComponent({
-          routeId: 'dc/detail/RecordDataModal',
+          routeId: 'dc/panels/happy/GoalCard',
           isLayout: false,
-          routeExports: dc_detail_RecordDataModal,
+          routeExports: dc_panels_happy_GoalCard,
         }),
         loader: createRouteLoader({
-          routeId: 'dc/detail/RecordDataModal',
+          routeId: 'dc/panels/happy/GoalCard',
           requestContext,
           renderMode,
-          module: dc_detail_RecordDataModal,
+          module: dc_panels_happy_GoalCard,
         }),
       };
     },
     errorElement: <RouteErrorComponent />,
-    componentName: 'dc-detail-recorddatamodal',
+    componentName: 'dc-panels-happy-goalcard',
     index: undefined,
-    id: 'dc/detail/RecordDataModal',
+    id: 'dc/panels/happy/GoalCard',
     exact: true,
     exports: ["default"],
   },{
-    path: 'dc/happy/TripSummaryModal',
+    path: 'dc/panels/happy/TripList',
     async lazy() {
       ;
       return {
-        ...dc_happy_TripSummaryModal,
+        ...dc_panels_happy_TripList,
         Component: () => WrapRouteComponent({
-          routeId: 'dc/happy/TripSummaryModal',
+          routeId: 'dc/panels/happy/TripList',
           isLayout: false,
-          routeExports: dc_happy_TripSummaryModal,
+          routeExports: dc_panels_happy_TripList,
         }),
         loader: createRouteLoader({
-          routeId: 'dc/happy/TripSummaryModal',
+          routeId: 'dc/panels/happy/TripList',
           requestContext,
           renderMode,
-          module: dc_happy_TripSummaryModal,
+          module: dc_panels_happy_TripList,
         }),
       };
     },
     errorElement: <RouteErrorComponent />,
-    componentName: 'dc-happy-tripsummarymodal',
+    componentName: 'dc-panels-happy-triplist',
     index: undefined,
-    id: 'dc/happy/TripSummaryModal',
+    id: 'dc/panels/happy/TripList',
     exact: true,
     exports: ["default"],
   },{
-    path: 'dc/card/MainlineTaskCard',
+    path: 'dc/panels/settings',
     async lazy() {
       ;
       return {
-        ...dc_card_MainlineTaskCard,
+        ...dc_panels_settings,
         Component: () => WrapRouteComponent({
-          routeId: 'dc/card/MainlineTaskCard',
+          routeId: 'dc/panels/settings',
           isLayout: false,
-          routeExports: dc_card_MainlineTaskCard,
+          routeExports: dc_panels_settings,
         }),
         loader: createRouteLoader({
-          routeId: 'dc/card/MainlineTaskCard',
+          routeId: 'dc/panels/settings',
           requestContext,
           renderMode,
-          module: dc_card_MainlineTaskCard,
+          module: dc_panels_settings,
         }),
       };
     },
     errorElement: <RouteErrorComponent />,
-    componentName: 'dc-card-mainlinetaskcard',
-    index: undefined,
-    id: 'dc/card/MainlineTaskCard',
-    exact: true,
-    exports: ["default"],
-  },{
-    path: 'dc/card/SidelineTaskCard',
-    async lazy() {
-      ;
-      return {
-        ...dc_card_SidelineTaskCard,
-        Component: () => WrapRouteComponent({
-          routeId: 'dc/card/SidelineTaskCard',
-          isLayout: false,
-          routeExports: dc_card_SidelineTaskCard,
-        }),
-        loader: createRouteLoader({
-          routeId: 'dc/card/SidelineTaskCard',
-          requestContext,
-          renderMode,
-          module: dc_card_SidelineTaskCard,
-        }),
-      };
-    },
-    errorElement: <RouteErrorComponent />,
-    componentName: 'dc-card-sidelinetaskcard',
-    index: undefined,
-    id: 'dc/card/SidelineTaskCard',
-    exact: true,
-    exports: ["default"],
-  },{
-    path: 'dc/happy/CreateTripModal',
-    async lazy() {
-      ;
-      return {
-        ...dc_happy_CreateTripModal,
-        Component: () => WrapRouteComponent({
-          routeId: 'dc/happy/CreateTripModal',
-          isLayout: false,
-          routeExports: dc_happy_CreateTripModal,
-        }),
-        loader: createRouteLoader({
-          routeId: 'dc/happy/CreateTripModal',
-          requestContext,
-          renderMode,
-          module: dc_happy_CreateTripModal,
-        }),
-      };
-    },
-    errorElement: <RouteErrorComponent />,
-    componentName: 'dc-happy-createtripmodal',
-    index: undefined,
-    id: 'dc/happy/CreateTripModal',
-    exact: true,
-    exports: ["default"],
-  },{
-    path: 'dc/happy/VacationContent',
-    async lazy() {
-      ;
-      return {
-        ...dc_happy_VacationContent,
-        Component: () => WrapRouteComponent({
-          routeId: 'dc/happy/VacationContent',
-          isLayout: false,
-          routeExports: dc_happy_VacationContent,
-        }),
-        loader: createRouteLoader({
-          routeId: 'dc/happy/VacationContent',
-          requestContext,
-          renderMode,
-          module: dc_happy_VacationContent,
-        }),
-      };
-    },
-    errorElement: <RouteErrorComponent />,
-    componentName: 'dc-happy-vacationcontent',
-    index: undefined,
-    id: 'dc/happy/VacationContent',
+    componentName: 'dc-panels-settings-index',
+    index: true,
+    id: 'dc/panels/settings',
     exact: true,
     exports: ["default"],
   },{
@@ -769,155 +1987,280 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["CycleCalculator"],
   },{
-    path: 'dc/settings/theme',
+    path: 'dc/contexts/TaskContext',
     async lazy() {
       ;
       return {
-        ...dc_settings_theme,
+        ...dc_contexts_TaskContext,
         Component: () => WrapRouteComponent({
-          routeId: 'dc/settings/theme',
+          routeId: 'dc/contexts/TaskContext',
           isLayout: false,
-          routeExports: dc_settings_theme,
+          routeExports: dc_contexts_TaskContext,
         }),
         loader: createRouteLoader({
-          routeId: 'dc/settings/theme',
+          routeId: 'dc/contexts/TaskContext',
           requestContext,
           renderMode,
-          module: dc_settings_theme,
+          module: dc_contexts_TaskContext,
         }),
       };
     },
     errorElement: <RouteErrorComponent />,
-    componentName: 'dc-settings-theme-index',
-    index: true,
-    id: 'dc/settings/theme',
-    exact: true,
-    exports: ["ThemeProvider","themePresets","useTheme"],
-  },{
-    path: 'dc/DailyProgress',
-    async lazy() {
-      ;
-      return {
-        ...dc_DailyProgress,
-        Component: () => WrapRouteComponent({
-          routeId: 'dc/DailyProgress',
-          isLayout: false,
-          routeExports: dc_DailyProgress,
-        }),
-        loader: createRouteLoader({
-          routeId: 'dc/DailyProgress',
-          requestContext,
-          renderMode,
-          module: dc_DailyProgress,
-        }),
-      };
-    },
-    errorElement: <RouteErrorComponent />,
-    componentName: 'dc-dailyprogress-index',
-    index: true,
-    id: 'dc/DailyProgress',
-    exact: true,
-    exports: ["default"],
-  },{
-    path: 'dc/TodayProgress',
-    async lazy() {
-      ;
-      return {
-        ...dc_TodayProgress,
-        Component: () => WrapRouteComponent({
-          routeId: 'dc/TodayProgress',
-          isLayout: false,
-          routeExports: dc_TodayProgress,
-        }),
-        loader: createRouteLoader({
-          routeId: 'dc/TodayProgress',
-          requestContext,
-          renderMode,
-          module: dc_TodayProgress,
-        }),
-      };
-    },
-    errorElement: <RouteErrorComponent />,
-    componentName: 'dc-todayprogress-index',
-    index: true,
-    id: 'dc/TodayProgress',
-    exact: true,
-    exports: ["default"],
-  },{
-    path: 'dc/context/TaskContext',
-    async lazy() {
-      ;
-      return {
-        ...dc_context_TaskContext,
-        Component: () => WrapRouteComponent({
-          routeId: 'dc/context/TaskContext',
-          isLayout: false,
-          routeExports: dc_context_TaskContext,
-        }),
-        loader: createRouteLoader({
-          routeId: 'dc/context/TaskContext',
-          requestContext,
-          renderMode,
-          module: dc_context_TaskContext,
-        }),
-      };
-    },
-    errorElement: <RouteErrorComponent />,
-    componentName: 'dc-context-taskcontext',
+    componentName: 'dc-contexts-taskcontext',
     index: undefined,
-    id: 'dc/context/TaskContext',
+    id: 'dc/contexts/TaskContext',
     exact: true,
     exports: ["TaskProvider","default","useTaskContext"],
   },{
-    path: 'dc/happy/AddGoalModal',
+    path: 'dc/hooks/useSpriteImage',
     async lazy() {
       ;
       return {
-        ...dc_happy_AddGoalModal,
+        ...dc_hooks_useSpriteImage,
         Component: () => WrapRouteComponent({
-          routeId: 'dc/happy/AddGoalModal',
+          routeId: 'dc/hooks/useSpriteImage',
           isLayout: false,
-          routeExports: dc_happy_AddGoalModal,
+          routeExports: dc_hooks_useSpriteImage,
         }),
         loader: createRouteLoader({
-          routeId: 'dc/happy/AddGoalModal',
+          routeId: 'dc/hooks/useSpriteImage',
           requestContext,
           renderMode,
-          module: dc_happy_AddGoalModal,
+          module: dc_hooks_useSpriteImage,
         }),
       };
     },
     errorElement: <RouteErrorComponent />,
-    componentName: 'dc-happy-addgoalmodal',
+    componentName: 'dc-hooks-usespriteimage',
     index: undefined,
-    id: 'dc/happy/AddGoalModal',
+    id: 'dc/hooks/useSpriteImage',
+    exact: true,
+    exports: ["useSpriteImage"],
+  },{
+    path: 'dc/panels/archive',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_archive,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/archive',
+          isLayout: false,
+          routeExports: dc_panels_archive,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/archive',
+          requestContext,
+          renderMode,
+          module: dc_panels_archive,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-archive-index',
+    index: true,
+    id: 'dc/panels/archive',
     exact: true,
     exports: ["default"],
   },{
-    path: 'dc/detail/GoalHeader',
+    path: 'dc/panels/happy/DayTabs',
     async lazy() {
       ;
       return {
-        ...dc_detail_GoalHeader,
+        ...dc_panels_happy_DayTabs,
         Component: () => WrapRouteComponent({
-          routeId: 'dc/detail/GoalHeader',
+          routeId: 'dc/panels/happy/DayTabs',
           isLayout: false,
-          routeExports: dc_detail_GoalHeader,
+          routeExports: dc_panels_happy_DayTabs,
         }),
         loader: createRouteLoader({
-          routeId: 'dc/detail/GoalHeader',
+          routeId: 'dc/panels/happy/DayTabs',
           requestContext,
           renderMode,
-          module: dc_detail_GoalHeader,
+          module: dc_panels_happy_DayTabs,
         }),
       };
     },
     errorElement: <RouteErrorComponent />,
-    componentName: 'dc-detail-goalheader',
+    componentName: 'dc-panels-happy-daytabs',
     index: undefined,
-    id: 'dc/detail/GoalHeader',
+    id: 'dc/panels/happy/DayTabs',
     exact: true,
     exports: ["default"],
+  },{
+    path: 'dc/panels/happy/storage',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_happy_storage,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/happy/storage',
+          isLayout: false,
+          routeExports: dc_panels_happy_storage,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/happy/storage',
+          requestContext,
+          renderMode,
+          module: dc_panels_happy_storage,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-happy-storage',
+    index: undefined,
+    id: 'dc/panels/happy/storage',
+    exact: true,
+    exports: ["addGoalToSchedule","calculateTripStats","completeGoal","createTrip","deleteGoal","deleteTrip","getTrip","loadTrips","loadVacationState","saveTrips","saveVacationState","updateGoal","updateTrip"],
+  },{
+    path: 'dc/panels/detail',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_detail,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/detail',
+          isLayout: false,
+          routeExports: dc_panels_detail,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/detail',
+          requestContext,
+          renderMode,
+          module: dc_panels_detail,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-detail-index',
+    index: true,
+    id: 'dc/panels/detail',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/panels/detail/types',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_detail_types,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/detail/types',
+          isLayout: false,
+          routeExports: dc_panels_detail_types,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/detail/types',
+          requestContext,
+          renderMode,
+          module: dc_panels_detail_types,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-detail-types',
+    index: undefined,
+    id: 'dc/panels/detail/types',
+    exact: true,
+    exports: [],
+  },{
+    path: 'dc/panels/happy/types',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_happy_types,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/happy/types',
+          isLayout: false,
+          routeExports: dc_panels_happy_types,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/happy/types',
+          requestContext,
+          renderMode,
+          module: dc_panels_happy_types,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-happy-types',
+    index: undefined,
+    id: 'dc/panels/happy/types',
+    exact: true,
+    exports: [],
+  },{
+    path: 'dc/constants/sprites',
+    async lazy() {
+      ;
+      return {
+        ...dc_constants_sprites,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/constants/sprites',
+          isLayout: false,
+          routeExports: dc_constants_sprites,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/constants/sprites',
+          requestContext,
+          renderMode,
+          module: dc_constants_sprites,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-constants-sprites',
+    index: undefined,
+    id: 'dc/constants/sprites',
+    exact: true,
+    exports: ["EMPTY_STATE_IMAGE","SPRITE_IMAGES","getCurrentTimeSlot"],
+  },{
+    path: 'dc/hooks/useProgress',
+    async lazy() {
+      ;
+      return {
+        ...dc_hooks_useProgress,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/hooks/useProgress',
+          isLayout: false,
+          routeExports: dc_hooks_useProgress,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/hooks/useProgress',
+          requestContext,
+          renderMode,
+          module: dc_hooks_useProgress,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-hooks-useprogress',
+    index: undefined,
+    id: 'dc/hooks/useProgress',
+    exact: true,
+    exports: ["usePlanEndStatus","useProgress","useTodayCheckInStatus"],
+  },{
+    path: 'dc/hooks/useTaskSort',
+    async lazy() {
+      ;
+      return {
+        ...dc_hooks_useTaskSort,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/hooks/useTaskSort',
+          isLayout: false,
+          routeExports: dc_hooks_useTaskSort,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/hooks/useTaskSort',
+          requestContext,
+          renderMode,
+          module: dc_hooks_useTaskSort,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-hooks-usetasksort',
+    index: undefined,
+    id: 'dc/hooks/useTaskSort',
+    exact: true,
+    exports: ["useTaskSort"],
   },{
     path: 'dc/components',
     async lazy() {
@@ -942,407 +2285,157 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/components',
     exact: true,
-    exports: ["ThemedButton"],
+    exports: ["CircleProgress","CreateGoalModal","CreateMainlineTaskModal","DailyProgress","MainlineTaskCard","MoonPhase","ProgressBar","RandomTaskPicker","SidelineTaskCard","SidelineTaskGrid","StatCard","StatCardGrid","ThemedButton","TodayProgress"],
   },{
-    path: 'dc/CreateGoalModal',
+    path: 'dc/constants/colors',
     async lazy() {
       ;
       return {
-        ...dc_CreateGoalModal,
+        ...dc_constants_colors,
         Component: () => WrapRouteComponent({
-          routeId: 'dc/CreateGoalModal',
+          routeId: 'dc/constants/colors',
           isLayout: false,
-          routeExports: dc_CreateGoalModal,
+          routeExports: dc_constants_colors,
         }),
         loader: createRouteLoader({
-          routeId: 'dc/CreateGoalModal',
+          routeId: 'dc/constants/colors',
           requestContext,
           renderMode,
-          module: dc_CreateGoalModal,
+          module: dc_constants_colors,
         }),
       };
     },
     errorElement: <RouteErrorComponent />,
-    componentName: 'dc-creategoalmodal',
+    componentName: 'dc-constants-colors',
     index: undefined,
-    id: 'dc/CreateGoalModal',
+    id: 'dc/constants/colors',
     exact: true,
-    exports: ["default"],
+    exports: ["DEBT_COLOR_SCHEMES","SIDELINE_THEME_COLORS","getNextThemeColor","getRandomDebtColorScheme"],
   },{
-    path: 'dc/MoonPhase',
+    path: 'dc/constants',
     async lazy() {
       ;
       return {
-        ...dc_MoonPhase,
+        ...dc_constants,
         Component: () => WrapRouteComponent({
-          routeId: 'dc/MoonPhase',
+          routeId: 'dc/constants',
           isLayout: false,
-          routeExports: dc_MoonPhase,
+          routeExports: dc_constants,
         }),
         loader: createRouteLoader({
-          routeId: 'dc/MoonPhase',
+          routeId: 'dc/constants',
           requestContext,
           renderMode,
-          module: dc_MoonPhase,
+          module: dc_constants,
         }),
       };
     },
     errorElement: <RouteErrorComponent />,
-    componentName: 'dc-moonphase-index',
+    componentName: 'dc-constants-index',
     index: true,
-    id: 'dc/MoonPhase',
+    id: 'dc/constants',
     exact: true,
-    exports: ["default"],
+    exports: ["DEBT_COLOR_SCHEMES","EMPTY_STATE_IMAGE","SIDELINE_THEME_COLORS","SPRITE_IMAGES","getCurrentTimeSlot","getNextThemeColor","getRandomDebtColorScheme"],
   },{
-    path: 'dc/detail/example',
+    path: 'dc/contexts',
     async lazy() {
       ;
       return {
-        ...dc_detail_example,
+        ...dc_contexts,
         Component: () => WrapRouteComponent({
-          routeId: 'dc/detail/example',
+          routeId: 'dc/contexts',
           isLayout: false,
-          routeExports: dc_detail_example,
+          routeExports: dc_contexts,
         }),
         loader: createRouteLoader({
-          routeId: 'dc/detail/example',
+          routeId: 'dc/contexts',
           requestContext,
           renderMode,
-          module: dc_detail_example,
+          module: dc_contexts,
         }),
       };
     },
     errorElement: <RouteErrorComponent />,
-    componentName: 'dc-detail-example',
-    index: undefined,
-    id: 'dc/detail/example',
-    exact: true,
-    exports: ["default"],
-  },{
-    path: 'dc/happy/GoalCard',
-    async lazy() {
-      ;
-      return {
-        ...dc_happy_GoalCard,
-        Component: () => WrapRouteComponent({
-          routeId: 'dc/happy/GoalCard',
-          isLayout: false,
-          routeExports: dc_happy_GoalCard,
-        }),
-        loader: createRouteLoader({
-          routeId: 'dc/happy/GoalCard',
-          requestContext,
-          renderMode,
-          module: dc_happy_GoalCard,
-        }),
-      };
-    },
-    errorElement: <RouteErrorComponent />,
-    componentName: 'dc-happy-goalcard',
-    index: undefined,
-    id: 'dc/happy/GoalCard',
-    exact: true,
-    exports: ["default"],
-  },{
-    path: 'dc/happy/TripList',
-    async lazy() {
-      ;
-      return {
-        ...dc_happy_TripList,
-        Component: () => WrapRouteComponent({
-          routeId: 'dc/happy/TripList',
-          isLayout: false,
-          routeExports: dc_happy_TripList,
-        }),
-        loader: createRouteLoader({
-          routeId: 'dc/happy/TripList',
-          requestContext,
-          renderMode,
-          module: dc_happy_TripList,
-        }),
-      };
-    },
-    errorElement: <RouteErrorComponent />,
-    componentName: 'dc-happy-triplist',
-    index: undefined,
-    id: 'dc/happy/TripList',
-    exact: true,
-    exports: ["default"],
-  },{
-    path: 'dc/settings',
-    async lazy() {
-      ;
-      return {
-        ...dc_settings,
-        Component: () => WrapRouteComponent({
-          routeId: 'dc/settings',
-          isLayout: false,
-          routeExports: dc_settings,
-        }),
-        loader: createRouteLoader({
-          routeId: 'dc/settings',
-          requestContext,
-          renderMode,
-          module: dc_settings,
-        }),
-      };
-    },
-    errorElement: <RouteErrorComponent />,
-    componentName: 'dc-settings-index',
+    componentName: 'dc-contexts-index',
     index: true,
-    id: 'dc/settings',
+    id: 'dc/contexts',
     exact: true,
-    exports: ["default"],
+    exports: ["TaskProvider","ThemeProvider","themePresets","useTaskContext","useTheme"],
   },{
-    path: 'dc/archive',
+    path: 'dc/panels',
     async lazy() {
       ;
       return {
-        ...dc_archive,
+        ...dc_panels,
         Component: () => WrapRouteComponent({
-          routeId: 'dc/archive',
+          routeId: 'dc/panels',
           isLayout: false,
-          routeExports: dc_archive,
+          routeExports: dc_panels,
         }),
         loader: createRouteLoader({
-          routeId: 'dc/archive',
+          routeId: 'dc/panels',
           requestContext,
           renderMode,
-          module: dc_archive,
+          module: dc_panels,
         }),
       };
     },
     errorElement: <RouteErrorComponent />,
-    componentName: 'dc-archive-index',
+    componentName: 'dc-panels-index',
     index: true,
-    id: 'dc/archive',
+    id: 'dc/panels',
     exact: true,
-    exports: ["default"],
+    exports: ["ArchiveList","GoalDetailModal","Settings","VacationContent"],
   },{
-    path: 'dc/context',
+    path: 'dc/hooks',
     async lazy() {
       ;
       return {
-        ...dc_context,
+        ...dc_hooks,
         Component: () => WrapRouteComponent({
-          routeId: 'dc/context',
+          routeId: 'dc/hooks',
           isLayout: false,
-          routeExports: dc_context,
+          routeExports: dc_hooks,
         }),
         loader: createRouteLoader({
-          routeId: 'dc/context',
+          routeId: 'dc/hooks',
           requestContext,
           renderMode,
-          module: dc_context,
+          module: dc_hooks,
         }),
       };
     },
     errorElement: <RouteErrorComponent />,
-    componentName: 'dc-context-index',
+    componentName: 'dc-hooks-index',
     index: true,
-    id: 'dc/context',
+    id: 'dc/hooks',
     exact: true,
-    exports: ["TaskProvider","useTaskContext"],
+    exports: ["formatLocalDate","getCurrentCycle","getSimulatedToday","getSimulatedTodayDate","getTodayCheckInStatusForTask","usePlanEndStatus","useProgress","useSpriteImage","useTaskSort","useTodayCheckInStatus"],
   },{
-    path: 'dc/detail/TabBar',
+    path: 'dc/utils',
     async lazy() {
       ;
       return {
-        ...dc_detail_TabBar,
+        ...dc_utils,
         Component: () => WrapRouteComponent({
-          routeId: 'dc/detail/TabBar',
+          routeId: 'dc/utils',
           isLayout: false,
-          routeExports: dc_detail_TabBar,
+          routeExports: dc_utils,
         }),
         loader: createRouteLoader({
-          routeId: 'dc/detail/TabBar',
+          routeId: 'dc/utils',
           requestContext,
           renderMode,
-          module: dc_detail_TabBar,
+          module: dc_utils,
         }),
       };
     },
     errorElement: <RouteErrorComponent />,
-    componentName: 'dc-detail-tabbar',
-    index: undefined,
-    id: 'dc/detail/TabBar',
-    exact: true,
-    exports: ["default"],
-  },{
-    path: 'dc/happy/DayTabs',
-    async lazy() {
-      ;
-      return {
-        ...dc_happy_DayTabs,
-        Component: () => WrapRouteComponent({
-          routeId: 'dc/happy/DayTabs',
-          isLayout: false,
-          routeExports: dc_happy_DayTabs,
-        }),
-        loader: createRouteLoader({
-          routeId: 'dc/happy/DayTabs',
-          requestContext,
-          renderMode,
-          module: dc_happy_DayTabs,
-        }),
-      };
-    },
-    errorElement: <RouteErrorComponent />,
-    componentName: 'dc-happy-daytabs',
-    index: undefined,
-    id: 'dc/happy/DayTabs',
-    exact: true,
-    exports: ["default"],
-  },{
-    path: 'dc/happy/storage',
-    async lazy() {
-      ;
-      return {
-        ...dc_happy_storage,
-        Component: () => WrapRouteComponent({
-          routeId: 'dc/happy/storage',
-          isLayout: false,
-          routeExports: dc_happy_storage,
-        }),
-        loader: createRouteLoader({
-          routeId: 'dc/happy/storage',
-          requestContext,
-          renderMode,
-          module: dc_happy_storage,
-        }),
-      };
-    },
-    errorElement: <RouteErrorComponent />,
-    componentName: 'dc-happy-storage',
-    index: undefined,
-    id: 'dc/happy/storage',
-    exact: true,
-    exports: ["addGoalToSchedule","calculateTripStats","completeGoal","createTrip","deleteGoal","deleteTrip","getTrip","loadTrips","loadVacationState","saveTrips","saveVacationState","updateGoal","updateTrip"],
-  },{
-    path: 'dc/detail/hooks',
-    async lazy() {
-      ;
-      return {
-        ...dc_detail_hooks,
-        Component: () => WrapRouteComponent({
-          routeId: 'dc/detail/hooks',
-          isLayout: false,
-          routeExports: dc_detail_hooks,
-        }),
-        loader: createRouteLoader({
-          routeId: 'dc/detail/hooks',
-          requestContext,
-          renderMode,
-          module: dc_detail_hooks,
-        }),
-      };
-    },
-    errorElement: <RouteErrorComponent />,
-    componentName: 'dc-detail-hooks',
-    index: undefined,
-    id: 'dc/detail/hooks',
-    exact: true,
-    exports: ["formatLocalDate","getCurrentCycle","getSimulatedToday","getSimulatedTodayDate","getTodayCheckInStatusForTask","useGoalDetail"],
-  },{
-    path: 'dc/detail',
-    async lazy() {
-      ;
-      return {
-        ...dc_detail,
-        Component: () => WrapRouteComponent({
-          routeId: 'dc/detail',
-          isLayout: false,
-          routeExports: dc_detail,
-        }),
-        loader: createRouteLoader({
-          routeId: 'dc/detail',
-          requestContext,
-          renderMode,
-          module: dc_detail,
-        }),
-      };
-    },
-    errorElement: <RouteErrorComponent />,
-    componentName: 'dc-detail-index',
+    componentName: 'dc-utils-index',
     index: true,
-    id: 'dc/detail',
+    id: 'dc/utils',
     exact: true,
-    exports: ["default"],
-  },{
-    path: 'dc/detail/types',
-    async lazy() {
-      ;
-      return {
-        ...dc_detail_types,
-        Component: () => WrapRouteComponent({
-          routeId: 'dc/detail/types',
-          isLayout: false,
-          routeExports: dc_detail_types,
-        }),
-        loader: createRouteLoader({
-          routeId: 'dc/detail/types',
-          requestContext,
-          renderMode,
-          module: dc_detail_types,
-        }),
-      };
-    },
-    errorElement: <RouteErrorComponent />,
-    componentName: 'dc-detail-types',
-    index: undefined,
-    id: 'dc/detail/types',
-    exact: true,
-    exports: [],
-  },{
-    path: 'dc/happy/types',
-    async lazy() {
-      ;
-      return {
-        ...dc_happy_types,
-        Component: () => WrapRouteComponent({
-          routeId: 'dc/happy/types',
-          isLayout: false,
-          routeExports: dc_happy_types,
-        }),
-        loader: createRouteLoader({
-          routeId: 'dc/happy/types',
-          requestContext,
-          renderMode,
-          module: dc_happy_types,
-        }),
-      };
-    },
-    errorElement: <RouteErrorComponent />,
-    componentName: 'dc-happy-types',
-    index: undefined,
-    id: 'dc/happy/types',
-    exact: true,
-    exports: [],
-  },{
-    path: 'dc/card',
-    async lazy() {
-      ;
-      return {
-        ...dc_card,
-        Component: () => WrapRouteComponent({
-          routeId: 'dc/card',
-          isLayout: false,
-          routeExports: dc_card,
-        }),
-        loader: createRouteLoader({
-          routeId: 'dc/card',
-          requestContext,
-          renderMode,
-          module: dc_card,
-        }),
-      };
-    },
-    errorElement: <RouteErrorComponent />,
-    componentName: 'dc-card-index',
-    index: true,
-    id: 'dc/card',
-    exact: true,
-    exports: ["MainlineTaskCard","SidelineTaskCard"],
+    exports: ["CycleCalculator","calculateCheckInProgress","calculateCheckInProgressV2","calculateChecklistProgress","calculateChecklistProgressV2","calculateCurrentCycleNumber","calculateNumericProgress","calculateNumericProgressV2","calculateRemainingDays","formatLargeNumber","formatNumber","getEffectiveMainlineType","isTodayCheckedIn","updateMainlineTaskProgress"],
   },{
     path: 'stock_self',
     async lazy() {
@@ -1391,6 +2484,31 @@ const createRoutes: CreateRoutes = ({
     componentName: 'aloglist',
     index: undefined,
     id: 'aloglist',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc',
+    async lazy() {
+      ;
+      return {
+        ...dc,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc',
+          isLayout: false,
+          routeExports: dc,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc',
+          requestContext,
+          renderMode,
+          module: dc,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-index',
+    index: true,
+    id: 'dc',
     exact: true,
     exports: ["default"],
   },{

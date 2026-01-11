@@ -1,5 +1,5 @@
 import { ButtonHTMLAttributes, ReactNode } from 'react';
-import { useTheme } from '../../settings/theme';
+import { useTheme } from '../../contexts';
 import './index.css';
 
 interface ThemedButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {

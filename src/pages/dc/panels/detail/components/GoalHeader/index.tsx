@@ -1,0 +1,276 @@
+import { useState, useMemo, useCallback, memo } from 'react';
+import { X, Pencil, MoreHorizontal, BarChart3, ClipboardList, CheckCircle, Target, StopCircle, GitBranch } from 'lucide-react';
+import type { GoalHeaderProps } from '../../types';
+import type { MainlineTaskType } from '../../../../types';
+import { getProgressImage, getCompletionImage } from '../../constants';
+import { formatLargeNumber } from '../../utils';
+import styles from './styles.module.css';
+
+function GoalHeaderComponent({ 
+  goal, 
+  onClose,
+  currentCheckIns,
+  requiredCheckIns,
+  totalCheckIns,
+  totalCycles,
+  currentCycle,
+  remainingDays,
+  onDebugNextCycle,
+  onDebugNextDay,
+  onEndPlanEarly,
+  onConvertToSideline,
+  isPlanEnded
+}: GoalHeaderProps) {
+  const [showMenu, setShowMenu] = useState(false);
+  
+  // 智能判断任务类型 - 使用 useMemo 缓存
+  const mainlineType = useMemo((): MainlineTaskType => {
+    if (goal.numericConfig) return 'NUMERIC';
+    if (goal.checklistConfig) return 'CHECKLIST';
+    return 'CHECK_IN';
+  }, [goal.numericConfig, goal.checklistConfig]);
+  
+  // 根据任务类型计算进度 - 使用 useMemo 缓存
+  const progress = useMemo(() => {
+    if (mainlineType === 'NUMERIC' && goal.numericConfig) {
+      const config = goal.numericConfig;
+      const isDecrease = config.direction === 'DECREASE';
+      const originalStart = config.originalStartValue ?? config.startValue;
+      const totalChange = Math.abs(config.targetValue - originalStart);
+      const rawChange = config.currentValue - originalStart;
+      const effectiveChange = isDecrease 
+        ? Math.max(0, -rawChange)
+        : Math.max(0, rawChange);
+      return totalChange > 0 ? Math.min(100, Math.round((effectiveChange / totalChange) * 100)) : 0;
+    }
+    if (mainlineType === 'CHECKLIST' && goal.checklistConfig) {
+      const config = goal.checklistConfig;
+      return config.totalItems > 0 ? Math.round((config.completedItems / config.totalItems) * 100) : 0;
+    }
+    // CHECK_IN 类型
+    const config = goal.checkInConfig;
+    const unit = config?.unit || 'TIMES';
+    const checkIns = goal.checkIns || [];
+    
+    if (unit === 'TIMES') {
+      const perCycleTarget = config?.cycleTargetTimes || config?.perCycleTarget || requiredCheckIns;
+      const totalRequired = totalCycles * perCycleTarget;
+      return totalRequired > 0 ? Math.round((checkIns.length / totalRequired) * 100) : 0;
+    } else if (unit === 'DURATION') {
+      const perCycleTarget = config?.cycleTargetMinutes || config?.perCycleTarget || 0;
+      const totalRequired = totalCycles * perCycleTarget;
+      const totalValue = checkIns.reduce((sum, c) => sum + (c.value || 0), 0);
+      return totalRequired > 0 ? Math.round((totalValue / totalRequired) * 100) : 0;
+    } else {
+      const perCycleTarget = config?.cycleTargetValue || config?.perCycleTarget || 0;
+      const totalRequired = totalCycles * perCycleTarget;
+      const totalValue = checkIns.reduce((sum, c) => sum + (c.value || 0), 0);
+      return totalRequired > 0 ? Math.round((totalValue / totalRequired) * 100) : 0;
+    }
+  }, [mainlineType, goal, requiredCheckIns, totalCycles]);
+  
+  // 获取进度图片 - 使用 useMemo 缓存
+  const progressImage = useMemo(() => {
+    return isPlanEnded ? getCompletionImage(progress) : getProgressImage(progress);
+  }, [isPlanEnded, progress]);
+  
+  // 渲染目标进度信息 - 使用 useMemo 缓存
+  const progressInfo = useMemo(() => {
+    if (goal.numericConfig) {
+      return (
+        <>
+          {formatLargeNumber(goal.numericConfig.currentValue)}
+          <span style={{ padding: '0 5px' }}>/</span>
+          <span className={styles.infoValueTarget}>{formatLargeNumber(goal.numericConfig.targetValue)}</span>
+          {goal.numericConfig.unit}
+        </>
+      );
+    }
+    if (goal.checklistConfig) {
+      return (
+        <>
+          {goal.checklistConfig.completedItems}
+          <span style={{ padding: '0 5px' }}>/</span>
+          <span className={styles.infoValueTarget}>{goal.checklistConfig.totalItems}</span>项
+        </>
+      );
+    }
+    // CHECK_IN 类型
+    const config = goal.checkInConfig;
+    const unit = config?.unit || 'TIMES';
+    const checkIns = goal.checkIns || [];
+    
+    if (unit === 'TIMES') {
+      const perCycleTarget = config?.cycleTargetTimes || config?.perCycleTarget || requiredCheckIns;
+      const totalTarget = totalCycles * perCycleTarget;
+      return (
+        <>
+          {checkIns.length}
+          <span style={{ padding: '0 5px' }}>/</span>
+          <span className={styles.infoValueTarget}>{totalTarget}</span>次
+        </>
+      );
+    } else if (unit === 'DURATION') {
+      const perCycleTarget = config?.cycleTargetMinutes || config?.perCycleTarget || 0;
+      const totalTarget = totalCycles * perCycleTarget;
+      const totalValue = checkIns.reduce((sum, c) => sum + (c.value || 0), 0);
+      return (
+        <>
+          {totalValue}
+          <span style={{ padding: '0 5px' }}>/</span>
+          <span className={styles.infoValueTarget}>{totalTarget}</span>分钟
+        </>
+      );
+    } else {
+      const perCycleTarget = config?.cycleTargetValue || config?.perCycleTarget || 0;
+      const totalTarget = totalCycles * perCycleTarget;
+      const totalValue = checkIns.reduce((sum, c) => sum + (c.value || 0), 0);
+      return (
+        <>
+          {totalValue}
+          <span style={{ padding: '0 5px' }}>/</span>
+          <span className={styles.infoValueTarget}>{totalTarget}</span>{config?.valueUnit || '个'}
+        </>
+      );
+    }
+  }, [goal, requiredCheckIns, totalCycles]);
+  
+  // 菜单项点击处理 - 使用 useCallback 缓存
+  const handleDebugNextDay = useCallback(() => {
+    onDebugNextDay?.();
+    setShowMenu(false);
+  }, [onDebugNextDay]);
+  
+  const handleDebugNextCycle = useCallback(() => {
+    onDebugNextCycle?.();
+    setShowMenu(false);
+  }, [onDebugNextCycle]);
+  
+  const handleEndPlanEarly = useCallback(() => {
+    onEndPlanEarly?.();
+    setShowMenu(false);
+  }, [onEndPlanEarly]);
+  
+  const handleConvertToSideline = useCallback(() => {
+    onConvertToSideline?.();
+    setShowMenu(false);
+  }, [onConvertToSideline]);
+  
+  const toggleMenu = useCallback(() => {
+    setShowMenu(prev => !prev);
+  }, []);
+  
+  return (
+    <div className={styles.container}>
+      {/* 顶部操作栏 + 标题 */}
+      <div className={styles.topBar}>
+        <div className={styles.leftSection}>
+          <div className={styles.closeButton} onClick={onClose}>
+            <X size={20} />
+          </div>
+          <div className={styles.titleRow}>
+            <div className={styles.icon}>
+              {goal.icon}
+            </div>
+            <div className={styles.title}>
+              {goal.title}
+            </div>
+          </div>
+        </div>
+        <div className={styles.rightActions}>
+          <div className={styles.actionButton}>
+            <Pencil size={18} />
+          </div>
+          <div className={styles.actionButton} onClick={toggleMenu}>
+            <MoreHorizontal size={18} />
+          </div>
+          {showMenu && (
+            <div className={styles.menuDropdown}>
+              {!isPlanEnded && (
+                <>
+                  <div className={styles.menuItem} onClick={handleDebugNextDay}>
+                    🐛 Debug: 进入下一天
+                  </div>
+                  <div className={styles.menuItem} onClick={handleDebugNextCycle}>
+                    🐛 Debug: 进入下一周期
+                  </div>
+                  <div className={styles.menuItem} onClick={handleEndPlanEarly}>
+                    <StopCircle size={14} style={{ marginRight: 6 }} />
+                    提前结束任务
+                  </div>
+                  <div 
+                    className={`${styles.menuItem} ${styles.menuItemDisabled}`}
+                    onClick={handleConvertToSideline}
+                  >
+                    <GitBranch size={14} style={{ marginRight: 6 }} />
+                    转成支线任务
+                    <span className={styles.devTag}>开发中</span>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+      
+      <div className={styles.numericProgress}>
+        <div className={styles.leftContent}>
+          <div className={styles.circleProgressWrapper}>
+            <svg className={styles.circleProgress} viewBox="0 0 100 100">
+              <defs>
+                <linearGradient id="circleGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#6366f1" />
+                  <stop offset="100%" stopColor="#8b5cf6" />
+                </linearGradient>
+              </defs>
+              <circle
+                className={styles.circleBackground}
+                cx="50"
+                cy="50"
+                r="42"
+                fill="none"
+                strokeWidth="8"
+              />
+              <circle
+                cx="50"
+                cy="50"
+                r="42"
+                fill="none"
+                stroke="url(#circleGradient)"
+                strokeWidth="8"
+                strokeLinecap="round"
+                strokeDasharray={`${progress * 2.64} 264`}
+                transform="rotate(-90 50 50)"
+              />
+            </svg>
+            <div className={styles.circleValue}>{progress}%</div>
+          </div>
+          <div className={styles.numericInfo}>
+            <div className={styles.infoItem}>
+              <span className={styles.infoLabel}>当前周期</span>
+              <span className={styles.infoValue}>
+                {currentCycle}<span style={{ padding: '0 5px' }}>/</span>{totalCycles}
+              </span>
+            </div>
+            <div className={styles.infoItem}>
+              <span className={styles.infoLabel}>目标进度</span>
+              <span className={styles.infoValue}>{progressInfo}</span>
+            </div>
+          </div>
+        </div>
+        {/* 进度图片 - 右侧自适应居中 */}
+        <div className={styles.progressImageWrapper}>
+          <img 
+            src={progressImage} 
+            alt="进度图片" 
+            className={styles.progressImage}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// 使用 memo 包装，优化渲染性能
+export const GoalHeader = memo(GoalHeaderComponent);
+export default GoalHeader;

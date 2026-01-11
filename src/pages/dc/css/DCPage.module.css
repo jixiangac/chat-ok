@@ -1,0 +1,340 @@
+/* 主容器 */
+.container {
+  width: 100%;
+  min-width: 390px;
+  height: 100vh;
+  background-color: white;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.header {
+  padding: 16px 24px;
+  background-color: white;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.headerContent {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Tab 导航 */
+.tabNav {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.tabButton {
+  position: relative;
+  padding: 4px 0;
+  border: none;
+  background-color: transparent;
+  font-size: 15px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.tabButton.active {
+  font-weight: 500;
+  color: #000;
+}
+
+.tabButton.inactive {
+  font-weight: 400;
+  color: #999;
+}
+
+.tabIndicator {
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 2px;
+  background-color: #000;
+  border-radius: 1px;
+  transition: width 0.2s ease;
+}
+
+.tabIndicator.active {
+  width: 100%;
+}
+
+.tabIndicator.inactive {
+  width: 0;
+}
+
+/* 右侧按钮区域 */
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.iconButton {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  background-color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.iconButton:hover {
+  background-color: #f5f5f5;
+}
+
+/* 内容区域 */
+.content {
+  flex: 1;
+  padding: 12px 16px;
+}
+
+.contentWithBottomBar {
+  padding-bottom: 80px;
+}
+
+/* 小精灵区域 */
+.spriteSection {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  position: relative;
+}
+
+.moonPhaseWrapper {
+  position: absolute;
+  left: 0;
+  top: 10px;
+}
+
+.spriteImage {
+  width: 100%;
+  max-width: 350px;
+  height: 250px;
+  object-fit: contain;
+}
+
+/* 任务区块 */
+.taskSection {
+  margin-bottom: 16px;
+}
+
+.sectionHeader {
+  padding: 0 8px;
+  margin-bottom: 8px;
+}
+
+.sectionTitle {
+  font-size: 12px;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0;
+  font-weight: normal;
+}
+
+/* 空状态卡片 */
+.emptyCard {
+  background-color: white;
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid rgba(55, 53, 47, 0.09);
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+  min-height: 120px;
+}
+
+.emptyCardImage {
+  width: 90%;
+  height: auto;
+  opacity: 0.3;
+  position: absolute;
+  right: -60px;
+  top: 48%;
+  transform: translateY(-50%);
+}
+
+.emptyCardSkeleton {
+  position: relative;
+  z-index: 1;
+  width: 50%;
+}
+
+.skeletonLine {
+  background-color: rgba(55, 53, 47, 0.08);
+  border-radius: 4px;
+}
+
+.skeletonLine.title {
+  width: 100%;
+  height: 14px;
+  margin-bottom: 16px;
+}
+
+.skeletonLine.subtitle {
+  width: 70%;
+  height: 10px;
+  margin-bottom: 10px;
+  background-color: rgba(55, 53, 47, 0.06);
+}
+
+.skeletonLine.progress {
+  width: 100%;
+  height: 4px;
+  margin-bottom: 16px;
+  background-color: rgba(55, 53, 47, 0.06);
+  border-radius: 2px;
+}
+
+.skeletonLine.info {
+  width: 60%;
+  height: 10px;
+  margin-bottom: 8px;
+  background-color: rgba(55, 53, 47, 0.06);
+}
+
+.skeletonLine.small {
+  width: 40%;
+  height: 3px;
+  background-color: rgba(55, 53, 47, 0.04);
+  border-radius: 2px;
+}
+
+/* 建设中页面 */
+.underConstruction {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 60vh;
+  color: #999;
+}
+
+.constructionIcon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.constructionTitle {
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: #666;
+}
+
+.constructionSubtitle {
+  font-size: 14px;
+  color: #999;
+}
+
+/* 弹出层遮罩 */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* 底部抽屉 */
+.drawer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: white;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: slideUp 0.3s ease-out;
+}
+
+.drawerHandle {
+  padding: 12px 0;
+  display: flex;
+  justify-content: center;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.drawerHandleBar {
+  width: 40px;
+  height: 4px;
+  background-color: #ddd;
+  border-radius: 2px;
+}
+
+.drawerHeader {
+  padding: 16px 24px;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.drawerTitle {
+  margin: 0;
+  font-size: 18px;
+  font-weight: normal;
+}
+
+.drawerContent {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 24px;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+}
+
+.taskList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* 全屏面板 */
+.fullScreenPanel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: white;
+  z-index: 1000;
+}
+
+/* 动画 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}

@@ -1,0 +1,53 @@
+.container {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.animated {
+  animation: progressAnimation 1.5s ease-in-out infinite;
+}
+
+.striped {
+  background-image: linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.15) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(255, 255, 255, 0.15) 50%,
+    rgba(255, 255, 255, 0.15) 75%,
+    transparent 75%,
+    transparent
+  );
+  background-size: 1rem 1rem;
+}
+
+.animated.striped {
+  animation: stripedAnimation 1s linear infinite;
+}
+
+@keyframes progressAnimation {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes stripedAnimation {
+  0% {
+    background-position: 1rem 0;
+  }
+  100% {
+    background-position: 0 0;
+  }
+}

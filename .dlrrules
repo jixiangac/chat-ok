@@ -1,0 +1,63 @@
+## 正确的行为
+
+### OpenSpec Workflow 规则
+
+当用户请求执行以下 OpenSpec 相关操作时，应动态读取对应的 workflow 文件：
+
+1. **Proposal（提案）** - 当用户要求创建新的 OpenSpec 变更提案时：
+   - 读取文件：`.clinerules/workflows/openspec-proposal.md`
+   - 触发关键词：`openspec proposal`、`创建提案`、`新建变更`、`scaffold change`
+
+2. **Apply（应用）** - 当用户要求实施已批准的 OpenSpec 变更时：
+   - 读取文件：`.clinerules/workflows/openspec-apply.md`
+   - 触发关键词：`openspec apply`、`实施变更`、`应用提案`、`implement change`
+
+3. **Archive（归档）** - 当用户要求归档已部署的 OpenSpec 变更时：
+   - 读取文件：`.clinerules/workflows/openspec-archive.md`
+   - 触发关键词：`openspec archive`、`归档变更`、`archive change`
+
+### OpenSpec 通用规范
+
+- 优先采用简单、最小化的实现方式，只有在明确需要时才增加复杂性
+- 保持变更范围紧密聚焦于请求的结果
+- 如需额外的 OpenSpec 约定或说明，参考 `openspec/AGENTS.md`
+- 使用 `openspec list` 查看现有变更列表
+- 使用 `openspec show <id>` 查看特定变更详情
+- 使用 `openspec validate --strict` 验证变更
+
+### OpenSpec 上下文触发规则
+
+当用户请求涉及以下情况时，应首先读取 `openspec/AGENTS.md` 获取完整指导：
+
+1. **规划或提案相关**：
+   - 提及 proposal、spec、change、plan 等关键词
+   - 需要创建或修改变更提案
+
+2. **重大变更**：
+   - 引入新功能或能力
+   - 破坏性变更（API、schema）
+   - 架构调整或模式变更
+   - 性能或安全相关的重大工作
+
+3. **需要规范参考**：
+   - 请求模糊不清，需要权威规范指导
+   - 需要了解 spec 格式和约定
+   - 需要了解项目结构和指南
+
+### OpenSpec 项目上下文
+
+在执行 OpenSpec 相关任务前，应检查以下内容：
+- 读取 `openspec/project.md` 了解项目约定
+- 运行 `openspec list` 查看活跃变更
+- 运行 `openspec list --specs` 查看现有能力规范
+- 检查 `openspec/specs/` 目录下的相关规范
+- 检查 `openspec/changes/` 目录下的待处理变更
+
+
+
+
+## 错误的行为
+
+1. 禁止写在没有要求的情况下写.md文件
+2. 禁止在没有要求的情况下写example
+3. 禁止有open http://127.0.0.1:3002/ 类似的话术

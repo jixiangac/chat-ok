@@ -1,8 +1,10 @@
 import { useRef, useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle, Hash, Clock, Calculator, BarChart3 } from 'lucide-react';
 import { CHECK_IN_TYPE_OPTIONS } from '../../constants';
 import type { HighlightStyle, CycleInfo } from '../../types';
 import type { CheckInUnit } from '../../../../types';
+import { fadeVariants } from '../../../../constants/animations';
 
 interface CheckInConfigProps {
   checkInUnit: CheckInUnit;
@@ -67,40 +69,67 @@ export default function CheckInConfig({
     }
   }, [checkInUnit]);
 
+  // 通用输入框样式
+  const inputStyle: React.CSSProperties = {
+    width: '100%',
+    padding: '12px',
+    border: '1px solid #e5e5e5',
+    borderRadius: '12px',
+    fontSize: '14px',
+    outline: 'none',
+    boxSizing: 'border-box',
+  };
+
+  // 通用按钮样式
+  const buttonBaseStyle: React.CSSProperties = {
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
+    border: '2px solid #9ca3af',
+    padding: '12px 6px',
+    borderRadius: '16px',
+    backgroundColor: 'white',
+    textAlign: 'center',
+    transition: 'all 0.2s',
+    minWidth: 0,
+  };
+
   return (
-    <>
-      <div style={{ marginBottom: '20px' }}>
-        <div style={{ fontSize: '14px', color: '#666', marginBottom: '12px', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '6px' }}>
+    <motion.div
+      variants={fadeVariants}
+      initial="hidden"
+      animate="visible"
+    >
+      <div style={{ marginBottom: '18px' }}>
+        <div style={{ fontSize: '14px', color: '#666', marginBottom: '10px', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '6px' }}>
           <CheckCircle size={16} /> 选择打卡类型
         </div>
-        <div style={{ position: 'relative', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '16px' }}>
+        {/* 响应式网格：小屏幕时自动换行 */}
+        <div style={{ 
+          position: 'relative', 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(90px, 1fr))', 
+          gap: '8px', 
+          marginBottom: '14px' 
+        }}>
           {CHECK_IN_TYPE_OPTIONS.map((option, index) => (
-            <button
+            <motion.button
               key={option.value}
-              ref={el => checkInTypeRefs.current[index] = el}
+              ref={el => { checkInTypeRefs.current[index] = el; }}
               onClick={() => setCheckInUnit(option.value)}
-              style={{
-                width: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                border: '2px solid #9ca3af',
-                padding: '16px 8px',
-                borderRadius: '16px',
-                backgroundColor: 'white',
-                textAlign: 'center',
-                transition: 'all 0.2s'
-              }}
+              whileTap={{ scale: 0.98 }}
+              style={buttonBaseStyle}
             >
-              <div style={{ fontWeight: '600', fontSize: '16px', marginBottom: '4px' }}>
+              <div style={{ fontWeight: '600', fontSize: '14px', marginBottom: '2px' }}>
                 {option.label}
               </div>
-              <div style={{ fontSize: '12px', color: '#666' }}>
+              <div style={{ fontSize: '11px', color: '#666' }}>
                 {option.desc}
               </div>
-            </button>
+            </motion.button>
           ))}
           
           {/* 选中高亮边框 */}
@@ -118,180 +147,148 @@ export default function CheckInConfig({
           }} />
         </div>
         
-        {/* 次数型打卡配置 */}
-        {checkInUnit === 'TIMES' && (
-          <div style={{ marginBottom: '16px' }}>
-            <div style={{ fontSize: '13px', color: '#666', marginBottom: '8px', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <Hash size={14} /> 次数型打卡设置
+        {/* 打卡配置区域 - 固定高度避免抖动 */}
+        <div style={{ minHeight: '140px', marginBottom: '14px' }}>
+          {/* 次数型打卡配置 */}
+          {checkInUnit === 'TIMES' && (
+            <div>
+              <div style={{ fontSize: '13px', color: '#666', marginBottom: '8px', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Hash size={14} /> 次数型打卡设置
+              </div>
+              {/* 响应式两列布局 */}
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', 
+                gap: '10px', 
+                marginBottom: '10px' 
+              }}>
+                <div>
+                  <div style={{ fontSize: '12px', color: '#999', marginBottom: '6px' }}>单日打卡上限</div>
+                  <input
+                    type="number"
+                    value={dailyMaxTimes}
+                    onChange={(e) => setDailyMaxTimes(e.target.value)}
+                    placeholder="1"
+                    style={inputStyle}
+                  />
+                </div>
+                <div>
+                  <div style={{ fontSize: '12px', color: '#999', marginBottom: '6px' }}>周期总次数目标</div>
+                  <input
+                    type="number"
+                    value={cycleTargetTimes}
+                    onChange={(e) => setCycleTargetTimes(e.target.value)}
+                    placeholder={`${cycleDays * (parseInt(dailyMaxTimes) || 1)}`}
+                    style={inputStyle}
+                  />
+                </div>
+              </div>
+              <div style={{ fontSize: '11px', color: '#999' }}>
+                默认周期目标 = 天数 × 单日上限 = {cycleDays * (parseInt(dailyMaxTimes) || 1)} 次
+              </div>
             </div>
-            <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: '12px', color: '#999', marginBottom: '6px' }}>单日打卡上限</div>
+          )}
+          
+          {/* 时长型打卡配置 */}
+          {checkInUnit === 'DURATION' && (
+            <div>
+              <div style={{ fontSize: '13px', color: '#666', marginBottom: '8px', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Clock size={14} /> 时长型打卡设置
+              </div>
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', 
+                gap: '10px', 
+                marginBottom: '10px' 
+              }}>
+                <div>
+                  <div style={{ fontSize: '12px', color: '#999', marginBottom: '6px' }}>单日目标(分钟)</div>
+                  <input
+                    type="number"
+                    value={dailyTargetMinutes}
+                    onChange={(e) => setDailyTargetMinutes(e.target.value)}
+                    placeholder="15"
+                    style={inputStyle}
+                  />
+                </div>
+                <div>
+                  <div style={{ fontSize: '12px', color: '#999', marginBottom: '6px' }}>周期总时长(分钟)</div>
+                  <input
+                    type="number"
+                    value={cycleTargetMinutes}
+                    onChange={(e) => setCycleTargetMinutes(e.target.value)}
+                    placeholder={`${cycleDays * (parseInt(dailyTargetMinutes) || 15)}`}
+                    style={inputStyle}
+                  />
+                </div>
+              </div>
+              <div style={{ fontSize: '11px', color: '#999' }}>
+                打卡时可选择 5/10/15 分钟或自定义时长
+              </div>
+            </div>
+          )}
+          
+          {/* 数值型打卡配置 */}
+          {checkInUnit === 'QUANTITY' && (
+            <div>
+              <div style={{ fontSize: '13px', color: '#666', marginBottom: '8px', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Calculator size={14} /> 数值型打卡设置
+              </div>
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', 
+                gap: '10px', 
+                marginBottom: '10px' 
+              }}>
+                <div>
+                  <div style={{ fontSize: '12px', color: '#999', marginBottom: '6px' }}>单日目标数值</div>
+                  <input
+                    type="number"
+                    value={dailyTargetValue}
+                    onChange={(e) => setDailyTargetValue(e.target.value)}
+                    placeholder="10"
+                    style={inputStyle}
+                  />
+                </div>
+                <div>
+                  <div style={{ fontSize: '12px', color: '#999', marginBottom: '6px' }}>数值单位</div>
+                  <input
+                    type="text"
+                    value={valueUnit}
+                    onChange={(e) => setValueUnit(e.target.value)}
+                    placeholder="个"
+                    style={inputStyle}
+                  />
+                </div>
+              </div>
+              <div style={{ marginBottom: '10px' }}>
+                <div style={{ fontSize: '12px', color: '#999', marginBottom: '6px' }}>周期总目标数值</div>
                 <input
                   type="number"
-                  value={dailyMaxTimes}
-                  onChange={(e) => setDailyMaxTimes(e.target.value)}
-                  placeholder="1"
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    border: '1px solid #e5e5e5',
-                    borderRadius: '12px',
-                    fontSize: '14px',
-                    outline: 'none',
-                    boxSizing: 'border-box'
-                  }}
-                />
-              </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: '12px', color: '#999', marginBottom: '6px' }}>周期总次数目标</div>
-                <input
-                  type="number"
-                  value={cycleTargetTimes}
-                  onChange={(e) => setCycleTargetTimes(e.target.value)}
-                  placeholder={`${cycleDays * (parseInt(dailyMaxTimes) || 1)}`}
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    border: '1px solid #e5e5e5',
-                    borderRadius: '12px',
-                    fontSize: '14px',
-                    outline: 'none',
-                    boxSizing: 'border-box'
-                  }}
+                  value={cycleTargetValue}
+                  onChange={(e) => setCycleTargetValue(e.target.value)}
+                  placeholder={`${cycleDays * (parseFloat(dailyTargetValue) || 0)}`}
+                  style={inputStyle}
                 />
               </div>
             </div>
-            <div style={{ fontSize: '11px', color: '#999' }}>
-              默认周期目标 = 天数 × 单日上限 = {cycleDays * (parseInt(dailyMaxTimes) || 1)} 次
-            </div>
-          </div>
-        )}
-        
-        {/* 时长型打卡配置 */}
-        {checkInUnit === 'DURATION' && (
-          <div style={{ marginBottom: '16px' }}>
-            <div style={{ fontSize: '13px', color: '#666', marginBottom: '8px', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <Clock size={14} /> 时长型打卡设置
-            </div>
-            <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: '12px', color: '#999', marginBottom: '6px' }}>单日目标时长(分钟)</div>
-                <input
-                  type="number"
-                  value={dailyTargetMinutes}
-                  onChange={(e) => setDailyTargetMinutes(e.target.value)}
-                  placeholder="15"
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    border: '1px solid #e5e5e5',
-                    borderRadius: '12px',
-                    fontSize: '14px',
-                    outline: 'none',
-                    boxSizing: 'border-box'
-                  }}
-                />
-              </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: '12px', color: '#999', marginBottom: '6px' }}>周期总时长目标(分钟)</div>
-                <input
-                  type="number"
-                  value={cycleTargetMinutes}
-                  onChange={(e) => setCycleTargetMinutes(e.target.value)}
-                  placeholder={`${cycleDays * (parseInt(dailyTargetMinutes) || 15)}`}
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    border: '1px solid #e5e5e5',
-                    borderRadius: '12px',
-                    fontSize: '14px',
-                    outline: 'none',
-                    boxSizing: 'border-box'
-                  }}
-                />
-              </div>
-            </div>
-            <div style={{ fontSize: '11px', color: '#999' }}>
-              打卡时可选择 5/10/15 分钟或自定义时长
-            </div>
-          </div>
-        )}
-        
-        {/* 数值型打卡配置 */}
-        {checkInUnit === 'QUANTITY' && (
-          <div style={{ marginBottom: '16px' }}>
-            <div style={{ fontSize: '13px', color: '#666', marginBottom: '8px', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <Calculator size={14} /> 数值型打卡设置
-            </div>
-            <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: '12px', color: '#999', marginBottom: '6px' }}>单日目标数值</div>
-                <input
-                  type="number"
-                  value={dailyTargetValue}
-                  onChange={(e) => setDailyTargetValue(e.target.value)}
-                  placeholder="10"
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    border: '1px solid #e5e5e5',
-                    borderRadius: '12px',
-                    fontSize: '14px',
-                    outline: 'none',
-                    boxSizing: 'border-box'
-                  }}
-                />
-              </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: '12px', color: '#999', marginBottom: '6px' }}>数值单位</div>
-                <input
-                  type="text"
-                  value={valueUnit}
-                  onChange={(e) => setValueUnit(e.target.value)}
-                  placeholder="个"
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    border: '1px solid #e5e5e5',
-                    borderRadius: '12px',
-                    fontSize: '14px',
-                    outline: 'none',
-                    boxSizing: 'border-box'
-                  }}
-                />
-              </div>
-            </div>
-            <div style={{ marginBottom: '12px' }}>
-              <div style={{ fontSize: '12px', color: '#999', marginBottom: '6px' }}>周期总目标数值</div>
-              <input
-                type="number"
-                value={cycleTargetValue}
-                onChange={(e) => setCycleTargetValue(e.target.value)}
-                placeholder={`${cycleDays * (parseFloat(dailyTargetValue) || 0)}`}
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  border: '1px solid #e5e5e5',
-                  borderRadius: '12px',
-                  fontSize: '14px',
-                  outline: 'none',
-                  boxSizing: 'border-box'
-                }}
-              />
-            </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
       
       {/* 自动规划预览 */}
-      <div style={{
-        backgroundColor: '#f9f9f9',
-        border: '2px solid #e0e0e0',
-        borderRadius: '12px',
-        padding: '16px'
-      }}>
-        <div style={{ fontSize: '14px', fontWeight: '600', marginBottom: '12px', color: '#37352f', display: 'flex', alignItems: 'center', gap: '6px' }}>
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        style={{
+          backgroundColor: '#f9f9f9',
+          border: '2px solid #e0e0e0',
+          borderRadius: '12px',
+          padding: '14px'
+        }}
+      >
+        <div style={{ fontSize: '14px', fontWeight: '600', marginBottom: '10px', color: '#37352f', display: 'flex', alignItems: 'center', gap: '6px' }}>
           <BarChart3 size={16} /> 系统自动规划
         </div>
         <div style={{ fontSize: '13px', color: '#6b6b6b', lineHeight: '1.8' }}>
@@ -317,7 +314,9 @@ export default function CheckInConfig({
             </>
           )}
         </div>
-      </div>
-    </>
+      </motion.div>
+    </motion.div>
   );
 }
+
+

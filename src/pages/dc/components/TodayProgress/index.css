@@ -32,9 +32,12 @@
   color: rgba(55, 53, 47, 0.95);
   font-weight: 600;
   letter-spacing: -0.01em;
+  min-width: 52px;
+  text-align: left;
 }
 
 .today-progress-try-luck {
   display: flex;
   align-items: center;
 }
+

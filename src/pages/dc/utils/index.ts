@@ -21,3 +21,18 @@ export {
   type NumericProgressResult,
   type CheckInProgressResult
 } from './progressCalculator';
+
+// 响应式工具函数
+export {
+  LAYOUT_CONSTANTS,
+  calculateVisibleSidelineTasks,
+  getScreenSize,
+  isSmallScreen,
+  isMobileDevice,
+  getSafeAreaInsets,
+  calculateModalMaxHeight,
+  calculateGridColumns,
+  prefersReducedMotion,
+  type ScreenSize
+} from './responsive';
+

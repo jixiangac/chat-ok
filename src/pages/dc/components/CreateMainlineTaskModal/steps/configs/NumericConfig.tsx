@@ -1,8 +1,10 @@
 import { useRef, useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Target, BarChart3 } from 'lucide-react';
 import { DIRECTION_OPTIONS } from '../../constants';
 import type { HighlightStyle, CycleInfo } from '../../types';
 import type { NumericDirection } from '../../../../types';
+import { fadeVariants } from '../../../../constants/animations';
 
 interface NumericConfigProps {
   numericDirection: NumericDirection;
@@ -48,92 +50,96 @@ export default function NumericConfig({
     }
   }, [numericDirection]);
 
+  // 通用输入框样式
+  const inputStyle: React.CSSProperties = {
+    width: '100%',
+    padding: '12px',
+    border: '1px solid #e5e5e5',
+    borderRadius: '12px',
+    fontSize: '14px',
+    outline: 'none',
+    boxSizing: 'border-box',
+  };
+
   return (
-    <>
-      <div style={{ marginBottom: '20px' }}>
-        <div style={{ fontSize: '14px', color: '#666', marginBottom: '12px', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '6px' }}>
+    <motion.div
+      variants={fadeVariants}
+      initial="hidden"
+      animate="visible"
+    >
+      <div style={{ marginBottom: '18px' }}>
+        <div style={{ fontSize: '14px', color: '#666', marginBottom: '10px', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '6px' }}>
           <Target size={16} /> 数值目标
         </div>
-        <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
-          <div style={{ flex: 1 }}>
+        {/* 响应式两列布局 */}
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', 
+          gap: '10px', 
+          marginBottom: '10px' 
+        }}>
+          <div>
             <div style={{ fontSize: '12px', color: '#999', marginBottom: '6px' }}>起始值</div>
             <input
               type="number"
               value={startValue}
               onChange={(e) => setStartValue(e.target.value)}
               placeholder="150"
-              style={{
-                width: '100%',
-                padding: '12px',
-                border: '1px solid #e5e5e5',
-                borderRadius: '12px',
-                fontSize: '14px',
-                outline: 'none',
-                boxSizing: 'border-box'
-              }}
+              style={inputStyle}
             />
           </div>
-          <div style={{ flex: 1 }}>
+          <div>
             <div style={{ fontSize: '12px', color: '#999', marginBottom: '6px' }}>目标值</div>
             <input
               type="number"
               value={targetValue}
               onChange={(e) => setTargetValue(e.target.value)}
               placeholder="140"
-              style={{
-                width: '100%',
-                padding: '12px',
-                border: '1px solid #e5e5e5',
-                borderRadius: '12px',
-                fontSize: '14px',
-                outline: 'none',
-                boxSizing: 'border-box'
-              }}
+              style={inputStyle}
             />
           </div>
         </div>
-        <div style={{ marginBottom: '12px' }}>
+        <div style={{ marginBottom: '10px' }}>
           <div style={{ fontSize: '12px', color: '#999', marginBottom: '6px' }}>单位</div>
           <input
             type="text"
             value={numericUnit}
             onChange={(e) => setNumericUnit(e.target.value)}
             placeholder="斤"
-            style={{
-              width: '100%',
-              padding: '12px',
-              border: '1px solid #e5e5e5',
-              borderRadius: '12px',
-              fontSize: '14px',
-              outline: 'none',
-              boxSizing: 'border-box'
-            }}
+            style={inputStyle}
           />
         </div>
         <div>
           <div style={{ fontSize: '12px', color: '#999', marginBottom: '6px' }}>增减方向</div>
-          <div style={{ position: 'relative', display: 'flex', gap: '12px' }}>
+          <div style={{ 
+            position: 'relative', 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(2, 1fr)', 
+            gap: '10px' 
+          }}>
             {DIRECTION_OPTIONS.map((option, index) => (
-              <button
+              <motion.button
                 key={option.value}
-                ref={el => directionRefs.current[index] = el}
+                ref={el => { directionRefs.current[index] = el; }}
                 onClick={() => setNumericDirection(option.value)}
+                whileTap={{ scale: 0.98 }}
                 style={{
-                  flex: 1,
+                  width: '100%',
                   display: 'flex',
-                  justifyContent: 'space-between',
+                  justifyContent: 'center',
                   alignItems: 'center',
                   cursor: 'pointer',
                   border: '2px solid #9ca3af',
-                  padding: '16px',
+                  padding: '14px 12px',
                   borderRadius: '16px',
                   backgroundColor: 'white',
-                  textAlign: 'left',
-                  transition: 'all 0.2s'
+                  textAlign: 'center',
+                  transition: 'all 0.2s',
+                  minWidth: 0,
                 }}
               >
-                <div style={{ fontWeight: '600', fontSize: '16px' }}>{option.label}</div>
-              </button>
+                <div style={{ fontWeight: '600', fontSize: '15px' }}>{option.label}</div>
+              </motion.button>
             ))}
             
             {/* 选中高亮边框 */}
@@ -154,24 +160,33 @@ export default function NumericConfig({
       </div>
       
       {/* 自动规划预览 */}
-      {startValue && targetValue && (
-        <div style={{
-          backgroundColor: '#f9f9f9',
-          border: '2px solid #e0e0e0',
-          borderRadius: '12px',
-          padding: '16px',
-          marginBottom: '20px'
-        }}>
-          <div style={{ fontSize: '14px', fontWeight: '600', marginBottom: '12px', color: '#37352f', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <BarChart3 size={16} /> 系统自动规划
-          </div>
-          <div style={{ fontSize: '13px', color: '#6b6b6b', lineHeight: '1.8' }}>
-            • 总目标：{numericDirection === 'DECREASE' ? '减少' : '增加'} {Math.abs(parseFloat(targetValue) - parseFloat(startValue)).toFixed(2)}{numericUnit}<br/>
-            • 每周期目标：{(Math.abs(parseFloat(targetValue) - parseFloat(startValue)) / cycleInfo.totalCycles).toFixed(2)} {numericUnit}/周期<br/>
-            • 每日平均：{(Math.abs(parseFloat(targetValue) - parseFloat(startValue)) / totalDays).toFixed(2)} {numericUnit}/天
-          </div>
-        </div>
-      )}
-    </>
+      <AnimatePresence>
+        {startValue && targetValue && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            style={{
+              backgroundColor: '#f9f9f9',
+              border: '2px solid #e0e0e0',
+              borderRadius: '12px',
+              padding: '14px',
+              marginBottom: '18px'
+            }}
+          >
+            <div style={{ fontSize: '14px', fontWeight: '600', marginBottom: '10px', color: '#37352f', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <BarChart3 size={16} /> 系统自动规划
+            </div>
+            <div style={{ fontSize: '13px', color: '#6b6b6b', lineHeight: '1.8' }}>
+              • 总目标：{numericDirection === 'DECREASE' ? '减少' : '增加'} {Math.abs(parseFloat(targetValue) - parseFloat(startValue)).toFixed(2)}{numericUnit}<br/>
+              • 每周期目标：{(Math.abs(parseFloat(targetValue) - parseFloat(startValue)) / cycleInfo.totalCycles).toFixed(2)} {numericUnit}/周期<br/>
+              • 每日平均：{(Math.abs(parseFloat(targetValue) - parseFloat(startValue)) / totalDays).toFixed(2)} {numericUnit}/天
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 }
+

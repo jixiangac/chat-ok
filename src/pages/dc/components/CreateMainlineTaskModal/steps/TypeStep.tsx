@@ -1,6 +1,8 @@
 import { useRef, useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 import { TASK_TYPE_OPTIONS } from '../constants';
 import type { TypeStepProps, HighlightStyle } from '../types';
+import { fadeVariants, cardVariants } from '../../../constants/animations';
 
 export default function TypeStep({ selectedType, setSelectedType }: TypeStepProps) {
   const cardRefs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -25,8 +27,16 @@ export default function TypeStep({ selectedType, setSelectedType }: TypeStepProp
   const selectedIndex = TASK_TYPE_OPTIONS.findIndex(opt => opt.type === selectedType);
 
   return (
-    <div style={{ padding: '24px' }}>
-      <h2 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '24px' }}>
+    <motion.div
+      variants={fadeVariants}
+      initial="hidden"
+      animate="visible"
+      style={{ 
+        padding: '20px 16px',
+        minHeight: '520px',
+      }}
+    >
+      <h2 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '20px' }}>
         步骤2：选择任务类型模板
       </h2>
       
@@ -35,15 +45,20 @@ export default function TypeStep({ selectedType, setSelectedType }: TypeStepProp
         position: 'relative',
         display: 'flex', 
         flexDirection: 'column', 
-        gap: '12px' 
+        gap: '10px' 
       }}>
         {TASK_TYPE_OPTIONS.map((option, index) => {
           const isSelected = selectedType === option.type;
           return (
-            <button
+            <motion.button
               key={option.type}
-              ref={el => cardRefs.current[index] = el}
+              ref={el => { cardRefs.current[index] = el; }}
               onClick={() => setSelectedType(option.type)}
+              custom={index}
+              variants={cardVariants}
+              initial="hidden"
+              animate="visible"
+              whileTap={{ scale: 0.98 }}
               style={{
                 width: '100%',
                 display: 'flex',
@@ -51,33 +66,34 @@ export default function TypeStep({ selectedType, setSelectedType }: TypeStepProp
                 alignItems: 'flex-start',
                 cursor: 'pointer',
                 border: '2px solid #9ca3af',
-                padding: '16px',
+                padding: '14px 12px',
                 borderRadius: '16px',
                 backgroundColor: 'white',
                 textAlign: 'left',
-                transition: 'all 0.2s'
+                transition: 'all 0.2s',
+                minWidth: 0,
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', flex: 1 }}>
-                <option.Icon size={32} />
-                <div style={{ flex: 1 }}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', flex: 1, minWidth: 0 }}>
+                <option.Icon size={28} style={{ flexShrink: 0 }} />
+                <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ 
-                    fontSize: '16px', 
+                    fontSize: '15px', 
                     fontWeight: '600', 
-                    marginBottom: '6px',
+                    marginBottom: '4px',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '8px'
+                    gap: '6px'
                   }}>
                     {option.label}
                   </div>
-                  <div style={{ fontSize: '13px', color: '#666', marginBottom: '4px' }}>
+                  <div style={{ fontSize: '12px', color: '#666', marginBottom: '3px', lineHeight: '1.4' }}>
                     {option.description}
                   </div>
-                  <div style={{ fontSize: '12px', color: '#999', marginBottom: '4px' }}>
+                  <div style={{ fontSize: '11px', color: '#999', marginBottom: '3px', lineHeight: '1.4' }}>
                     {option.examples}
                   </div>
-                  <div style={{ fontSize: '12px', color: '#4a9eff', fontWeight: '500' }}>
+                  <div style={{ fontSize: '11px', color: '#4a9eff', fontWeight: '500' }}>
                     {option.feature}
                   </div>
                 </div>
@@ -96,16 +112,22 @@ export default function TypeStep({ selectedType, setSelectedType }: TypeStepProp
                 transition: 'border-color 0.2s',
                 flexShrink: 0
               }}>
-                <div style={{
-                  width: '8px',
-                  height: '8px',
-                  backgroundColor: '#000',
-                  borderRadius: '50%',
-                  opacity: isSelected ? 1 : 0,
-                  transition: 'opacity 0.2s'
-                }} />
+                <motion.div
+                  initial={false}
+                  animate={{
+                    scale: isSelected ? 1 : 0,
+                    opacity: isSelected ? 1 : 0
+                  }}
+                  transition={{ duration: 0.2 }}
+                  style={{
+                    width: '8px',
+                    height: '8px',
+                    backgroundColor: '#000',
+                    borderRadius: '50%',
+                  }}
+                />
               </div>
-            </button>
+            </motion.button>
           );
         })}
         
@@ -123,6 +145,8 @@ export default function TypeStep({ selectedType, setSelectedType }: TypeStepProp
           boxShadow: 'inset 0 0 0 3px #000'
         }} />
       </div>
-    </div>
+    </motion.div>
   );
 }
+
+

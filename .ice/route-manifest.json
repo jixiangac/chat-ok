@@ -1304,6 +1304,32 @@
     ]
   },
   {
+    "path": "dc/constants/animations",
+    "id": "dc/constants/animations",
+    "file": "dc/constants/animations.ts",
+    "componentName": "dc-constants-animations",
+    "layout": false,
+    "exports": [
+      "ANIMATION_ENABLED",
+      "RESPECT_REDUCED_MOTION",
+      "cardVariants",
+      "drawerLeftVariants",
+      "drawerRightVariants",
+      "fadeVariants",
+      "gridItemVariants",
+      "listContainerVariants",
+      "listItemVariants",
+      "modalVariants",
+      "optionVariants",
+      "overlayVariants",
+      "quickTransition",
+      "scaleVariants",
+      "smoothTransition",
+      "springTransition",
+      "stepVariants"
+    ]
+  },
+  {
     "path": "dc/contexts/TaskContext",
     "id": "dc/contexts/TaskContext",
     "file": "dc/contexts/TaskContext.tsx",
@@ -1433,6 +1459,16 @@
     ]
   },
   {
+    "path": "dc/hooks/useConfetti",
+    "id": "dc/hooks/useConfetti",
+    "file": "dc/hooks/useConfetti.ts",
+    "componentName": "dc-hooks-useconfetti",
+    "layout": false,
+    "exports": [
+      "useConfetti"
+    ]
+  },
+  {
     "path": "dc/hooks/useProgress",
     "id": "dc/hooks/useProgress",
     "file": "dc/hooks/useProgress.ts",
@@ -1492,6 +1528,24 @@
     ]
   },
   {
+    "path": "dc/utils/responsive",
+    "id": "dc/utils/responsive",
+    "file": "dc/utils/responsive.ts",
+    "componentName": "dc-utils-responsive",
+    "layout": false,
+    "exports": [
+      "LAYOUT_CONSTANTS",
+      "calculateGridColumns",
+      "calculateModalMaxHeight",
+      "calculateVisibleSidelineTasks",
+      "getSafeAreaInsets",
+      "getScreenSize",
+      "isMobileDevice",
+      "isSmallScreen",
+      "prefersReducedMotion"
+    ]
+  },
+  {
     "path": "dc/constants",
     "index": true,
     "id": "dc/constants",
@@ -1499,16 +1553,33 @@
     "componentName": "dc-constants-index",
     "layout": false,
     "exports": [
+      "ANIMATION_ENABLED",
       "DEBT_COLOR_SCHEMES",
       "EMPTY_STATE_IMAGE",
       "MEMORIAL_SPRITE_IMAGES",
+      "RESPECT_REDUCED_MOTION",
       "SIDELINE_THEME_COLORS",
       "SPRITE_IMAGES",
       "TRIP_SPRITE_IMAGES",
       "VACATION_SPRITE_IMAGES",
+      "cardVariants",
+      "drawerLeftVariants",
+      "drawerRightVariants",
+      "fadeVariants",
       "getCurrentTimeSlot",
       "getNextThemeColor",
-      "getRandomDebtColorScheme"
+      "getRandomDebtColorScheme",
+      "gridItemVariants",
+      "listContainerVariants",
+      "listItemVariants",
+      "modalVariants",
+      "optionVariants",
+      "overlayVariants",
+      "quickTransition",
+      "scaleVariants",
+      "smoothTransition",
+      "springTransition",
+      "stepVariants"
     ]
   },
   {
@@ -1557,6 +1628,7 @@
       "getSimulatedToday",
       "getSimulatedTodayDate",
       "getTodayCheckInStatusForTask",
+      "useConfetti",
       "usePlanEndStatus",
       "useProgress",
       "useSpriteImage",
@@ -1573,18 +1645,27 @@
     "layout": false,
     "exports": [
       "CycleCalculator",
+      "LAYOUT_CONSTANTS",
       "calculateCheckInProgress",
       "calculateCheckInProgressV2",
       "calculateChecklistProgress",
       "calculateChecklistProgressV2",
       "calculateCurrentCycleNumber",
+      "calculateGridColumns",
+      "calculateModalMaxHeight",
       "calculateNumericProgress",
       "calculateNumericProgressV2",
       "calculateRemainingDays",
+      "calculateVisibleSidelineTasks",
       "formatLargeNumber",
       "formatNumber",
       "getEffectiveMainlineType",
+      "getSafeAreaInsets",
+      "getScreenSize",
+      "isMobileDevice",
+      "isSmallScreen",
       "isTodayCheckedIn",
+      "prefersReducedMotion",
       "updateMainlineTaskProgress"
     ]
   },

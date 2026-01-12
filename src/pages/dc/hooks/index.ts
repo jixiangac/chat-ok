@@ -1,5 +1,6 @@
 export { useSpriteImage } from './useSpriteImage';
 export { useTaskSort } from './useTaskSort';
+export { useConfetti } from './useConfetti';
 
 // 进度计算相关 hooks
 export { 
@@ -16,3 +17,4 @@ export {
   getCurrentCycle,
   getTodayCheckInStatusForTask
 } from '../panels/detail/hooks';
+

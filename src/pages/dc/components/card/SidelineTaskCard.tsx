@@ -329,8 +329,8 @@ export default function SidelineTaskCard({ task, onClick, isTodayCompleted, isCy
         <div className={styles.gridContent}>
           <div className={styles.gridTitle}>{task.title}</div>
           <div className={styles.gridInfo}>
-            <span>{currentCycleNumber}/{task.totalCycles || 1}次</span>
-            <span>{Math.round(cycleProgress)}%</span>
+            <span>{currentCycleNumber}/{task.totalCycles || 1}</span>
+            <span>{Math.round(totalProgress)}%</span>
           </div>
         </div>
         <CircleProgress

@@ -1,8 +1,10 @@
 import { useRef, useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import dayjs from 'dayjs';
 import { Calendar, Target } from 'lucide-react';
 import { TOTAL_DURATION_OPTIONS, CYCLE_LENGTH_OPTIONS } from '../constants';
 import type { CycleStepProps, HighlightStyle } from '../types';
+import { fadeVariants } from '../../../constants/animations';
 
 export default function CycleStep({
   totalDays,
@@ -62,56 +64,82 @@ export default function CycleStep({
 
   const selectedDurationIndex = isCustom ? -1 : TOTAL_DURATION_OPTIONS.findIndex(opt => opt.value === totalDays);
 
+  // 通用输入框样式
+  const inputStyle: React.CSSProperties = {
+    width: '100%',
+    padding: '12px',
+    border: '1px solid #e5e5e5',
+    borderRadius: '12px',
+    fontSize: '14px',
+    outline: 'none',
+    boxSizing: 'border-box',
+  };
+
+  // 通用按钮样式
+  const buttonBaseStyle: React.CSSProperties = {
+    width: '100%',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    cursor: 'pointer',
+    border: '2px solid #9ca3af',
+    padding: '14px 12px',
+    borderRadius: '16px',
+    backgroundColor: 'white',
+    textAlign: 'left',
+    transition: 'all 0.2s',
+    minWidth: 0,
+  };
+
   return (
-    <div style={{ padding: '24px' }}>
-      <h2 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '24px' }}>
+    <motion.div
+      variants={fadeVariants}
+      initial="hidden"
+      animate="visible"
+      style={{ 
+        padding: '20px 16px',
+        minHeight: '520px',
+      }}
+    >
+      <h2 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '20px' }}>
         步骤1：周期设定
       </h2>
       
       {/* 总时长 */}
-      <div style={{ marginBottom: '24px' }}>
-        <div style={{ fontSize: '14px', color: '#666', marginBottom: '12px', fontWeight: '500' }}>
-          <Calendar size={16} style={{ display: 'inline', marginRight: '6px' }} /> 设定总时长
+      <div style={{ marginBottom: '20px' }}>
+        <div style={{ fontSize: '14px', color: '#666', marginBottom: '10px', fontWeight: '500' }}>
+          <Calendar size={16} style={{ display: 'inline', marginRight: '6px', verticalAlign: 'middle' }} /> 设定总时长
         </div>
-        <div style={{ fontSize: '13px', color: '#999', marginBottom: '12px' }}>
+        <div style={{ fontSize: '13px', color: '#999', marginBottom: '10px' }}>
           我想用多久完成这个目标？
         </div>
         <div style={{ 
           position: 'relative',
           display: 'grid', 
           gridTemplateColumns: 'repeat(2, 1fr)', 
-          gap: '12px', 
+          gap: '10px', 
           marginBottom: '12px' 
         }}>
           {TOTAL_DURATION_OPTIONS.map((option, index) => (
-            <button
+            <motion.button
               key={option.value}
-              ref={el => durationRefs.current[index] = el}
+              ref={el => { durationRefs.current[index] = el; }}
               onClick={() => {
                 setTotalDays(option.value);
                 setIsCustom(false);
                 setCustomDays('');
                 setCycleDays(option.value === 365 ? 30 : 10);
               }}
-              style={{
-                width: '100%',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                cursor: 'pointer',
-                border: '2px solid #9ca3af',
-                padding: '16px',
-                borderRadius: '16px',
-                backgroundColor: 'white',
-                textAlign: 'left',
-                transition: 'all 0.2s'
-              }}
+              whileTap={{ scale: 0.98 }}
+              style={buttonBaseStyle}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <option.Icon size={24} />
-                <div style={{ fontWeight: '600', fontSize: '16px' }}>{option.label}</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
+                <option.Icon size={22} style={{ flexShrink: 0 }} />
+                <div style={{ fontWeight: '600', fontSize: '15px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {option.label}
+                </div>
               </div>
-            </button>
+            </motion.button>
           ))}
           
           {/* 选中高亮边框 */}
@@ -145,37 +173,29 @@ export default function CycleStep({
               }
             }}
             placeholder="输入天数"
-            style={{
-              width: '100%',
-              padding: '12px',
-              border: '1px solid #e5e5e5',
-              borderRadius: '12px',
-              fontSize: '14px',
-              outline: 'none',
-              boxSizing: 'border-box'
-            }}
+            style={inputStyle}
           />
         </div>
       </div>
     
       {/* 周期长度 */}
-      <div style={{ marginBottom: '24px' }}>
-        <div style={{ fontSize: '14px', color: '#666', marginBottom: '12px', fontWeight: '500' }}>
-          <Target size={16} style={{ display: 'inline', marginRight: '6px' }} /> 选择周期长度
+      <div style={{ marginBottom: '20px' }}>
+        <div style={{ fontSize: '14px', color: '#666', marginBottom: '10px', fontWeight: '500' }}>
+          <Target size={16} style={{ display: 'inline', marginRight: '6px', verticalAlign: 'middle' }} /> 选择周期长度
         </div>
         <div style={{ 
           position: 'relative',
           display: 'grid', 
           gridTemplateColumns: 'repeat(3, 1fr)', 
-          gap: '12px',
+          gap: '8px',
           marginBottom: '12px'
         }}>
           {CYCLE_LENGTH_OPTIONS.map((option, index) => {
             const isDisabled = totalDays === 30 && option.value === 30;
             return (
-              <button
+              <motion.button
                 key={option.value}
-                ref={el => cycleRefs.current[index] = el}
+                ref={el => { cycleRefs.current[index] = el; }}
                 onClick={() => {
                   if (isDisabled) return;
                   setCycleDays(option.value);
@@ -183,29 +203,24 @@ export default function CycleStep({
                   setCustomCycleDays('');
                 }}
                 disabled={isDisabled}
+                whileTap={isDisabled ? undefined : { scale: 0.98 }}
                 style={{
-                  width: '100%',
-                  display: 'flex',
+                  ...buttonBaseStyle,
                   flexDirection: 'column',
                   alignItems: 'center',
                   justifyContent: 'center',
+                  padding: '12px 6px',
                   cursor: isDisabled ? 'not-allowed' : 'pointer',
-                  border: '2px solid #9ca3af',
-                  padding: '16px 8px',
-                  borderRadius: '16px',
-                  backgroundColor: 'white',
-                  textAlign: 'center',
-                  transition: 'all 0.2s',
                   opacity: isDisabled ? 0.4 : 1
                 }}
               >
-                <div style={{ fontWeight: '600', fontSize: '16px', marginBottom: '4px' }}>
+                <div style={{ fontWeight: '600', fontSize: '14px', marginBottom: '2px' }}>
                   {option.label}
                 </div>
-                <div style={{ fontSize: '12px', color: '#666' }}>
+                <div style={{ fontSize: '11px', color: '#666' }}>
                   {option.description}
                 </div>
-              </button>
+              </motion.button>
             );
           })}
           
@@ -245,27 +260,24 @@ export default function CycleStep({
             placeholder="5-30"
             min={5}
             max={30}
-            style={{
-              width: '100%',
-              padding: '12px',
-              border: '1px solid #e5e5e5',
-              borderRadius: '12px',
-              fontSize: '14px',
-              outline: 'none',
-              boxSizing: 'border-box'
-            }}
+            style={inputStyle}
           />
         </div>
       </div>
       
       {/* 预览 */}
-      <div style={{
-        backgroundColor: '#f9f9f9',
-        border: '2px solid #e0e0e0',
-        borderRadius: '12px',
-        padding: '16px'
-      }}>
-        <div style={{ fontSize: '14px', fontWeight: '600', marginBottom: '12px', color: '#37352f' }}>
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        style={{
+          backgroundColor: '#f9f9f9',
+          border: '2px solid #e0e0e0',
+          borderRadius: '12px',
+          padding: '14px'
+        }}
+      >
+        <div style={{ fontSize: '14px', fontWeight: '600', marginBottom: '10px', color: '#37352f' }}>
           预计将创建 {cycleInfo.totalCycles} 个周期
         </div>
         <div style={{ fontSize: '13px', color: '#6b6b6b', lineHeight: '1.8' }}>
@@ -274,12 +286,12 @@ export default function CycleStep({
           <div>总周期数：{cycleInfo.totalCycles}个</div>
           {cycleInfo.remainingDays > 0 && <div>剩余：{cycleInfo.remainingDays}天（缓冲期）</div>}
         </div>
-      </div>
+      </motion.div>
       
       {/* 起始时间 */}
-      <div style={{ marginTop: '24px' }}>
-        <div style={{ fontSize: '14px', color: '#666', marginBottom: '12px', fontWeight: '500' }}>
-          <Calendar size={16} style={{ display: 'inline', marginRight: '6px' }} /> 设定起始时间
+      <div style={{ marginTop: '20px' }}>
+        <div style={{ fontSize: '14px', color: '#666', marginBottom: '10px', fontWeight: '500' }}>
+          <Calendar size={16} style={{ display: 'inline', marginRight: '6px', verticalAlign: 'middle' }} /> 设定起始时间
         </div>
         <input
           type="date"
@@ -287,20 +299,14 @@ export default function CycleStep({
           onChange={(e) => setStartDate(e.target.value)}
           min={dayjs().subtract(7, 'day').format('YYYY-MM-DD')}
           max={dayjs().add(1, 'month').format('YYYY-MM-DD')}
-          style={{
-            width: '100%',
-            padding: '12px',
-            border: '1px solid #e5e5e5',
-            borderRadius: '12px',
-            fontSize: '14px',
-            outline: 'none',
-            boxSizing: 'border-box'
-          }}
+          style={inputStyle}
         />
         <div style={{ fontSize: '12px', color: '#999', marginTop: '8px' }}>
           可选择过去1周内或未来1个月内的日期
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
+
+

@@ -10,6 +10,7 @@
     "canvas-confetti": "^1.9.4",
     "dayjs": "^1.11.9",
     "fingerprintjs2": "^2.1.4",
+    "framer-motion": "^11.18.2",
     "localforage": "^1.10.0",
     "lorem-ipsum": "^2.0.8",
     "lucide-react": "*",
@@ -23,8 +24,8 @@
     "@applint/spec": "^1.2.3",
     "@ice/app": "^3.0.0",
     "@types/node": "^18.11.17",
-    "@types/react": "^18.0.0",
-    "@types/react-dom": "^18.0.0",
+    "@types/react": "^19.2.8",
+    "@types/react-dom": "^19.2.3",
     "eslint": "^8.35.0",
     "stylelint": "^15.2.0",
     "typescript": "^4.9.5"

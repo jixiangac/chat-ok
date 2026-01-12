@@ -1,4 +1,5 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import dayjs from 'dayjs';
 import { Popup } from 'antd-mobile';
@@ -6,6 +7,7 @@ import type { MainlineTaskType, NumericDirection, CheckInUnit } from '../../type
 import { useTheme } from '../../contexts';
 import type { Step, TaskCategory, CycleInfo, CreateMainlineTaskModalProps } from './types';
 import { CycleStep, TypeStep, ConfigStep } from './steps';
+import { stepVariants, smoothTransition } from '../../constants/animations';
 
 export default function CreateMainlineTaskModal({
   visible,
@@ -19,6 +21,9 @@ export default function CreateMainlineTaskModal({
   
   // 当前步骤
   const [currentStep, setCurrentStep] = useState<Step>('cycle');
+  
+  // 步骤方向（用于动画）
+  const [stepDirection, setStepDirection] = useState(1);
   
   // 步骤1：周期设定
   const [totalDays, setTotalDays] = useState(90);
@@ -87,6 +92,7 @@ export default function CreateMainlineTaskModal({
   // 重置表单
   const resetForm = () => {
     setCurrentStep('cycle');
+    setStepDirection(1);
     setTotalDays(90);
     setCycleDays(10);
     setCustomDays('');
@@ -120,6 +126,7 @@ export default function CreateMainlineTaskModal({
   };
   
   const handleNext = () => {
+    setStepDirection(1);
     if (currentStep === 'cycle') {
       setCurrentStep('type');
     } else if (currentStep === 'type' && selectedType) {
@@ -128,6 +135,7 @@ export default function CreateMainlineTaskModal({
   };
   
   const handleBack = () => {
+    setStepDirection(-1);
     if (currentStep === 'type') {
       setCurrentStep('cycle');
     } else if (currentStep === 'config') {
@@ -259,6 +267,12 @@ export default function CreateMainlineTaskModal({
     onSubmit(taskData);
     handleClose();
   };
+
+  // 获取步骤索引
+  const getStepIndex = (step: Step): number => {
+    const steps: Step[] = ['cycle', 'type', 'config'];
+    return steps.indexOf(step);
+  };
   
   return (
     <Popup
@@ -269,31 +283,36 @@ export default function CreateMainlineTaskModal({
       bodyStyle={{
         borderTopLeftRadius: '24px',
         borderTopRightRadius: '24px',
-        minHeight: '80vh',
-        maxHeight: '90vh',
-        overflowY: 'auto',
+        height: '85vh',
+        maxHeight: '85vh',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+        overflowX: 'hidden',
         background: '#ffffff'
       }}
     >
       {/* Header */}
       <div style={{
-        padding: '16px 24px',
+        padding: '14px 16px',
         borderBottom: '1px solid #f0f0f0',
         position: 'sticky',
         top: 0,
         backgroundColor: 'white',
-        zIndex: 10
+        zIndex: 10,
+        flexShrink: 0
       }}>
         <div style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between'
         }}>
-          <h2 style={{ fontSize: '18px', fontWeight: '600', margin: 0 }}>
+          <h2 style={{ fontSize: '17px', fontWeight: '600', margin: 0 }}>
             创建{taskCategory === 'MAINLINE' ? '主线' : '支线'}任务
           </h2>
-          <button
+          <motion.button
             onClick={handleClose}
+            whileTap={{ scale: 0.9 }}
             style={{
               width: '32px',
               height: '32px',
@@ -307,140 +326,181 @@ export default function CreateMainlineTaskModal({
             }}
           >
             ✕
-          </button>
+          </motion.button>
         </div>
         
         {/* 步骤指示器 */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '8px',
-          marginTop: '16px'
+          gap: '6px',
+          marginTop: '14px'
         }}>
-          {['cycle', 'type', 'config'].map((step, index) => (
-            <div key={step} style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
-              <div style={{
-                width: '24px',
-                height: '24px',
-                borderRadius: '50%',
-                backgroundColor: currentStep === step || (
-                  (step === 'type' && currentStep === 'config') ||
-                  (step === 'cycle' && (currentStep === 'type' || currentStep === 'config'))
-                ) ? 'black' : '#e5e5e5',
-                color: currentStep === step || (
-                  (step === 'type' && currentStep === 'config') ||
-                  (step === 'cycle' && (currentStep === 'type' || currentStep === 'config'))
-                ) ? 'white' : '#999',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '12px',
-                fontWeight: '600'
-              }}>
-                {index + 1}
+          {['cycle', 'type', 'config'].map((step, index) => {
+            const isCompleted = getStepIndex(currentStep) > index;
+            const isCurrent = currentStep === step;
+            return (
+              <div key={step} style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
+                <motion.div
+                  animate={{
+                    backgroundColor: isCompleted || isCurrent ? 'black' : '#e5e5e5',
+                    color: isCompleted || isCurrent ? 'white' : '#999',
+                  }}
+                  transition={{ duration: 0.2 }}
+                  style={{
+                    width: '22px',
+                    height: '22px',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '11px',
+                    fontWeight: '600',
+                    flexShrink: 0,
+                  }}
+                >
+                  {index + 1}
+                </motion.div>
+                {index < 2 && (
+                  <motion.div
+                    animate={{
+                      backgroundColor: isCompleted ? 'black' : '#e5e5e5',
+                    }}
+                    transition={{ duration: 0.2 }}
+                    style={{
+                      flex: 1,
+                      height: '2px',
+                      marginLeft: '6px'
+                    }}
+                  />
+                )}
               </div>
-              {index < 2 && (
-                <div style={{
-                  flex: 1,
-                  height: '2px',
-                  backgroundColor: (
-                    (step === 'cycle' && (currentStep === 'type' || currentStep === 'config'))
-                  ) ? 'black' : '#e5e5e5',
-                  marginLeft: '8px'
-                }} />
-              )}
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
       
-      {/* Content */}
-      <div style={{ paddingBottom: '80px' }}>
-        {currentStep === 'cycle' && (
-          <CycleStep
-            totalDays={totalDays}
-            setTotalDays={setTotalDays}
-            cycleDays={cycleDays}
-            setCycleDays={setCycleDays}
-            customDays={customDays}
-            setCustomDays={setCustomDays}
-            isCustom={isCustom}
-            setIsCustom={setIsCustom}
-            customCycleDays={customCycleDays}
-            setCustomCycleDays={setCustomCycleDays}
-            isCustomCycle={isCustomCycle}
-            setIsCustomCycle={setIsCustomCycle}
-            startDate={startDate}
-            setStartDate={setStartDate}
-            cycleInfo={cycleInfo}
-          />
-        )}
-        {currentStep === 'type' && (
-          <TypeStep
-            selectedType={selectedType}
-            setSelectedType={setSelectedType}
-          />
-        )}
-        {currentStep === 'config' && selectedType && (
-          <ConfigStep
-            selectedType={selectedType}
-            taskTitle={taskTitle}
-            setTaskTitle={setTaskTitle}
-            cycleInfo={cycleInfo}
-            cycleDays={cycleDays}
-            totalDays={totalDays}
-            numericDirection={numericDirection}
-            setNumericDirection={setNumericDirection}
-            numericUnit={numericUnit}
-            setNumericUnit={setNumericUnit}
-            startValue={startValue}
-            setStartValue={setStartValue}
-            targetValue={targetValue}
-            setTargetValue={setTargetValue}
-            totalItems={totalItems}
-            setTotalItems={setTotalItems}
-            checklistItems={checklistItems}
-            setChecklistItems={setChecklistItems}
-            checkInUnit={checkInUnit}
-            setCheckInUnit={setCheckInUnit}
-            allowMultiple={allowMultiple}
-            setAllowMultiple={setAllowMultiple}
-            weekendExempt={weekendExempt}
-            setWeekendExempt={setWeekendExempt}
-            dailyMaxTimes={dailyMaxTimes}
-            setDailyMaxTimes={setDailyMaxTimes}
-            cycleTargetTimes={cycleTargetTimes}
-            setCycleTargetTimes={setCycleTargetTimes}
-            dailyTargetMinutes={dailyTargetMinutes}
-            setDailyTargetMinutes={setDailyTargetMinutes}
-            cycleTargetMinutes={cycleTargetMinutes}
-            setCycleTargetMinutes={setCycleTargetMinutes}
-            dailyTargetValue={dailyTargetValue}
-            setDailyTargetValue={setDailyTargetValue}
-            cycleTargetValue={cycleTargetValue}
-            setCycleTargetValue={setCycleTargetValue}
-            valueUnit={valueUnit}
-            setValueUnit={setValueUnit}
-          />
-        )}
+      {/* Content with step animation */}
+      <div style={{
+        flex: 1,
+        overflowY: 'auto',
+        overflowX: 'hidden',
+        minHeight: 0,
+      }}>
+        <AnimatePresence mode="wait" custom={stepDirection}>
+          {currentStep === 'cycle' && (
+            <motion.div
+              key="cycle"
+              custom={stepDirection}
+              variants={stepVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+            >
+              <CycleStep
+                totalDays={totalDays}
+                setTotalDays={setTotalDays}
+                cycleDays={cycleDays}
+                setCycleDays={setCycleDays}
+                customDays={customDays}
+                setCustomDays={setCustomDays}
+                isCustom={isCustom}
+                setIsCustom={setIsCustom}
+                customCycleDays={customCycleDays}
+                setCustomCycleDays={setCustomCycleDays}
+                isCustomCycle={isCustomCycle}
+                setIsCustomCycle={setIsCustomCycle}
+                startDate={startDate}
+                setStartDate={setStartDate}
+                cycleInfo={cycleInfo}
+              />
+            </motion.div>
+          )}
+          {currentStep === 'type' && (
+            <motion.div
+              key="type"
+              custom={stepDirection}
+              variants={stepVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+            >
+              <TypeStep
+                selectedType={selectedType}
+                setSelectedType={setSelectedType}
+              />
+            </motion.div>
+          )}
+          {currentStep === 'config' && selectedType && (
+            <motion.div
+              key="config"
+              custom={stepDirection}
+              variants={stepVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+            >
+              <ConfigStep
+                selectedType={selectedType}
+                taskTitle={taskTitle}
+                setTaskTitle={setTaskTitle}
+                cycleInfo={cycleInfo}
+                cycleDays={cycleDays}
+                totalDays={totalDays}
+                numericDirection={numericDirection}
+                setNumericDirection={setNumericDirection}
+                numericUnit={numericUnit}
+                setNumericUnit={setNumericUnit}
+                startValue={startValue}
+                setStartValue={setStartValue}
+                targetValue={targetValue}
+                setTargetValue={setTargetValue}
+                totalItems={totalItems}
+                setTotalItems={setTotalItems}
+                checklistItems={checklistItems}
+                setChecklistItems={setChecklistItems}
+                checkInUnit={checkInUnit}
+                setCheckInUnit={setCheckInUnit}
+                allowMultiple={allowMultiple}
+                setAllowMultiple={setAllowMultiple}
+                weekendExempt={weekendExempt}
+                setWeekendExempt={setWeekendExempt}
+                dailyMaxTimes={dailyMaxTimes}
+                setDailyMaxTimes={setDailyMaxTimes}
+                cycleTargetTimes={cycleTargetTimes}
+                setCycleTargetTimes={setCycleTargetTimes}
+                dailyTargetMinutes={dailyTargetMinutes}
+                setDailyTargetMinutes={setDailyTargetMinutes}
+                cycleTargetMinutes={cycleTargetMinutes}
+                setCycleTargetMinutes={setCycleTargetMinutes}
+                dailyTargetValue={dailyTargetValue}
+                setDailyTargetValue={setDailyTargetValue}
+                cycleTargetValue={cycleTargetValue}
+                setCycleTargetValue={setCycleTargetValue}
+                valueUnit={valueUnit}
+                setValueUnit={setValueUnit}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
       
       {/* Footer */}
       <div style={{
-        padding: '16px 24px',
+        padding: '14px 16px',
         backgroundColor: 'white',
         borderTop: '1px solid #f0f0f0',
-        position: 'sticky',
-        bottom: 0,
+        flexShrink: 0,
         display: 'flex',
-        gap: '12px'
+        gap: '10px'
       }}>
         {currentStep !== 'cycle' && (
-          <button
+          <motion.button
             onClick={handleBack}
+            whileTap={{ scale: 0.98 }}
             style={{
               flex: 1,
-              padding: '14px',
+              padding: '13px',
               backgroundColor: 'white',
               color: 'black',
               border: '1px solid #e5e5e5',
@@ -451,14 +511,15 @@ export default function CreateMainlineTaskModal({
             }}
           >
             上一步
-          </button>
+          </motion.button>
         )}
-        <button
+        <motion.button
           onClick={currentStep === 'config' ? handleSubmit : handleNext}
           disabled={currentStep === 'type' && !selectedType}
+          whileTap={(currentStep === 'type' && !selectedType) ? undefined : { scale: 0.98 }}
           style={{
             flex: 1,
-            padding: '14px',
+            padding: '13px',
             backgroundColor: (currentStep === 'type' && !selectedType) ? '#ccc' : themeColors.primary,
             color: 'white',
             border: 'none',
@@ -469,8 +530,9 @@ export default function CreateMainlineTaskModal({
           }}
         >
           {currentStep === 'config' ? '创建任务' : '下一步'}
-        </button>
+        </motion.button>
       </div>
     </Popup>
   );
 }
+

@@ -1,5 +1,4 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import confetti from 'canvas-confetti';
 import { Popup, Toast } from 'antd-mobile';
 import { FileText, Check, Archive, Clock, Hash } from 'lucide-react';
 import { useTheme } from '../../contexts';
@@ -18,6 +17,7 @@ import {
   CheckInHistoryPanel
 } from './components';
 import { useGoalDetail, getCurrentCycle, getSimulatedToday } from './hooks';
+import { useConfetti } from '../../hooks';
 import { getTabsConfig, isCycleTab } from './utils';
 import { getEffectiveMainlineType } from '../../utils';
 import type { GoalDetailModalProps } from './types';
@@ -50,44 +50,9 @@ export default function GoalDetailModal({
   const [showCheckInModal, setShowCheckInModal] = useState(false);
   const checkInButtonRef = useRef<HTMLButtonElement>(null);
   const { themeColors } = useTheme();
-  
-  // 触发彩纸效果
-  const triggerConfetti = useCallback(() => {
-    let x = 0.5;
-    let y = 0.9;
-    
-    if (checkInButtonRef.current) {
-      const rect = checkInButtonRef.current.getBoundingClientRect();
-      x = (rect.left + rect.width / 2) / window.innerWidth;
-      y = (rect.top + rect.height / 2) / window.innerHeight;
-    }
-    
-    const canvas = document.createElement('canvas');
-    canvas.style.position = 'fixed';
-    canvas.style.top = '0';
-    canvas.style.left = '0';
-    canvas.style.width = '100vw';
-    canvas.style.height = '100vh';
-    canvas.style.pointerEvents = 'none';
-    canvas.style.zIndex = '99999';
-    document.body.appendChild(canvas);
-    
-    const myConfetti = confetti.create(canvas, { resize: true });
-    
-    myConfetti({
-      particleCount: 50,
-      spread: 60,
-      origin: { x, y },
-      colors: ["hsl(var(--primary))","hsl(var(--accent))","hsl(var(--secondary))","hsl(var(--muted))"],
-      ticks: 200,
-      gravity: 1.2,
-      decay: 0.94,
-      startVelocity: 30,
-      shapes: ['circle']
-    }).then(() => {
-      document.body.removeChild(canvas);
-    });
-  }, []);
+
+  // 使用彩纸效果 hook
+  const { triggerConfetti } = useConfetti(checkInButtonRef);
   
   // 每次打开时设置默认tab
   useEffect(() => {
@@ -354,6 +319,7 @@ export default function GoalDetailModal({
       position='bottom'
       destroyOnClose={false}
       forceRender={false}
+      style={{ zIndex: 1100 }}
       bodyStyle={{
         borderTopLeftRadius: '16px',
         borderTopRightRadius: '16px',
@@ -486,4 +452,3 @@ export default function GoalDetailModal({
     </Popup>
   );
 }
-

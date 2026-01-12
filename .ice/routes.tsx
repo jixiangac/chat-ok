@@ -110,6 +110,7 @@ import * as dc_panels_memorial from '@/pages/dc/panels/memorial/index';
 import * as dc_panels_memorial_types from '@/pages/dc/panels/memorial/types';
 import * as dc_panels_settings from '@/pages/dc/panels/settings/index';
 import * as dc_utils_cycleCalculator from '@/pages/dc/utils/cycleCalculator';
+import * as dc_constants_animations from '@/pages/dc/constants/animations';
 import * as dc_contexts_TaskContext from '@/pages/dc/contexts/TaskContext';
 import * as dc_hooks_useSpriteImage from '@/pages/dc/hooks/useSpriteImage';
 import * as dc_panels_archive from '@/pages/dc/panels/archive/index';
@@ -120,10 +121,12 @@ import * as dc_panels_normal from '@/pages/dc/panels/normal/index';
 import * as dc_panels_happy from '@/pages/dc/panels/happy/index';
 import * as dc_panels_happy_types from '@/pages/dc/panels/happy/types';
 import * as dc_constants_sprites from '@/pages/dc/constants/sprites';
+import * as dc_hooks_useConfetti from '@/pages/dc/hooks/useConfetti';
 import * as dc_hooks_useProgress from '@/pages/dc/hooks/useProgress';
 import * as dc_hooks_useTaskSort from '@/pages/dc/hooks/useTaskSort';
 import * as dc_components from '@/pages/dc/components/index';
 import * as dc_constants_colors from '@/pages/dc/constants/colors';
+import * as dc_utils_responsive from '@/pages/dc/utils/responsive';
 import * as dc_constants from '@/pages/dc/constants/index';
 import * as dc_contexts from '@/pages/dc/contexts/index';
 import * as dc_panels from '@/pages/dc/panels/index';
@@ -2899,6 +2902,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["CycleCalculator"],
   },{
+    path: 'dc/constants/animations',
+    async lazy() {
+      ;
+      return {
+        ...dc_constants_animations,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/constants/animations',
+          isLayout: false,
+          routeExports: dc_constants_animations,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/constants/animations',
+          requestContext,
+          renderMode,
+          module: dc_constants_animations,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-constants-animations',
+    index: undefined,
+    id: 'dc/constants/animations',
+    exact: true,
+    exports: ["ANIMATION_ENABLED","RESPECT_REDUCED_MOTION","cardVariants","drawerLeftVariants","drawerRightVariants","fadeVariants","gridItemVariants","listContainerVariants","listItemVariants","modalVariants","optionVariants","overlayVariants","quickTransition","scaleVariants","smoothTransition","springTransition","stepVariants"],
+  },{
     path: 'dc/contexts/TaskContext',
     async lazy() {
       ;
@@ -3149,6 +3177,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["EMPTY_STATE_IMAGE","MEMORIAL_SPRITE_IMAGES","SPRITE_IMAGES","TRIP_SPRITE_IMAGES","VACATION_SPRITE_IMAGES","getCurrentTimeSlot"],
   },{
+    path: 'dc/hooks/useConfetti',
+    async lazy() {
+      ;
+      return {
+        ...dc_hooks_useConfetti,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/hooks/useConfetti',
+          isLayout: false,
+          routeExports: dc_hooks_useConfetti,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/hooks/useConfetti',
+          requestContext,
+          renderMode,
+          module: dc_hooks_useConfetti,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-hooks-useconfetti',
+    index: undefined,
+    id: 'dc/hooks/useConfetti',
+    exact: true,
+    exports: ["useConfetti"],
+  },{
     path: 'dc/hooks/useProgress',
     async lazy() {
       ;
@@ -3249,6 +3302,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["DEBT_COLOR_SCHEMES","SIDELINE_THEME_COLORS","getNextThemeColor","getRandomDebtColorScheme"],
   },{
+    path: 'dc/utils/responsive',
+    async lazy() {
+      ;
+      return {
+        ...dc_utils_responsive,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/utils/responsive',
+          isLayout: false,
+          routeExports: dc_utils_responsive,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/utils/responsive',
+          requestContext,
+          renderMode,
+          module: dc_utils_responsive,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-utils-responsive',
+    index: undefined,
+    id: 'dc/utils/responsive',
+    exact: true,
+    exports: ["LAYOUT_CONSTANTS","calculateGridColumns","calculateModalMaxHeight","calculateVisibleSidelineTasks","getSafeAreaInsets","getScreenSize","isMobileDevice","isSmallScreen","prefersReducedMotion"],
+  },{
     path: 'dc/constants',
     async lazy() {
       ;
@@ -3272,7 +3350,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/constants',
     exact: true,
-    exports: ["DEBT_COLOR_SCHEMES","EMPTY_STATE_IMAGE","MEMORIAL_SPRITE_IMAGES","SIDELINE_THEME_COLORS","SPRITE_IMAGES","TRIP_SPRITE_IMAGES","VACATION_SPRITE_IMAGES","getCurrentTimeSlot","getNextThemeColor","getRandomDebtColorScheme"],
+    exports: ["ANIMATION_ENABLED","DEBT_COLOR_SCHEMES","EMPTY_STATE_IMAGE","MEMORIAL_SPRITE_IMAGES","RESPECT_REDUCED_MOTION","SIDELINE_THEME_COLORS","SPRITE_IMAGES","TRIP_SPRITE_IMAGES","VACATION_SPRITE_IMAGES","cardVariants","drawerLeftVariants","drawerRightVariants","fadeVariants","getCurrentTimeSlot","getNextThemeColor","getRandomDebtColorScheme","gridItemVariants","listContainerVariants","listItemVariants","modalVariants","optionVariants","overlayVariants","quickTransition","scaleVariants","smoothTransition","springTransition","stepVariants"],
   },{
     path: 'dc/contexts',
     async lazy() {
@@ -3347,7 +3425,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/hooks',
     exact: true,
-    exports: ["formatLocalDate","getCurrentCycle","getSimulatedToday","getSimulatedTodayDate","getTodayCheckInStatusForTask","usePlanEndStatus","useProgress","useSpriteImage","useTaskSort","useTodayCheckInStatus"],
+    exports: ["formatLocalDate","getCurrentCycle","getSimulatedToday","getSimulatedTodayDate","getTodayCheckInStatusForTask","useConfetti","usePlanEndStatus","useProgress","useSpriteImage","useTaskSort","useTodayCheckInStatus"],
   },{
     path: 'dc/utils',
     async lazy() {
@@ -3372,7 +3450,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/utils',
     exact: true,
-    exports: ["CycleCalculator","calculateCheckInProgress","calculateCheckInProgressV2","calculateChecklistProgress","calculateChecklistProgressV2","calculateCurrentCycleNumber","calculateNumericProgress","calculateNumericProgressV2","calculateRemainingDays","formatLargeNumber","formatNumber","getEffectiveMainlineType","isTodayCheckedIn","updateMainlineTaskProgress"],
+    exports: ["CycleCalculator","LAYOUT_CONSTANTS","calculateCheckInProgress","calculateCheckInProgressV2","calculateChecklistProgress","calculateChecklistProgressV2","calculateCurrentCycleNumber","calculateGridColumns","calculateModalMaxHeight","calculateNumericProgress","calculateNumericProgressV2","calculateRemainingDays","calculateVisibleSidelineTasks","formatLargeNumber","formatNumber","getEffectiveMainlineType","getSafeAreaInsets","getScreenSize","isMobileDevice","isSmallScreen","isTodayCheckedIn","prefersReducedMotion","updateMainlineTaskProgress"],
   },{
     path: 'stock_self',
     async lazy() {

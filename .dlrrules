@@ -1,5 +1,11 @@
 ## 正确的行为
 
+## 组件库
+
+1. 尽量使用 antd-mobile 组件库
+2. 如果需要使用其他组件库，必须先申请
+
+
 ### OpenSpec Workflow 规则
 
 当用户请求执行以下 OpenSpec 相关操作时，应动态读取对应的 workflow 文件：

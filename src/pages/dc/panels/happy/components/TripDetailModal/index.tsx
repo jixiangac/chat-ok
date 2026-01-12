@@ -1,6 +1,7 @@
 // 行程详情弹窗组件
 import React from 'react';
 import dayjs from 'dayjs';
+import { SafeArea } from 'antd-mobile';
 import { Trip } from '../../types';
 import { calculateTripStats } from '../../storage';
 import styles from './styles.module.css';
@@ -208,6 +209,7 @@ const TripDetailModal: React.FC<TripDetailModalProps> = ({ trip, onClose, onEnte
           <button className={styles.btnPrimary} onClick={onEnterTrip}>
             进入行程
           </button>
+          <SafeArea position="bottom" />
         </div>
       </div>
     </div>
@@ -215,3 +217,4 @@ const TripDetailModal: React.FC<TripDetailModalProps> = ({ trip, onClose, onEnte
 };
 
 export default TripDetailModal;
+

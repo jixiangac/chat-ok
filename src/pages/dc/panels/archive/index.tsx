@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft } from 'lucide-react';
+import { SafeArea } from 'antd-mobile';
 import { Task } from '../../types';
 import { useTheme } from '../../contexts';
 import styles from './ArchiveList.module.css';
@@ -270,7 +271,9 @@ export default function ArchiveList({ onBack, onTaskClick }: ArchiveListProps) {
             })}
           </div>
         )}
+        <SafeArea position="bottom" />
       </div>
     </div>
   );
 }
+

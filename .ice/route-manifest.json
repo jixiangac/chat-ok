@@ -575,6 +575,28 @@
     "exports": []
   },
   {
+    "path": "dc/components/TodayMustCompleteModal",
+    "index": true,
+    "id": "dc/components/TodayMustCompleteModal",
+    "file": "dc/components/TodayMustCompleteModal/index.tsx",
+    "componentName": "dc-components-todaymustcompletemodal-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/components/SidelineTaskEditModal",
+    "index": true,
+    "id": "dc/components/SidelineTaskEditModal",
+    "file": "dc/components/SidelineTaskEditModal/index.tsx",
+    "componentName": "dc-components-sidelinetaskeditmodal-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
     "path": "dc/components/shared/CircleProgress",
     "index": true,
     "id": "dc/components/shared/CircleProgress",
@@ -747,6 +769,17 @@
     ]
   },
   {
+    "path": "dc/components/GroupDetailPopup",
+    "index": true,
+    "id": "dc/components/GroupDetailPopup",
+    "file": "dc/components/GroupDetailPopup/index.tsx",
+    "componentName": "dc-components-groupdetailpopup-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
     "path": "dc/components/RandomTaskPicker",
     "index": true,
     "id": "dc/components/RandomTaskPicker",
@@ -899,6 +932,17 @@
     ]
   },
   {
+    "path": "dc/components/GroupModeGrid",
+    "index": true,
+    "id": "dc/components/GroupModeGrid",
+    "file": "dc/components/GroupModeGrid/index.tsx",
+    "componentName": "dc-components-groupmodegrid-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
     "path": "dc/components/TodayProgress",
     "index": true,
     "id": "dc/components/TodayProgress",
@@ -943,6 +987,30 @@
     "exports": [
       "default",
       "useSchedule"
+    ]
+  },
+  {
+    "path": "dc/utils/todayMustCompleteStorage",
+    "id": "dc/utils/todayMustCompleteStorage",
+    "file": "dc/utils/todayMustCompleteStorage.ts",
+    "componentName": "dc-utils-todaymustcompletestorage",
+    "layout": false,
+    "exports": [
+      "canOpenModalForEdit",
+      "canOpenModalForView",
+      "createTodayState",
+      "getTodayDateString",
+      "getTodayMustCompleteTaskIds",
+      "hasTodayBeenSet",
+      "hasTodaySetTasks",
+      "isTaskTodayMustComplete",
+      "loadTodayMustCompleteState",
+      "markModalShown",
+      "removeFromTodayMustComplete",
+      "saveTodayMustCompleteState",
+      "setTodayMustCompleteTasks",
+      "shouldShowTodayMustCompleteModal",
+      "skipTodayMustComplete"
     ]
   },
   {
@@ -1036,6 +1104,17 @@
     ]
   },
   {
+    "path": "dc/components/TagSelector",
+    "index": true,
+    "id": "dc/components/TagSelector",
+    "file": "dc/components/TagSelector/index.tsx",
+    "componentName": "dc-components-tagselector-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
     "path": "dc/panels/happy/contexts",
     "index": true,
     "id": "dc/panels/happy/contexts",
@@ -1104,6 +1183,17 @@
     ]
   },
   {
+    "path": "dc/components/GroupCard",
+    "index": true,
+    "id": "dc/components/GroupCard",
+    "file": "dc/components/GroupCard/index.tsx",
+    "componentName": "dc-components-groupcard-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
     "path": "dc/components/MoonPhase",
     "index": true,
     "id": "dc/components/MoonPhase",
@@ -1112,6 +1202,17 @@
     "layout": false,
     "exports": [
       "default"
+    ]
+  },
+  {
+    "path": "dc/hooks/useTodayMustComplete",
+    "id": "dc/hooks/useTodayMustComplete",
+    "file": "dc/hooks/useTodayMustComplete.ts",
+    "componentName": "dc-hooks-usetodaymustcomplete",
+    "layout": false,
+    "exports": [
+      "default",
+      "useTodayMustComplete"
     ]
   },
   {
@@ -1521,8 +1622,10 @@
     "componentName": "dc-constants-colors",
     "layout": false,
     "exports": [
+      "COLOR_PAIRS",
       "DEBT_COLOR_SCHEMES",
       "SIDELINE_THEME_COLORS",
+      "getColorPair",
       "getNextThemeColor",
       "getRandomDebtColorScheme"
     ]
@@ -1543,6 +1646,24 @@
       "isMobileDevice",
       "isSmallScreen",
       "prefersReducedMotion"
+    ]
+  },
+  {
+    "path": "dc/utils/tagStorage",
+    "id": "dc/utils/tagStorage",
+    "file": "dc/utils/tagStorage.ts",
+    "componentName": "dc-utils-tagstorage",
+    "layout": false,
+    "exports": [
+      "TAG_COLORS",
+      "createTag",
+      "deleteTag",
+      "getAllTags",
+      "getNextTagColor",
+      "getTagById",
+      "loadTagsFromStorage",
+      "saveTagsToStorage",
+      "updateTag"
     ]
   },
   {
@@ -1633,7 +1754,8 @@
       "useProgress",
       "useSpriteImage",
       "useTaskSort",
-      "useTodayCheckInStatus"
+      "useTodayCheckInStatus",
+      "useTodayMustComplete"
     ]
   },
   {
@@ -1646,6 +1768,7 @@
     "exports": [
       "CycleCalculator",
       "LAYOUT_CONSTANTS",
+      "TAG_COLORS",
       "calculateCheckInProgress",
       "calculateCheckInProgressV2",
       "calculateChecklistProgress",
@@ -1657,16 +1780,39 @@
       "calculateNumericProgressV2",
       "calculateRemainingDays",
       "calculateVisibleSidelineTasks",
+      "canOpenModalForEdit",
+      "canOpenModalForView",
+      "createTag",
+      "createTodayState",
+      "deleteTag",
       "formatLargeNumber",
       "formatNumber",
+      "getAllTags",
       "getEffectiveMainlineType",
+      "getNextTagColor",
       "getSafeAreaInsets",
       "getScreenSize",
+      "getTagById",
+      "getTodayDateString",
+      "getTodayMustCompleteTaskIds",
+      "hasTodayBeenSet",
+      "hasTodaySetTasks",
       "isMobileDevice",
       "isSmallScreen",
+      "isTaskTodayMustComplete",
       "isTodayCheckedIn",
+      "loadTagsFromStorage",
+      "loadTodayMustCompleteState",
+      "markModalShown",
       "prefersReducedMotion",
-      "updateMainlineTaskProgress"
+      "removeFromTodayMustComplete",
+      "saveTagsToStorage",
+      "saveTodayMustCompleteState",
+      "setTodayMustCompleteTasks",
+      "shouldShowTodayMustCompleteModal",
+      "skipTodayMustComplete",
+      "updateMainlineTaskProgress",
+      "updateTag"
     ]
   },
   {

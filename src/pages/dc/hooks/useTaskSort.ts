@@ -3,12 +3,18 @@ import dayjs from 'dayjs';
 import type { Task } from '../types';
 import { calculateRemainingDays } from '../utils/mainlineTaskHelper';
 import { getTodayCheckInStatusForTask } from '../panels/detail/hooks';
+import { getTodayMustCompleteTaskIds } from '../utils/todayMustCompleteStorage';
 
 /**
  * 任务排序 Hook
  * 对支线任务进行排序，优先显示需要关注的任务
  */
-export function useTaskSort(tasks: Task[]) {
+export function useTaskSort(tasks: Task[], todayMustCompleteTaskIds?: string[]) {
+  // 获取今日必须完成的任务ID列表
+  const mustCompleteIds = useMemo(() => {
+    return todayMustCompleteTaskIds ?? getTodayMustCompleteTaskIds();
+  }, [todayMustCompleteTaskIds]);
+
   /**
    * 检查任务今日是否已完成打卡
    */
@@ -93,6 +99,7 @@ export function useTaskSort(tasks: Task[]) {
   /**
    * 获取支线任务（排除已归档），并按完成状态排序
    * 排序规则：
+   * 0. 今日必须完成的任务置顶（未完成的在前）
    * 1. 今日未完成优先（周期快到期且完成率低的更前）
    * 2. 本周期未完成次之（周期快到期的更前）
    * 3. 今日已完成、周期已完成的排最后
@@ -105,6 +112,20 @@ export function useTaskSort(tasks: Task[]) {
         const bTodayCompleted = isTodayCompleted(b);
         const aCycleCompleted = isCycleCompleted(a);
         const bCycleCompleted = isCycleCompleted(b);
+        const aIsMustComplete = mustCompleteIds.includes(a.id);
+        const bIsMustComplete = mustCompleteIds.includes(b.id);
+        
+        // 0. 今日必须完成的任务置顶
+        if (aIsMustComplete && !bIsMustComplete) return -1;
+        if (!aIsMustComplete && bIsMustComplete) return 1;
+        
+        // 如果都是今日必须完成，按完成状态排序（未完成的在前）
+        if (aIsMustComplete && bIsMustComplete) {
+          if (!aTodayCompleted && bTodayCompleted) return -1;
+          if (aTodayCompleted && !bTodayCompleted) return 1;
+          // 都未完成或都已完成，保持原顺序
+          return 0;
+        }
         
         // 1. 今日未完成 vs 今日已完成
         if (!aTodayCompleted && bTodayCompleted) return -1;
@@ -146,7 +167,7 @@ export function useTaskSort(tasks: Task[]) {
         
         return 0;
       });
-  }, [activeTasks]);
+  }, [activeTasks, mustCompleteIds]);
 
   /**
    * 显示的支线任务（前3个）
@@ -167,4 +188,5 @@ export function useTaskSort(tasks: Task[]) {
     getCycleProgress
   };
 }
+
 

@@ -1,5 +1,6 @@
 // 行程总结弹窗组件
 import React, { useState } from 'react';
+import { SafeArea } from 'antd-mobile';
 import { Trip } from '../../types';
 import { calculateTripStats } from '../../storage';
 import styles from './styles.module.css';
@@ -123,6 +124,7 @@ const TripSummaryModal: React.FC<TripSummaryModalProps> = ({ visible, trip, onCl
           <button onClick={() => onComplete(comment.trim() || undefined)} className={styles.submitBtn}>
             完成，存入历史
           </button>
+          <SafeArea position="bottom" />
         </div>
       </div>
     </div>
@@ -130,3 +132,4 @@ const TripSummaryModal: React.FC<TripSummaryModalProps> = ({ visible, trip, onCl
 };
 
 export default TripSummaryModal;
+

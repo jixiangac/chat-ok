@@ -62,3 +62,38 @@ export function getNextThemeColor(usedColors: (string | undefined)[]): string {
   // 如果所有颜色都用过了，循环使用
   return SIDELINE_THEME_COLORS[validUsedColors.length % SIDELINE_THEME_COLORS.length];
 }
+
+/**
+ * 颜色配对映射（浅色 -> 深色）
+ * 用于生成渐变背景
+ */
+export const COLOR_PAIRS: Record<string, string> = {
+  '#F6EFEF': '#E0CEC6', // 奶油粉 -> 淡玫瑰
+  '#E0CEC6': '#F6EFEF', // 淡玫瑰 -> 奶油粉
+  '#F1F1E8': '#B9C9B9', // 奶油绿 -> 薄荷绿
+  '#B9C9B9': '#F1F1E8', // 薄荷绿 -> 奶油绿
+  '#E7E6ED': '#C0BDD1', // 淡紫 -> 紫灰
+  '#C0BDD1': '#E7E6ED', // 紫灰 -> 淡紫
+  '#F2F0EB': '#D6CBBD', // 奶油灰 -> 暖灰
+  '#D6CBBD': '#F2F0EB', // 暖灰 -> 奶油灰
+  '#EAECEF': '#B8BCC1', // 淡蓝灰 -> 银灰
+  '#B8BCC1': '#EAECEF', // 银灰 -> 淡蓝灰
+  '#C6DDE5': '#E8E1B8', // 日式青 -> 奶油黄
+  '#E8E1B8': '#C6DDE5', // 奶油黄 -> 日式青
+  '#B3BEE5': '#E6D6BB', // 淡紫蓝 -> 复古米
+  '#E6D6BB': '#B3BEE5', // 复古米 -> 淡紫蓝
+  '#D5C4C0': '#C9D4C9', // 肉桂粉 -> 鼠尾草绿
+  '#C9D4C9': '#D5C4C0', // 鼠尾草绿 -> 肉桂粉
+  '#D4D1E0': '#E0DDD5', // 薰衣草紫 -> 亚麻灰
+  '#E0DDD5': '#D4D1E0', // 亚麻灰 -> 薰衣草紫
+  '#D1D8E0': '#D5E0E0', // 雾霹蓝 -> 淡青
+  '#D5E0E0': '#D1D8E0', // 淡青 -> 雾霹蓝
+};
+
+/**
+ * 获取颜色的配对色（用于渐变）
+ */
+export function getColorPair(color: string): string {
+  return COLOR_PAIRS[color.toUpperCase()] || color;
+}
+

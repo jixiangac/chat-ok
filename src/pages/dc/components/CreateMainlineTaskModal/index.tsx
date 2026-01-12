@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import dayjs from 'dayjs';
-import { Popup } from 'antd-mobile';
+import { Popup, SafeArea } from 'antd-mobile';
 import type { MainlineTaskType, NumericDirection, CheckInUnit } from '../../types';
 import { useTheme } from '../../contexts';
 import type { Step, TaskCategory, CycleInfo, CreateMainlineTaskModalProps } from './types';
@@ -532,7 +532,10 @@ export default function CreateMainlineTaskModal({
           {currentStep === 'config' ? '创建任务' : '下一步'}
         </motion.button>
       </div>
+      <SafeArea position="bottom" />
     </Popup>
   );
 }
+
+
 

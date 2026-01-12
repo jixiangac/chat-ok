@@ -1,0 +1,232 @@
+/* 弹窗容器 */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modalContent {
+  background: white;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 380px;
+  max-height: 85vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.3s ease-out;
+}
+
+/* 顶部图片 */
+.headerImage {
+  width: 100%;
+  height: 140px;
+  overflow: hidden;
+  position: relative;
+  /* 使用支线任务主题色渐变 - 奶油绿 -> 薄荷绿 */
+  background: linear-gradient(135deg, #F1F1E8 0%, #B9C9B9 100%);
+}
+
+/* 关闭按钮 - 右上角 */
+.closeButton {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: rgba(55, 53, 47, 0.65);
+  transition: all 0.2s;
+  z-index: 1;
+}
+
+.closeButton:hover {
+  background: rgba(255, 255, 255, 1);
+  color: rgb(55, 53, 47);
+}
+
+.headerImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 标题区域 */
+.titleSection {
+  padding: 16px 20px 12px;
+}
+
+.title {
+  font-size: 17px;
+  font-weight: 500;
+  color: rgb(55, 53, 47);
+  margin: 0 0 4px;
+}
+
+.subtitle {
+  font-size: 13px;
+  color: rgba(55, 53, 47, 0.5);
+  margin: 0;
+}
+
+/* 任务选择区域 */
+.taskSelectionSection {
+  padding: 0 20px 16px;
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.sectionLabel {
+  font-size: 12px;
+  color: rgba(55, 53, 47, 0.5);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.selectedCount {
+  color: rgb(55, 53, 47);
+  font-weight: 500;
+}
+
+/* 任务网格 - 两列布局 */
+.taskGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+/* 任务卡片包装器 */
+.taskCardWrapper {
+  position: relative;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.taskCardWrapper:hover {
+  transform: translateY(-1px);
+}
+
+.taskCardWrapper.selected {
+  box-shadow: 0 0 0 2px rgb(55, 53, 47);
+  border-radius: 8px;
+}
+
+.taskCardWrapper.disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* 选中标识 */
+.selectedBadge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 20px;
+  height: 20px;
+  background: rgb(55, 53, 47);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 500;
+  z-index: 1;
+}
+
+/* 空状态 */
+.emptyState {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 24px;
+  color: rgba(55, 53, 47, 0.5);
+  font-size: 14px;
+}
+
+/* 底部按钮区域 */
+.footer {
+  padding: 16px 20px;
+  display: flex;
+  gap: 12px;
+  border-top: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+.skipButton {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid rgba(55, 53, 47, 0.16);
+  background: white;
+  border-radius: 8px;
+  font-size: 14px;
+  color: rgba(55, 53, 47, 0.65);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.skipButton:hover {
+  background: rgba(55, 53, 47, 0.04);
+}
+
+.confirmButton {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  background: rgb(55, 53, 47);
+  border-radius: 8px;
+  font-size: 14px;
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.confirmButton:hover {
+  background: rgb(35, 33, 27);
+}
+
+.confirmButton:disabled {
+  background: rgba(55, 53, 47, 0.3);
+  cursor: not-allowed;
+}
+
+/* 动画 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+

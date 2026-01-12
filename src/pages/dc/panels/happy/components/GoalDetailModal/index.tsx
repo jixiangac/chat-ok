@@ -1,5 +1,6 @@
 // 目标详情弹窗 - 记录图片和心情
 import React, { useState, useRef } from 'react';
+import { SafeArea } from 'antd-mobile';
 import { TripGoal } from '../../types';
 import styles from './styles.module.css';
 
@@ -126,6 +127,7 @@ const GoalDetailModal: React.FC<GoalDetailModalProps> = ({ goal, record, onClose
           <button className={styles.btnSave} onClick={handleSave}>
             保存
           </button>
+          <SafeArea position="bottom" />
         </div>
       </div>
     </div>
@@ -133,3 +135,4 @@ const GoalDetailModal: React.FC<GoalDetailModalProps> = ({ goal, record, onClose
 };
 
 export default GoalDetailModal;
+

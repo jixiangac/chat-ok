@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Popup } from 'antd-mobile';
+import { Popup, SafeArea } from 'antd-mobile';
 import { Plus, Minus, FileText, Check } from 'lucide-react';
 import { useTheme } from '../../../../contexts';
 import styles from '../../../../css/RecordDataModal.module.css';
@@ -80,11 +80,11 @@ export default function RecordDataModal({
       visible={visible}
       onMaskClick={handleClose}
       position='bottom'
+      style={{ zIndex: 1200 }}
       bodyStyle={{
         borderTopLeftRadius: '16px',
         borderTopRightRadius: '16px',
-        padding: '20px 24px',
-        paddingBottom: 'calc(20px + env(safe-area-inset-bottom))',
+        padding: '20px 24px 0',
         boxSizing: 'border-box',
         maxWidth: '100vw',
         overflow: 'hidden'
@@ -191,7 +191,10 @@ export default function RecordDataModal({
           </button>
         </div>
       </div>
+      <SafeArea position="bottom" />
     </Popup>
   );
 }
+
+
 

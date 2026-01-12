@@ -19,6 +19,7 @@ function GoalHeaderComponent({
   onDebugNextDay,
   onEndPlanEarly,
   onConvertToSideline,
+  onEdit,
   isPlanEnded
 }: GoalHeaderProps) {
   const [showMenu, setShowMenu] = useState(false);
@@ -155,6 +156,11 @@ function GoalHeaderComponent({
     onConvertToSideline?.();
     setShowMenu(false);
   }, [onConvertToSideline]);
+
+  const handleEdit = useCallback(() => {
+    onEdit?.();
+    setShowMenu(false);
+  }, [onEdit]);
   
   const toggleMenu = useCallback(() => {
     setShowMenu(prev => !prev);
@@ -178,7 +184,7 @@ function GoalHeaderComponent({
           </div>
         </div>
         <div className={styles.rightActions}>
-          <div className={styles.actionButton}>
+          <div className={styles.actionButton} onClick={handleEdit}>
             <Pencil size={18} />
           </div>
           <div className={styles.actionButton} onClick={toggleMenu}>
@@ -274,3 +280,4 @@ function GoalHeaderComponent({
 // 使用 memo 包装，优化渲染性能
 export const GoalHeader = memo(GoalHeaderComponent);
 export default GoalHeader;
+

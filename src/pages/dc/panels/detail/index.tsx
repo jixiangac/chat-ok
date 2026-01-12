@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import { Popup, Toast } from 'antd-mobile';
+import { Popup, Toast, SafeArea } from 'antd-mobile';
 import { FileText, Check, Archive, Clock, Hash } from 'lucide-react';
 import { useTheme } from '../../contexts';
 import dayjs from 'dayjs';
@@ -18,10 +18,12 @@ import {
 } from './components';
 import { useGoalDetail, getCurrentCycle, getSimulatedToday } from './hooks';
 import { useConfetti } from '../../hooks';
+import { useTaskContext } from '../../contexts';
 import { getTabsConfig, isCycleTab } from './utils';
 import { getEffectiveMainlineType } from '../../utils';
 import type { GoalDetailModalProps } from './types';
 import type { MainlineTaskType } from '../../types';
+import SidelineTaskEditModal from '../../components/SidelineTaskEditModal';
 
 export default function GoalDetailModal({ 
   visible, 
@@ -48,8 +50,10 @@ export default function GoalDetailModal({
   const [activeTab, setActiveTab] = useState<string>('');
   const [showRecordModal, setShowRecordModal] = useState(false);
   const [showCheckInModal, setShowCheckInModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const checkInButtonRef = useRef<HTMLButtonElement>(null);
   const { themeColors } = useTheme();
+  const { updateTask, getTaskById } = useTaskContext();
 
   // 使用彩纸效果 hook
   const { triggerConfetti } = useConfetti(checkInButtonRef);
@@ -160,6 +164,24 @@ export default function GoalDetailModal({
   const handleConvertToSideline = useCallback(() => {
     Toast.show({ content: '功能开发中...' });
   }, []);
+
+  // 处理编辑
+  const handleEdit = useCallback(() => {
+    setShowEditModal(true);
+  }, []);
+
+  // 处理编辑保存
+  const handleEditSave = useCallback((taskId: string, updates: { title?: string; tagId?: string }) => {
+    updateTask(taskId, updates);
+    Toast.show({ icon: 'success', content: '保存成功！' });
+    onDataChange?.();
+  }, [updateTask, onDataChange]);
+
+  // 获取当前任务对象（用于编辑弹窗）
+  const currentTask = useMemo(() => {
+    if (!goalId) return null;
+    return getTaskById(goalId);
+  }, [goalId, getTaskById]);
   
   // 判断计划是否已结束
   const isPlanEnded = useMemo(() => {
@@ -344,6 +366,7 @@ export default function GoalDetailModal({
         onDebugNextCycle={handleDebugNextCycle}
         onEndPlanEarly={handleEndPlanEarly}
         onConvertToSideline={handleConvertToSideline}
+        onEdit={handleEdit}
       />
       
       <div style={{ 
@@ -390,10 +413,9 @@ export default function GoalDetailModal({
         {renderedContent}
       </div>
       
-      {isCycleTab(activeTab) && goalDetail.status !== 'archived' && (
+      {isCycleTab(activeTab) && goalDetail.status !== 'archived' && (<>
         <div style={{
           padding: '16px 20px',
-          paddingBottom: 'calc(16px + env(safe-area-inset-bottom))',
           background: '#fff',
           flexShrink: 0
         }}>
@@ -421,7 +443,8 @@ export default function GoalDetailModal({
             {checkInLoading ? '处理中...' : buttonText}
           </button>
         </div>
-      )}
+        <SafeArea position="bottom" />
+      </>)}
       
       {mainlineType === 'NUMERIC' && goalDetail.numericConfig && (
         <RecordDataModal
@@ -449,6 +472,18 @@ export default function GoalDetailModal({
           todayValue={todayCheckInStatus.todayValue}
         />
       )}
+
+      {/* 编辑弹窗 */}
+      <SidelineTaskEditModal
+        visible={showEditModal}
+        task={currentTask || null}
+        onSave={handleEditSave}
+        onClose={() => setShowEditModal(false)}
+      />
     </Popup>
   );
 }
+
+
+
+

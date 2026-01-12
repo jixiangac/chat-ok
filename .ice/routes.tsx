@@ -52,6 +52,8 @@ import * as dc_panels_detail_components_GoalHeader from '@/pages/dc/panels/detai
 import * as dc_panels_happy_components_TripList_TripCard from '@/pages/dc/panels/happy/components/TripList/TripCard';
 import * as dc_components_CreateMainlineTaskModal from '@/pages/dc/components/CreateMainlineTaskModal/index';
 import * as dc_components_CreateMainlineTaskModal_types from '@/pages/dc/components/CreateMainlineTaskModal/types';
+import * as dc_components_TodayMustCompleteModal from '@/pages/dc/components/TodayMustCompleteModal/index';
+import * as dc_components_SidelineTaskEditModal from '@/pages/dc/components/SidelineTaskEditModal/index';
 import * as dc_components_shared_CircleProgress from '@/pages/dc/components/shared/CircleProgress/index';
 import * as dc_panels_happy_components_GoalCard from '@/pages/dc/panels/happy/components/GoalCard/index';
 import * as dc_panels_happy_components_TripList from '@/pages/dc/panels/happy/components/TripList/index';
@@ -66,6 +68,7 @@ import * as dc_components_shared_ProgressBar from '@/pages/dc/components/shared/
 import * as dc_panels_memorial_hooks_useDateFormat from '@/pages/dc/panels/memorial/hooks/useDateFormat';
 import * as dc_panels_settings_ThemeSettings from '@/pages/dc/panels/settings/ThemeSettings/index';
 import * as dc_panels_memorial_hooks_useMemorials from '@/pages/dc/panels/memorial/hooks/useMemorials';
+import * as dc_components_GroupDetailPopup from '@/pages/dc/components/GroupDetailPopup/index';
 import * as dc_components_RandomTaskPicker from '@/pages/dc/components/RandomTaskPicker/index';
 import * as dc_components_SidelineTaskGrid from '@/pages/dc/components/SidelineTaskGrid/index';
 import * as dc_panels_detail_hooks_checkInStatus from '@/pages/dc/panels/detail/hooks/checkInStatus';
@@ -79,22 +82,27 @@ import * as dc_panels_memorial_components from '@/pages/dc/panels/memorial/compo
 import * as dc_panels_memorial_constants_icons from '@/pages/dc/panels/memorial/constants/icons';
 import * as dc_panels_memorial_constants from '@/pages/dc/panels/memorial/constants/index';
 import * as dc_components_DailyProgress from '@/pages/dc/components/DailyProgress/index';
+import * as dc_components_GroupModeGrid from '@/pages/dc/components/GroupModeGrid/index';
 import * as dc_components_TodayProgress from '@/pages/dc/components/TodayProgress/index';
 import * as dc_panels_detail_components from '@/pages/dc/panels/detail/components/index';
 import * as dc_panels_happy_hooks_useSchedule from '@/pages/dc/panels/happy/hooks/useSchedule';
+import * as dc_utils_todayMustCompleteStorage from '@/pages/dc/utils/todayMustCompleteStorage';
 import * as dc_components_ThemedButton from '@/pages/dc/components/ThemedButton/index';
 import * as dc_panels_detail_constants from '@/pages/dc/panels/detail/constants/index';
 import * as dc_panels_detail_hooks_constants from '@/pages/dc/panels/detail/hooks/constants';
 import * as dc_panels_detail_hooks_dateUtils from '@/pages/dc/panels/detail/hooks/dateUtils';
 import * as dc_panels_happy_components from '@/pages/dc/panels/happy/components/index';
 import * as dc_panels_happy_utils_dateHelper from '@/pages/dc/panels/happy/utils/dateHelper';
+import * as dc_components_TagSelector from '@/pages/dc/components/TagSelector/index';
 import * as dc_panels_happy_contexts from '@/pages/dc/panels/happy/contexts/index';
 import * as dc_panels_happy_hooks_useGoals from '@/pages/dc/panels/happy/hooks/useGoals';
 import * as dc_panels_happy_hooks_useTrips from '@/pages/dc/panels/happy/hooks/useTrips';
 import * as dc_panels_memorial_hooks from '@/pages/dc/panels/memorial/hooks/index';
 import * as dc_panels_memorial_utils from '@/pages/dc/panels/memorial/utils/index';
 import * as dc_panels_settings_theme from '@/pages/dc/panels/settings/theme/index';
+import * as dc_components_GroupCard from '@/pages/dc/components/GroupCard/index';
 import * as dc_components_MoonPhase from '@/pages/dc/components/MoonPhase/index';
+import * as dc_hooks_useTodayMustComplete from '@/pages/dc/hooks/useTodayMustComplete';
 import * as dc_panels_detail_hooks from '@/pages/dc/panels/detail/hooks';
 import * as dc_panels_detail_utils from '@/pages/dc/panels/detail/utils/index';
 import * as dc_panels_happy_hooks from '@/pages/dc/panels/happy/hooks/index';
@@ -127,6 +135,7 @@ import * as dc_hooks_useTaskSort from '@/pages/dc/hooks/useTaskSort';
 import * as dc_components from '@/pages/dc/components/index';
 import * as dc_constants_colors from '@/pages/dc/constants/colors';
 import * as dc_utils_responsive from '@/pages/dc/utils/responsive';
+import * as dc_utils_tagStorage from '@/pages/dc/utils/tagStorage';
 import * as dc_constants from '@/pages/dc/constants/index';
 import * as dc_contexts from '@/pages/dc/contexts/index';
 import * as dc_panels from '@/pages/dc/panels/index';
@@ -1452,6 +1461,56 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: [],
   },{
+    path: 'dc/components/TodayMustCompleteModal',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_TodayMustCompleteModal,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/TodayMustCompleteModal',
+          isLayout: false,
+          routeExports: dc_components_TodayMustCompleteModal,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/TodayMustCompleteModal',
+          requestContext,
+          renderMode,
+          module: dc_components_TodayMustCompleteModal,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-todaymustcompletemodal-index',
+    index: true,
+    id: 'dc/components/TodayMustCompleteModal',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/components/SidelineTaskEditModal',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_SidelineTaskEditModal,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/SidelineTaskEditModal',
+          isLayout: false,
+          routeExports: dc_components_SidelineTaskEditModal,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/SidelineTaskEditModal',
+          requestContext,
+          renderMode,
+          module: dc_components_SidelineTaskEditModal,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-sidelinetaskeditmodal-index',
+    index: true,
+    id: 'dc/components/SidelineTaskEditModal',
+    exact: true,
+    exports: ["default"],
+  },{
     path: 'dc/components/shared/CircleProgress',
     async lazy() {
       ;
@@ -1802,6 +1861,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["useMemorials"],
   },{
+    path: 'dc/components/GroupDetailPopup',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_GroupDetailPopup,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/GroupDetailPopup',
+          isLayout: false,
+          routeExports: dc_components_GroupDetailPopup,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/GroupDetailPopup',
+          requestContext,
+          renderMode,
+          module: dc_components_GroupDetailPopup,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-groupdetailpopup-index',
+    index: true,
+    id: 'dc/components/GroupDetailPopup',
+    exact: true,
+    exports: ["default"],
+  },{
     path: 'dc/components/RandomTaskPicker',
     async lazy() {
       ;
@@ -2127,6 +2211,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["default"],
   },{
+    path: 'dc/components/GroupModeGrid',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_GroupModeGrid,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/GroupModeGrid',
+          isLayout: false,
+          routeExports: dc_components_GroupModeGrid,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/GroupModeGrid',
+          requestContext,
+          renderMode,
+          module: dc_components_GroupModeGrid,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-groupmodegrid-index',
+    index: true,
+    id: 'dc/components/GroupModeGrid',
+    exact: true,
+    exports: ["default"],
+  },{
     path: 'dc/components/TodayProgress',
     async lazy() {
       ;
@@ -2201,6 +2310,31 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/panels/happy/hooks/useSchedule',
     exact: true,
     exports: ["default","useSchedule"],
+  },{
+    path: 'dc/utils/todayMustCompleteStorage',
+    async lazy() {
+      ;
+      return {
+        ...dc_utils_todayMustCompleteStorage,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/utils/todayMustCompleteStorage',
+          isLayout: false,
+          routeExports: dc_utils_todayMustCompleteStorage,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/utils/todayMustCompleteStorage',
+          requestContext,
+          renderMode,
+          module: dc_utils_todayMustCompleteStorage,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-utils-todaymustcompletestorage',
+    index: undefined,
+    id: 'dc/utils/todayMustCompleteStorage',
+    exact: true,
+    exports: ["canOpenModalForEdit","canOpenModalForView","createTodayState","getTodayDateString","getTodayMustCompleteTaskIds","hasTodayBeenSet","hasTodaySetTasks","isTaskTodayMustComplete","loadTodayMustCompleteState","markModalShown","removeFromTodayMustComplete","saveTodayMustCompleteState","setTodayMustCompleteTasks","shouldShowTodayMustCompleteModal","skipTodayMustComplete"],
   },{
     path: 'dc/components/ThemedButton',
     async lazy() {
@@ -2352,6 +2486,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["formatDate","formatDateISO","getDateOnly","getDaysDiff","getToday","getTripDayIndex","getTripEndDate","isDateInRange","isTripActive","isTripExpired","isTripUpcoming"],
   },{
+    path: 'dc/components/TagSelector',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_TagSelector,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/TagSelector',
+          isLayout: false,
+          routeExports: dc_components_TagSelector,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/TagSelector',
+          requestContext,
+          renderMode,
+          module: dc_components_TagSelector,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-tagselector-index',
+    index: true,
+    id: 'dc/components/TagSelector',
+    exact: true,
+    exports: ["default"],
+  },{
     path: 'dc/panels/happy/contexts',
     async lazy() {
       ;
@@ -2502,6 +2661,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["ThemeProvider","themePresets","useTheme"],
   },{
+    path: 'dc/components/GroupCard',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_GroupCard,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/GroupCard',
+          isLayout: false,
+          routeExports: dc_components_GroupCard,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/GroupCard',
+          requestContext,
+          renderMode,
+          module: dc_components_GroupCard,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-groupcard-index',
+    index: true,
+    id: 'dc/components/GroupCard',
+    exact: true,
+    exports: ["default"],
+  },{
     path: 'dc/components/MoonPhase',
     async lazy() {
       ;
@@ -2526,6 +2710,31 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/components/MoonPhase',
     exact: true,
     exports: ["default"],
+  },{
+    path: 'dc/hooks/useTodayMustComplete',
+    async lazy() {
+      ;
+      return {
+        ...dc_hooks_useTodayMustComplete,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/hooks/useTodayMustComplete',
+          isLayout: false,
+          routeExports: dc_hooks_useTodayMustComplete,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/hooks/useTodayMustComplete',
+          requestContext,
+          renderMode,
+          module: dc_hooks_useTodayMustComplete,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-hooks-usetodaymustcomplete',
+    index: undefined,
+    id: 'dc/hooks/useTodayMustComplete',
+    exact: true,
+    exports: ["default","useTodayMustComplete"],
   },{
     path: 'dc/panels/detail/hooks',
     async lazy() {
@@ -3300,7 +3509,7 @@ const createRoutes: CreateRoutes = ({
     index: undefined,
     id: 'dc/constants/colors',
     exact: true,
-    exports: ["DEBT_COLOR_SCHEMES","SIDELINE_THEME_COLORS","getNextThemeColor","getRandomDebtColorScheme"],
+    exports: ["COLOR_PAIRS","DEBT_COLOR_SCHEMES","SIDELINE_THEME_COLORS","getColorPair","getNextThemeColor","getRandomDebtColorScheme"],
   },{
     path: 'dc/utils/responsive',
     async lazy() {
@@ -3326,6 +3535,31 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/utils/responsive',
     exact: true,
     exports: ["LAYOUT_CONSTANTS","calculateGridColumns","calculateModalMaxHeight","calculateVisibleSidelineTasks","getSafeAreaInsets","getScreenSize","isMobileDevice","isSmallScreen","prefersReducedMotion"],
+  },{
+    path: 'dc/utils/tagStorage',
+    async lazy() {
+      ;
+      return {
+        ...dc_utils_tagStorage,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/utils/tagStorage',
+          isLayout: false,
+          routeExports: dc_utils_tagStorage,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/utils/tagStorage',
+          requestContext,
+          renderMode,
+          module: dc_utils_tagStorage,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-utils-tagstorage',
+    index: undefined,
+    id: 'dc/utils/tagStorage',
+    exact: true,
+    exports: ["TAG_COLORS","createTag","deleteTag","getAllTags","getNextTagColor","getTagById","loadTagsFromStorage","saveTagsToStorage","updateTag"],
   },{
     path: 'dc/constants',
     async lazy() {
@@ -3425,7 +3659,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/hooks',
     exact: true,
-    exports: ["formatLocalDate","getCurrentCycle","getSimulatedToday","getSimulatedTodayDate","getTodayCheckInStatusForTask","useConfetti","usePlanEndStatus","useProgress","useSpriteImage","useTaskSort","useTodayCheckInStatus"],
+    exports: ["formatLocalDate","getCurrentCycle","getSimulatedToday","getSimulatedTodayDate","getTodayCheckInStatusForTask","useConfetti","usePlanEndStatus","useProgress","useSpriteImage","useTaskSort","useTodayCheckInStatus","useTodayMustComplete"],
   },{
     path: 'dc/utils',
     async lazy() {
@@ -3450,7 +3684,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/utils',
     exact: true,
-    exports: ["CycleCalculator","LAYOUT_CONSTANTS","calculateCheckInProgress","calculateCheckInProgressV2","calculateChecklistProgress","calculateChecklistProgressV2","calculateCurrentCycleNumber","calculateGridColumns","calculateModalMaxHeight","calculateNumericProgress","calculateNumericProgressV2","calculateRemainingDays","calculateVisibleSidelineTasks","formatLargeNumber","formatNumber","getEffectiveMainlineType","getSafeAreaInsets","getScreenSize","isMobileDevice","isSmallScreen","isTodayCheckedIn","prefersReducedMotion","updateMainlineTaskProgress"],
+    exports: ["CycleCalculator","LAYOUT_CONSTANTS","TAG_COLORS","calculateCheckInProgress","calculateCheckInProgressV2","calculateChecklistProgress","calculateChecklistProgressV2","calculateCurrentCycleNumber","calculateGridColumns","calculateModalMaxHeight","calculateNumericProgress","calculateNumericProgressV2","calculateRemainingDays","calculateVisibleSidelineTasks","canOpenModalForEdit","canOpenModalForView","createTag","createTodayState","deleteTag","formatLargeNumber","formatNumber","getAllTags","getEffectiveMainlineType","getNextTagColor","getSafeAreaInsets","getScreenSize","getTagById","getTodayDateString","getTodayMustCompleteTaskIds","hasTodayBeenSet","hasTodaySetTasks","isMobileDevice","isSmallScreen","isTaskTodayMustComplete","isTodayCheckedIn","loadTagsFromStorage","loadTodayMustCompleteState","markModalShown","prefersReducedMotion","removeFromTodayMustComplete","saveTagsToStorage","saveTodayMustCompleteState","setTodayMustCompleteTasks","shouldShowTodayMustCompleteModal","skipTodayMustComplete","updateMainlineTaskProgress","updateTag"],
   },{
     path: 'stock_self',
     async lazy() {

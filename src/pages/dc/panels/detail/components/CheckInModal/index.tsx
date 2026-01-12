@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Popup } from 'antd-mobile';
+import { Popup, SafeArea } from 'antd-mobile';
 import { Clock, Hash, Check, Plus, Minus } from 'lucide-react';
 import type { CheckInUnit } from '../../../../types';
 import { useTheme } from '../../../../contexts';
@@ -75,11 +75,10 @@ export default function CheckInModal({
         visible={visible}
         onMaskClick={handleClose}
         position="bottom"
+        style={{ zIndex: 1200 }}
         bodyStyle={{
           borderTopLeftRadius: '16px',
-          borderTopRightRadius: '16px',
-          padding: '24px',
-          paddingBottom: 'calc(24px + env(safe-area-inset-bottom))'
+          borderTopRightRadius: '16px',          padding: '24px 24px 0'
         }}
       >
         <div className={styles.container}>
@@ -99,6 +98,7 @@ export default function CheckInModal({
             {loading ? '打卡中...' : '确认打卡'}
           </button>
         </div>
+        <SafeArea position="bottom" />
       </Popup>
     );
   }
@@ -112,11 +112,11 @@ export default function CheckInModal({
         visible={visible}
         onMaskClick={handleClose}
         position="bottom"
+        style={{ zIndex: 1200 }}
         bodyStyle={{
           borderTopLeftRadius: '16px',
           borderTopRightRadius: '16px',
-          padding: '24px',
-          paddingBottom: 'calc(24px + env(safe-area-inset-bottom))',
+          padding: '24px 24px 0',
           boxSizing: 'border-box',
           overflow: 'hidden'
         }}
@@ -172,6 +172,7 @@ export default function CheckInModal({
             {loading ? '记录中...' : `记录 ${selectedDuration || customDuration || 0} 分钟`}
           </button>
         </div>
+        <SafeArea position="bottom" />
       </Popup>
     );
   }
@@ -182,11 +183,11 @@ export default function CheckInModal({
       visible={visible}
       onMaskClick={handleClose}
       position="bottom"
+      style={{ zIndex: 1200 }}
       bodyStyle={{
         borderTopLeftRadius: '16px',
         borderTopRightRadius: '16px',
-        padding: '24px',
-        paddingBottom: 'calc(24px + env(safe-area-inset-bottom))'
+        padding: '24px 24px 0'
       }}
     >
       <div className={styles.container}>
@@ -255,8 +256,11 @@ export default function CheckInModal({
           {loading ? '记录中...' : `记录 ${inputValue || 0} ${valueUnit}`}
         </button>
       </div>
+      <SafeArea position="bottom" />
     </Popup>
   );
 }
+
+
 
 

@@ -1,7 +1,8 @@
 # normal-panel Specification
 
 ## Purpose
-TBD - created by archiving change optimize-normal-panel-ux. Update Purpose after archive.
+常规面板（Normal Panel）是目标管理系统的核心视图，提供主线任务和支线任务的管理功能，包括任务创建、编辑、标签分类、今日必须完成任务设置等功能。
+
 ## Requirements
 ### Requirement: 支线任务网格响应式显示
 
@@ -171,3 +172,146 @@ TBD - created by archiving change optimize-normal-panel-ux. Update Purpose after
 
 ---
 
+### Requirement: 今日必须完成任务功能
+
+系统 **SHALL** 支持用户每日设置当天必须完成的支线任务。
+
+#### Scenario: 每日自动弹出设置弹窗
+
+**GIVEN** 用户在8点后首次打开应用
+**WHEN** 当天尚未设置今日必须完成任务
+**THEN** 系统自动弹出今日必须完成任务设置弹窗
+
+#### Scenario: 任务选择限制
+
+**GIVEN** 用户在设置今日必须完成任务
+**WHEN** 选择任务
+**THEN** 最多可选择3个任务
+
+#### Scenario: 跳过设置
+
+**GIVEN** 用户在今日必须完成设置弹窗
+**WHEN** 点击跳过按钮
+**THEN** 当天不再自动弹出设置弹窗
+
+#### Scenario: 今日必须完成任务置顶显示
+
+**GIVEN** 用户已设置今日必须完成任务
+**WHEN** 查看支线任务列表
+**THEN** 今日必须完成任务置顶显示，并有特殊视觉标识
+
+#### Scenario: 跨天自动重置
+
+**GIVEN** 用户已设置今日必须完成任务
+**WHEN** 第二天打开应用
+**THEN** 前一天的今日必须完成状态自动清除
+
+#### Scenario: 设置面板入口
+
+**GIVEN** 当天尚未设置今日必须完成任务
+**WHEN** 用户打开设置面板
+**THEN** 显示"设置今日必须完成任务"入口
+
+---
+
+### Requirement: 支线任务标签功能
+
+系统 **SHALL** 支持为支线任务添加标签进行分类管理。
+
+#### Scenario: 创建标签
+
+**GIVEN** 用户在编辑任务或创建任务时
+**WHEN** 需要添加新标签
+**THEN** 可以创建新标签，系统自动分配颜色
+
+#### Scenario: 选择已有标签
+
+**GIVEN** 用户在编辑任务
+**WHEN** 选择标签
+**THEN** 可以从已有标签列表中选择
+
+#### Scenario: 单标签限制
+
+**GIVEN** 用户为任务设置标签
+**WHEN** 选择标签
+**THEN** 每个任务只能设置1个标签
+
+#### Scenario: 标签颜色自动分配
+
+**GIVEN** 用户创建新标签
+**WHEN** 标签创建成功
+**THEN** 系统自动从预设颜色中分配一个颜色
+
+---
+
+### Requirement: 支线任务编辑功能
+
+系统 **SHALL** 支持编辑已创建的支线任务。
+
+#### Scenario: 编辑入口
+
+**GIVEN** 用户在任务详情页
+**WHEN** 点击编辑按钮
+**THEN** 打开任务编辑弹窗
+
+#### Scenario: 编辑任务名称
+
+**GIVEN** 用户在编辑弹窗中
+**WHEN** 修改任务名称并保存
+**THEN** 任务名称更新成功
+
+#### Scenario: 编辑任务标签
+
+**GIVEN** 用户在编辑弹窗中
+**WHEN** 修改任务标签并保存
+**THEN** 任务标签更新成功
+
+---
+
+### Requirement: Group 模式视图
+
+系统 **SHALL** 支持按标签分组显示支线任务。
+
+#### Scenario: 模式切换入口
+
+**GIVEN** 存在带标签的支线任务
+**WHEN** 用户查看支线任务区域
+**THEN** 显示模式切换图标
+
+#### Scenario: 无标签时隐藏切换
+
+**GIVEN** 所有支线任务都没有标签
+**WHEN** 用户查看支线任务区域
+**THEN** 不显示模式切换图标
+
+#### Scenario: Group 卡片显示
+
+**GIVEN** 用户切换到 Group 模式
+**WHEN** 查看支线任务区域
+**THEN** 显示按标签分组的卡片，每个卡片显示标签名、进度和图标
+
+#### Scenario: Group 详情弹窗
+
+**GIVEN** 用户在 Group 模式下
+**WHEN** 点击某个标签卡片
+**THEN** 弹出该标签下所有任务的网格视图
+
+---
+
+### Requirement: 滚动条优化
+
+系统 **SHALL** 确保滚动条只在 Tab 内容区域显示。
+
+#### Scenario: Tab 内容区域滚动
+
+**GIVEN** 用户在常规面板查看内容
+**WHEN** 内容超出可视区域
+**THEN** 滚动条只出现在 Tab 对应的内容区域，不影响其他区域
+
+#### Scenario: 多滚动条避免
+
+**GIVEN** 页面包含多个可滚动区域
+**WHEN** 用户滚动页面
+**THEN** 不会出现多个滚动条同时显示的情况
+
+---

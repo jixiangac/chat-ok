@@ -1,3 +1,6 @@
+// 视图模式类型
+export type ViewMode = 'default' | 'group';
+
 // 任务类型定义
 export type TaskType = 'mainline' | 'sidelineA' | 'sidelineB';
 export type Priority = 'high' | 'medium' | 'low';
@@ -13,6 +16,22 @@ export type ChecklistItemStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'PAU
 
 // 打卡单位（打卡类型）
 export type CheckInUnit = 'TIMES' | 'DURATION' | 'QUANTITY';
+
+// 任务标签接口
+export interface TaskTag {
+  id: string;
+  name: string;
+  color: string;
+  createdAt: string;
+}
+
+// 今日必须完成状态
+export interface TodayMustCompleteState {
+  date: string; // YYYY-MM-DD 格式
+  taskIds: string[]; // 选中的任务ID列表（最多3个）
+  skipped: boolean; // 是否跳过
+  hasShownModal: boolean; // 今日是否已显示过弹窗
+}
 
 // 单次打卡记录（支持多轮打卡）
 export interface CheckInEntry {
@@ -219,6 +238,9 @@ export interface Task {
   
   // 上一周期欠账快照（用于在前1/2时间完成当期目标时记录）
   previousCycleDebtSnapshot?: PreviousCycleDebtSnapshot;
+  
+  // 标签ID（每个任务只能有一个标签）
+  tagId?: string;
 }
 
 // 目标数据接口
@@ -285,6 +307,7 @@ export interface ValidationResult {
   valid: boolean;
   message?: string;
 }
+
 
 
 

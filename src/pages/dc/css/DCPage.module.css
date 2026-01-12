@@ -110,27 +110,41 @@
 /* 内容区域 */
 .content {
   flex: 1;
-  padding: 12px 16px;
-  overflow-y: auto;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .contentWithBottomBar {
+  /* 底部栏的 padding 移到 tabContent 上 */
+}
+
+/* Tab 内容滚动容器 */
+.tabContent {
+  flex: 1;
+  padding: 0 16px 12px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.contentWithBottomBar .tabContent {
   padding-bottom: 80px;
 }
 
 /* 小精灵区域 */
 .spriteSection {
+  flex-shrink: 0;
+  padding: 12px 16px 0;
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  margin-bottom: 16px;
   position: relative;
 }
 
 .moonPhaseWrapper {
   position: absolute;
-  left: 0;
-  top: 10px;
+  left: 20px;
+  top: 20px;
 }
 
 .spriteImage {
@@ -354,3 +368,5 @@
     transform: translateY(0);
   }
 }
+
+

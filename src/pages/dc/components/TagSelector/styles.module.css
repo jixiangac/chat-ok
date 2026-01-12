@@ -1,0 +1,223 @@
+/* 标签选择器容器 */
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+}
+
+.label {
+  font-size: 13px;
+  color: #666;
+}
+
+/* 当前选择的标签显示区域 */
+.selectedTag {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: white;
+  min-height: 36px;
+}
+
+.selectedTag:hover {
+  border-color: #ccc;
+}
+
+.placeholder {
+  color: #999;
+  font-size: 13px;
+  flex: 1;
+}
+
+.chevron {
+  color: #999;
+  transition: transform 0.2s;
+}
+
+.clearTagButton {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0, 0, 0, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #666;
+  transition: all 0.2s;
+  margin-left: auto;
+}
+
+.clearTagButton:hover {
+  background: rgba(0, 0, 0, 0.1);
+  color: #333;
+}
+
+/* 下拉列表 */
+.dropdown {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  right: 0;
+  margin-bottom: 4px;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 1300;
+  max-height: 240px;
+  overflow-y: auto;
+  animation: dropdownFadeIn 0.15s ease-out;
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 标签列表 */
+.tagList {
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* 标签项 */
+.tagItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tagItem:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.tagItem.selected {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.tagColorDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.tagName {
+  font-size: 13px;
+  color: #333;
+  flex: 1;
+}
+
+.checkIcon {
+  color: #333;
+  flex-shrink: 0;
+}
+
+/* 新建标签输入框 */
+.newTagInput {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+}
+
+.input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.input:focus {
+  border-color: #667eea;
+}
+
+.input::placeholder {
+  color: #999;
+}
+
+.inputActions {
+  display: flex;
+  gap: 4px;
+}
+
+.inputButton {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.confirmButton {
+  background: #333;
+  color: white;
+}
+
+.confirmButton:hover:not(:disabled) {
+  background: #222;
+}
+
+.confirmButton:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.cancelButton {
+  background: #f0f0f0;
+  color: #666;
+}
+
+.cancelButton:hover {
+  background: #e0e0e0;
+}
+
+/* 新建标签按钮 */
+.addTagButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 12px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.15s;
+  width: 100%;
+}
+
+.addTagButton:hover {
+  background: rgba(0, 0, 0, 0.04);
+  color: #333;
+}
+
+

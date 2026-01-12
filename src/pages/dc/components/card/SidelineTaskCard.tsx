@@ -10,6 +10,7 @@ import {
   calculateCurrentCycleNumber
 } from '../../utils/mainlineTaskHelper';
 import { getTodayCheckInStatusForTask } from '../../panels/detail/hooks';
+import { isTaskTodayMustComplete } from '../../utils/todayMustCompleteStorage';
 
 // 默认主题色列表（用于兼容旧数据，基于用户提供的配色图）
 const DEFAULT_THEME_COLORS = [
@@ -167,9 +168,11 @@ interface SidelineTaskCardProps {
   isTodayCompleted?: boolean;
   isCycleCompleted?: boolean;
   variant?: 'card' | 'grid';
+  isMustComplete?: boolean;
 }
 
-export default function SidelineTaskCard({ task, onClick, isTodayCompleted, isCycleCompleted, variant = 'card' }: SidelineTaskCardProps) {
+export default function SidelineTaskCard({ task, onClick, isTodayCompleted, isCycleCompleted, variant = 'card', isMustComplete }: SidelineTaskCardProps) {
+  const mustComplete = isMustComplete ?? isTaskTodayMustComplete(task.id);
   const remainingDays = calculateRemainingDays(task);
   
   // 获取主题色（优先使用存储的，否则根据ID生成）
@@ -326,6 +329,11 @@ export default function SidelineTaskCard({ task, onClick, isTodayCompleted, isCy
         className={styles.gridCard}
         style={gradientStyle}
       >
+        {mustComplete && (
+          <div className={styles.mustCompleteBadge} title="今日必须完成">
+            🎯
+          </div>
+        )}
         <div className={styles.gridContent}>
           <div className={styles.gridTitle}>{task.title}</div>
           <div className={styles.gridInfo}>
@@ -350,6 +358,11 @@ export default function SidelineTaskCard({ task, onClick, isTodayCompleted, isCy
       className={styles.card}
       style={gradientStyle}
     >
+      {mustComplete && (
+        <div className={styles.mustCompleteBadge} title="今日必须完成">
+          🎯
+        </div>
+      )}
       <div className={styles.header}>
         <div className={styles.titleRow}>
           {isCycleCompleted && (
@@ -391,3 +404,4 @@ export default function SidelineTaskCard({ task, onClick, isTodayCompleted, isCy
     </div>
   );
 }
+

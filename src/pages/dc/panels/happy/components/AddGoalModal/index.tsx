@@ -1,5 +1,6 @@
 // 添加目标弹窗组件
 import React, { useState, useEffect, useMemo } from 'react';
+import { SafeArea } from 'antd-mobile';
 import { TripSchedule, TripGoal } from '../../types';
 import { isScheduleExpired } from '../../utils';
 import styles from './styles.module.css';
@@ -168,6 +169,7 @@ const AddGoalModal: React.FC<AddGoalModalProps> = ({
           <button onClick={handleSubmit} disabled={!isValid} className={styles.submitBtn}>
             {editingGoal ? '保存修改' : '添加目标'}
           </button>
+          <SafeArea position="bottom" />
         </div>
       </div>
     </div>
@@ -175,3 +177,4 @@ const AddGoalModal: React.FC<AddGoalModalProps> = ({
 };
 
 export default AddGoalModal;
+

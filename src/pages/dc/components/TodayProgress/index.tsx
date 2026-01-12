@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import dayjs from 'dayjs';
+import { SafeArea } from 'antd-mobile';
 import { useTaskContext } from '../../contexts';
 import { Task } from '../../types';
 import RandomTaskPicker from '../RandomTaskPicker';
@@ -64,15 +65,19 @@ export default function TodayProgress({ onTaskSelect }: TodayProgressProps) {
   };
 
   return (
-    <div className="today-progress-container">
-      <div className="today-progress-section">
-        <div className="today-progress-label">今日完成率</div>
-        <div className="today-progress-value">{todayProgress.percentage}%</div>
-      </div>
+    <div className="today-progress-wrapper">
+      <div className="today-progress-container">
+        <div className="today-progress-section">
+          <div className="today-progress-label">今日完成率</div>
+          <div className="today-progress-value">{todayProgress.percentage}%</div>
+        </div>
       
-      <div className="today-progress-try-luck">
-        <RandomTaskPicker onSelectTask={handleTaskSelect} />
+        <div className="today-progress-try-luck">
+          <RandomTaskPicker onSelectTask={handleTaskSelect} />
+        </div>
       </div>
+      <SafeArea position="bottom" />
     </div>
   );
 }
+

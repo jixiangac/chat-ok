@@ -4,7 +4,7 @@
 
 import React, { useState, useCallback, useEffect, Suspense, lazy } from 'react';
 import { X } from 'lucide-react';
-import { DatePicker } from 'antd-mobile';
+import { DatePicker, SafeArea } from 'antd-mobile';
 import dayjs from 'dayjs';
 import type { Memorial, CreateMemorialInput, MemorialBackground } from '../../types';
 import { getDefaultIcon, getDefaultColor, getDefaultBackground } from '../../constants';
@@ -196,12 +196,14 @@ export function CreateMemorialModal({
             {editingMemorial ? '保存' : '创建'}
           </button>
         </div>
+        <SafeArea position="bottom" />
       </div>
     </div>
   );
 }
 
 export default CreateMemorialModal;
+
 
 
 

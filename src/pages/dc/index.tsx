@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { Plus, Archive, Settings as SettingsIcon } from 'lucide-react';
+import { SafeArea } from 'antd-mobile';
 
 // Components
 import MoonPhase from './components/MoonPhase';
@@ -49,6 +50,11 @@ function DCPageContent() {
     } else if (activeTab === 'memorial') {
       memorialPanelRef.current?.triggerAdd();
     }
+  };
+
+  // 处理打开今日必须完成弹窗
+  const handleOpenTodayMustComplete = (readOnly?: boolean) => {
+    normalPanelRef.current?.openTodayMustComplete(readOnly);
   };
 
   // 渲染 tab 对应的内容区域（小精灵下方的部分）
@@ -113,9 +119,10 @@ function DCPageContent() {
 
       {/* Content */}
       <div className={`${styles.content} ${activeTab === 'normal' ? styles.contentWithBottomBar : ''}`}>
-        {/* 小精灵区域 - 固定显示 */}
+        {/* 小精灵区域 - 固定不滚动 */}
         <div className={styles.spriteSection}>
-          <div className={styles.moonPhaseWrapper}>
+          {/* 小精灵区域 */}
+            <div className={styles.moonPhaseWrapper}>
             <MoonPhase onClick={randomizeSpriteImage} />
           </div>
           <img 
@@ -125,8 +132,10 @@ function DCPageContent() {
           />
         </div>
 
-        {/* Tab 对应的内容 */}
-        {renderTabContent()}
+        {/* Tab 对应的内容 - 可滚动区域 */}
+        <div className={styles.tabContent}>
+          {renderTabContent()}
+        </div>
       </div>
 
       {/* 归档列表 */}
@@ -143,7 +152,11 @@ function DCPageContent() {
       <Settings 
         visible={showSettings}
         onClose={closeSettings}
+        onOpenTodayMustComplete={handleOpenTodayMustComplete}
       />
+
+      {/* 底部安全区域 */}
+      <SafeArea position="bottom" />
     </div>
   );
 }
@@ -159,4 +172,9 @@ export default function DCPage() {
     </ThemeProvider>
   );
 }
+
+
+
+
+
 

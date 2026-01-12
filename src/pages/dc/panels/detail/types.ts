@@ -112,6 +112,7 @@ export interface GoalHeaderProps {
   onDebugNextDay?: () => void;
   onEndPlanEarly?: () => void;
   onConvertToSideline?: () => void;
+  onEdit?: () => void;
   isPlanEnded?: boolean;
 }
 
@@ -154,5 +155,6 @@ export interface CheckInRecordPanelProps {
   cycleStartDate: string;
   cycleEndDate: string;
 }
+
 
 

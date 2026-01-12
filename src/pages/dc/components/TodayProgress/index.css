@@ -1,15 +1,19 @@
-.today-progress-container {
+.today-progress-wrapper {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
+  background-color: white;
+  z-index: 100;
+}
+
+.today-progress-container {
   background-color: white;
   border-top: 1px solid rgb(138 135 126 / 9%);
   padding: 0px 30px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  z-index: 100;
   min-height: 60px;
   /* box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.04); */
 }
@@ -40,4 +44,5 @@
   display: flex;
   align-items: center;
 }
+
 

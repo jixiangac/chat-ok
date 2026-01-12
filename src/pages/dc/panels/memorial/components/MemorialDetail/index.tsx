@@ -6,6 +6,7 @@
 
 import React, { useState, useMemo, useCallback } from 'react';
 import { X, Pin, Edit2, Trash2 } from 'lucide-react';
+import { SafeArea } from 'antd-mobile';
 import type { Memorial } from '../../types';
 import { useDateFormat } from '../../hooks';
 import { getStructuredDaysData, isToday } from '../../utils';
@@ -127,6 +128,7 @@ export function MemorialDetail({
             <p className={styles.note}>"{memorial.note}"</p>
           </div>
         )}
+        <SafeArea position="bottom" />
       </div>
 
       {/* 操作浮层菜单 */}
@@ -189,3 +191,4 @@ export function MemorialDetail({
 }
 
 export default MemorialDetail;
+

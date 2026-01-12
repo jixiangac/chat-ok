@@ -36,3 +36,37 @@ export {
   type ScreenSize
 } from './responsive';
 
+// 标签存储工具
+export {
+  TAG_COLORS,
+  loadTagsFromStorage,
+  saveTagsToStorage,
+  getNextTagColor,
+  createTag,
+  deleteTag,
+  updateTag,
+  getTagById,
+  getAllTags
+} from './tagStorage';
+
+// 今日必须完成存储工具
+export {
+  getTodayDateString,
+  loadTodayMustCompleteState,
+  saveTodayMustCompleteState,
+  createTodayState,
+  shouldShowTodayMustCompleteModal,
+  markModalShown,
+  setTodayMustCompleteTasks,
+  skipTodayMustComplete,
+  getTodayMustCompleteTaskIds,
+  isTaskTodayMustComplete,
+  removeFromTodayMustComplete,
+  hasTodayBeenSet,
+  hasTodaySetTasks,
+  canOpenModalForEdit,
+  canOpenModalForView
+} from './todayMustCompleteStorage';
+
+
+

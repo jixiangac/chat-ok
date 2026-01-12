@@ -4,6 +4,7 @@
  */
 
 import React, { useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { SafeArea } from 'antd-mobile';
 import type { Task, TaskTag } from '../../types';
@@ -47,7 +48,8 @@ const GroupDetailPopup: React.FC<GroupDetailPopupProps> = ({
     onTaskClick(taskId);
   };
 
-  return (
+  // 使用 Portal 渲染到 body 下，避免被父容器的 overflow 影响
+  return createPortal(
     <div className={styles.modalOverlay} onClick={onClose}>
       <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
         {/* 顶部图片 - 使用标签颜色配对渐变背景 */}
@@ -94,9 +96,11 @@ const GroupDetailPopup: React.FC<GroupDetailPopupProps> = ({
           <SafeArea position="bottom" />
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
 export default GroupDetailPopup;
+
 

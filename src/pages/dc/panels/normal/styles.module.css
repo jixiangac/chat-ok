@@ -172,6 +172,7 @@
 .drawerContent {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 16px 24px;
   -webkit-overflow-scrolling: touch;
   touch-action: pan-y;
@@ -181,6 +182,19 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+/* Virtuoso 列表样式 */
+.virtuosoList {
+  overflow-x: hidden !important;
+}
+
+.virtuosoList > div {
+  overflow-x: hidden !important;
+}
+
+.virtuosoList [data-viewport-type] {
+  overflow-x: hidden !important;
 }
 
 .iconButton {
@@ -247,4 +261,6 @@
 .floatingAddButton:active {
   transform: scale(0.95);
 }
+
+
 

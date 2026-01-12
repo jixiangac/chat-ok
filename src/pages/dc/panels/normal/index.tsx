@@ -2,20 +2,20 @@
  * 常规模式面板
  */
 
-import React, { useState, useEffect, useImperativeHandle, forwardRef } from 'react';
+import React, { useState, useImperativeHandle, forwardRef, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Popup, SafeArea } from 'antd-mobile';
 import dayjs from 'dayjs';
+import { Virtuoso } from 'react-virtuoso';
 import { MainlineTaskCard, SidelineTaskCard } from '../../components/card';
 import SidelineTaskGrid from '../../components/SidelineTaskGrid';
 import CreateMainlineTaskModal from '../../components/CreateMainlineTaskModal';
 import TodayProgress from '../../components/TodayProgress';
-import TodayMustCompleteModal from '../../components/TodayMustCompleteModal';
 import GroupModeGrid from '../../components/GroupModeGrid';
 import GroupDetailPopup from '../../components/GroupDetailPopup';
 import GoalDetailModal from '../detail';
 import { useTaskContext } from '../../contexts';
-import { useTaskSort, useTodayMustComplete } from '../../hooks';
+import { useTaskSort } from '../../hooks';
 import { EMPTY_STATE_IMAGE, getNextThemeColor } from '../../constants';
 import { fadeVariants, cardVariants, overlayVariants, drawerRightVariants } from '../../constants/animations';
 import { X, LayoutGrid, List } from 'lucide-react';
@@ -25,6 +25,7 @@ import styles from './styles.module.css';
 
 export interface NormalPanelRef {
   triggerAdd: () => void;
+  // 保留接口但不再在 NormalPanel 内部处理，由 DCPageContent 顶层处理
   openTodayMustComplete: (readOnly?: boolean) => void;
 }
 
@@ -44,9 +45,6 @@ const NormalPanel = forwardRef<NormalPanelRef, NormalPanelProps>((props, ref) =>
   const [selectedGroupTasks, setSelectedGroupTasks] = useState<Task[]>([]);
   const [showGroupDetail, setShowGroupDetail] = useState(false);
 
-  // 今日必须完成弹窗只读模式
-  const [todayMustCompleteReadOnly, setTodayMustCompleteReadOnly] = useState(false);
-
   const { 
     hasMainlineTask, 
     mainlineTasks, 
@@ -54,17 +52,6 @@ const NormalPanel = forwardRef<NormalPanelRef, NormalPanelProps>((props, ref) =>
     isTodayCompleted,
     isCycleCompleted
   } = useTaskSort(tasks);
-
-  // 今日必须完成功能
-  const {
-    showModal: showTodayMustCompleteModal,
-    todayMustCompleteTaskIds,
-    openModal: openTodayMustCompleteModal,
-    closeModal: closeTodayMustCompleteModal,
-    confirmSelection,
-    skipSelection,
-    checkAndShowModal,
-  } = useTodayMustComplete({ sidelineTasks });
 
   // 检查是否有带标签的任务（用于显示切换图标）
   const hasTaggedTasks = sidelineTasks.some(task => task.tagId);
@@ -85,19 +72,14 @@ const NormalPanel = forwardRef<NormalPanelRef, NormalPanelProps>((props, ref) =>
     }
   };
 
-  // 组件挂载时检查是否需要显示今日必须完成弹窗
-  useEffect(() => {
-    checkAndShowModal();
-  }, [checkAndShowModal]);
-
   // 暴露方法给父组件
   useImperativeHandle(ref, () => ({
     triggerAdd: () => {
       setMainlineModalVisible(true);
     },
+    // 保留接口但不做任何事情，由 DCPageContent 顶层处理
     openTodayMustComplete: (readOnly?: boolean) => {
-      setTodayMustCompleteReadOnly(readOnly || false);
-      openTodayMustCompleteModal();
+      // 不再在 NormalPanel 内部处理，由 DCPageContent 顶层处理
     }
   }));
 
@@ -170,6 +152,32 @@ const NormalPanel = forwardRef<NormalPanelRef, NormalPanelProps>((props, ref) =>
   const handleAddClick = () => {
     setMainlineModalVisible(true);
   };
+
+  // 计算虚拟列表高度（每个任务卡片约 100px）
+  const TASK_ITEM_HEIGHT = 108;
+  const listHeight = useMemo(() => {
+    if (!sidelineTasks?.length) return 0;
+    // 弹窗最大高度 90vh，减去 header（约60px）和 SafeArea（约34px）
+    const maxHeight = window.innerHeight * 0.9 - 94;
+    return maxHeight;
+  }, [sidelineTasks?.length]);
+
+  // 渲染任务列表项
+  const renderTaskItem = useCallback((index: number, task: Task) => {
+    return (
+      <div style={{ paddingBottom: 8 }}>
+        <SidelineTaskCard 
+          task={task}
+          onClick={() => setSelectedTaskId(task.id)}
+          isTodayCompleted={isTodayCompleted(task)}
+          isCycleCompleted={isCycleCompleted(task)}
+        />
+      </div>
+    );
+  }, [isTodayCompleted, isCycleCompleted]);
+
+  // 使用虚拟列表的阈值（超过 6 个任务时使用虚拟列表）
+  const useVirtualList = sidelineTasks.length > 6;
 
   return (
     <>
@@ -289,7 +297,11 @@ const NormalPanel = forwardRef<NormalPanelRef, NormalPanelProps>((props, ref) =>
         bodyStyle={{ 
           borderTopLeftRadius: '16px', 
           borderTopRightRadius: '16px',
-          maxHeight: '80vh'
+          maxHeight: '90vh',
+          overflow: 'hidden',
+          overflowX: 'hidden',
+          display: 'flex',
+          flexDirection: 'column'
         }}
       >
         <div className={styles.drawerHeader}>
@@ -303,18 +315,27 @@ const NormalPanel = forwardRef<NormalPanelRef, NormalPanelProps>((props, ref) =>
         </div>
 
         <div className={styles.drawerContent}>
-          <div className={styles.taskList}>
-            {sidelineTasks.map((task) => (
-              <div key={task.id}>
-                <SidelineTaskCard 
-                  task={task}
-                  onClick={() => setSelectedTaskId(task.id)}
-                  isTodayCompleted={isTodayCompleted(task)}
-                  isCycleCompleted={isCycleCompleted(task)}
-                />
-              </div>
-            ))}
-          </div>
+          {useVirtualList ? (
+            <Virtuoso
+              style={{ 
+                height: `${listHeight}px`,
+                overflowX: 'hidden',
+                width: '100%'
+              }}
+              className={styles.virtuosoList}
+              totalCount={sidelineTasks.length}
+              data={sidelineTasks}
+              itemContent={renderTaskItem}
+            />
+          ) : (
+            <div className={styles.taskList}>
+              {sidelineTasks.map((task, index) => (
+                <div key={task.id}>
+                  {renderTaskItem(index, task)}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
         <SafeArea position="bottom" />
       </Popup>
@@ -341,16 +362,6 @@ const NormalPanel = forwardRef<NormalPanelRef, NormalPanelProps>((props, ref) =>
         )}
       </AnimatePresence>
 
-      {/* 今日必须完成弹窗 */}
-      <TodayMustCompleteModal
-        visible={showTodayMustCompleteModal}
-        tasks={sidelineTasks}
-        readOnly={todayMustCompleteReadOnly}
-        onConfirm={confirmSelection}
-        onSkip={skipSelection}
-        onClose={closeTodayMustCompleteModal}
-      />
-
       {/* Group 详情弹窗 */}
       <GroupDetailPopup
         visible={showGroupDetail}
@@ -369,6 +380,12 @@ const NormalPanel = forwardRef<NormalPanelRef, NormalPanelProps>((props, ref) =>
 NormalPanel.displayName = 'NormalPanel';
 
 export default NormalPanel;
+
+
+
+
+
+
 
 
 

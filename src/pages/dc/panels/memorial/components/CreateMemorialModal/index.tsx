@@ -3,6 +3,7 @@
  */
 
 import React, { useState, useCallback, useEffect, Suspense, lazy } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { DatePicker, SafeArea } from 'antd-mobile';
 import dayjs from 'dayjs';
@@ -95,7 +96,8 @@ export function CreateMemorialModal({
 
   if (!visible) return null;
 
-  return (
+  // 使用 Portal 渲染到 body 下，避免被父容器的 overflow 影响
+  return createPortal(
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.modal} onClick={handleModalClick}>
         {/* 拖拽手柄 */}
@@ -198,11 +200,13 @@ export function CreateMemorialModal({
         </div>
         <SafeArea position="bottom" />
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
 export default CreateMemorialModal;
+
 
 
 

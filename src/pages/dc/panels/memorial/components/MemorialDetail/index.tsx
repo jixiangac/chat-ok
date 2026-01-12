@@ -5,6 +5,7 @@
  */
 
 import React, { useState, useMemo, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Pin, Edit2, Trash2 } from 'lucide-react';
 import { SafeArea } from 'antd-mobile';
 import type { Memorial } from '../../types';
@@ -85,7 +86,8 @@ export function MemorialDetail({
 
   if (!visible) return null;
 
-  return (
+  // 使用 Portal 渲染到 body 下，避免被父容器的 overflow 影响
+  return createPortal(
     <div className={styles.container}>
       {/* 背景区域 */}
       <div 
@@ -186,9 +188,11 @@ export function MemorialDetail({
           </div>
         </div>
       )}
-    </div>
+    </div>,
+    document.body
   );
 }
 
 export default MemorialDetail;
+
 

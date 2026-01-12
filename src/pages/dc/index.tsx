@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Plus, Archive, Settings as SettingsIcon } from 'lucide-react';
 import { SafeArea } from 'antd-mobile';
 
@@ -10,12 +10,13 @@ import { HappyPanel, ArchiveList, Settings, MemorialPanel, NormalPanel } from '.
 import type { HappyPanelRef } from './panels';
 import type { MemorialPanelRef } from './panels';
 import type { NormalPanelRef } from './panels/normal';
+import TodayMustCompleteModal from './components/TodayMustCompleteModal';
 
 // Contexts
-import { TaskProvider, ThemeProvider, UIStateProvider, useUIState } from './contexts';
+import { TaskProvider, ThemeProvider, UIStateProvider, useUIState, useTaskContext } from './contexts';
 
 // Hooks
-import { useSpriteImage } from './hooks';
+import { useSpriteImage, useTaskSort, useTodayMustComplete } from './hooks';
 
 // Styles
 import styles from './css/DCPage.module.css';
@@ -31,6 +32,7 @@ type TabKey = 'home' | 'normal' | 'vacation' | 'memorial';
 
 function DCPageContent() {
   const { activeTab, setActiveTab, showArchive, showSettings, openArchive, openSettings, closeArchive, closeSettings } = useUIState();
+  const { tasks } = useTaskContext();
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   
   // Panel refs
@@ -40,6 +42,27 @@ function DCPageContent() {
 
   // 使用自定义 hooks
   const { getCurrentSpriteImage, randomizeSpriteImage } = useSpriteImage();
+
+  // 获取支线任务
+  const { sidelineTasks } = useTaskSort(tasks);
+
+  // 今日必须完成弹窗状态（只读模式）
+  const [todayMustCompleteReadOnly, setTodayMustCompleteReadOnly] = useState(false);
+
+  // 今日必须完成功能 - 在顶层管理，所有 TAB 都能触发
+  const {
+    showModal: showTodayMustCompleteModal,
+    openModal: openTodayMustCompleteModal,
+    closeModal: closeTodayMustCompleteModal,
+    confirmSelection,
+    skipSelection,
+    checkAndShowModal,
+  } = useTodayMustComplete({ sidelineTasks });
+
+  // 组件挂载时检查是否需要显示今日必须完成弹窗
+  useEffect(() => {
+    checkAndShowModal();
+  }, [checkAndShowModal]);
 
   // 处理添加按钮点击 - 根据当前 tab 触发对应 panel 的添加功能
   const handleAddClick = () => {
@@ -54,7 +77,8 @@ function DCPageContent() {
 
   // 处理打开今日必须完成弹窗
   const handleOpenTodayMustComplete = (readOnly?: boolean) => {
-    normalPanelRef.current?.openTodayMustComplete(readOnly);
+    setTodayMustCompleteReadOnly(readOnly || false);
+    openTodayMustCompleteModal();
   };
 
   // 渲染 tab 对应的内容区域（小精灵下方的部分）
@@ -155,6 +179,16 @@ function DCPageContent() {
         onOpenTodayMustComplete={handleOpenTodayMustComplete}
       />
 
+      {/* 今日必须完成弹窗 - 在顶层渲染，所有 TAB 都能显示 */}
+      <TodayMustCompleteModal
+        visible={showTodayMustCompleteModal}
+        tasks={sidelineTasks}
+        readOnly={todayMustCompleteReadOnly}
+        onConfirm={confirmSelection}
+        onSkip={skipSelection}
+        onClose={closeTodayMustCompleteModal}
+      />
+
       {/* 底部安全区域 */}
       <SafeArea position="bottom" />
     </div>
@@ -172,6 +206,7 @@ export default function DCPage() {
     </ThemeProvider>
   );
 }
+
 
 
 

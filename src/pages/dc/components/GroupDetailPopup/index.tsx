@@ -42,9 +42,8 @@ const GroupDetailPopup: React.FC<GroupDetailPopupProps> = ({
 
   if (!visible || !tag) return null;
 
-  // 处理任务点击 - 关闭弹窗并打开详情
+  // 处理任务点击 - 保持弹窗打开，直接打开详情
   const handleTaskClick = (taskId: string) => {
-    onClose();
     onTaskClick(taskId);
   };
 
@@ -102,5 +101,6 @@ const GroupDetailPopup: React.FC<GroupDetailPopupProps> = ({
 };
 
 export default GroupDetailPopup;
+
 
 

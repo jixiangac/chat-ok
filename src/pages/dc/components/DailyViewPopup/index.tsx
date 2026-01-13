@@ -4,9 +4,9 @@
  */
 
 import React, { useMemo, useState, useRef, useEffect } from 'react';
-import { Popup } from 'antd-mobile';
+import { Popup, SafeArea } from 'antd-mobile';
 import { 
-  MapPin, ChevronDown, Check, Sun, Sunset, Moon,
+  MapPin, ChevronDown, Check, Sun, Sunset, Moon, X,
   Home, Building2, Coffee, Dumbbell, Train, School, Hospital, ShoppingCart, Palmtree, TreePine
 } from 'lucide-react';
 import dayjs from 'dayjs';
@@ -14,6 +14,59 @@ import type { Task, TagType } from '../../types';
 import { getTagsByType, getTaskTags, getUsedLocationTags } from '../../utils/tagStorage';
 import { getTodayCheckInStatusForTask } from '../../panels/detail/hooks';
 import styles from './styles.module.css';
+
+// 圆圈进度条组件（与支线卡片一致）
+interface CircleProgressProps {
+  progress: number;
+  size?: number;
+  strokeWidth?: number;
+  isCompleted?: boolean;
+}
+
+const CircleProgress: React.FC<CircleProgressProps> = ({ 
+  progress, 
+  size = 16, 
+  strokeWidth = 2,
+  isCompleted = false 
+}) => {
+  const radius = (size - strokeWidth) / 2;
+  const circumference = radius * 2 * Math.PI;
+  const strokeDasharray = circumference;
+  const strokeDashoffset = circumference - (progress / 100) * circumference;
+
+  if (isCompleted) {
+    return (
+      <div className={styles.checkIcon}>
+        <Check size={12} strokeWidth={2.5} />
+      </div>
+    );
+  }
+
+  return (
+    <svg width={size} height={size} style={{ transform: 'rotate(-90deg)', flexShrink: 0 }}>
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={radius}
+        stroke="rgba(139, 134, 128, 0.2)"
+        strokeWidth={strokeWidth}
+        fill="none"
+      />
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={radius}
+        stroke="#6B6560"
+        strokeWidth={strokeWidth}
+        fill="none"
+        strokeDasharray={strokeDasharray}
+        strokeDashoffset={strokeDashoffset}
+        strokeLinecap="round"
+        style={{ transition: 'stroke-dashoffset 0.3s ease' }}
+      />
+    </svg>
+  );
+};
 
 // 地点图标映射
 const LOCATION_ICON_MAP: Record<string, React.ReactNode> = {
@@ -79,6 +132,8 @@ interface TaskWithPeriod extends Task {
   period: 'morning' | 'afternoon' | 'evening';
   displayTime: string;
   isCompleted: boolean;
+  hasProgress: boolean;
+  dailyProgress: number;
 }
 
 const DailyViewPopup: React.FC<DailyViewPopupProps> = ({
@@ -121,10 +176,13 @@ const DailyViewPopup: React.FC<DailyViewPopupProps> = ({
 
   // 筛选后的任务
   const filteredTasks = useMemo(() => {
+    // 只显示打卡型任务
+    const checkInTasks = tasks.filter(task => task.mainlineType === 'CHECK_IN');
+    
     if (!selectedLocationTagId) {
-      return tasks;
+      return checkInTasks;
     }
-    return tasks.filter(task => task.tags?.locationTagId === selectedLocationTagId);
+    return checkInTasks.filter(task => task.tags?.locationTagId === selectedLocationTagId);
   }, [tasks, selectedLocationTagId]);
 
   // 将任务分配到时段
@@ -144,12 +202,22 @@ const DailyViewPopup: React.FC<DailyViewPopupProps> = ({
       
       // 检查今日完成状态
       const status = getTodayCheckInStatusForTask(task);
+      
+      // 计算当日进度
+      let dailyProgress = 0;
+      const hasProgress = !status.isCompleted && status.todayValue > 0;
+      
+      if (hasProgress && status.dailyTarget && status.dailyTarget > 0) {
+        dailyProgress = Math.min(100, Math.round((status.todayValue / status.dailyTarget) * 100));
+      }
 
       return {
         ...task,
         period,
         displayTime: `${hour.toString().padStart(2, '0')}:00`,
         isCompleted: status.isCompleted,
+        hasProgress,
+        dailyProgress,
       };
     });
   }, [filteredTasks]);
@@ -180,16 +248,46 @@ const DailyViewPopup: React.FC<DailyViewPopupProps> = ({
   // 老黄历
   const almanac = useMemo(() => getTodayAlmanac(), []);
 
+  // 计算全局索引（包括时段标题和任务项）
+  const getGlobalIndex = (periodKey: 'morning' | 'afternoon' | 'evening', localIndex: number, isHeader: boolean): number => {
+    let offset = 0;
+    
+    if (periodKey === 'afternoon') {
+      // 上午的标题 + 上午的任务
+      offset = 1 + tasksByPeriod.morning.length;
+    } else if (periodKey === 'evening') {
+      // 上午的标题 + 上午的任务 + 下午的标题 + 下午的任务
+      offset = 1 + tasksByPeriod.morning.length + 1 + tasksByPeriod.afternoon.length;
+    }
+    
+    // 如果是标题，直接返回 offset；如果是任务项，需要加上标题的位置（+1）和任务的本地索引
+    return isHeader ? offset : offset + 1 + localIndex;
+  };
+
   const renderPeriodSection = (
     periodKey: 'morning' | 'afternoon' | 'evening',
-    periodTasks: TaskWithPeriod[]
+    periodTasks: TaskWithPeriod[],
+    isLast: boolean = false
   ) => {
     const period = TIME_PERIODS[periodKey];
     const Icon = period.icon;
+    
+    // 计算时段标题的动画延迟
+    const headerIndex = getGlobalIndex(periodKey, 0, true);
+    const headerAnimationDelay = `${headerIndex * 60}ms`;
+    
+    // 计算虚线的动画延迟（在该时段所有任务之后）
+    const lastTaskIndex = periodTasks.length > 0 
+      ? getGlobalIndex(periodKey, periodTasks.length - 1, false)
+      : headerIndex;
+    const dashedLineAnimationDelay = `${(lastTaskIndex + 1) * 60}ms`;
 
     return (
       <div className={styles.periodSection} key={periodKey}>
-        <div className={styles.periodHeader}>
+        <div 
+          className={styles.periodHeader}
+          style={{ animationDelay: headerAnimationDelay }}
+        >
           <Icon size={14} className={styles.periodIcon} />
           <span className={styles.periodLabel}>{period.label}</span>
         </div>
@@ -197,19 +295,40 @@ const DailyViewPopup: React.FC<DailyViewPopupProps> = ({
           {periodTasks.length === 0 ? (
             <div className={styles.emptyPeriod}>- - -</div>
           ) : (
-            periodTasks.map(task => (
-              <div
-                key={task.id}
-                className={`${styles.taskItem} ${task.isCompleted ? styles.taskCompleted : ''}`}
-                onClick={() => onTaskClick(task.id)}
-              >
-                <span className={styles.taskTitle}>{task.title}</span>
-                <span className={styles.taskTime}>{task.displayTime}</span>
-              </div>
-            ))
+            periodTasks.map((task, index) => {
+              const globalIndex = getGlobalIndex(periodKey, index, false);
+              const animationDelay = `${globalIndex * 60}ms`;
+              
+              return (
+                <div
+                  key={task.id}
+                  className={`${styles.taskItem} ${task.isCompleted ? styles.taskCompleted : ''}`}
+                  style={{ animationDelay }}
+                  onClick={() => onTaskClick(task.id)}
+                >
+                  <div className={styles.taskLeft}>
+                    <span className={styles.taskTitle}>{task.title}</span>
+                    {task.hasProgress && (
+                      <CircleProgress
+                        progress={task.dailyProgress}
+                        isCompleted={task.isCompleted}
+                        size={16}
+                        strokeWidth={2}
+                      />
+                    )}
+                  </div>
+                  <span className={styles.taskTime}>{task.displayTime}</span>
+                </div>
+              );
+            })
           )}
         </div>
-        <div className={styles.dashedLine}></div>
+        {!isLast && (
+          <div 
+            className={styles.dashedLine}
+            style={{ animationDelay: dashedLineAnimationDelay }}
+          ></div>
+        )}
       </div>
     );
   };
@@ -222,12 +341,20 @@ const DailyViewPopup: React.FC<DailyViewPopupProps> = ({
       bodyStyle={{
         borderTopLeftRadius: '16px',
         borderTopRightRadius: '16px',
-        height: '90vh',
+        height: '100%',
       }}
     >
       <div className={styles.container}>
+        {/* 顶部安全区 */}
+        <SafeArea position="top" />
+        
         {/* 票据顶部锯齿 */}
         <div className={styles.ticketTop}></div>
+        
+        {/* 右上角关闭按钮 */}
+        <button className={styles.closeButton} onClick={onClose}>
+          <X size={20} />
+        </button>
         
         {/* 标题 */}
         <div className={styles.header}>
@@ -292,31 +419,37 @@ const DailyViewPopup: React.FC<DailyViewPopupProps> = ({
 
         {/* 时段列表 */}
         <div className={styles.periodList}>
-          {renderPeriodSection('morning', tasksByPeriod.morning)}
-          {renderPeriodSection('afternoon', tasksByPeriod.afternoon)}
-          {renderPeriodSection('evening', tasksByPeriod.evening)}
+          {renderPeriodSection('morning', tasksByPeriod.morning, false)}
+          {renderPeriodSection('afternoon', tasksByPeriod.afternoon, false)}
+          {renderPeriodSection('evening', tasksByPeriod.evening, true)}
         </div>
 
+        <div className={styles.dashedLine} style={{margin: '5px 0'}}></div>
         {/* 老黄历 */}
         <div className={styles.almanacSection}>
           <p className={styles.almanacText}>{almanac}</p>
         </div>
 
-        <div className={styles.dashedLine}></div>
+        <div className={styles.dashedLine} style={{margin: '5px 0'}}></div>
 
         {/* 底部时间 */}
-        <div className={styles.footer}>
+        {/* <div className={styles.footer}>
           <span className={styles.printTime}>打印时间：{currentTime}</span>
-        </div>
+        </div> */}
 
         {/* 票据底部锯齿 */}
-        <div className={styles.ticketBottom}></div>
+        {/* <div className={styles.ticketBottom}></div> */}
+        
+        {/* 底部安全区 */}
+        <SafeArea position="bottom" />
       </div>
     </Popup>
   );
 };
 
 export default DailyViewPopup;
+
+
 
 
 

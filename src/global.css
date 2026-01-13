@@ -46,5 +46,15 @@ body {
   overflow: hidden;
 }
 
+/* antd-mobile Toast z-index 设置 */
+.adm-toast {
+  z-index: 1300 !important;
+}
+
+/* antd-mobile Toast 的遮罩层 z-index 设置 */
+.adm-toast-mask {
+  z-index: 1299 !important;
+}
+
 
 

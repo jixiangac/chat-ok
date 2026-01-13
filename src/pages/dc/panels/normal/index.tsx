@@ -262,7 +262,6 @@ const NormalPanel = forwardRef<NormalPanelRef, NormalPanelProps>((props, ref) =>
         tasks={selectedGroupTasks}
         onClose={() => setShowGroupDetail(false)}
         onTaskClick={(taskId) => {
-          setShowGroupDetail(false);
           setSelectedTaskId(taskId);
         }}
       />
@@ -273,3 +272,4 @@ const NormalPanel = forwardRef<NormalPanelRef, NormalPanelProps>((props, ref) =>
 NormalPanel.displayName = 'NormalPanel';
 
 export default NormalPanel;
+

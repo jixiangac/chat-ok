@@ -7,7 +7,9 @@
   font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Mono', 'Droid Sans Mono', 'Source Code Pro', monospace;
   position: relative;
   height: 100%;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   /* 纸张边缘效果 */
   box-shadow: 
     inset 0 2px 4px rgba(0, 0, 0, 0.02),
@@ -25,6 +27,31 @@
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
   opacity: 0.03;
   pointer-events: none;
+}
+
+/* 关闭按钮 - 右上角 */
+.closeButton {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(45, 42, 38, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #6B6560;
+  transition: all 0.2s;
+  z-index: 10;
+  backdrop-filter: blur(4px);
+}
+
+.closeButton:hover {
+  background: rgba(45, 42, 38, 0.12);
+  color: #2D2A26;
 }
 
 /* 票据顶部锯齿 */
@@ -95,7 +122,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
+  /* margin-bottom: 12px; */
   position: relative;
 }
 
@@ -206,16 +233,30 @@
     transparent 4px,
     transparent 8px
   );
+  /* 添加翻书入场动画 */
+  opacity: 0;
+  transform: rotateX(-90deg);
+  transform-origin: top center;
+  animation: flipIn 0.4s ease-out forwards;
 }
 
 /* 时段列表 */
 .periodList {
   position: relative;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  /* 添加滚动动画 */
+  scroll-behavior: smooth;
+  /* 添加透视效果，配合 3D 翻转动画 */
+  perspective: 1000px;
 }
 
 /* 时段区块 */
 .periodSection {
   margin-bottom: 0;
+  transform-style: preserve-3d;
+  perspective: 1000px;
 }
 
 .periodHeader {
@@ -224,6 +265,11 @@
   justify-content: flex-end;
   gap: 6px;
   margin-bottom: 6px;
+  /* 翻书入场动画 - 与任务项一致 */
+  opacity: 0;
+  transform: rotateX(-90deg);
+  transform-origin: top center;
+  animation: flipIn 0.4s ease-out forwards;
 }
 
 .periodIcon {
@@ -253,18 +299,26 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 0;
+  padding: 9px 0;
   cursor: pointer;
-  transition: opacity 0.15s;
   border-bottom: 1px dotted #E8E4DE;
+  /* 翻书入场动画 - 每个任务项独立动画 */
+  opacity: 0;
+  transform: rotateX(-90deg);
+  transform-origin: top center;
+  animation: flipIn 0.4s ease-out forwards;
+  transition: transform 0.2s ease, background 0.2s ease;
 }
+
+/* 动画延迟通过 JavaScript 动态设置，无需在 CSS 中写死 */
 
 .taskItem:last-child {
   border-bottom: none;
 }
 
 .taskItem:hover {
-  opacity: 0.7;
+  transform: rotateX(0deg) translateX(4px);
+  background: rgba(107, 101, 96, 0.03);
 }
 
 .taskCompleted .taskTitle {
@@ -272,23 +326,45 @@
   color: #A8A29E;
 }
 
+.taskLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
 .taskTitle {
   font-size: 14px;
   color: #2D2A26;
-  flex: 1;
   font-weight: 400;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex-shrink: 1;
 }
 
 .taskTime {
   font-size: 13px;
   color: #6B6560;
-  margin-left: 16px;
   font-weight: 500;
+  flex-shrink: 0;
+}
+
+/* 完成图标 */
+.checkIcon {
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6B6560;
+  flex-shrink: 0;
 }
 
 /* 老黄历区域 */
 .almanacSection {
-  margin: 8px 0;
+  margin: 4px 0;
   text-align: center;
   position: relative;
 }
@@ -298,7 +374,7 @@
   color: #8B8680;
   margin: 0;
   font-style: italic;
-  line-height: 1.6;
+  line-height: 1.4;
 }
 
 /* 底部 */
@@ -311,3 +387,41 @@
   font-size: 12px;
   color: #A8A29E;
 }
+
+/* 翻书入场动画 - 与纪念 panel 一致 */
+@keyframes flipIn {
+  0% {
+    opacity: 0;
+    transform: rotateX(-90deg);
+  }
+  60% {
+    opacity: 1;
+    transform: rotateX(10deg);
+  }
+  100% {
+    opacity: 1;
+    transform: rotateX(0deg);
+  }
+}
+
+/* 滚动条样式优化 */
+.periodList::-webkit-scrollbar {
+  width: 6px;
+}
+
+.periodList::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.periodList::-webkit-scrollbar-thumb {
+  background: rgba(139, 134, 128, 0.2);
+  border-radius: 3px;
+}
+
+.periodList::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 134, 128, 0.3);
+}
+
+
+
+

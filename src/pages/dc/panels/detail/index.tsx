@@ -82,7 +82,7 @@ export default function GoalDetailModal({
       const todayStatus = getTodayCheckInStatus();
       Toast.show({ 
         icon: 'fail', 
-        content: todayStatus.isCompleted ? '今日目标已完成' : '打卡失败，请重试' 
+        content: todayStatus.isCompleted ? '今日目标已完成' : '打卡失败，请重试'
       });
     }
   }, [checkIn, triggerConfetti, getTodayCheckInStatus]);
@@ -341,7 +341,7 @@ export default function GoalDetailModal({
       position='bottom'
       destroyOnClose={false}
       forceRender={false}
-      style={{ zIndex: 1100 }}
+      style={{ zIndex: 1200 }}
       bodyStyle={{
         borderTopLeftRadius: '16px',
         borderTopRightRadius: '16px',
@@ -483,6 +483,9 @@ export default function GoalDetailModal({
     </Popup>
   );
 }
+
+
+
 
 
 

@@ -65,13 +65,13 @@ const GroupCard: React.FC<GroupCardProps> = ({
           <div className={styles.iconWrapper} style={{ color: tag.color }}>
             <Folder size={20} />
           </div>
-          {/* 完成数量 */}
-          <div className={styles.completionCount}>
-            {completedCount}/{tasks.length}
-          </div>
         </div>
         {/* 标签名 */}
         <div className={styles.tagName}>{tag.name}</div>
+      </div>
+      {/* 完成数量 - 移到右上角 */}
+      <div className={styles.completionCount}>
+        {completedCount}/{tasks.length}
       </div>
       {/* 右侧箭头 */}
       <ChevronRight size={18} className={styles.arrow} style={{ color: tag.color }} />
@@ -80,4 +80,5 @@ const GroupCard: React.FC<GroupCardProps> = ({
 };
 
 export default GroupCard;
+
 

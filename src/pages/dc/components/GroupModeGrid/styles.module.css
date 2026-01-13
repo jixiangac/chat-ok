@@ -11,6 +11,23 @@
   margin-bottom: 16px;
 }
 
+/* Swiper 容器样式 */
+.swiperContainer {
+  margin-bottom: 16px;
+}
+
+/* Swiper 每页的2x2网格布局 */
+.swiperPage {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+/* Swiper 网格单项样式 */
+.swiperGridItem {
+  min-width: 0;
+}
+
 /* 底部按钮区域 - 与 SidelineTaskGrid 保持一致 */
 .buttonArea {
   display: flex;
@@ -55,3 +72,6 @@
 .emptyText {
   font-size: 14px;
 }
+
+
+

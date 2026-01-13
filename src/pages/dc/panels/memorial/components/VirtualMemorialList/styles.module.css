@@ -12,13 +12,42 @@
 
 .listItem {
   padding: 8px 16px;
+  opacity: 0;
+  transform: rotateX(-90deg);
+  transform-origin: top center;
+  animation: flipIn 0.4s ease-out forwards;
+}
+
+/* 普通列表项动画样式（不含 padding） */
+.regularListItem {
+  opacity: 0;
+  transform: rotateX(-90deg);
+  transform-origin: top center;
+  animation: flipIn 0.4s ease-out forwards;
 }
 
 .regularList {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  perspective: 1000px;
   /* padding: 0 16px; */
+}
+
+/* 翻书入场动画 */
+@keyframes flipIn {
+  0% {
+    opacity: 0;
+    transform: rotateX(-90deg);
+  }
+  60% {
+    opacity: 1;
+    transform: rotateX(10deg);
+  }
+  100% {
+    opacity: 1;
+    transform: rotateX(0deg);
+  }
 }
 
 /* 滚动条样式优化 */
@@ -38,3 +67,5 @@
 .virtualList::-webkit-scrollbar-thumb:hover {
   background: rgba(0, 0, 0, 0.2);
 }
+
+

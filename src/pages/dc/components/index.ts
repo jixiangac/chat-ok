@@ -6,8 +6,10 @@ export { default as ThemedButton } from './ThemedButton';
 export { default as MoonPhase } from './MoonPhase';
 export { default as DailyProgress } from './DailyProgress';
 export { default as SidelineTaskGrid } from './SidelineTaskGrid';
+export { default as SidelineTaskSection } from './SidelineTaskSection';
 export { default as TodayProgress } from './TodayProgress';
 export { default as RandomTaskPicker } from './RandomTaskPicker';
+export { AllSidelineTasksList, AllSidelineTasksPopup } from './AllSidelineTasksList';
 
 // Shared Components (可复用的基础组件)
 export { CircleProgress, ProgressBar, StatCard, StatCardGrid } from './shared';

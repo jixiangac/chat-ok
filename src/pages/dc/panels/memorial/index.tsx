@@ -2,7 +2,7 @@
  * 纪念日面板
  */
 
-import React, { useState, useCallback, forwardRef, useImperativeHandle } from 'react';
+import React, { useState, useCallback, forwardRef, useImperativeHandle, useMemo } from 'react';
 import { Plus, Heart, Cake, Baby } from 'lucide-react';
 import { useMemorials } from './hooks';
 import { MemorialCard, CreateMemorialModal, MemorialDetail, VirtualMemorialList, MemorialListSkeleton } from './components';
@@ -156,16 +156,22 @@ const MemorialPanel = forwardRef<MemorialPanelRef, MemorialPanelProps>(({ onAddC
     </div>
   );
 
+  // 用于触发列表动画重置的 key，基于 memorials 的 id 列表生成
+  const listResetKey = useMemo(() => {
+    return memorials.map(m => m.id).join(',');
+  }, [memorials]);
+
   // 渲染纪念日列表
   const renderMemorialList = () => (
     <div className={styles.listSection}>
-      <div className={styles.sectionHeader}>
+      {/* <div className={styles.sectionHeader}>
         <h2 className={styles.sectionTitle}>纪念日</h2>
-      </div>
+      </div> */}
       {loading ? (
         <MemorialListSkeleton count={5} />
       ) : (
         <VirtualMemorialList
+          key={listResetKey}
           memorials={memorials}
           onMemorialClick={setSelectedMemorialId}
         />
@@ -204,4 +210,5 @@ const MemorialPanel = forwardRef<MemorialPanelRef, MemorialPanelProps>(({ onAddC
 MemorialPanel.displayName = 'MemorialPanel';
 
 export default MemorialPanel;
+
 

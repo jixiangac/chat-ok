@@ -631,6 +631,19 @@
     ]
   },
   {
+    "path": "dc/components/AllSidelineTasksList",
+    "index": true,
+    "id": "dc/components/AllSidelineTasksList",
+    "file": "dc/components/AllSidelineTasksList/index.tsx",
+    "componentName": "dc-components-allsidelinetaskslist-index",
+    "layout": false,
+    "exports": [
+      "AllSidelineTasksList",
+      "AllSidelineTasksPopup",
+      "default"
+    ]
+  },
+  {
     "path": "dc/panels/detail/components/TabBar",
     "index": true,
     "id": "dc/panels/detail/components/TabBar",
@@ -693,6 +706,17 @@
       "PRIORITY_OPTIONS",
       "TASK_TYPES",
       "TOTAL_DURATION_OPTIONS"
+    ]
+  },
+  {
+    "path": "dc/components/SidelineTaskSection",
+    "index": true,
+    "id": "dc/components/SidelineTaskSection",
+    "file": "dc/components/SidelineTaskSection/index.tsx",
+    "componentName": "dc-components-sidelinetasksection-index",
+    "layout": false,
+    "exports": [
+      "default"
     ]
   },
   {
@@ -1599,6 +1623,8 @@
     "componentName": "dc-components-index",
     "layout": false,
     "exports": [
+      "AllSidelineTasksList",
+      "AllSidelineTasksPopup",
       "CircleProgress",
       "CreateGoalModal",
       "CreateMainlineTaskModal",
@@ -1609,6 +1635,7 @@
       "RandomTaskPicker",
       "SidelineTaskCard",
       "SidelineTaskGrid",
+      "SidelineTaskSection",
       "StatCard",
       "StatCardGrid",
       "ThemedButton",

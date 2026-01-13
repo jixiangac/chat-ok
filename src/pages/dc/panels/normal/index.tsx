@@ -2,25 +2,21 @@
  * 常规模式面板
  */
 
-import React, { useState, useImperativeHandle, forwardRef, useCallback, useMemo } from 'react';
+import React, { useState, useImperativeHandle, forwardRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Popup, SafeArea } from 'antd-mobile';
 import dayjs from 'dayjs';
-import { Virtuoso } from 'react-virtuoso';
-import { MainlineTaskCard, SidelineTaskCard } from '../../components/card';
-import SidelineTaskGrid from '../../components/SidelineTaskGrid';
+import { MainlineTaskCard } from '../../components/card';
 import CreateMainlineTaskModal from '../../components/CreateMainlineTaskModal';
 import TodayProgress from '../../components/TodayProgress';
-import GroupModeGrid from '../../components/GroupModeGrid';
 import GroupDetailPopup from '../../components/GroupDetailPopup';
+import SidelineTaskSection from '../../components/SidelineTaskSection';
+import { AllSidelineTasksPopup } from '../../components/AllSidelineTasksList';
 import GoalDetailModal from '../detail';
 import { useTaskContext } from '../../contexts';
 import { useTaskSort } from '../../hooks';
 import { EMPTY_STATE_IMAGE, getNextThemeColor } from '../../constants';
-import { fadeVariants, cardVariants, overlayVariants, drawerRightVariants } from '../../constants/animations';
-import { X, LayoutGrid, List } from 'lucide-react';
+import { fadeVariants, cardVariants } from '../../constants/animations';
 import type { Task, MainlineTask, TaskTag, ViewMode } from '../../types';
-import { getAllTags } from '../../utils/tagStorage';
 import styles from './styles.module.css';
 
 export interface NormalPanelRef {
@@ -153,32 +149,6 @@ const NormalPanel = forwardRef<NormalPanelRef, NormalPanelProps>((props, ref) =>
     setMainlineModalVisible(true);
   };
 
-  // 计算虚拟列表高度（每个任务卡片约 100px）
-  const TASK_ITEM_HEIGHT = 108;
-  const listHeight = useMemo(() => {
-    if (!sidelineTasks?.length) return 0;
-    // 弹窗最大高度 90vh，减去 header（约60px）和 SafeArea（约34px）
-    const maxHeight = window.innerHeight * 0.9 - 94;
-    return maxHeight;
-  }, [sidelineTasks?.length]);
-
-  // 渲染任务列表项
-  const renderTaskItem = useCallback((index: number, task: Task) => {
-    return (
-      <div style={{ paddingBottom: 8 }}>
-        <SidelineTaskCard 
-          task={task}
-          onClick={() => setSelectedTaskId(task.id)}
-          isTodayCompleted={isTodayCompleted(task)}
-          isCycleCompleted={isCycleCompleted(task)}
-        />
-      </div>
-    );
-  }, [isTodayCompleted, isCycleCompleted]);
-
-  // 使用虚拟列表的阈值（超过 6 个任务时使用虚拟列表）
-  const useVirtualList = sidelineTasks.length > 6;
-
   return (
     <>
       {/* 主线任务区块 */}
@@ -237,108 +207,31 @@ const NormalPanel = forwardRef<NormalPanelRef, NormalPanelProps>((props, ref) =>
       </motion.div>
 
       {/* 支线任务区块 */}
-      <AnimatePresence>
-        {sidelineTasks.length > 0 && (
-          <motion.div
-            variants={fadeVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-          >
-            <div className={styles.sectionHeader}>
-              <div className={styles.sectionTitleRow}>
-                <h2 className={styles.sectionTitle}>支线任务</h2>
-                {hasTaggedTasks && (
-                  <button
-                    className={styles.viewModeButton}
-                    onClick={toggleViewMode}
-                    title={viewMode === 'default' ? '切换到分组视图' : '切换到默认视图'}
-                  >
-                    {viewMode === 'default' ? <LayoutGrid size={16} /> : <List size={16} />}
-                  </button>
-                )}
-              </div>
-            </div>
-            
-            {viewMode === 'group' ? (
-              <GroupModeGrid
-                tasks={sidelineTasks}
-                onGroupClick={handleGroupClick}
-                onRandomOpen={() => {
-                  if (sidelineTasks.length > 0) {
-                    const randomIndex = Math.floor(Math.random() * sidelineTasks.length);
-                    setSelectedTaskId(sidelineTasks[randomIndex].id);
-                  }
-                }}
-                onShowAll={() => setShowAllSidelineTasks(true)}
-              />
-            ) : (
-            <SidelineTaskGrid 
-              tasks={sidelineTasks}
-              onTaskClick={(taskId) => setSelectedTaskId(taskId)}
-              onRandomOpen={() => {
-                if (sidelineTasks.length > 0) {
-                  const randomIndex = Math.floor(Math.random() * sidelineTasks.length);
-                  setSelectedTaskId(sidelineTasks[randomIndex].id);
-                }
-              }}
-              onShowAll={() => setShowAllSidelineTasks(true)}
-            />
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <SidelineTaskSection
+        tasks={sidelineTasks}
+        hasTaggedTasks={hasTaggedTasks}
+        viewMode={viewMode}
+        onToggleViewMode={toggleViewMode}
+        onGroupClick={handleGroupClick}
+        onTaskClick={(taskId) => setSelectedTaskId(taskId)}
+        onRandomOpen={() => {
+          if (sidelineTasks.length > 0) {
+            const randomIndex = Math.floor(Math.random() * sidelineTasks.length);
+            setSelectedTaskId(sidelineTasks[randomIndex].id);
+          }
+        }}
+        onShowAll={() => setShowAllSidelineTasks(true)}
+      />
 
       {/* 所有支线任务抽屉 */}
-      <Popup
+      <AllSidelineTasksPopup
         visible={showAllSidelineTasks}
-        onMaskClick={() => setShowAllSidelineTasks(false)}
-        position="bottom"
-        bodyStyle={{ 
-          borderTopLeftRadius: '16px', 
-          borderTopRightRadius: '16px',
-          maxHeight: '90vh',
-          overflow: 'hidden',
-          overflowX: 'hidden',
-          display: 'flex',
-          flexDirection: 'column'
-        }}
-      >
-        <div className={styles.drawerHeader}>
-          <h2 className={styles.drawerTitle}>所有支线任务 ({sidelineTasks.length})</h2>
-          <button
-            onClick={() => setShowAllSidelineTasks(false)}
-            className={styles.iconButton}
-          >
-            <X size={20} />
-          </button>
-        </div>
-
-        <div className={styles.drawerContent}>
-          {useVirtualList ? (
-            <Virtuoso
-              style={{ 
-                height: `${listHeight}px`,
-                overflowX: 'hidden',
-                width: '100%'
-              }}
-              className={styles.virtuosoList}
-              totalCount={sidelineTasks.length}
-              data={sidelineTasks}
-              itemContent={renderTaskItem}
-            />
-          ) : (
-            <div className={styles.taskList}>
-              {sidelineTasks.map((task, index) => (
-                <div key={task.id}>
-                  {renderTaskItem(index, task)}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-        <SafeArea position="bottom" />
-      </Popup>
+        onClose={() => setShowAllSidelineTasks(false)}
+        tasks={sidelineTasks}
+        onTaskClick={(taskId) => setSelectedTaskId(taskId)}
+        isTodayCompleted={isTodayCompleted}
+        isCycleCompleted={isCycleCompleted}
+      />
 
       {/* 创建任务弹窗 */}
       <CreateMainlineTaskModal
@@ -380,17 +273,3 @@ const NormalPanel = forwardRef<NormalPanelRef, NormalPanelProps>((props, ref) =>
 NormalPanel.displayName = 'NormalPanel';
 
 export default NormalPanel;
-
-
-
-
-
-
-
-
-
-
-
-
-
-

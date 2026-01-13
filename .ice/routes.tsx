@@ -57,11 +57,13 @@ import * as dc_components_SidelineTaskEditModal from '@/pages/dc/components/Side
 import * as dc_components_shared_CircleProgress from '@/pages/dc/components/shared/CircleProgress/index';
 import * as dc_panels_happy_components_GoalCard from '@/pages/dc/panels/happy/components/GoalCard/index';
 import * as dc_panels_happy_components_TripList from '@/pages/dc/panels/happy/components/TripList/index';
+import * as dc_components_AllSidelineTasksList from '@/pages/dc/components/AllSidelineTasksList/index';
 import * as dc_panels_detail_components_TabBar from '@/pages/dc/panels/detail/components/TabBar/index';
 import * as dc_panels_happy_components_DayTabs from '@/pages/dc/panels/happy/components/DayTabs/index';
 import * as dc_panels_happy_contexts_VacationContext from '@/pages/dc/panels/happy/contexts/VacationContext';
 import * as dc_panels_memorial_constants_backgrounds from '@/pages/dc/panels/memorial/constants/backgrounds';
 import * as dc_components_CreateGoalModal_constants from '@/pages/dc/components/CreateGoalModal/constants';
+import * as dc_components_SidelineTaskSection from '@/pages/dc/components/SidelineTaskSection/index';
 import * as dc_panels_happy_hooks_useTripNavigation from '@/pages/dc/panels/happy/hooks/useTripNavigation';
 import * as dc_panels_memorial_utils_dateCalculator from '@/pages/dc/panels/memorial/utils/dateCalculator';
 import * as dc_components_shared_ProgressBar from '@/pages/dc/components/shared/ProgressBar/index';
@@ -1586,6 +1588,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["default"],
   },{
+    path: 'dc/components/AllSidelineTasksList',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_AllSidelineTasksList,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/AllSidelineTasksList',
+          isLayout: false,
+          routeExports: dc_components_AllSidelineTasksList,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/AllSidelineTasksList',
+          requestContext,
+          renderMode,
+          module: dc_components_AllSidelineTasksList,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-allsidelinetaskslist-index',
+    index: true,
+    id: 'dc/components/AllSidelineTasksList',
+    exact: true,
+    exports: ["AllSidelineTasksList","AllSidelineTasksPopup","default"],
+  },{
     path: 'dc/panels/detail/components/TabBar',
     async lazy() {
       ;
@@ -1710,6 +1737,31 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/components/CreateGoalModal/constants',
     exact: true,
     exports: ["CYCLE_LENGTH_OPTIONS","ICONS","MIN_CHECK_INS_PER_CYCLE","POPULAR_GOALS","PRIORITY_OPTIONS","TASK_TYPES","TOTAL_DURATION_OPTIONS"],
+  },{
+    path: 'dc/components/SidelineTaskSection',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_SidelineTaskSection,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/SidelineTaskSection',
+          isLayout: false,
+          routeExports: dc_components_SidelineTaskSection,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/SidelineTaskSection',
+          requestContext,
+          renderMode,
+          module: dc_components_SidelineTaskSection,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-sidelinetasksection-index',
+    index: true,
+    id: 'dc/components/SidelineTaskSection',
+    exact: true,
+    exports: ["default"],
   },{
     path: 'dc/panels/happy/hooks/useTripNavigation',
     async lazy() {
@@ -3484,7 +3536,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/components',
     exact: true,
-    exports: ["CircleProgress","CreateGoalModal","CreateMainlineTaskModal","DailyProgress","MainlineTaskCard","MoonPhase","ProgressBar","RandomTaskPicker","SidelineTaskCard","SidelineTaskGrid","StatCard","StatCardGrid","ThemedButton","TodayProgress"],
+    exports: ["AllSidelineTasksList","AllSidelineTasksPopup","CircleProgress","CreateGoalModal","CreateMainlineTaskModal","DailyProgress","MainlineTaskCard","MoonPhase","ProgressBar","RandomTaskPicker","SidelineTaskCard","SidelineTaskGrid","SidelineTaskSection","StatCard","StatCardGrid","ThemedButton","TodayProgress"],
   },{
     path: 'dc/constants/colors',
     async lazy() {

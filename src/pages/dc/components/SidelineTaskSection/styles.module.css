@@ -1,0 +1,42 @@
+/* 支线任务区块样式 */
+
+.sectionHeader {
+  padding: 0 8px;
+  margin-bottom: 8px;
+}
+
+.sectionTitle {
+  font-size: 12px;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0;
+  font-weight: normal;
+}
+
+/* 标题行（包含标题和切换按钮） */
+.sectionTitleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* 视图模式切换按钮 */
+.viewModeButton {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: #999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.viewModeButton:hover {
+  background: #f5f5f5;
+  color: #666;
+}

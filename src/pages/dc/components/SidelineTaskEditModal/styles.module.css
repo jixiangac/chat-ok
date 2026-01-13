@@ -1,4 +1,5 @@
-/* 弹窗遮罩 */
+/* 支线任务编辑弹窗样式 */
+
 .modalOverlay {
   position: fixed;
   top: 0;
@@ -6,36 +7,37 @@
   right: 0;
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.5);
-  z-index: 1200;
+  z-index: 1000;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
-  padding: 20px;
   animation: fadeIn 0.2s ease-out;
 }
 
 .modalContent {
   background: white;
-  border-radius: 16px;
+  border-radius: 16px 16px 0 0;
   width: 100%;
-  max-width: 340px;
-  overflow: visible;
+  max-height: 85vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
   animation: slideUp 0.3s ease-out;
 }
 
 /* 头部 */
 .header {
-  padding: 16px 20px;
-  border-bottom: 1px solid #f0f0f0;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(55, 53, 47, 0.09);
 }
 
 .title {
   font-size: 17px;
   font-weight: 500;
-  color: #333;
+  color: rgb(55, 53, 47);
   margin: 0;
 }
 
@@ -49,84 +51,208 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: #666;
+  color: rgba(55, 53, 47, 0.65);
   transition: all 0.2s;
 }
 
 .closeButton:hover {
-  background: #f5f5f5;
-  color: #333;
+  background: rgba(55, 53, 47, 0.08);
+  color: rgb(55, 53, 47);
 }
 
 /* 内容区域 */
 .content {
   padding: 20px;
-  overflow: visible;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+  flex: 1;
+  overflow-y: auto;
 }
 
 /* 表单项 */
 .formItem {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  margin-bottom: 20px;
 }
 
 .label {
+  display: block;
   font-size: 13px;
-  color: #666;
+  color: rgba(55, 53, 47, 0.65);
+  margin-bottom: 8px;
 }
 
 .input {
-  padding: 10px 14px;
-  border: 1px solid #e0e0e0;
-  border-radius: 10px;
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid rgba(55, 53, 47, 0.16);
+  border-radius: 8px;
   font-size: 15px;
+  color: rgb(55, 53, 47);
   outline: none;
   transition: border-color 0.2s;
+  box-sizing: border-box;
 }
 
 .input:focus {
-  border-color: #667eea;
+  border-color: rgb(55, 53, 47);
 }
 
 .input::placeholder {
-  color: #999;
+  color: rgba(55, 53, 47, 0.4);
+}
+
+/* 标签字段区域 */
+.tagFields {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* 单个标签字段 */
+.tagField {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(55, 53, 47, 0.06);
+  position: relative;
+}
+
+.tagField:last-child {
+  border-bottom: none;
+}
+
+.tagFieldLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: rgba(55, 53, 47, 0.65);
+}
+
+.tagFieldValue {
+  position: relative;
+}
+
+.tagFieldButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: none;
+  background: rgba(55, 53, 47, 0.04);
+  border-radius: 6px;
+  font-size: 13px;
+  color: rgb(55, 53, 47);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.tagFieldButton:hover {
+  background: rgba(55, 53, 47, 0.08);
+}
+
+.tagIcon {
+  font-size: 14px;
+}
+
+.tagDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.tagName {
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tagPlaceholder {
+  color: rgba(55, 53, 47, 0.4);
+}
+
+.tagChevron {
+  color: rgba(55, 53, 47, 0.4);
+}
+
+/* 标签下拉菜单 */
+.tagDropdown {
+  position: absolute;
+  bottom: 100%;
+  right: 0;
+  margin-bottom: 4px;
+  min-width: 140px;
+  max-height: 200px;
+  overflow-y: auto;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  z-index: 1001;
+}
+
+.tagOption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  font-size: 13px;
+  color: rgb(55, 53, 47);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.tagOption:hover {
+  background: rgba(55, 53, 47, 0.04);
+}
+
+.tagOptionActive {
+  font-weight: 500;
+}
+
+.tagOptionLeft {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tagEmpty {
+  padding: 16px 12px;
+  text-align: center;
+  font-size: 13px;
+  color: rgba(55, 53, 47, 0.4);
 }
 
 /* 底部按钮 */
 .footer {
   padding: 16px 20px;
-  border-top: 1px solid #f0f0f0;
   display: flex;
   gap: 12px;
+  border-top: 1px solid rgba(55, 53, 47, 0.09);
 }
 
 .cancelButton {
   flex: 1;
   padding: 12px;
-  border: 1px solid #ddd;
+  border: 1px solid rgba(55, 53, 47, 0.16);
   background: white;
-  border-radius: 10px;
-  font-size: 15px;
-  color: #666;
+  border-radius: 8px;
+  font-size: 14px;
+  color: rgba(55, 53, 47, 0.65);
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .cancelButton:hover {
-  background: #f5f5f5;
+  background: rgba(55, 53, 47, 0.04);
 }
 
 .saveButton {
   flex: 1;
   padding: 12px;
   border: none;
-  background: #333;
-  border-radius: 10px;
-  font-size: 15px;
+  background: rgb(55, 53, 47);
+  border-radius: 8px;
+  font-size: 14px;
   color: white;
   font-weight: 500;
   cursor: pointer;
@@ -134,11 +260,11 @@
 }
 
 .saveButton:hover {
-  background: #222;
+  background: rgb(35, 33, 27);
 }
 
 .saveButton:disabled {
-  background: #ccc;
+  background: rgba(55, 53, 47, 0.3);
   cursor: not-allowed;
 }
 
@@ -154,13 +280,10 @@
 
 @keyframes slideUp {
   from {
-    transform: translateY(20px);
-    opacity: 0;
+    transform: translateY(100%);
   }
   to {
     transform: translateY(0);
-    opacity: 1;
   }
 }
-
 

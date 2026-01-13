@@ -1,9 +1,11 @@
 import { useState, useMemo, useCallback, memo } from 'react';
-import { X, Pencil, MoreHorizontal, BarChart3, ClipboardList, CheckCircle, Target, StopCircle, GitBranch } from 'lucide-react';
+import { X, Pencil, MoreHorizontal, BarChart3, ClipboardList, CheckCircle, Target, StopCircle, GitBranch, Copy } from 'lucide-react';
+import { Toast } from 'antd-mobile';
 import type { GoalHeaderProps } from '../../types';
 import type { MainlineTaskType } from '../../../../types';
 import { getProgressImage, getCompletionImage } from '../../constants';
 import { formatLargeNumber } from '../../utils';
+import { exportSingleTask, copyToClipboard, getDeveloperMode } from '../../../../utils';
 import styles from './styles.module.css';
 
 function GoalHeaderComponent({ 
@@ -23,6 +25,9 @@ function GoalHeaderComponent({
   isPlanEnded
 }: GoalHeaderProps) {
   const [showMenu, setShowMenu] = useState(false);
+  
+  // 获取开发者模式状态
+  const isDeveloperMode = useMemo(() => getDeveloperMode(), []);
   
   // 智能判断任务类型 - 使用 useMemo 缓存
   const mainlineType = useMemo((): MainlineTaskType => {
@@ -165,6 +170,22 @@ function GoalHeaderComponent({
   const toggleMenu = useCallback(() => {
     setShowMenu(prev => !prev);
   }, []);
+
+  // 导出当前任务数据
+  const handleExportTask = useCallback(async () => {
+    const data = exportSingleTask(goal.id);
+    if (data) {
+      const success = await copyToClipboard(data);
+      if (success) {
+        Toast.show({ icon: 'success', content: '任务数据已复制到剪贴板' });
+      } else {
+        Toast.show({ icon: 'fail', content: '复制失败，请重试' });
+      }
+    } else {
+      Toast.show({ icon: 'fail', content: '导出失败：任务不存在' });
+    }
+    setShowMenu(false);
+  }, [goal.id]);
   
   return (
     <div className={styles.container}>
@@ -212,7 +233,19 @@ function GoalHeaderComponent({
                     转成支线任务
                     <span className={styles.devTag}>开发中</span>
                   </div>
+                  {isDeveloperMode && (
+                    <div className={styles.menuItem} onClick={handleExportTask}>
+                      <Copy size={14} style={{ marginRight: 6 }} />
+                      导出任务数据
+                    </div>
+                  )}
                 </>
+              )}
+              {isPlanEnded && isDeveloperMode && (
+                <div className={styles.menuItem} onClick={handleExportTask}>
+                  <Copy size={14} style={{ marginRight: 6 }} />
+                  导出任务数据
+                </div>
               )}
             </div>
           )}
@@ -280,4 +313,5 @@ function GoalHeaderComponent({
 // 使用 memo 包装，优化渲染性能
 export const GoalHeader = memo(GoalHeaderComponent);
 export default GoalHeader;
+
 

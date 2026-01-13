@@ -60,9 +60,15 @@ const GroupCard: React.FC<GroupCardProps> = ({
       style={gradientStyle}
     >
       <div className={styles.content}>
-        {/* 图标 */}
-        <div className={styles.iconWrapper} style={{ color: tag.color }}>
-          <Folder size={20} />
+        <div className={styles.topRow}>
+          {/* 图标 */}
+          <div className={styles.iconWrapper} style={{ color: tag.color }}>
+            <Folder size={20} />
+          </div>
+          {/* 完成数量 */}
+          <div className={styles.completionCount}>
+            {completedCount}/{tasks.length}
+          </div>
         </div>
         {/* 标签名 */}
         <div className={styles.tagName}>{tag.name}</div>
@@ -74,3 +80,4 @@ const GroupCard: React.FC<GroupCardProps> = ({
 };
 
 export default GroupCard;
+

@@ -17,12 +17,24 @@ export type ChecklistItemStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'PAU
 // 打卡单位（打卡类型）
 export type CheckInUnit = 'TIMES' | 'DURATION' | 'QUANTITY';
 
+// 标签类型
+export type TagType = 'normal' | 'location' | 'mood';
+
 // 任务标签接口
 export interface TaskTag {
   id: string;
   name: string;
   color: string;
+  type: TagType;      // 标签类型
+  icon?: string;      // 图标（用于地点和心情标签）
   createdAt: string;
+}
+
+// 任务标签关联（支持多类型标签）
+export interface TaskTags {
+  normalTagId?: string;
+  locationTagId?: string;
+  moodTagId?: string;
 }
 
 // 今日必须完成状态
@@ -239,8 +251,10 @@ export interface Task {
   // 上一周期欠账快照（用于在前1/2时间完成当期目标时记录）
   previousCycleDebtSnapshot?: PreviousCycleDebtSnapshot;
   
-  // 标签ID（每个任务只能有一个标签）
+  // 标签ID（每个任务只能有一个标签）- 旧版兼容
   tagId?: string;
+  // 多类型标签（新版）
+  tags?: TaskTags;
 }
 
 // 目标数据接口
@@ -307,6 +321,8 @@ export interface ValidationResult {
   valid: boolean;
   message?: string;
 }
+
+
 
 
 

@@ -1,36 +1,181 @@
 /**
  * 支线任务编辑弹窗
- * 用于编辑任务名称和标签
+ * 用于编辑任务名称和标签（支持多类型标签）
+ * 标签选择独立显示：任务名称、标签、地点、心情
  */
 
-import React, { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { 
+  X, Tag, MapPin, Smile, ChevronDown, Check,
+  Home, Building2, Coffee, Dumbbell, Train, School, Hospital, ShoppingCart, Palmtree, TreePine,
+  SmilePlus, Frown, Angry, Moon, HelpCircle, Zap, PartyPopper, Heart, Flame, Snowflake,
+  Pin, Star, Target, BookOpen, Lightbulb, Wrench, Palette, Music, PersonStanding, Sparkles
+} from 'lucide-react';
 import { SafeArea } from 'antd-mobile';
-import type { Task } from '../../types';
-import TagSelector from '../TagSelector';
+import type { Task, TaskTags, TaskTag, TagType } from '../../types';
+import { getTagsByType } from '../../utils/tagStorage';
 import styles from './styles.module.css';
+
+// 图标映射
+const ICON_MAP: Record<string, React.ReactNode> = {
+  // 地点图标
+  home: <Home size={14} />,
+  building: <Building2 size={14} />,
+  coffee: <Coffee size={14} />,
+  gym: <Dumbbell size={14} />,
+  train: <Train size={14} />,
+  school: <School size={14} />,
+  hospital: <Hospital size={14} />,
+  shop: <ShoppingCart size={14} />,
+  beach: <Palmtree size={14} />,
+  park: <TreePine size={14} />,
+  // 心情图标
+  happy: <SmilePlus size={14} />,
+  sad: <Frown size={14} />,
+  angry: <Angry size={14} />,
+  sleepy: <Moon size={14} />,
+  thinking: <HelpCircle size={14} />,
+  energetic: <Zap size={14} />,
+  celebrate: <PartyPopper size={14} />,
+  love: <Heart size={14} />,
+  fire: <Flame size={14} />,
+  cold: <Snowflake size={14} />,
+  // 普通图标
+  pin: <Pin size={14} />,
+  star: <Star size={14} />,
+  target: <Target size={14} />,
+  book: <BookOpen size={14} />,
+  idea: <Lightbulb size={14} />,
+  tool: <Wrench size={14} />,
+  art: <Palette size={14} />,
+  music: <Music size={14} />,
+  person: <PersonStanding size={14} />,
+  sparkle: <Sparkles size={14} />,
+};
+
+// 获取图标组件
+const getIconComponent = (iconName?: string) => {
+  if (!iconName) return null;
+  return ICON_MAP[iconName] || null;
+};
 
 interface SidelineTaskEditModalProps {
   visible: boolean;
   task: Task | null;
-  onSave: (taskId: string, updates: { title?: string; tagId?: string }) => void;
+  onSave: (taskId: string, updates: { title?: string; tagId?: string; tags?: TaskTags }) => void;
   onClose: () => void;
+  onGoToTagSettings?: () => void;
 }
+
+// 标签选择器组件
+interface TagFieldProps {
+  label: string;
+  icon: React.ReactNode;
+  type: TagType;
+  selectedTagId?: string;
+  onSelect: (tagId: string | undefined) => void;
+}
+
+const TagField: React.FC<TagFieldProps> = ({
+  label,
+  icon,
+  type,
+  selectedTagId,
+  onSelect,
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const tags = useMemo(() => getTagsByType(type), [type]);
+  const selectedTag = useMemo(() => tags.find(t => t.id === selectedTagId), [tags, selectedTagId]);
+
+  const handleSelect = (tagId: string | undefined) => {
+    onSelect(tagId);
+    setIsOpen(false);
+  };
+
+  return (
+    <div className={styles.tagField}>
+      <div className={styles.tagFieldLabel}>
+        {icon}
+        <span>{label}</span>
+      </div>
+      <div className={styles.tagFieldValue}>
+        <button
+          className={styles.tagFieldButton}
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          {selectedTag ? (
+            <>
+              {selectedTag.icon && <span className={styles.tagIcon}>{getIconComponent(selectedTag.icon)}</span>}
+              <span 
+                className={styles.tagDot}
+                style={{ backgroundColor: selectedTag.color }}
+              />
+              <span className={styles.tagName}>{selectedTag.name}</span>
+            </>
+          ) : (
+            <span className={styles.tagPlaceholder}>选择{label}</span>
+          )}
+          <ChevronDown size={14} className={styles.tagChevron} />
+        </button>
+
+        {isOpen && (
+          <div className={styles.tagDropdown}>
+            <div
+              className={`${styles.tagOption} ${!selectedTagId ? styles.tagOptionActive : ''}`}
+              onClick={() => handleSelect(undefined)}
+            >
+              <span>无</span>
+              {!selectedTagId && <Check size={14} />}
+            </div>
+            {tags.map(tag => (
+              <div
+                key={tag.id}
+                className={`${styles.tagOption} ${selectedTagId === tag.id ? styles.tagOptionActive : ''}`}
+                onClick={() => handleSelect(tag.id)}
+              >
+                <div className={styles.tagOptionLeft}>
+                  {tag.icon && <span className={styles.tagIcon}>{getIconComponent(tag.icon)}</span>}
+                  <span 
+                    className={styles.tagDot}
+                    style={{ backgroundColor: tag.color }}
+                  />
+                  <span>{tag.name}</span>
+                </div>
+                {selectedTagId === tag.id && <Check size={14} />}
+              </div>
+            ))}
+            {tags.length === 0 && (
+              <div className={styles.tagEmpty}>暂无{label}</div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 
 const SidelineTaskEditModal: React.FC<SidelineTaskEditModalProps> = ({
   visible,
   task,
   onSave,
   onClose,
+  onGoToTagSettings,
 }) => {
   const [title, setTitle] = useState('');
-  const [tagId, setTagId] = useState<string | undefined>(undefined);
+  const [tags, setTags] = useState<TaskTags>({});
 
   // 当任务变化时，重置表单
   useEffect(() => {
     if (task) {
       setTitle(task.title);
-      setTagId(task.tagId);
+      // 兼容新旧格式
+      if (task.tags) {
+        setTags(task.tags);
+      } else if (task.tagId) {
+        setTags({ normalTagId: task.tagId });
+      } else {
+        setTags({});
+      }
     }
   }, [task]);
 
@@ -38,14 +183,23 @@ const SidelineTaskEditModal: React.FC<SidelineTaskEditModalProps> = ({
   const handleSave = () => {
     if (!task || !title.trim()) return;
 
-    const updates: { title?: string; tagId?: string } = {};
+    const updates: { title?: string; tagId?: string; tags?: TaskTags } = {};
     
     if (title.trim() !== task.title) {
       updates.title = title.trim();
     }
     
-    if (tagId !== task.tagId) {
-      updates.tagId = tagId;
+    // 检查标签是否有变化
+    const originalTags = task.tags || (task.tagId ? { normalTagId: task.tagId } : {});
+    const tagsChanged = 
+      tags.normalTagId !== originalTags.normalTagId ||
+      tags.locationTagId !== originalTags.locationTagId ||
+      tags.moodTagId !== originalTags.moodTagId;
+
+    if (tagsChanged) {
+      updates.tags = tags;
+      // 同时更新旧版 tagId 以保持兼容
+      updates.tagId = tags.normalTagId;
     }
 
     // 只有有变化时才保存
@@ -56,11 +210,24 @@ const SidelineTaskEditModal: React.FC<SidelineTaskEditModalProps> = ({
     onClose();
   };
 
-  // 检查是否有变化
-  const hasChanges = task && (
-    title.trim() !== task.title ||
-    tagId !== task.tagId
-  );
+  // 更新标签
+  const handleTagChange = (type: TagType, tagId: string | undefined) => {
+    setTags(prev => {
+      const newTags = { ...prev };
+      switch (type) {
+        case 'normal':
+          newTags.normalTagId = tagId;
+          break;
+        case 'location':
+          newTags.locationTagId = tagId;
+          break;
+        case 'mood':
+          newTags.moodTagId = tagId;
+          break;
+      }
+      return newTags;
+    });
+  };
 
   if (!visible || !task) return null;
 
@@ -90,11 +257,30 @@ const SidelineTaskEditModal: React.FC<SidelineTaskEditModalProps> = ({
             />
           </div>
 
-          {/* 标签选择 */}
-          <TagSelector
-            selectedTagId={tagId}
-            onSelect={setTagId}
-          />
+          {/* 标签选择 - 独立显示 */}
+          <div className={styles.tagFields}>
+            <TagField
+              label="标签"
+              icon={<Tag size={16} />}
+              type="normal"
+              selectedTagId={tags.normalTagId}
+              onSelect={(id) => handleTagChange('normal', id)}
+            />
+            <TagField
+              label="地点"
+              icon={<MapPin size={16} />}
+              type="location"
+              selectedTagId={tags.locationTagId}
+              onSelect={(id) => handleTagChange('location', id)}
+            />
+            <TagField
+              label="心情"
+              icon={<Smile size={16} />}
+              type="mood"
+              selectedTagId={tags.moodTagId}
+              onSelect={(id) => handleTagChange('mood', id)}
+            />
+          </div>
         </div>
 
         {/* 底部按钮 */}

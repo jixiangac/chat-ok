@@ -2,8 +2,25 @@
 
 ## 组件库
 
-1. 尽量使用 antd-mobile 组件库
+1. 尽量使用 antd-mobile 组件库，除非需要特别定制
 2. 如果需要使用其他组件库，必须先申请
+
+### antd-mobile 组件使用规范
+
+优先使用以下 antd-mobile 组件：
+
+| 场景 | 推荐组件 |
+|------|----------|
+| 滑动/走马灯效果 | `Swiper` |
+| 弹窗类 | `Popup` |
+| 进度条类 | `ProgressBar` / `ProgressCircle` |
+| 下拉刷新 | `PullToRefresh` |
+| 骨架屏 | `Skeleton` |
+| 日历 | `Calendar` |
+| 图片相关 | `ImageUploader` / `Image` / `ImageViewer` |
+| 选择器 | `Picker` |
+| 布局类 | `Grid` 栅格 / `Space` 间距 / `SafeArea` 安全区 / `Divider` 分割线 / `AutoCenter` 自动居中 |
+| 文本类 | `Ellipsis` 文本省略 |
 
 
 ### OpenSpec Workflow 规则

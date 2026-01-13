@@ -89,6 +89,52 @@
   font-size: 15px;
 }
 
+.settings-item-sub {
+  padding-left: 52px;
+  background-color: #fafafa;
+}
+
+.settings-item-sub:hover {
+  background-color: #f5f5f5;
+}
+
+.settings-divider {
+  height: 1px;
+  background-color: #f0f0f0;
+  margin: 8px 20px;
+}
+
+/* 开关样式 */
+.settings-switch {
+  width: 44px;
+  height: 24px;
+  background-color: #e0e0e0;
+  border-radius: 12px;
+  position: relative;
+  transition: background-color 0.2s;
+  cursor: pointer;
+}
+
+.settings-switch.active {
+  background-color: #4CAF50;
+}
+
+.settings-switch-thumb {
+  width: 20px;
+  height: 20px;
+  background-color: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.settings-switch.active .settings-switch-thumb {
+  transform: translateX(20px);
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -108,3 +154,4 @@
     transform: translate(-50%, -50%) scale(1);
   }
 }
+

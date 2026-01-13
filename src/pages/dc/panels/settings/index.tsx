@@ -1,19 +1,24 @@
 import { useState } from 'react';
-import { X, ChevronRight, Palette, Target, Eye } from 'lucide-react';
+import { X, ChevronRight, Palette, Target, Eye, Tag, Code } from 'lucide-react';
 import ThemeSettings from './ThemeSettings';
-import { canOpenModalForEdit, canOpenModalForView } from '../../utils/todayMustCompleteStorage';
+import TagSettings from './TagSettings';
+import DeveloperSettings from './DeveloperSettings';
+import { canOpenModalForEdit, canOpenModalForView } from '@/pages/dc/utils/todayMustCompleteStorage';
+import { getDeveloperMode, setDeveloperMode } from '@/pages/dc/utils/developerStorage';
 import './index.css';
 
 interface SettingsProps {
   visible: boolean;
   onClose: () => void;
   onOpenTodayMustComplete?: (readOnly?: boolean) => void;
+  onTagDeleted?: (tagId: string) => void;
 }
 
-type SettingsPage = 'main' | 'theme';
+type SettingsPage = 'main' | 'theme' | 'tags' | 'developer';
 
-export default function Settings({ visible, onClose, onOpenTodayMustComplete }: SettingsProps) {
+export default function Settings({ visible, onClose, onOpenTodayMustComplete, onTagDeleted }: SettingsProps) {
   const [currentPage, setCurrentPage] = useState<SettingsPage>('main');
+  const [developerMode, setDeveloperModeState] = useState(getDeveloperMode);
   const canEdit = canOpenModalForEdit();
   const canView = canOpenModalForView();
 
@@ -27,9 +32,33 @@ export default function Settings({ visible, onClose, onOpenTodayMustComplete }: 
     }
   };
 
+  // 切换开发者模式
+  const handleToggleDeveloperMode = () => {
+    const newValue = !developerMode;
+    setDeveloperMode(newValue);
+    setDeveloperModeState(newValue);
+  };
+
+  const getPageTitle = () => {
+    switch (currentPage) {
+      case 'theme': return '主题配色';
+      case 'tags': return '标签设置';
+      case 'developer': return '开发者模式';
+      default: return '设置';
+    }
+  };
+
   const renderContent = () => {
     if (currentPage === 'theme') {
       return <ThemeSettings onBack={() => setCurrentPage('main')} />;
+    }
+    
+    if (currentPage === 'tags') {
+      return <TagSettings onBack={() => setCurrentPage('main')} onTagDeleted={onTagDeleted} />;
+    }
+
+    if (currentPage === 'developer') {
+      return <DeveloperSettings onBack={() => setCurrentPage('main')} />;
     }
 
     const handleTodayMustCompleteEdit = () => {
@@ -59,6 +88,17 @@ export default function Settings({ visible, onClose, onOpenTodayMustComplete }: 
           <ChevronRight size={20} color="#999" />
         </div>
         
+        <div 
+          className="settings-item"
+          onClick={() => setCurrentPage('tags')}
+        >
+          <div className="settings-item-left">
+            <Tag size={20} />
+            <span>标签设置</span>
+          </div>
+          <ChevronRight size={20} color="#999" />
+        </div>
+        
         {canEdit && (
           <div 
             className="settings-item"
@@ -84,6 +124,36 @@ export default function Settings({ visible, onClose, onOpenTodayMustComplete }: 
             <ChevronRight size={20} color="#999" />
           </div>
         )}
+
+        {/* 分隔线 */}
+        <div className="settings-divider" />
+
+        {/* 开发者模式开关 */}
+        <div 
+          className="settings-item"
+          onClick={handleToggleDeveloperMode}
+        >
+          <div className="settings-item-left">
+            <Code size={20} />
+            <span>开发者模式</span>
+          </div>
+          <div className={`settings-switch ${developerMode ? 'active' : ''}`}>
+            <div className="settings-switch-thumb" />
+          </div>
+        </div>
+
+        {/* 开发者模式入口（仅在开启时显示） */}
+        {developerMode && (
+          <div 
+            className="settings-item settings-item-sub"
+            onClick={() => setCurrentPage('developer')}
+          >
+            <div className="settings-item-left">
+              <span>数据管理</span>
+            </div>
+            <ChevronRight size={20} color="#999" />
+          </div>
+        )}
       </div>
     );
   };
@@ -96,7 +166,7 @@ export default function Settings({ visible, onClose, onOpenTodayMustComplete }: 
       >
         <div className="settings-header">
           <h2 className="settings-title">
-            {currentPage === 'main' ? '设置' : '主题配色'}
+            {getPageTitle()}
           </h2>
           <button 
             className="settings-close-btn"
@@ -113,5 +183,4 @@ export default function Settings({ visible, onClose, onOpenTodayMustComplete }: 
     </div>
   );
 }
-
 

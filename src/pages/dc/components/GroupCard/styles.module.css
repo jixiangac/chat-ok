@@ -34,11 +34,28 @@
   gap: 12px;
 }
 
+/* 顶部行：图标 + 完成数量 */
+.topRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 8px;
+}
+
 /* 图标包装器 */
 .iconWrapper {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* 完成数量 */
+.completionCount {
+  font-size: 12px;
+  color: #666;
+  font-weight: 500;
+  white-space: nowrap;
 }
 
 /* 标签名 */
@@ -54,3 +71,4 @@
   flex-shrink: 0;
   opacity: 0.6;
 }
+

@@ -7,7 +7,7 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { Swiper } from 'antd-mobile';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Task, TaskTag } from '../../types';
-import { getAllTags } from '../../utils/tagStorage';
+import { getAllTags, getTaskNormalTagId } from '../../utils/tagStorage';
 import { prefersReducedMotion } from '../../utils/responsive';
 import { gridItemVariants, listContainerVariants } from '../../constants/animations';
 import GroupCard from '../GroupCard';
@@ -42,14 +42,18 @@ const GroupModeGrid: React.FC<GroupModeGridProps> = ({
   }, []);
 
   // 获取所有标签
-  const allTags = useMemo(() => getAllTags(), []);
+  const allTags = useMemo(() => {
+    // 只获取普通标签用于分组
+    return getAllTags().filter(tag => tag.type === 'normal');
+  }, []);
 
   // 按标签分组任务
   const groupedTasks = useMemo(() => {
     const groups: { tag: TaskTag; tasks: Task[] }[] = [];
     
     allTags.forEach(tag => {
-      const tagTasks = tasks.filter(task => task.tagId === tag.id);
+      // 使用兼容新旧格式的方法获取任务的普通标签ID
+      const tagTasks = tasks.filter(task => getTaskNormalTagId(task) === tag.id);
       if (tagTasks.length > 0) {
         groups.push({ tag, tasks: tagTasks });
       }
@@ -234,6 +238,7 @@ const GroupModeGrid: React.FC<GroupModeGridProps> = ({
 };
 
 export default GroupModeGrid;
+
 
 
 

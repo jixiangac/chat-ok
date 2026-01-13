@@ -68,5 +68,19 @@ export {
   canOpenModalForView
 } from './todayMustCompleteStorage';
 
+// 开发者模式存储工具
+export {
+  getDeveloperMode,
+  setDeveloperMode,
+  getSavedLocationFilter,
+  saveLocationFilter,
+  exportAllTasks,
+  exportSingleTask,
+  importAllTasks,
+  importSingleTask,
+  copyToClipboard
+} from './developerStorage';
+
+
 
 

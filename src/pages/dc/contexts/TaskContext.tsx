@@ -1,7 +1,9 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import type { Task } from '../types';
+import { migrateAllTaskTags } from '../utils/tagStorage';
 
 const STORAGE_KEY = 'dc_tasks';
+const TASK_MIGRATION_KEY = 'dc_task_migration_v2';
 
 // 从 localStorage 读取任务
 const loadTasksFromStorage = (): Task[] => {
@@ -12,6 +14,26 @@ const loadTasksFromStorage = (): Task[] => {
     console.error('Failed to load tasks from localStorage:', error);
     return [];
   }
+};
+
+// 迁移任务数据（tagId → tags）
+const migrateTasksIfNeeded = (tasks: Task[]): Task[] => {
+  const migrated = localStorage.getItem(TASK_MIGRATION_KEY);
+  if (migrated === 'done') {
+    return tasks;
+  }
+
+  // 检查是否需要迁移
+  const needsMigration = tasks.some(task => task.tagId && !task.tags);
+  if (needsMigration) {
+    const migratedTasks = migrateAllTaskTags(tasks);
+    saveTasksToStorage(migratedTasks);
+    localStorage.setItem(TASK_MIGRATION_KEY, 'done');
+    return migratedTasks;
+  }
+
+  localStorage.setItem(TASK_MIGRATION_KEY, 'done');
+  return tasks;
 };
 
 // 保存任务到 localStorage
@@ -44,7 +66,9 @@ export function TaskProvider({ children }: TaskProviderProps) {
 
   // 初始化时从 localStorage 加载数据
   useEffect(() => {
-    const loadedTasks = loadTasksFromStorage();
+    let loadedTasks = loadTasksFromStorage();
+    // 执行数据迁移
+    loadedTasks = migrateTasksIfNeeded(loadedTasks);
     setTasksState(loadedTasks);
   }, []);
 
@@ -120,3 +144,4 @@ export function useTaskContext() {
 }
 
 export default TaskContext;
+

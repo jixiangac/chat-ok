@@ -586,6 +586,17 @@
     ]
   },
   {
+    "path": "dc/panels/settings/DeveloperSettings",
+    "index": true,
+    "id": "dc/panels/settings/DeveloperSettings",
+    "file": "dc/panels/settings/DeveloperSettings/index.tsx",
+    "componentName": "dc-panels-settings-developersettings-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
     "path": "dc/components/SidelineTaskEditModal",
     "index": true,
     "id": "dc/components/SidelineTaskEditModal",
@@ -852,6 +863,17 @@
     ]
   },
   {
+    "path": "dc/panels/settings/TagSettings",
+    "index": true,
+    "id": "dc/panels/settings/TagSettings",
+    "file": "dc/panels/settings/TagSettings/index.tsx",
+    "componentName": "dc-panels-settings-tagsettings-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
     "path": "dc/components/CreateGoalModal",
     "index": true,
     "id": "dc/components/CreateGoalModal",
@@ -919,6 +941,17 @@
       "MemorialDetail",
       "MemorialListSkeleton",
       "VirtualMemorialList"
+    ]
+  },
+  {
+    "path": "dc/components/DailyViewPopup",
+    "index": true,
+    "id": "dc/components/DailyViewPopup",
+    "file": "dc/components/DailyViewPopup/index.tsx",
+    "componentName": "dc-components-dailyviewpopup-index",
+    "layout": false,
+    "exports": [
+      "default"
     ]
   },
   {
@@ -1364,6 +1397,24 @@
     ]
   },
   {
+    "path": "dc/utils/developerStorage",
+    "id": "dc/utils/developerStorage",
+    "file": "dc/utils/developerStorage.ts",
+    "componentName": "dc-utils-developerstorage",
+    "layout": false,
+    "exports": [
+      "copyToClipboard",
+      "exportAllTasks",
+      "exportSingleTask",
+      "getDeveloperMode",
+      "getSavedLocationFilter",
+      "importAllTasks",
+      "importSingleTask",
+      "saveLocationFilter",
+      "setDeveloperMode"
+    ]
+  },
+  {
     "path": "dc/components/card",
     "index": true,
     "id": "dc/components/card",
@@ -1629,6 +1680,7 @@
       "CreateGoalModal",
       "CreateMainlineTaskModal",
       "DailyProgress",
+      "DailyViewPopup",
       "MainlineTaskCard",
       "MoonPhase",
       "ProgressBar",
@@ -1682,15 +1734,28 @@
     "componentName": "dc-utils-tagstorage",
     "layout": false,
     "exports": [
+      "LOCATION_ICONS",
+      "MOOD_ICONS",
+      "NORMAL_ICONS",
       "TAG_COLORS",
+      "cleanupTaskTagReferences",
       "createTag",
       "deleteTag",
       "getAllTags",
+      "getDefaultIconForType",
+      "getIconsForType",
       "getNextTagColor",
       "getTagById",
+      "getTagsByType",
+      "getTaskNormalTagId",
+      "getTaskTags",
+      "getUsedLocationTags",
       "loadTagsFromStorage",
+      "migrateAllTaskTags",
+      "migrateTaskTags",
       "saveTagsToStorage",
-      "updateTag"
+      "updateTag",
+      "updateTaskTags"
     ]
   },
   {
@@ -1809,21 +1874,28 @@
       "calculateVisibleSidelineTasks",
       "canOpenModalForEdit",
       "canOpenModalForView",
+      "copyToClipboard",
       "createTag",
       "createTodayState",
       "deleteTag",
+      "exportAllTasks",
+      "exportSingleTask",
       "formatLargeNumber",
       "formatNumber",
       "getAllTags",
+      "getDeveloperMode",
       "getEffectiveMainlineType",
       "getNextTagColor",
       "getSafeAreaInsets",
+      "getSavedLocationFilter",
       "getScreenSize",
       "getTagById",
       "getTodayDateString",
       "getTodayMustCompleteTaskIds",
       "hasTodayBeenSet",
       "hasTodaySetTasks",
+      "importAllTasks",
+      "importSingleTask",
       "isMobileDevice",
       "isSmallScreen",
       "isTaskTodayMustComplete",
@@ -1833,8 +1905,10 @@
       "markModalShown",
       "prefersReducedMotion",
       "removeFromTodayMustComplete",
+      "saveLocationFilter",
       "saveTagsToStorage",
       "saveTodayMustCompleteState",
+      "setDeveloperMode",
       "setTodayMustCompleteTasks",
       "shouldShowTodayMustCompleteModal",
       "skipTodayMustComplete",

@@ -8,13 +8,11 @@
 
 /* 头部 */
 .header {
-  padding: 16px 24px;
-  border-bottom: 1px solid #f0f0f0;
+  padding: 20px 24px 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-shrink: 0;
-  padding-bottom: 0;
 }
 
 .title {
@@ -38,6 +36,89 @@
 
 .closeButton:hover {
   background-color: #f5f5f5;
+}
+
+/* 筛选区域 */
+.filterSection {
+  padding: 0 24px 12px;
+  flex-shrink: 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.filterRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.filterWrapper {
+  position: relative;
+}
+
+.filterButton {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  border: none;
+  background: none;
+  font-size: 13px;
+  color: #999;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.filterButton:hover {
+  color: #666;
+}
+
+.filterActive {
+  color: #333;
+}
+
+.filterDropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+  min-width: 100px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  z-index: 100;
+  overflow: hidden;
+}
+
+.filterOption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  font-size: 13px;
+  color: #333;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+
+.filterOption:hover {
+  background: #f5f5f5;
+}
+
+.filterOptionActive {
+  color: #1a1a1a;
+  font-weight: 500;
+}
+
+.filterOptionIcon {
+  display: flex;
+  align-items: center;
+  color: #666;
+}
+
+.filterOptionCheck {
+  margin-left: auto;
+  color: #666;
 }
 
 /* 内容区 */
@@ -94,6 +175,3 @@
 .virtuosoList [data-viewport-type] {
   overflow-x: hidden !important;
 }
-
-
-

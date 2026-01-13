@@ -53,6 +53,7 @@ import * as dc_panels_happy_components_TripList_TripCard from '@/pages/dc/panels
 import * as dc_components_CreateMainlineTaskModal from '@/pages/dc/components/CreateMainlineTaskModal/index';
 import * as dc_components_CreateMainlineTaskModal_types from '@/pages/dc/components/CreateMainlineTaskModal/types';
 import * as dc_components_TodayMustCompleteModal from '@/pages/dc/components/TodayMustCompleteModal/index';
+import * as dc_panels_settings_DeveloperSettings from '@/pages/dc/panels/settings/DeveloperSettings/index';
 import * as dc_components_SidelineTaskEditModal from '@/pages/dc/components/SidelineTaskEditModal/index';
 import * as dc_components_shared_CircleProgress from '@/pages/dc/components/shared/CircleProgress/index';
 import * as dc_panels_happy_components_GoalCard from '@/pages/dc/panels/happy/components/GoalCard/index';
@@ -75,12 +76,14 @@ import * as dc_components_RandomTaskPicker from '@/pages/dc/components/RandomTas
 import * as dc_components_SidelineTaskGrid from '@/pages/dc/components/SidelineTaskGrid/index';
 import * as dc_panels_detail_hooks_checkInStatus from '@/pages/dc/panels/detail/hooks/checkInStatus';
 import * as dc_panels_happy_utils_scheduleHelper from '@/pages/dc/panels/happy/utils/scheduleHelper';
+import * as dc_panels_settings_TagSettings from '@/pages/dc/panels/settings/TagSettings/index';
 import * as dc_components_CreateGoalModal from '@/pages/dc/components/CreateGoalModal/index';
 import * as dc_components_CreateGoalModal_types from '@/pages/dc/components/CreateGoalModal/types';
 import * as dc_components_card_MainlineTaskCard from '@/pages/dc/components/card/MainlineTaskCard';
 import * as dc_components_card_SidelineTaskCard from '@/pages/dc/components/card/SidelineTaskCard';
 import * as dc_components_shared_StatCard from '@/pages/dc/components/shared/StatCard/index';
 import * as dc_panels_memorial_components from '@/pages/dc/panels/memorial/components/index';
+import * as dc_components_DailyViewPopup from '@/pages/dc/components/DailyViewPopup/index';
 import * as dc_panels_memorial_constants_icons from '@/pages/dc/panels/memorial/constants/icons';
 import * as dc_panels_memorial_constants from '@/pages/dc/panels/memorial/constants/index';
 import * as dc_components_DailyProgress from '@/pages/dc/components/DailyProgress/index';
@@ -114,6 +117,7 @@ import * as dc_utils_progressCalculator from '@/pages/dc/utils/progressCalculato
 import * as dc_components_shared from '@/pages/dc/components/shared/index';
 import * as dc_contexts_UIStateContext from '@/pages/dc/contexts/UIStateContext';
 import * as dc_panels_memorial_storage from '@/pages/dc/panels/memorial/storage';
+import * as dc_utils_developerStorage from '@/pages/dc/utils/developerStorage';
 import * as dc_components_card from '@/pages/dc/components/card/index';
 import * as dc_contexts_ThemeContext from '@/pages/dc/contexts/ThemeContext';
 import * as dc_panels_memorial from '@/pages/dc/panels/memorial/index';
@@ -1488,6 +1492,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["default"],
   },{
+    path: 'dc/panels/settings/DeveloperSettings',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_settings_DeveloperSettings,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/settings/DeveloperSettings',
+          isLayout: false,
+          routeExports: dc_panels_settings_DeveloperSettings,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/settings/DeveloperSettings',
+          requestContext,
+          renderMode,
+          module: dc_panels_settings_DeveloperSettings,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-settings-developersettings-index',
+    index: true,
+    id: 'dc/panels/settings/DeveloperSettings',
+    exact: true,
+    exports: ["default"],
+  },{
     path: 'dc/components/SidelineTaskEditModal',
     async lazy() {
       ;
@@ -2038,6 +2067,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["getGoalBorderStyle","getGoalStatusColor","getScheduleStats","getScheduleStatusColor","hasFailedGoals","isScheduleCompleted","isScheduleExpired"],
   },{
+    path: 'dc/panels/settings/TagSettings',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_settings_TagSettings,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/settings/TagSettings',
+          isLayout: false,
+          routeExports: dc_panels_settings_TagSettings,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/settings/TagSettings',
+          requestContext,
+          renderMode,
+          module: dc_panels_settings_TagSettings,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-settings-tagsettings-index',
+    index: true,
+    id: 'dc/panels/settings/TagSettings',
+    exact: true,
+    exports: ["default"],
+  },{
     path: 'dc/components/CreateGoalModal',
     async lazy() {
       ;
@@ -2187,6 +2241,31 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/panels/memorial/components',
     exact: true,
     exports: ["BackgroundPicker","CreateMemorialModal","IconPicker","MemorialCard","MemorialCardSkeleton","MemorialDetail","MemorialListSkeleton","VirtualMemorialList"],
+  },{
+    path: 'dc/components/DailyViewPopup',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_DailyViewPopup,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/DailyViewPopup',
+          isLayout: false,
+          routeExports: dc_components_DailyViewPopup,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/DailyViewPopup',
+          requestContext,
+          renderMode,
+          module: dc_components_DailyViewPopup,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-dailyviewpopup-index',
+    index: true,
+    id: 'dc/components/DailyViewPopup',
+    exact: true,
+    exports: ["default"],
   },{
     path: 'dc/panels/memorial/constants/icons',
     async lazy() {
@@ -3013,6 +3092,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["generateId","loadDateFormat","loadMemorials","saveDateFormat","saveMemorials"],
   },{
+    path: 'dc/utils/developerStorage',
+    async lazy() {
+      ;
+      return {
+        ...dc_utils_developerStorage,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/utils/developerStorage',
+          isLayout: false,
+          routeExports: dc_utils_developerStorage,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/utils/developerStorage',
+          requestContext,
+          renderMode,
+          module: dc_utils_developerStorage,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-utils-developerstorage',
+    index: undefined,
+    id: 'dc/utils/developerStorage',
+    exact: true,
+    exports: ["copyToClipboard","exportAllTasks","exportSingleTask","getDeveloperMode","getSavedLocationFilter","importAllTasks","importSingleTask","saveLocationFilter","setDeveloperMode"],
+  },{
     path: 'dc/components/card',
     async lazy() {
       ;
@@ -3536,7 +3640,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/components',
     exact: true,
-    exports: ["AllSidelineTasksList","AllSidelineTasksPopup","CircleProgress","CreateGoalModal","CreateMainlineTaskModal","DailyProgress","MainlineTaskCard","MoonPhase","ProgressBar","RandomTaskPicker","SidelineTaskCard","SidelineTaskGrid","SidelineTaskSection","StatCard","StatCardGrid","ThemedButton","TodayProgress"],
+    exports: ["AllSidelineTasksList","AllSidelineTasksPopup","CircleProgress","CreateGoalModal","CreateMainlineTaskModal","DailyProgress","DailyViewPopup","MainlineTaskCard","MoonPhase","ProgressBar","RandomTaskPicker","SidelineTaskCard","SidelineTaskGrid","SidelineTaskSection","StatCard","StatCardGrid","ThemedButton","TodayProgress"],
   },{
     path: 'dc/constants/colors',
     async lazy() {
@@ -3611,7 +3715,7 @@ const createRoutes: CreateRoutes = ({
     index: undefined,
     id: 'dc/utils/tagStorage',
     exact: true,
-    exports: ["TAG_COLORS","createTag","deleteTag","getAllTags","getNextTagColor","getTagById","loadTagsFromStorage","saveTagsToStorage","updateTag"],
+    exports: ["LOCATION_ICONS","MOOD_ICONS","NORMAL_ICONS","TAG_COLORS","cleanupTaskTagReferences","createTag","deleteTag","getAllTags","getDefaultIconForType","getIconsForType","getNextTagColor","getTagById","getTagsByType","getTaskNormalTagId","getTaskTags","getUsedLocationTags","loadTagsFromStorage","migrateAllTaskTags","migrateTaskTags","saveTagsToStorage","updateTag","updateTaskTags"],
   },{
     path: 'dc/constants',
     async lazy() {
@@ -3736,7 +3840,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/utils',
     exact: true,
-    exports: ["CycleCalculator","LAYOUT_CONSTANTS","TAG_COLORS","calculateCheckInProgress","calculateCheckInProgressV2","calculateChecklistProgress","calculateChecklistProgressV2","calculateCurrentCycleNumber","calculateGridColumns","calculateModalMaxHeight","calculateNumericProgress","calculateNumericProgressV2","calculateRemainingDays","calculateVisibleSidelineTasks","canOpenModalForEdit","canOpenModalForView","createTag","createTodayState","deleteTag","formatLargeNumber","formatNumber","getAllTags","getEffectiveMainlineType","getNextTagColor","getSafeAreaInsets","getScreenSize","getTagById","getTodayDateString","getTodayMustCompleteTaskIds","hasTodayBeenSet","hasTodaySetTasks","isMobileDevice","isSmallScreen","isTaskTodayMustComplete","isTodayCheckedIn","loadTagsFromStorage","loadTodayMustCompleteState","markModalShown","prefersReducedMotion","removeFromTodayMustComplete","saveTagsToStorage","saveTodayMustCompleteState","setTodayMustCompleteTasks","shouldShowTodayMustCompleteModal","skipTodayMustComplete","updateMainlineTaskProgress","updateTag"],
+    exports: ["CycleCalculator","LAYOUT_CONSTANTS","TAG_COLORS","calculateCheckInProgress","calculateCheckInProgressV2","calculateChecklistProgress","calculateChecklistProgressV2","calculateCurrentCycleNumber","calculateGridColumns","calculateModalMaxHeight","calculateNumericProgress","calculateNumericProgressV2","calculateRemainingDays","calculateVisibleSidelineTasks","canOpenModalForEdit","canOpenModalForView","copyToClipboard","createTag","createTodayState","deleteTag","exportAllTasks","exportSingleTask","formatLargeNumber","formatNumber","getAllTags","getDeveloperMode","getEffectiveMainlineType","getNextTagColor","getSafeAreaInsets","getSavedLocationFilter","getScreenSize","getTagById","getTodayDateString","getTodayMustCompleteTaskIds","hasTodayBeenSet","hasTodaySetTasks","importAllTasks","importSingleTask","isMobileDevice","isSmallScreen","isTaskTodayMustComplete","isTodayCheckedIn","loadTagsFromStorage","loadTodayMustCompleteState","markModalShown","prefersReducedMotion","removeFromTodayMustComplete","saveLocationFilter","saveTagsToStorage","saveTodayMustCompleteState","setDeveloperMode","setTodayMustCompleteTasks","shouldShowTodayMustCompleteModal","skipTodayMustComplete","updateMainlineTaskProgress","updateTag"],
   },{
     path: 'stock_self',
     async lazy() {

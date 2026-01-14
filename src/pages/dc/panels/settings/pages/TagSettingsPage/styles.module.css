@@ -1,0 +1,14 @@
+/* 标签设置页面样式 */
+.content {
+  padding: 0;
+}
+
+/* 隐藏 TagSettings 组件的头部 */
+.tagSettingsWrapper :global(.tag-settings-header) {
+  display: none;
+}
+
+/* 调整内容区域的样式 */
+.tagSettingsWrapper :global(.tag-settings) {
+  padding-top: 0;
+}

@@ -81,6 +81,13 @@ export {
   copyToClipboard
 } from './developerStorage';
 
-
-
-
+// 数据导入导出工具
+export {
+  exportData,
+  importData,
+  exportToClipboard,
+  getDataStats,
+  clearData,
+  DATA_TYPE_CONFIG,
+  type DataType
+} from './dataExportImport';

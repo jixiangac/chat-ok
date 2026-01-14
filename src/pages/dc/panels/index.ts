@@ -7,6 +7,7 @@ export type { HappyPanelRef } from './happy';
 
 // Settings Panel
 export { default as Settings } from './settings';
+export { default as UnifiedSettingsPanel } from './settings/UnifiedSettingsPanel';
 
 // Archive Panel
 export { default as ArchiveList } from './archive';
@@ -19,5 +20,3 @@ export type { MemorialPanelRef } from './memorial';
 // Normal Panel
 export { default as NormalPanel } from './normal';
 export type { NormalPanelRef } from './normal';
-
-

@@ -28,26 +28,35 @@ import * as dc_panels_detail_components_CheckInRecordPanel from '@/pages/dc/pane
 import * as dc_panels_detail_components_CycleSummaryDialog from '@/pages/dc/panels/detail/components/CycleSummaryDialog/index';
 import * as dc_panels_detail_components_HistoryRecordPanel from '@/pages/dc/panels/detail/components/HistoryRecordPanel/index';
 import * as dc_panels_memorial_components_BackgroundPicker from '@/pages/dc/panels/memorial/components/BackgroundPicker/index';
+import * as dc_panels_settings_components_SettingsListItem from '@/pages/dc/panels/settings/components/SettingsListItem/index';
+import * as dc_panels_settings_pages_TodayMustCompletePage from '@/pages/dc/panels/settings/pages/TodayMustCompletePage/index';
 import * as dc_panels_detail_components_CalendarViewPanel from '@/pages/dc/panels/detail/components/CalendarViewPanel/index';
 import * as dc_panels_detail_components_CheckInCyclePanel from '@/pages/dc/panels/detail/components/CheckInCyclePanel/index';
 import * as dc_panels_detail_components_CurrentCyclePanel from '@/pages/dc/panels/detail/components/CurrentCyclePanel/index';
 import * as dc_panels_detail_components_HistoryCyclePanel from '@/pages/dc/panels/detail/components/HistoryCyclePanel/index';
 import * as dc_panels_detail_components_NumericCyclePanel from '@/pages/dc/panels/detail/components/NumericCyclePanel/index';
+import * as dc_panels_settings_components_SettingsSection from '@/pages/dc/panels/settings/components/SettingsSection/index';
 import * as dc_panels_memorial_components_MemorialDetail from '@/pages/dc/panels/memorial/components/MemorialDetail/index';
 import * as dc_components_CreateMainlineTaskModal_steps from '@/pages/dc/components/CreateMainlineTaskModal/steps/index';
 import * as dc_panels_detail_components_ProgressSection from '@/pages/dc/panels/detail/components/ProgressSection/index';
 import * as dc_panels_detail_components_RecordDataModal from '@/pages/dc/panels/detail/components/RecordDataModal/index';
 import * as dc_panels_happy_components_TripSummaryModal from '@/pages/dc/panels/happy/components/TripSummaryModal/index';
+import * as dc_panels_settings_components_SubPageLayout from '@/pages/dc/panels/settings/components/SubPageLayout/index';
+import * as dc_panels_settings_pages_DataManagementPage from '@/pages/dc/panels/settings/pages/DataManagementPage/index';
 import * as dc_panels_happy_components_CreateTripModal from '@/pages/dc/panels/happy/components/CreateTripModal/index';
 import * as dc_panels_happy_components_GoalDetailModal from '@/pages/dc/panels/happy/components/GoalDetailModal/index';
 import * as dc_panels_happy_components_TripDetailModal from '@/pages/dc/panels/happy/components/TripDetailModal/index';
 import * as dc_panels_happy_components_VacationContent from '@/pages/dc/panels/happy/components/VacationContent/index';
 import * as dc_panels_memorial_components_MemorialCard from '@/pages/dc/panels/memorial/components/MemorialCard/index';
+import * as dc_panels_settings_pages_ThemeSettingsPage from '@/pages/dc/panels/settings/pages/ThemeSettingsPage/index';
 import * as dc_components_CreateMainlineTaskModal_constants from '@/pages/dc/components/CreateMainlineTaskModal/constants';
+import * as dc_panels_settings_pages_SettingsMainPage from '@/pages/dc/panels/settings/pages/SettingsMainPage/index';
 import * as dc_components_CreateGoalModal_components from '@/pages/dc/components/CreateGoalModal/components/index';
 import * as dc_panels_detail_components_CheckInModal from '@/pages/dc/panels/detail/components/CheckInModal/index';
 import * as dc_panels_memorial_components_IconPicker from '@/pages/dc/panels/memorial/components/IconPicker/index';
+import * as dc_panels_settings_pages_TagSettingsPage from '@/pages/dc/panels/settings/pages/TagSettingsPage/index';
 import * as dc_panels_happy_components_AddGoalModal from '@/pages/dc/panels/happy/components/AddGoalModal/index';
+import * as dc_panels_settings_UnifiedSettingsPanel from '@/pages/dc/panels/settings/UnifiedSettingsPanel/index';
 import * as dc_panels_detail_components_GoalHeader from '@/pages/dc/panels/detail/components/GoalHeader/index';
 import * as dc_panels_happy_components_TripList_TripCard from '@/pages/dc/panels/happy/components/TripList/TripCard';
 import * as dc_components_CreateMainlineTaskModal from '@/pages/dc/components/CreateMainlineTaskModal/index';
@@ -71,6 +80,7 @@ import * as dc_components_shared_ProgressBar from '@/pages/dc/components/shared/
 import * as dc_panels_memorial_hooks_useDateFormat from '@/pages/dc/panels/memorial/hooks/useDateFormat';
 import * as dc_panels_settings_ThemeSettings from '@/pages/dc/panels/settings/ThemeSettings/index';
 import * as dc_panels_memorial_hooks_useMemorials from '@/pages/dc/panels/memorial/hooks/useMemorials';
+import * as dc_panels_settings_hooks_usePageStack from '@/pages/dc/panels/settings/hooks/usePageStack';
 import * as dc_components_GroupDetailPopup from '@/pages/dc/components/GroupDetailPopup/index';
 import * as dc_components_RandomTaskPicker from '@/pages/dc/components/RandomTaskPicker/index';
 import * as dc_components_SidelineTaskGrid from '@/pages/dc/components/SidelineTaskGrid/index';
@@ -83,6 +93,7 @@ import * as dc_components_card_MainlineTaskCard from '@/pages/dc/components/card
 import * as dc_components_card_SidelineTaskCard from '@/pages/dc/components/card/SidelineTaskCard';
 import * as dc_components_shared_StatCard from '@/pages/dc/components/shared/StatCard/index';
 import * as dc_panels_memorial_components from '@/pages/dc/panels/memorial/components/index';
+import * as dc_panels_settings_components from '@/pages/dc/panels/settings/components/index';
 import * as dc_components_DailyViewPopup from '@/pages/dc/components/DailyViewPopup/index';
 import * as dc_panels_memorial_constants_icons from '@/pages/dc/panels/memorial/constants/icons';
 import * as dc_panels_memorial_constants from '@/pages/dc/panels/memorial/constants/index';
@@ -104,6 +115,8 @@ import * as dc_panels_happy_hooks_useGoals from '@/pages/dc/panels/happy/hooks/u
 import * as dc_panels_happy_hooks_useTrips from '@/pages/dc/panels/happy/hooks/useTrips';
 import * as dc_panels_memorial_hooks from '@/pages/dc/panels/memorial/hooks/index';
 import * as dc_panels_memorial_utils from '@/pages/dc/panels/memorial/utils/index';
+import * as dc_panels_settings_hooks from '@/pages/dc/panels/settings/hooks/index';
+import * as dc_panels_settings_pages from '@/pages/dc/panels/settings/pages/index';
 import * as dc_panels_settings_theme from '@/pages/dc/panels/settings/theme/index';
 import * as dc_components_GroupCard from '@/pages/dc/components/GroupCard/index';
 import * as dc_components_MoonPhase from '@/pages/dc/components/MoonPhase/index';
@@ -117,6 +130,7 @@ import * as dc_utils_progressCalculator from '@/pages/dc/utils/progressCalculato
 import * as dc_components_shared from '@/pages/dc/components/shared/index';
 import * as dc_contexts_UIStateContext from '@/pages/dc/contexts/UIStateContext';
 import * as dc_panels_memorial_storage from '@/pages/dc/panels/memorial/storage';
+import * as dc_utils_dataExportImport from '@/pages/dc/utils/dataExportImport';
 import * as dc_utils_developerStorage from '@/pages/dc/utils/developerStorage';
 import * as dc_components_card from '@/pages/dc/components/card/index';
 import * as dc_contexts_ThemeContext from '@/pages/dc/contexts/ThemeContext';
@@ -867,6 +881,56 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["BackgroundPicker","default"],
   },{
+    path: 'dc/panels/settings/components/SettingsListItem',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_settings_components_SettingsListItem,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/settings/components/SettingsListItem',
+          isLayout: false,
+          routeExports: dc_panels_settings_components_SettingsListItem,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/settings/components/SettingsListItem',
+          requestContext,
+          renderMode,
+          module: dc_panels_settings_components_SettingsListItem,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-settings-components-settingslistitem-index',
+    index: true,
+    id: 'dc/panels/settings/components/SettingsListItem',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/panels/settings/pages/TodayMustCompletePage',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_settings_pages_TodayMustCompletePage,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/settings/pages/TodayMustCompletePage',
+          isLayout: false,
+          routeExports: dc_panels_settings_pages_TodayMustCompletePage,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/settings/pages/TodayMustCompletePage',
+          requestContext,
+          renderMode,
+          module: dc_panels_settings_pages_TodayMustCompletePage,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-settings-pages-todaymustcompletepage-index',
+    index: true,
+    id: 'dc/panels/settings/pages/TodayMustCompletePage',
+    exact: true,
+    exports: [],
+  },{
     path: 'dc/panels/detail/components/CalendarViewPanel',
     async lazy() {
       ;
@@ -992,6 +1056,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["NumericCyclePanel","default"],
   },{
+    path: 'dc/panels/settings/components/SettingsSection',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_settings_components_SettingsSection,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/settings/components/SettingsSection',
+          isLayout: false,
+          routeExports: dc_panels_settings_components_SettingsSection,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/settings/components/SettingsSection',
+          requestContext,
+          renderMode,
+          module: dc_panels_settings_components_SettingsSection,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-settings-components-settingssection-index',
+    index: true,
+    id: 'dc/panels/settings/components/SettingsSection',
+    exact: true,
+    exports: ["default"],
+  },{
     path: 'dc/panels/memorial/components/MemorialDetail',
     async lazy() {
       ;
@@ -1114,6 +1203,56 @@ const createRoutes: CreateRoutes = ({
     componentName: 'dc-panels-happy-components-tripsummarymodal-index',
     index: true,
     id: 'dc/panels/happy/components/TripSummaryModal',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/panels/settings/components/SubPageLayout',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_settings_components_SubPageLayout,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/settings/components/SubPageLayout',
+          isLayout: false,
+          routeExports: dc_panels_settings_components_SubPageLayout,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/settings/components/SubPageLayout',
+          requestContext,
+          renderMode,
+          module: dc_panels_settings_components_SubPageLayout,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-settings-components-subpagelayout-index',
+    index: true,
+    id: 'dc/panels/settings/components/SubPageLayout',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/panels/settings/pages/DataManagementPage',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_settings_pages_DataManagementPage,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/settings/pages/DataManagementPage',
+          isLayout: false,
+          routeExports: dc_panels_settings_pages_DataManagementPage,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/settings/pages/DataManagementPage',
+          requestContext,
+          renderMode,
+          module: dc_panels_settings_pages_DataManagementPage,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-settings-pages-datamanagementpage-index',
+    index: true,
+    id: 'dc/panels/settings/pages/DataManagementPage',
     exact: true,
     exports: ["default"],
   },{
@@ -1242,6 +1381,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["MemorialCard","default"],
   },{
+    path: 'dc/panels/settings/pages/ThemeSettingsPage',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_settings_pages_ThemeSettingsPage,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/settings/pages/ThemeSettingsPage',
+          isLayout: false,
+          routeExports: dc_panels_settings_pages_ThemeSettingsPage,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/settings/pages/ThemeSettingsPage',
+          requestContext,
+          renderMode,
+          module: dc_panels_settings_pages_ThemeSettingsPage,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-settings-pages-themesettingspage-index',
+    index: true,
+    id: 'dc/panels/settings/pages/ThemeSettingsPage',
+    exact: true,
+    exports: ["default"],
+  },{
     path: 'dc/components/CreateMainlineTaskModal/constants',
     async lazy() {
       ;
@@ -1266,6 +1430,31 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/components/CreateMainlineTaskModal/constants',
     exact: true,
     exports: ["CHECK_IN_TYPE_OPTIONS","CYCLE_LENGTH_OPTIONS","DIRECTION_OPTIONS","TASK_TYPE_OPTIONS","TOTAL_DURATION_OPTIONS"],
+  },{
+    path: 'dc/panels/settings/pages/SettingsMainPage',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_settings_pages_SettingsMainPage,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/settings/pages/SettingsMainPage',
+          isLayout: false,
+          routeExports: dc_panels_settings_pages_SettingsMainPage,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/settings/pages/SettingsMainPage',
+          requestContext,
+          renderMode,
+          module: dc_panels_settings_pages_SettingsMainPage,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-settings-pages-settingsmainpage-index',
+    index: true,
+    id: 'dc/panels/settings/pages/SettingsMainPage',
+    exact: true,
+    exports: ["default"],
   },{
     path: 'dc/components/CreateGoalModal/components',
     async lazy() {
@@ -1342,6 +1531,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["IconPicker","default"],
   },{
+    path: 'dc/panels/settings/pages/TagSettingsPage',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_settings_pages_TagSettingsPage,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/settings/pages/TagSettingsPage',
+          isLayout: false,
+          routeExports: dc_panels_settings_pages_TagSettingsPage,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/settings/pages/TagSettingsPage',
+          requestContext,
+          renderMode,
+          module: dc_panels_settings_pages_TagSettingsPage,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-settings-pages-tagsettingspage-index',
+    index: true,
+    id: 'dc/panels/settings/pages/TagSettingsPage',
+    exact: true,
+    exports: ["default"],
+  },{
     path: 'dc/panels/happy/components/AddGoalModal',
     async lazy() {
       ;
@@ -1364,6 +1578,31 @@ const createRoutes: CreateRoutes = ({
     componentName: 'dc-panels-happy-components-addgoalmodal-index',
     index: true,
     id: 'dc/panels/happy/components/AddGoalModal',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/panels/settings/UnifiedSettingsPanel',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_settings_UnifiedSettingsPanel,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/settings/UnifiedSettingsPanel',
+          isLayout: false,
+          routeExports: dc_panels_settings_UnifiedSettingsPanel,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/settings/UnifiedSettingsPanel',
+          requestContext,
+          renderMode,
+          module: dc_panels_settings_UnifiedSettingsPanel,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-settings-unifiedsettingspanel-index',
+    index: true,
+    id: 'dc/panels/settings/UnifiedSettingsPanel',
     exact: true,
     exports: ["default"],
   },{
@@ -1942,6 +2181,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["useMemorials"],
   },{
+    path: 'dc/panels/settings/hooks/usePageStack',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_settings_hooks_usePageStack,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/settings/hooks/usePageStack',
+          isLayout: false,
+          routeExports: dc_panels_settings_hooks_usePageStack,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/settings/hooks/usePageStack',
+          requestContext,
+          renderMode,
+          module: dc_panels_settings_hooks_usePageStack,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-settings-hooks-usepagestack',
+    index: undefined,
+    id: 'dc/panels/settings/hooks/usePageStack',
+    exact: true,
+    exports: ["default","usePageStack"],
+  },{
     path: 'dc/components/GroupDetailPopup',
     async lazy() {
       ;
@@ -2241,6 +2505,31 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/panels/memorial/components',
     exact: true,
     exports: ["BackgroundPicker","CreateMemorialModal","IconPicker","MemorialCard","MemorialCardSkeleton","MemorialDetail","MemorialListSkeleton","VirtualMemorialList"],
+  },{
+    path: 'dc/panels/settings/components',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_settings_components,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/settings/components',
+          isLayout: false,
+          routeExports: dc_panels_settings_components,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/settings/components',
+          requestContext,
+          renderMode,
+          module: dc_panels_settings_components,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-settings-components-index',
+    index: true,
+    id: 'dc/panels/settings/components',
+    exact: true,
+    exports: ["SettingsListItem","SettingsSection","SubPageLayout"],
   },{
     path: 'dc/components/DailyViewPopup',
     async lazy() {
@@ -2767,6 +3056,56 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: [],
   },{
+    path: 'dc/panels/settings/hooks',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_settings_hooks,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/settings/hooks',
+          isLayout: false,
+          routeExports: dc_panels_settings_hooks,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/settings/hooks',
+          requestContext,
+          renderMode,
+          module: dc_panels_settings_hooks,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-settings-hooks-index',
+    index: true,
+    id: 'dc/panels/settings/hooks',
+    exact: true,
+    exports: ["usePageStack"],
+  },{
+    path: 'dc/panels/settings/pages',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_settings_pages,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/settings/pages',
+          isLayout: false,
+          routeExports: dc_panels_settings_pages,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/settings/pages',
+          requestContext,
+          renderMode,
+          module: dc_panels_settings_pages,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-settings-pages-index',
+    index: true,
+    id: 'dc/panels/settings/pages',
+    exact: true,
+    exports: ["DataManagementPage","SettingsMainPage","TagSettingsPage","ThemeSettingsPage"],
+  },{
     path: 'dc/panels/settings/theme',
     async lazy() {
       ;
@@ -3091,6 +3430,31 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/panels/memorial/storage',
     exact: true,
     exports: ["generateId","loadDateFormat","loadMemorials","saveDateFormat","saveMemorials"],
+  },{
+    path: 'dc/utils/dataExportImport',
+    async lazy() {
+      ;
+      return {
+        ...dc_utils_dataExportImport,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/utils/dataExportImport',
+          isLayout: false,
+          routeExports: dc_utils_dataExportImport,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/utils/dataExportImport',
+          requestContext,
+          renderMode,
+          module: dc_utils_dataExportImport,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-utils-dataexportimport',
+    index: undefined,
+    id: 'dc/utils/dataExportImport',
+    exact: true,
+    exports: ["DATA_TYPE_CONFIG","clearData","exportData","exportToClipboard","getDataStats","importData"],
   },{
     path: 'dc/utils/developerStorage',
     async lazy() {
@@ -3790,7 +4154,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/panels',
     exact: true,
-    exports: ["ArchiveList","GoalDetailModal","HappyPanel","MemorialPanel","NormalPanel","Settings"],
+    exports: ["ArchiveList","GoalDetailModal","HappyPanel","MemorialPanel","NormalPanel","Settings","UnifiedSettingsPanel"],
   },{
     path: 'dc/hooks',
     async lazy() {
@@ -3840,7 +4204,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/utils',
     exact: true,
-    exports: ["CycleCalculator","LAYOUT_CONSTANTS","TAG_COLORS","calculateCheckInProgress","calculateCheckInProgressV2","calculateChecklistProgress","calculateChecklistProgressV2","calculateCurrentCycleNumber","calculateGridColumns","calculateModalMaxHeight","calculateNumericProgress","calculateNumericProgressV2","calculateRemainingDays","calculateVisibleSidelineTasks","canOpenModalForEdit","canOpenModalForView","copyToClipboard","createTag","createTodayState","deleteTag","exportAllTasks","exportSingleTask","formatLargeNumber","formatNumber","getAllTags","getDeveloperMode","getEffectiveMainlineType","getNextTagColor","getSafeAreaInsets","getSavedLocationFilter","getScreenSize","getTagById","getTodayDateString","getTodayMustCompleteTaskIds","hasTodayBeenSet","hasTodaySetTasks","importAllTasks","importSingleTask","isMobileDevice","isSmallScreen","isTaskTodayMustComplete","isTodayCheckedIn","loadTagsFromStorage","loadTodayMustCompleteState","markModalShown","prefersReducedMotion","removeFromTodayMustComplete","saveLocationFilter","saveTagsToStorage","saveTodayMustCompleteState","setDeveloperMode","setTodayMustCompleteTasks","shouldShowTodayMustCompleteModal","skipTodayMustComplete","updateMainlineTaskProgress","updateTag"],
+    exports: ["CycleCalculator","DATA_TYPE_CONFIG","LAYOUT_CONSTANTS","TAG_COLORS","calculateCheckInProgress","calculateCheckInProgressV2","calculateChecklistProgress","calculateChecklistProgressV2","calculateCurrentCycleNumber","calculateGridColumns","calculateModalMaxHeight","calculateNumericProgress","calculateNumericProgressV2","calculateRemainingDays","calculateVisibleSidelineTasks","canOpenModalForEdit","canOpenModalForView","clearData","copyToClipboard","createTag","createTodayState","deleteTag","exportAllTasks","exportData","exportSingleTask","exportToClipboard","formatLargeNumber","formatNumber","getAllTags","getDataStats","getDeveloperMode","getEffectiveMainlineType","getNextTagColor","getSafeAreaInsets","getSavedLocationFilter","getScreenSize","getTagById","getTodayDateString","getTodayMustCompleteTaskIds","hasTodayBeenSet","hasTodaySetTasks","importAllTasks","importData","importSingleTask","isMobileDevice","isSmallScreen","isTaskTodayMustComplete","isTodayCheckedIn","loadTagsFromStorage","loadTodayMustCompleteState","markModalShown","prefersReducedMotion","removeFromTodayMustComplete","saveLocationFilter","saveTagsToStorage","saveTodayMustCompleteState","setDeveloperMode","setTodayMustCompleteTasks","shouldShowTodayMustCompleteModal","skipTodayMustComplete","updateMainlineTaskProgress","updateTag"],
   },{
     path: 'stock_self',
     async lazy() {

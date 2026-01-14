@@ -1,0 +1,123 @@
+/* 数据管理页面样式 */
+.container {
+  padding: 0 16px;
+}
+
+/* 数据项 */
+.dataItem {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dataInfo {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.dataIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: rgba(55, 53, 47, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgb(55, 53, 47);
+  flex-shrink: 0;
+}
+
+.dataText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.dataLabel {
+  font-size: 15px;
+  font-weight: 500;
+  color: rgb(55, 53, 47);
+}
+
+.dataDesc {
+  font-size: 12px;
+  color: rgba(55, 53, 47, 0.5);
+}
+
+.dataStats {
+  font-size: 11px;
+  color: rgba(55, 53, 47, 0.4);
+  margin-top: 2px;
+}
+
+/* 操作按钮 */
+.dataActions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.actionButton {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid rgba(55, 53, 47, 0.1);
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: rgba(55, 53, 47, 0.65);
+  transition: all 0.2s;
+}
+
+.actionButton:hover {
+  background: rgba(55, 53, 47, 0.04);
+  color: rgb(55, 53, 47);
+}
+
+.actionButton:active {
+  transform: scale(0.95);
+}
+
+/* 提示信息 */
+.tips {
+  margin-top: 24px;
+  padding: 16px;
+  background: rgba(55, 53, 47, 0.04);
+  border-radius: 12px;
+  font-size: 12px;
+  color: rgba(55, 53, 47, 0.5);
+}
+
+.tips p {
+  margin: 0 0 8px;
+  font-weight: 500;
+  color: rgba(55, 53, 47, 0.65);
+}
+
+.tips ul {
+  margin: 0;
+  padding-left: 16px;
+}
+
+.tips li {
+  margin-bottom: 4px;
+}
+
+.tips li:last-child {
+  margin-bottom: 0;
+}
+
+/* 导入弹窗 */
+.importDialog {
+  padding: 8px 0;
+}

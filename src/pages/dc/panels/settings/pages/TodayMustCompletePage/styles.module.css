@@ -1,0 +1,120 @@
+/* 今日毕任务子页面样式 */
+.container {
+  padding: 0 16px 16px;
+}
+
+/* 分组标签 */
+.sectionLabel {
+  font-size: 12px;
+  color: rgba(55, 53, 47, 0.5);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.selectedCount {
+  color: rgb(55, 53, 47);
+  font-weight: 500;
+}
+
+/* 任务网格 - 两列布局 */
+.taskGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+/* 任务卡片包装器 */
+.taskCardWrapper {
+  position: relative;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.taskCardWrapper:hover {
+  transform: translateY(-1px);
+}
+
+.taskCardWrapper.selected {
+  box-shadow: 0 0 0 2px rgb(55, 53, 47);
+  border-radius: 8px;
+}
+
+.taskCardWrapper.disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* 选中标识 */
+.selectedBadge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 20px;
+  height: 20px;
+  background: rgb(55, 53, 47);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 500;
+  z-index: 1;
+}
+
+/* 空状态 */
+.emptyState {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 24px;
+  color: rgba(55, 53, 47, 0.5);
+  font-size: 14px;
+}
+
+/* 底部按钮区域 */
+.footer {
+  margin-top: 24px;
+  display: flex;
+  gap: 12px;
+}
+
+.skipButton {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid rgba(55, 53, 47, 0.16);
+  background: white;
+  border-radius: 8px;
+  font-size: 14px;
+  color: rgba(55, 53, 47, 0.65);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.skipButton:hover {
+  background: rgba(55, 53, 47, 0.04);
+}
+
+.confirmButton {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  background: rgb(55, 53, 47);
+  border-radius: 8px;
+  font-size: 14px;
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.confirmButton:hover {
+  background: rgb(35, 33, 27);
+}
+
+.confirmButton:disabled {
+  background: rgba(55, 53, 47, 0.3);
+  cursor: not-allowed;
+}

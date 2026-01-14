@@ -295,6 +295,26 @@
     ]
   },
   {
+    "path": "dc/panels/settings/components/SettingsListItem",
+    "index": true,
+    "id": "dc/panels/settings/components/SettingsListItem",
+    "file": "dc/panels/settings/components/SettingsListItem/index.tsx",
+    "componentName": "dc-panels-settings-components-settingslistitem-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/panels/settings/pages/TodayMustCompletePage",
+    "index": true,
+    "id": "dc/panels/settings/pages/TodayMustCompletePage",
+    "file": "dc/panels/settings/pages/TodayMustCompletePage/index.tsx",
+    "componentName": "dc-panels-settings-pages-todaymustcompletepage-index",
+    "layout": false,
+    "exports": []
+  },
+  {
     "path": "dc/panels/detail/components/CalendarViewPanel",
     "index": true,
     "id": "dc/panels/detail/components/CalendarViewPanel",
@@ -347,6 +367,17 @@
     "layout": false,
     "exports": [
       "NumericCyclePanel",
+      "default"
+    ]
+  },
+  {
+    "path": "dc/panels/settings/components/SettingsSection",
+    "index": true,
+    "id": "dc/panels/settings/components/SettingsSection",
+    "file": "dc/panels/settings/components/SettingsSection/index.tsx",
+    "componentName": "dc-panels-settings-components-settingssection-index",
+    "layout": false,
+    "exports": [
       "default"
     ]
   },
@@ -409,6 +440,28 @@
     ]
   },
   {
+    "path": "dc/panels/settings/components/SubPageLayout",
+    "index": true,
+    "id": "dc/panels/settings/components/SubPageLayout",
+    "file": "dc/panels/settings/components/SubPageLayout/index.tsx",
+    "componentName": "dc-panels-settings-components-subpagelayout-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/panels/settings/pages/DataManagementPage",
+    "index": true,
+    "id": "dc/panels/settings/pages/DataManagementPage",
+    "file": "dc/panels/settings/pages/DataManagementPage/index.tsx",
+    "componentName": "dc-panels-settings-pages-datamanagementpage-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
     "path": "dc/panels/happy/components/CreateTripModal",
     "index": true,
     "id": "dc/panels/happy/components/CreateTripModal",
@@ -465,6 +518,17 @@
     ]
   },
   {
+    "path": "dc/panels/settings/pages/ThemeSettingsPage",
+    "index": true,
+    "id": "dc/panels/settings/pages/ThemeSettingsPage",
+    "file": "dc/panels/settings/pages/ThemeSettingsPage/index.tsx",
+    "componentName": "dc-panels-settings-pages-themesettingspage-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
     "path": "dc/components/CreateMainlineTaskModal/constants",
     "id": "dc/components/CreateMainlineTaskModal/constants",
     "file": "dc/components/CreateMainlineTaskModal/constants.ts",
@@ -476,6 +540,17 @@
       "DIRECTION_OPTIONS",
       "TASK_TYPE_OPTIONS",
       "TOTAL_DURATION_OPTIONS"
+    ]
+  },
+  {
+    "path": "dc/panels/settings/pages/SettingsMainPage",
+    "index": true,
+    "id": "dc/panels/settings/pages/SettingsMainPage",
+    "file": "dc/panels/settings/pages/SettingsMainPage/index.tsx",
+    "componentName": "dc-panels-settings-pages-settingsmainpage-index",
+    "layout": false,
+    "exports": [
+      "default"
     ]
   },
   {
@@ -523,11 +598,33 @@
     ]
   },
   {
+    "path": "dc/panels/settings/pages/TagSettingsPage",
+    "index": true,
+    "id": "dc/panels/settings/pages/TagSettingsPage",
+    "file": "dc/panels/settings/pages/TagSettingsPage/index.tsx",
+    "componentName": "dc-panels-settings-pages-tagsettingspage-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
     "path": "dc/panels/happy/components/AddGoalModal",
     "index": true,
     "id": "dc/panels/happy/components/AddGoalModal",
     "file": "dc/panels/happy/components/AddGoalModal/index.tsx",
     "componentName": "dc-panels-happy-components-addgoalmodal-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/panels/settings/UnifiedSettingsPanel",
+    "index": true,
+    "id": "dc/panels/settings/UnifiedSettingsPanel",
+    "file": "dc/panels/settings/UnifiedSettingsPanel/index.tsx",
+    "componentName": "dc-panels-settings-unifiedsettingspanel-index",
     "layout": false,
     "exports": [
       "default"
@@ -804,6 +901,17 @@
     ]
   },
   {
+    "path": "dc/panels/settings/hooks/usePageStack",
+    "id": "dc/panels/settings/hooks/usePageStack",
+    "file": "dc/panels/settings/hooks/usePageStack.ts",
+    "componentName": "dc-panels-settings-hooks-usepagestack",
+    "layout": false,
+    "exports": [
+      "default",
+      "usePageStack"
+    ]
+  },
+  {
     "path": "dc/components/GroupDetailPopup",
     "index": true,
     "id": "dc/components/GroupDetailPopup",
@@ -941,6 +1049,19 @@
       "MemorialDetail",
       "MemorialListSkeleton",
       "VirtualMemorialList"
+    ]
+  },
+  {
+    "path": "dc/panels/settings/components",
+    "index": true,
+    "id": "dc/panels/settings/components",
+    "file": "dc/panels/settings/components/index.ts",
+    "componentName": "dc-panels-settings-components-index",
+    "layout": false,
+    "exports": [
+      "SettingsListItem",
+      "SettingsSection",
+      "SubPageLayout"
     ]
   },
   {
@@ -1227,6 +1348,31 @@
     "exports": []
   },
   {
+    "path": "dc/panels/settings/hooks",
+    "index": true,
+    "id": "dc/panels/settings/hooks",
+    "file": "dc/panels/settings/hooks/index.ts",
+    "componentName": "dc-panels-settings-hooks-index",
+    "layout": false,
+    "exports": [
+      "usePageStack"
+    ]
+  },
+  {
+    "path": "dc/panels/settings/pages",
+    "index": true,
+    "id": "dc/panels/settings/pages",
+    "file": "dc/panels/settings/pages/index.ts",
+    "componentName": "dc-panels-settings-pages-index",
+    "layout": false,
+    "exports": [
+      "DataManagementPage",
+      "SettingsMainPage",
+      "TagSettingsPage",
+      "ThemeSettingsPage"
+    ]
+  },
+  {
     "path": "dc/panels/settings/theme",
     "index": true,
     "id": "dc/panels/settings/theme",
@@ -1394,6 +1540,21 @@
       "loadMemorials",
       "saveDateFormat",
       "saveMemorials"
+    ]
+  },
+  {
+    "path": "dc/utils/dataExportImport",
+    "id": "dc/utils/dataExportImport",
+    "file": "dc/utils/dataExportImport.ts",
+    "componentName": "dc-utils-dataexportimport",
+    "layout": false,
+    "exports": [
+      "DATA_TYPE_CONFIG",
+      "clearData",
+      "exportData",
+      "exportToClipboard",
+      "getDataStats",
+      "importData"
     ]
   },
   {
@@ -1825,7 +1986,8 @@
       "HappyPanel",
       "MemorialPanel",
       "NormalPanel",
-      "Settings"
+      "Settings",
+      "UnifiedSettingsPanel"
     ]
   },
   {
@@ -1859,6 +2021,7 @@
     "layout": false,
     "exports": [
       "CycleCalculator",
+      "DATA_TYPE_CONFIG",
       "LAYOUT_CONSTANTS",
       "TAG_COLORS",
       "calculateCheckInProgress",
@@ -1874,15 +2037,19 @@
       "calculateVisibleSidelineTasks",
       "canOpenModalForEdit",
       "canOpenModalForView",
+      "clearData",
       "copyToClipboard",
       "createTag",
       "createTodayState",
       "deleteTag",
       "exportAllTasks",
+      "exportData",
       "exportSingleTask",
+      "exportToClipboard",
       "formatLargeNumber",
       "formatNumber",
       "getAllTags",
+      "getDataStats",
       "getDeveloperMode",
       "getEffectiveMainlineType",
       "getNextTagColor",
@@ -1895,6 +2062,7 @@
       "hasTodayBeenSet",
       "hasTodaySetTasks",
       "importAllTasks",
+      "importData",
       "importSingleTask",
       "isMobileDevice",
       "isSmallScreen",

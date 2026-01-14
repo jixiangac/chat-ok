@@ -6,7 +6,7 @@ import { SafeArea } from 'antd-mobile';
 import MoonPhase from './components/MoonPhase';
 
 // Panels
-import { HappyPanel, ArchiveList, Settings, MemorialPanel, NormalPanel } from './panels';
+import { HappyPanel, ArchiveList, UnifiedSettingsPanel, MemorialPanel, NormalPanel } from './panels';
 import type { HappyPanelRef } from './panels';
 import type { MemorialPanelRef } from './panels';
 import type { NormalPanelRef } from './panels/normal';
@@ -172,14 +172,16 @@ function DCPageContent() {
         </div>
       )}
 
-      {/* 设置面板 */}
-      <Settings 
+      {/* 设置面板 - 今日毕任务在设置中作为子页面 */}
+      <UnifiedSettingsPanel 
         visible={showSettings}
         onClose={closeSettings}
-        onOpenTodayMustComplete={handleOpenTodayMustComplete}
+        sidelineTasks={sidelineTasks}
+        onConfirmTodayMustComplete={confirmSelection}
+        onSkipTodayMustComplete={skipSelection}
       />
 
-      {/* 今日必须完成弹窗 - 在顶层渲染，所有 TAB 都能显示 */}
+      {/* 今日必须完成弹窗 - 仅用于自动弹出场景 */}
       <TodayMustCompleteModal
         visible={showTodayMustCompleteModal}
         tasks={sidelineTasks}
@@ -206,10 +208,3 @@ export default function DCPage() {
     </ThemeProvider>
   );
 }
-
-
-
-
-
-
-

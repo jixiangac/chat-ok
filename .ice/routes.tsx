@@ -140,11 +140,13 @@ import * as dc_panels_memorial from '@/pages/dc/panels/memorial/index';
 import * as dc_panels_memorial_types from '@/pages/dc/panels/memorial/types';
 import * as dc_panels_settings from '@/pages/dc/panels/settings/index';
 import * as dc_utils_cycleCalculator from '@/pages/dc/utils/cycleCalculator';
+import * as dc_utils_dailyViewFilter from '@/pages/dc/utils/dailyViewFilter';
 import * as dc_constants_animations from '@/pages/dc/constants/animations';
 import * as dc_contexts_TaskContext from '@/pages/dc/contexts/TaskContext';
 import * as dc_hooks_useSpriteImage from '@/pages/dc/hooks/useSpriteImage';
 import * as dc_panels_archive from '@/pages/dc/panels/archive/index';
 import * as dc_panels_happy_storage from '@/pages/dc/panels/happy/storage';
+import * as dc_utils_dailyViewCache from '@/pages/dc/utils/dailyViewCache';
 import * as dc_panels_detail from '@/pages/dc/panels/detail/index';
 import * as dc_panels_detail_types from '@/pages/dc/panels/detail/types';
 import * as dc_panels_normal from '@/pages/dc/panels/normal/index';
@@ -3683,6 +3685,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["CycleCalculator"],
   },{
+    path: 'dc/utils/dailyViewFilter',
+    async lazy() {
+      ;
+      return {
+        ...dc_utils_dailyViewFilter,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/utils/dailyViewFilter',
+          isLayout: false,
+          routeExports: dc_utils_dailyViewFilter,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/utils/dailyViewFilter',
+          requestContext,
+          renderMode,
+          module: dc_utils_dailyViewFilter,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-utils-dailyviewfilter',
+    index: undefined,
+    id: 'dc/utils/dailyViewFilter',
+    exact: true,
+    exports: ["filterDailyViewTasks"],
+  },{
     path: 'dc/constants/animations',
     async lazy() {
       ;
@@ -3807,6 +3834,31 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/panels/happy/storage',
     exact: true,
     exports: ["addGoalToSchedule","calculateTripStats","completeGoal","createTrip","deleteGoal","deleteTrip","getTrip","loadTrips","loadVacationState","saveTrips","saveVacationState","updateGoal","updateTrip"],
+  },{
+    path: 'dc/utils/dailyViewCache',
+    async lazy() {
+      ;
+      return {
+        ...dc_utils_dailyViewCache,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/utils/dailyViewCache',
+          isLayout: false,
+          routeExports: dc_utils_dailyViewCache,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/utils/dailyViewCache',
+          requestContext,
+          renderMode,
+          module: dc_utils_dailyViewCache,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-utils-dailyviewcache',
+    index: undefined,
+    id: 'dc/utils/dailyViewCache',
+    exact: true,
+    exports: ["clearDailyViewCache","getCachedDailyTaskIds","saveDailyTaskIdsCache"],
   },{
     path: 'dc/panels/detail',
     async lazy() {
@@ -4256,7 +4308,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/utils',
     exact: true,
-    exports: ["CycleCalculator","DATA_TYPE_CONFIG","LAYOUT_CONSTANTS","TAG_COLORS","calculateCheckInProgress","calculateCheckInProgressV2","calculateChecklistProgress","calculateChecklistProgressV2","calculateCurrentCycleNumber","calculateGridColumns","calculateModalMaxHeight","calculateNumericProgress","calculateNumericProgressV2","calculateRemainingDays","calculateVisibleSidelineTasks","canOpenModalForEdit","canOpenModalForView","clearData","copyToClipboard","createTag","createTodayState","deleteTag","exportAllTasks","exportData","exportSingleTask","exportToClipboard","formatLargeNumber","formatNumber","getAllTags","getDataStats","getDeveloperMode","getEffectiveMainlineType","getNextTagColor","getSafeAreaInsets","getSavedLocationFilter","getScreenSize","getTagById","getTodayDateString","getTodayMustCompleteTaskIds","hasTodayBeenSet","hasTodaySetTasks","importAllTasks","importData","importSingleTask","isMobileDevice","isSmallScreen","isTaskTodayMustComplete","isTodayCheckedIn","loadTagsFromStorage","loadTodayMustCompleteState","markModalShown","prefersReducedMotion","removeFromTodayMustComplete","saveLocationFilter","saveTagsToStorage","saveTodayMustCompleteState","setDeveloperMode","setTodayMustCompleteTasks","shouldShowTodayMustCompleteModal","skipTodayMustComplete","updateMainlineTaskProgress","updateTag"],
+    exports: ["CycleCalculator","DATA_TYPE_CONFIG","LAYOUT_CONSTANTS","TAG_COLORS","calculateCheckInProgress","calculateCheckInProgressV2","calculateChecklistProgress","calculateChecklistProgressV2","calculateCurrentCycleNumber","calculateGridColumns","calculateModalMaxHeight","calculateNumericProgress","calculateNumericProgressV2","calculateRemainingDays","calculateVisibleSidelineTasks","canOpenModalForEdit","canOpenModalForView","clearDailyViewCache","clearData","copyToClipboard","createTag","createTodayState","deleteTag","exportAllTasks","exportData","exportSingleTask","exportToClipboard","filterDailyViewTasks","formatLargeNumber","formatNumber","getAllTags","getCachedDailyTaskIds","getDataStats","getDeveloperMode","getEffectiveMainlineType","getNextTagColor","getSafeAreaInsets","getSavedLocationFilter","getScreenSize","getTagById","getTodayDateString","getTodayMustCompleteTaskIds","hasTodayBeenSet","hasTodaySetTasks","importAllTasks","importData","importSingleTask","isMobileDevice","isSmallScreen","isTaskTodayMustComplete","isTodayCheckedIn","loadTagsFromStorage","loadTodayMustCompleteState","markModalShown","prefersReducedMotion","removeFromTodayMustComplete","saveDailyTaskIdsCache","saveLocationFilter","saveTagsToStorage","saveTodayMustCompleteState","setDeveloperMode","setTodayMustCompleteTasks","shouldShowTodayMustCompleteModal","skipTodayMustComplete","updateMainlineTaskProgress","updateTag"],
   },{
     path: 'stock_self',
     async lazy() {

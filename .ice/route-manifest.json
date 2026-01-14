@@ -1668,6 +1668,16 @@
     ]
   },
   {
+    "path": "dc/utils/dailyViewFilter",
+    "id": "dc/utils/dailyViewFilter",
+    "file": "dc/utils/dailyViewFilter.ts",
+    "componentName": "dc-utils-dailyviewfilter",
+    "layout": false,
+    "exports": [
+      "filterDailyViewTasks"
+    ]
+  },
+  {
     "path": "dc/constants/animations",
     "id": "dc/constants/animations",
     "file": "dc/constants/animations.ts",
@@ -1746,6 +1756,18 @@
       "saveVacationState",
       "updateGoal",
       "updateTrip"
+    ]
+  },
+  {
+    "path": "dc/utils/dailyViewCache",
+    "id": "dc/utils/dailyViewCache",
+    "file": "dc/utils/dailyViewCache.ts",
+    "componentName": "dc-utils-dailyviewcache",
+    "layout": false,
+    "exports": [
+      "clearDailyViewCache",
+      "getCachedDailyTaskIds",
+      "saveDailyTaskIdsCache"
     ]
   },
   {
@@ -2064,6 +2086,7 @@
       "calculateVisibleSidelineTasks",
       "canOpenModalForEdit",
       "canOpenModalForView",
+      "clearDailyViewCache",
       "clearData",
       "copyToClipboard",
       "createTag",
@@ -2073,9 +2096,11 @@
       "exportData",
       "exportSingleTask",
       "exportToClipboard",
+      "filterDailyViewTasks",
       "formatLargeNumber",
       "formatNumber",
       "getAllTags",
+      "getCachedDailyTaskIds",
       "getDataStats",
       "getDeveloperMode",
       "getEffectiveMainlineType",
@@ -2100,6 +2125,7 @@
       "markModalShown",
       "prefersReducedMotion",
       "removeFromTodayMustComplete",
+      "saveDailyTaskIdsCache",
       "saveLocationFilter",
       "saveTagsToStorage",
       "saveTodayMustCompleteState",

@@ -91,3 +91,16 @@ export {
   DATA_TYPE_CONFIG,
   type DataType
 } from './dataExportImport';
+
+// 一日清单筛选和缓存工具
+export {
+  filterDailyViewTasks
+} from './dailyViewFilter';
+
+export {
+  getCachedDailyTaskIds,
+  saveDailyTaskIdsCache,
+  clearDailyViewCache
+} from './dailyViewCache';
+
+

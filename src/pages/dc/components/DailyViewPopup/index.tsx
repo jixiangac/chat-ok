@@ -13,6 +13,7 @@ import dayjs from 'dayjs';
 import type { Task, TagType } from '../../types';
 import { getTagsByType, getTaskTags, getUsedLocationTags } from '../../utils/tagStorage';
 import { getTodayCheckInStatusForTask } from '../../panels/detail/hooks';
+import { filterDailyViewTasks, getCachedDailyTaskIds, saveDailyTaskIdsCache } from '../../utils';
 import styles from './styles.module.css';
 
 // 圆圈进度条组件（与支线卡片一致）
@@ -174,15 +175,37 @@ const DailyViewPopup: React.FC<DailyViewPopupProps> = ({
     return usedLocationTags.find(tag => tag.id === selectedLocationTagId);
   }, [selectedLocationTagId, usedLocationTags]);
 
-  // 筛选后的任务
+  // 筛选后的任务（使用新的智能筛选逻辑）
   const filteredTasks = useMemo(() => {
-    // 只显示打卡型任务
-    const checkInTasks = tasks.filter(task => task.mainlineType === 'CHECK_IN');
+    // 1. 尝试从缓存获取今日任务ID列表
+    // const cachedTaskIds = getCachedDailyTaskIds();
+    const cachedTaskIds: any = null;
     
-    if (!selectedLocationTagId) {
-      return checkInTasks;
+    let dailyTasks: Task[];
+
+    console.log(tasks, 'tasks')
+    
+    if (cachedTaskIds) {
+      // 使用缓存的任务ID列表
+      dailyTasks = tasks.filter(task => 
+        task.mainlineType === 'CHECK_IN' && cachedTaskIds.includes(task.id)
+      );
+    } else {
+      // 执行智能筛选逻辑
+      dailyTasks = filterDailyViewTasks(tasks);
+      
+      // 保存到缓存，确保全天结果一致
+      saveDailyTaskIdsCache(dailyTasks.map(t => t.id));
     }
-    return checkInTasks.filter(task => task.tags?.locationTagId === selectedLocationTagId);
+    
+    // 2. 应用地点筛选
+    if (!selectedLocationTagId) {
+      return dailyTasks;
+    }
+    
+    return dailyTasks.filter(task => 
+      task.tags?.locationTagId === selectedLocationTagId
+    );
   }, [tasks, selectedLocationTagId]);
 
   // 将任务分配到时段
@@ -448,8 +471,3 @@ const DailyViewPopup: React.FC<DailyViewPopupProps> = ({
 };
 
 export default DailyViewPopup;
-
-
-
-
-

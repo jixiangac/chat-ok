@@ -1,0 +1,171 @@
+/**
+ * 设置面板动画样式
+ * 包含页面切换、列表项翻书、卡片堆叠等动画
+ */
+
+/* ==================== 页面切换动画 ==================== */
+
+/* 设置面板入口动画 - 从右侧滑入 */
+.settingsPanel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(100%);
+  transition: transform 0.4s ease-out;
+  will-change: transform;
+  z-index: 1000;
+}
+
+.settingsPanel.visible {
+  transform: translateX(0);
+}
+
+.settingsPanel.exiting {
+  transform: translateX(100%);
+  transition: transform 0.4s ease-in;
+}
+
+/* ==================== 卡片堆叠效果 (Dimensional Layering) ==================== */
+
+.pageStack {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  perspective: 1000px;
+  overflow: hidden;
+}
+
+.pageLayer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #f7f7f5;
+  transition: transform 0.4s ease-out, box-shadow 0.4s ease-out, opacity 0.4s ease-out;
+  will-change: transform, box-shadow, opacity;
+}
+
+/* 背景页面 - 缩小并向左偏移 */
+.pageLayer.background {
+  transform: scale(0.95) translateX(-5%);
+  z-index: 1;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  pointer-events: none;
+}
+
+/* 进入中的页面 - 从右侧滑入 */
+.pageLayer.entering {
+  transform: translateX(100%);
+  z-index: 2;
+}
+
+/* 当前活动页面 */
+.pageLayer.active {
+  transform: translateX(0);
+  z-index: 2;
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+}
+
+/* 退出中的页面 - 向右滑出 */
+.pageLayer.exiting {
+  transform: translateX(100%);
+  transition: transform 0.4s ease-in;
+  z-index: 2;
+}
+
+/* ==================== 列表项翻书动画 ==================== */
+
+@keyframes flipIn {
+  0% {
+    opacity: 0;
+    transform: rotateX(-90deg);
+  }
+  60% {
+    opacity: 1;
+    transform: rotateX(10deg);
+  }
+  100% {
+    opacity: 1;
+    transform: rotateX(0deg);
+  }
+}
+
+.flipInItem {
+  opacity: 0;
+  transform: rotateX(-90deg);
+  transform-origin: top center;
+  animation: flipIn 0.4s ease-out forwards;
+}
+
+/* 交错动画延迟 - 最多 8 个 */
+.flipInItem:nth-child(1) { animation-delay: 0ms; }
+.flipInItem:nth-child(2) { animation-delay: 60ms; }
+.flipInItem:nth-child(3) { animation-delay: 120ms; }
+.flipInItem:nth-child(4) { animation-delay: 180ms; }
+.flipInItem:nth-child(5) { animation-delay: 240ms; }
+.flipInItem:nth-child(6) { animation-delay: 300ms; }
+.flipInItem:nth-child(7) { animation-delay: 360ms; }
+.flipInItem:nth-child(8) { animation-delay: 420ms; }
+
+/* 超过 8 个的项目使用固定延迟 */
+.flipInItem:nth-child(n+9) { animation-delay: 480ms; }
+
+/* ==================== 淡入动画 ==================== */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.fadeIn {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.fadeOut {
+  animation: fadeOut 0.3s ease-in forwards;
+}
+
+/* ==================== 无障碍支持 ==================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .settingsPanel,
+  .pageLayer,
+  .flipInItem {
+    animation: none !important;
+    transition: none !important;
+  }
+  
+  /* 保留必要的状态变化，但移除动画 */
+  .settingsPanel.visible {
+    transform: translateX(0);
+  }
+  
+  .pageLayer.active {
+    transform: translateX(0);
+  }
+  
+  .pageLayer.background {
+    transform: scale(0.95) translateX(-5%);
+  }
+  
+  .flipInItem {
+    opacity: 1;
+    transform: rotateX(0deg);
+  }
+}

@@ -16,6 +16,10 @@ import {
 } from '@/pages/dc/utils/dataExportImport';
 import styles from './styles.module.css';
 
+// 数据管理头图
+const DATA_HEADER_IMAGE = 'https://img.alicdn.com/imgextra/i4/O1CN01v4XwU51lD7taaUmq1_!!6000000004784-2-tps-1080-724.png';
+const DATA_HEADER_BACKGROUND = 'linear-gradient(135deg, #F0E6F6 0%, #E0D4EC 100%)';
+
 export interface DataManagementPageProps {
   /** 返回上一页 */
   onBack: () => void;
@@ -117,6 +121,8 @@ const DataManagementPage: React.FC<DataManagementPageProps> = ({
     <SubPageLayout
       title="数据管理"
       description="导入导出应用数据，用于备份或迁移"
+      headerImage={DATA_HEADER_IMAGE}
+      headerBackground={DATA_HEADER_BACKGROUND}
       onBack={onBack}
     >
       <div className={styles.container}>
@@ -202,3 +208,4 @@ const DataManagementPage: React.FC<DataManagementPageProps> = ({
 };
 
 export default DataManagementPage;
+

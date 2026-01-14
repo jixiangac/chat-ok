@@ -240,6 +240,17 @@
     ]
   },
   {
+    "path": "dc/panels/settings/components/BottomFixedButton",
+    "index": true,
+    "id": "dc/panels/settings/components/BottomFixedButton",
+    "file": "dc/panels/settings/components/BottomFixedButton/index.tsx",
+    "componentName": "dc-panels-settings-components-bottomfixedbutton-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
     "path": "dc/components/CreateMainlineTaskModal/steps/TypeStep",
     "id": "dc/components/CreateMainlineTaskModal/steps/TypeStep",
     "file": "dc/components/CreateMainlineTaskModal/steps/TypeStep.tsx",
@@ -312,7 +323,9 @@
     "file": "dc/panels/settings/pages/TodayMustCompletePage/index.tsx",
     "componentName": "dc-panels-settings-pages-todaymustcompletepage-index",
     "layout": false,
-    "exports": []
+    "exports": [
+      "default"
+    ]
   },
   {
     "path": "dc/panels/detail/components/CalendarViewPanel",
@@ -912,6 +925,17 @@
     ]
   },
   {
+    "path": "dc/panels/settings/hooks/useSwipeBack",
+    "id": "dc/panels/settings/hooks/useSwipeBack",
+    "file": "dc/panels/settings/hooks/useSwipeBack.ts",
+    "componentName": "dc-panels-settings-hooks-useswipeback",
+    "layout": false,
+    "exports": [
+      "default",
+      "useSwipeBack"
+    ]
+  },
+  {
     "path": "dc/components/GroupDetailPopup",
     "index": true,
     "id": "dc/components/GroupDetailPopup",
@@ -1059,6 +1083,7 @@
     "componentName": "dc-panels-settings-components-index",
     "layout": false,
     "exports": [
+      "BottomFixedButton",
       "SettingsListItem",
       "SettingsSection",
       "SubPageLayout"
@@ -1355,7 +1380,8 @@
     "componentName": "dc-panels-settings-hooks-index",
     "layout": false,
     "exports": [
-      "usePageStack"
+      "usePageStack",
+      "useSwipeBack"
     ]
   },
   {
@@ -1369,7 +1395,8 @@
       "DataManagementPage",
       "SettingsMainPage",
       "TagSettingsPage",
-      "ThemeSettingsPage"
+      "ThemeSettingsPage",
+      "TodayMustCompletePage"
     ]
   },
   {

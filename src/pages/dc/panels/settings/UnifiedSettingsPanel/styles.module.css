@@ -1,59 +1,170 @@
-/* 统一设置面板样式 */
-.overlay {
+/* 统一设置面板样式 - 整屏横移效果 */
+
+/* ==================== 面板容器 ==================== */
+.panel {
   position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  /* 背景透明，让滑动时可以看到后面的首页 */
+  background: transparent;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  /* 不需要 transform，因为我们只移动内部的页面层 */
+  /* 让点击事件穿透到后面的首页 */
+  pointer-events: none;
+}
+
+.panelVisible {
+  /* 面板可见时不需要特殊样式 */
+}
+
+.panelExiting {
+  /* 面板退出时不需要特殊样式 */
+}
+
+/* ==================== 页面栈容器 ==================== */
+.pageStack {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  perspective: 1000px;
+  pointer-events: none;
+}
+
+/* ==================== 页面层级 ==================== */
+.pageLayer {
+  position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  animation: fadeIn 0.2s ease-out;
-}
-
-.container {
   background: #f7f7f5;
-  width: 100%;
-  height: 100%;
-  max-width: 100%;
-  max-height: 100%;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  animation: slideUp 0.3s ease-out;
-  position: relative;
+  transition: transform 0.4s ease-out, box-shadow 0.4s ease-out, opacity 0.4s ease-out;
+  will-change: transform, box-shadow, opacity;
+  /* 初始状态在右侧 */
+  transform: translateX(100%);
+  /* 页面层可以接收点击事件 */
+  pointer-events: auto;
 }
 
-/* 桌面端样式 */
-@media (min-width: 768px) {
-  .container {
-    width: 420px;
-    height: 85vh;
-    max-height: 700px;
-    border-radius: 16px;
+/* 当前活动页面 */
+.pageLayerActive {
+  transform: translateX(0);
+  z-index: 2;
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+}
+
+/* 背景页面 - 缩小并向左偏移 */
+.pageLayerBackground {
+  transform: scale(0.95) translateX(-5%);
+  z-index: 1;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  pointer-events: none;
+}
+
+/* 进入中的页面 - 从右侧滑入 */
+.pageLayerEntering {
+  transform: translateX(100%);
+  z-index: 2;
+  animation: slideInFromRight 0.4s ease-out forwards;
+}
+
+/* 退出中的页面 - 向右滑出 */
+.pageLayerExiting {
+  z-index: 2;
+  animation: slideOutToRight 0.4s ease-in forwards;
+}
+
+/* 隐藏的页面 */
+.pageLayerHidden {
+  transform: scale(0.9) translateX(-10%);
+  z-index: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ==================== 动画关键帧 ==================== */
+@keyframes slideInFromRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
   }
 }
 
-/* 主页面头部 */
+@keyframes slideOutToRight {
+  from {
+    transform: translateX(0);
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+  }
+  to {
+    transform: translateX(100%);
+    box-shadow: none;
+  }
+}
+
+/* ==================== 主页面头部 ==================== */
 .header {
-  padding: 16px 20px;
-  background: white;
-  border-bottom: 1px solid rgba(55, 53, 47, 0.06);
+  padding: 12px 16px;
+  padding-top: calc(12px + env(safe-area-inset-top));
+  /* 透明背景，与页面背景一致 */
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-shrink: 0;
 }
 
-.title {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 600;
+/* 返回按钮 */
+.backButton {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
   color: rgb(55, 53, 47);
+  transition: all 0.2s;
+  margin-left: -8px;
 }
 
+.backButton:hover {
+  background: rgba(55, 53, 47, 0.06);
+}
+
+.backButton:active {
+  transform: scale(0.95);
+}
+
+/* 标题居中 */
+.title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  color: rgb(55, 53, 47);
+  flex: 1;
+  text-align: center;
+}
+
+/* 右侧占位，保持标题居中 */
+.headerSpacer {
+  width: 40px;
+  height: 40px;
+  margin-right: -8px;
+}
+
+/* 旧版关闭按钮（保留兼容） */
 .closeButton {
   width: 32px;
   height: 32px;
@@ -77,7 +188,7 @@
   transform: scale(0.95);
 }
 
-/* 内容区域 */
+/* ==================== 内容区域 ==================== */
 .content {
   flex: 1;
   overflow-y: auto;
@@ -85,23 +196,51 @@
   position: relative;
 }
 
-/* 动画 */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
+/* ==================== 无障碍支持 ==================== */
+@media (prefers-reduced-motion: reduce) {
+  .pageLayer {
+    animation: none !important;
+    transition: none !important;
   }
-  to {
-    opacity: 1;
+  
+  .pageLayerActive {
+    transform: translateX(0);
+  }
+  
+  .pageLayerBackground {
+    transform: scale(0.95) translateX(-5%);
+  }
+  
+  .pageLayerEntering {
+    transform: translateX(0);
+  }
+  
+  .pageLayerExiting {
+    transform: translateX(100%);
   }
 }
 
-@keyframes slideUp {
-  from {
-    transform: translateY(20px);
-    opacity: 0;
+/* ==================== 桌面端样式 ==================== */
+@media (min-width: 768px) {
+  .panel {
+    /* 桌面端添加半透明遮罩 */
+    background: rgba(0, 0, 0, 0.3);
   }
-  to {
-    transform: translateY(0);
-    opacity: 1;
+  
+  .pageStack {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 420px;
+    height: 85vh;
+    max-height: 700px;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  }
+  
+  .pageLayer {
+    border-radius: 16px;
   }
 }

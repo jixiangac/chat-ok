@@ -58,12 +58,23 @@
 
 /* 禁用样式 */
 .disabled {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: not-allowed;
+  pointer-events: none;
 }
 
 .disabled:hover {
   background: white;
+}
+
+.disabled .icon {
+  background: rgba(55, 53, 47, 0.04);
+  color: rgba(55, 53, 47, 0.4);
+}
+
+.disabled .title,
+.disabled .description {
+  color: rgba(55, 53, 47, 0.4);
 }
 
 .disabled:active {
@@ -129,3 +140,35 @@
 .arrow {
   color: rgba(55, 53, 47, 0.3);
 }
+
+/* ==================== 翻书动画 ==================== */
+
+@keyframes flipIn {
+  0% {
+    opacity: 0;
+    transform: rotateX(-90deg);
+  }
+  60% {
+    opacity: 1;
+    transform: rotateX(10deg);
+  }
+  100% {
+    opacity: 1;
+    transform: rotateX(0deg);
+  }
+}
+
+.animated {
+  animation: flipIn 0.4s ease-out forwards;
+}
+
+/* 无障碍支持 - 减少动画 */
+@media (prefers-reduced-motion: reduce) {
+  .animated {
+    animation: none;
+    opacity: 1;
+    transform: rotateX(0deg);
+  }
+}
+
+

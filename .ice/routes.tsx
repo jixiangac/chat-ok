@@ -23,6 +23,7 @@ import * as dc_components_CreateGoalModal_components_WarningAlert from '@/pages/
 import * as dc_components_CreateMainlineTaskModal_steps_CycleStep from '@/pages/dc/components/CreateMainlineTaskModal/steps/CycleStep';
 import * as dc_panels_detail_components_CheckInHistoryPanel from '@/pages/dc/panels/detail/components/CheckInHistoryPanel/index';
 import * as dc_panels_detail_components_ChecklistCyclePanel from '@/pages/dc/panels/detail/components/ChecklistCyclePanel/index';
+import * as dc_panels_settings_components_BottomFixedButton from '@/pages/dc/panels/settings/components/BottomFixedButton/index';
 import * as dc_components_CreateMainlineTaskModal_steps_TypeStep from '@/pages/dc/components/CreateMainlineTaskModal/steps/TypeStep';
 import * as dc_panels_detail_components_CheckInRecordPanel from '@/pages/dc/panels/detail/components/CheckInRecordPanel/index';
 import * as dc_panels_detail_components_CycleSummaryDialog from '@/pages/dc/panels/detail/components/CycleSummaryDialog/index';
@@ -81,6 +82,7 @@ import * as dc_panels_memorial_hooks_useDateFormat from '@/pages/dc/panels/memor
 import * as dc_panels_settings_ThemeSettings from '@/pages/dc/panels/settings/ThemeSettings/index';
 import * as dc_panels_memorial_hooks_useMemorials from '@/pages/dc/panels/memorial/hooks/useMemorials';
 import * as dc_panels_settings_hooks_usePageStack from '@/pages/dc/panels/settings/hooks/usePageStack';
+import * as dc_panels_settings_hooks_useSwipeBack from '@/pages/dc/panels/settings/hooks/useSwipeBack';
 import * as dc_components_GroupDetailPopup from '@/pages/dc/components/GroupDetailPopup/index';
 import * as dc_components_RandomTaskPicker from '@/pages/dc/components/RandomTaskPicker/index';
 import * as dc_components_SidelineTaskGrid from '@/pages/dc/components/SidelineTaskGrid/index';
@@ -756,6 +758,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["default"],
   },{
+    path: 'dc/panels/settings/components/BottomFixedButton',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_settings_components_BottomFixedButton,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/settings/components/BottomFixedButton',
+          isLayout: false,
+          routeExports: dc_panels_settings_components_BottomFixedButton,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/settings/components/BottomFixedButton',
+          requestContext,
+          renderMode,
+          module: dc_panels_settings_components_BottomFixedButton,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-settings-components-bottomfixedbutton-index',
+    index: true,
+    id: 'dc/panels/settings/components/BottomFixedButton',
+    exact: true,
+    exports: ["default"],
+  },{
     path: 'dc/components/CreateMainlineTaskModal/steps/TypeStep',
     async lazy() {
       ;
@@ -929,7 +956,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/panels/settings/pages/TodayMustCompletePage',
     exact: true,
-    exports: [],
+    exports: ["default"],
   },{
     path: 'dc/panels/detail/components/CalendarViewPanel',
     async lazy() {
@@ -2206,6 +2233,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["default","usePageStack"],
   },{
+    path: 'dc/panels/settings/hooks/useSwipeBack',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_settings_hooks_useSwipeBack,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/settings/hooks/useSwipeBack',
+          isLayout: false,
+          routeExports: dc_panels_settings_hooks_useSwipeBack,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/settings/hooks/useSwipeBack',
+          requestContext,
+          renderMode,
+          module: dc_panels_settings_hooks_useSwipeBack,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-settings-hooks-useswipeback',
+    index: undefined,
+    id: 'dc/panels/settings/hooks/useSwipeBack',
+    exact: true,
+    exports: ["default","useSwipeBack"],
+  },{
     path: 'dc/components/GroupDetailPopup',
     async lazy() {
       ;
@@ -2529,7 +2581,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/panels/settings/components',
     exact: true,
-    exports: ["SettingsListItem","SettingsSection","SubPageLayout"],
+    exports: ["BottomFixedButton","SettingsListItem","SettingsSection","SubPageLayout"],
   },{
     path: 'dc/components/DailyViewPopup',
     async lazy() {
@@ -3079,7 +3131,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/panels/settings/hooks',
     exact: true,
-    exports: ["usePageStack"],
+    exports: ["usePageStack","useSwipeBack"],
   },{
     path: 'dc/panels/settings/pages',
     async lazy() {
@@ -3104,7 +3156,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/panels/settings/pages',
     exact: true,
-    exports: ["DataManagementPage","SettingsMainPage","TagSettingsPage","ThemeSettingsPage"],
+    exports: ["DataManagementPage","SettingsMainPage","TagSettingsPage","ThemeSettingsPage","TodayMustCompletePage"],
   },{
     path: 'dc/panels/settings/theme',
     async lazy() {

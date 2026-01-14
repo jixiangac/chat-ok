@@ -22,6 +22,10 @@ export interface SettingsListItemProps {
   rightContent?: React.ReactNode;
   /** 是否显示箭头 */
   showArrow?: boolean;
+  /** 是否启用翻书动画 */
+  animated?: boolean;
+  /** 动画延迟索引（用于交错动画） */
+  animationIndex?: number;
   /** 点击事件 */
   onClick?: () => void;
 }
@@ -34,6 +38,8 @@ const SettingsListItem: React.FC<SettingsListItemProps> = ({
   disabled = false,
   rightContent,
   showArrow = true,
+  animated = false,
+  animationIndex = 0,
   onClick,
 }) => {
   const handleClick = () => {
@@ -42,9 +48,18 @@ const SettingsListItem: React.FC<SettingsListItemProps> = ({
     }
   };
 
+  // 计算动画延迟
+  const animationDelay = animated ? `${animationIndex * 60}ms` : undefined;
+
   return (
     <div
-      className={`${styles.listItem} ${highlight ? styles.highlight : ''} ${disabled ? styles.disabled : ''}`}
+      className={`${styles.listItem} ${highlight ? styles.highlight : ''} ${disabled ? styles.disabled : ''} ${animated ? styles.animated : ''}`}
+      style={animated ? { 
+        animationDelay,
+        opacity: 0,
+        transform: 'rotateX(-90deg)',
+        transformOrigin: 'top center',
+      } : undefined}
       onClick={handleClick}
     >
       <div className={styles.leftContent}>
@@ -65,3 +80,4 @@ const SettingsListItem: React.FC<SettingsListItemProps> = ({
 };
 
 export default SettingsListItem;
+

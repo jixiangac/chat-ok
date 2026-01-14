@@ -6,3 +6,7 @@ export type { SettingsSectionProps } from './SettingsSection';
 
 export { default as SubPageLayout } from './SubPageLayout';
 export type { SubPageLayoutProps } from './SubPageLayout';
+
+export { default as BottomFixedButton } from './BottomFixedButton';
+export type { BottomFixedButtonProps } from './BottomFixedButton';
+

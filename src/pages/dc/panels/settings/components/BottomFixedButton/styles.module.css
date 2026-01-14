@@ -1,0 +1,60 @@
+/* 底部固定按钮样式 */
+.container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 16px;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom));
+  background: linear-gradient(to top, #f7f7f5 80%, transparent);
+  z-index: 10;
+}
+
+.button {
+  width: 100%;
+  height: 48px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.button:hover {
+  opacity: 0.9;
+}
+
+.button:active {
+  transform: scale(0.98);
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.button:disabled:active {
+  transform: none;
+}
+
+/* 主要按钮样式 */
+.primary {
+  background: var(--theme-primary, #B9C9B9);
+  color: white;
+}
+
+/* 默认按钮样式 */
+.default {
+  background: white;
+  color: rgb(55, 53, 47);
+  border: 1px solid rgba(55, 53, 47, 0.1);
+}
+
+.default:hover {
+  background: rgba(55, 53, 47, 0.04);
+}

@@ -1,6 +1,18 @@
 /* 标签设置页面样式 */
 .content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   padding: 0;
+}
+
+/* 标签设置包装器 - 占满整个内容区域 */
+.tagSettingsWrapper {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 /* 隐藏 TagSettings 组件的头部 */
@@ -8,7 +20,23 @@
   display: none;
 }
 
-/* 调整内容区域的样式 */
+/* 调整 TagSettings 组件样式 */
 .tagSettingsWrapper :global(.tag-settings) {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   padding-top: 0;
+}
+
+/* 确保列表容器可以滚动 */
+.tagSettingsWrapper :global(.tag-settings-list-container) {
+  flex: 1;
+  overflow: hidden;
+}
+
+/* 确保列表可以滚动 */
+.tagSettingsWrapper :global(.tag-settings-list) {
+  height: 100%;
+  overflow-y: auto;
 }

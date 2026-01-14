@@ -1,8 +1,77 @@
+/* 主题设置页面样式 - 扁平简约风格 */
+
 .theme-settings {
   display: flex;
   flex-direction: column;
 }
 
+/* 有底部固定按钮时的容器 */
+.theme-settings-with-bottom {
+  padding-bottom: 100px;
+}
+
+/* ==================== 主题颜色网格选择 ==================== */
+.theme-color-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  padding: 20px;
+}
+
+.theme-color-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 8px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  background: transparent;
+  border: 1px solid transparent;
+}
+
+.theme-color-card:hover {
+  background: rgba(55, 53, 47, 0.04);
+}
+
+.theme-color-card.selected {
+  background: rgba(55, 53, 47, 0.06);
+  border-color: rgba(55, 53, 47, 0.1);
+}
+
+.theme-color-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease;
+  /* 扁平设计：无阴影 */
+}
+
+.theme-color-card:hover .theme-color-circle {
+  transform: scale(1.05);
+}
+
+.theme-color-card.selected .theme-color-circle {
+  transform: scale(1.08);
+}
+
+.theme-color-name {
+  font-size: 12px;
+  color: rgba(55, 53, 47, 0.65);
+  text-align: center;
+  white-space: nowrap;
+}
+
+.theme-color-card.selected .theme-color-name {
+  color: rgb(55, 53, 47);
+  font-weight: 500;
+}
+
+/* ==================== 旧版列表样式（保留兼容） ==================== */
 .theme-list {
   padding: 0;
 }
@@ -34,7 +103,7 @@
   width: 24px;
   height: 24px;
   border-radius: 6px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .theme-name {
@@ -42,21 +111,30 @@
   color: #333;
 }
 
+/* ==================== 预览区域 ==================== */
 .theme-preview-section {
   padding: 20px;
-  border-top: 1px solid #f0f0f0;
-  margin-top: 8px;
+  border-top: 1px solid rgba(55, 53, 47, 0.06);
 }
 
 .theme-preview-label {
   margin: 0 0 12px;
   font-size: 13px;
-  color: #999;
+  color: rgba(55, 53, 47, 0.5);
+}
+
+.theme-preview-card {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid rgba(55, 53, 47, 0.08);
+  /* 扁平设计：无阴影 */
 }
 
 .theme-preview-buttons {
   display: flex;
   gap: 12px;
+  margin-bottom: 12px;
 }
 
 .theme-preview-btn {
@@ -65,11 +143,11 @@
   border-radius: 8px;
   font-size: 14px;
   cursor: pointer;
-  transition: opacity 0.2s;
+  transition: opacity 0.15s ease;
 }
 
 .theme-preview-btn:hover {
-  opacity: 0.9;
+  opacity: 0.85;
 }
 
 .theme-preview-btn.primary {
@@ -80,4 +158,63 @@
 .theme-preview-btn.outline {
   background-color: transparent;
   border: 1px solid;
+}
+
+.theme-preview-accent {
+  height: 4px;
+  border-radius: 2px;
+  opacity: 0.6;
+}
+
+.theme-preview-hint {
+  margin: 12px 0 0;
+  font-size: 12px;
+  color: rgba(55, 53, 47, 0.5);
+  text-align: center;
+}
+
+/* ==================== 底部固定保存按钮 ==================== */
+.theme-settings-bottom-fixed {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 16px;
+  background: linear-gradient(to top, #f7f7f5 80%, transparent);
+  z-index: 10;
+}
+
+.theme-settings-save-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 14px;
+  border: none;
+  /* 固定颜色，不随主题变化 */
+  background: #ccc;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #fff;
+  cursor: not-allowed;
+  transition: background-color 0.2s ease;
+}
+
+.theme-settings-save-btn.active {
+  /* 激活状态使用固定的深色 */
+  background: rgb(55, 53, 47);
+  cursor: pointer;
+}
+
+.theme-settings-save-btn.active:hover {
+  background: rgb(35, 33, 27);
+}
+
+.theme-settings-save-btn.active:active {
+  transform: scale(0.98);
+}
+
+.theme-settings-save-btn:disabled {
+  opacity: 0.6;
 }

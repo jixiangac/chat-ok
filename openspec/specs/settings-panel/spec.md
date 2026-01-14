@@ -213,3 +213,90 @@ TBD - created by archiving change unified-settings-panel. Update Purpose after a
 - **AND** 文字和图标应当保持清晰
 - **AND** 间距应当按比例缩放
 
+### Requirement: 设置面板入口动画
+设置面板 SHALL 使用整屏横移效果打开和关闭，提供流畅的页面切换体验。
+
+#### Scenario: 打开设置面板动画
+- **WHEN** 用户点击设置图标打开设置面板
+- **THEN** 面板应当从右侧滑入
+- **AND** 动画时长应当为 400ms
+- **AND** 使用 ease-out 缓动函数
+
+#### Scenario: 关闭设置面板动画
+- **WHEN** 用户关闭设置面板
+- **THEN** 面板应当向右侧滑出
+- **AND** 动画时长应当为 400ms
+- **AND** 使用 ease-in 缓动函数
+
+### Requirement: 子页面切换动画
+子页面切换 SHALL 实现 iOS 风格的卡片堆叠效果（Dimensional Layering）。
+
+#### Scenario: 进入子页面动画
+- **WHEN** 用户点击列表项进入子页面
+- **THEN** 当前页面应当缩小到 95% 并向左偏移 5%
+- **AND** 新页面应当从右侧滑入
+- **AND** 使用 z-index 管理页面层级
+- **AND** 添加阴影提升层次感
+
+#### Scenario: 返回上一页动画
+- **WHEN** 用户点击返回按钮
+- **THEN** 当前页面应当向右滑出
+- **AND** 背景页面应当恢复到 100% 并回到原位
+- **AND** 动画应当流畅过渡
+
+### Requirement: 设置列表项入场动画
+设置列表项 SHALL 使用翻书效果入场，提供生动的视觉体验。
+
+#### Scenario: 列表项翻书动画
+- **WHEN** 设置主页面加载完成
+- **THEN** 列表项应当使用 flipIn 动画入场
+- **AND** 动画应当从 rotateX(-90deg) 过渡到 rotateX(0deg)
+- **AND** 使用交错动画，每项延迟 60ms
+- **AND** 最多同时动画 5 个列表项
+
+### Requirement: 手势返回支持
+系统 SHALL 支持向右滑动手势返回上一页。
+
+#### Scenario: 手势返回触发
+- **WHEN** 用户在子页面从左边缘（< 50px）向右滑动
+- **AND** 滑动距离超过阈值（100px）
+- **THEN** 系统应当触发返回操作
+- **AND** 显示返回动画
+
+#### Scenario: 手势返回取消
+- **WHEN** 用户滑动距离未超过阈值
+- **THEN** 页面应当回弹到原位
+- **AND** 不触发返回操作
+
+### Requirement: 标签设置底部操作
+标签设置页面 SHALL 将新增按钮固定在底部，使用弹窗方式创建标签。
+
+#### Scenario: 显示底部新增按钮
+- **WHEN** 标签设置页面加载
+- **THEN** 底部应当显示固定的"新增标签"按钮
+- **AND** 按钮应当考虑安全区域（Safe Area）
+
+#### Scenario: 点击新增按钮
+- **WHEN** 用户点击"新增标签"按钮
+- **THEN** 应当从底部弹出创建表单
+- **AND** 使用 Popup 组件显示
+
+### Requirement: 主题设置保存机制
+主题设置 SHALL 支持预览模式，修改后需点击保存才生效。
+
+#### Scenario: 主题预览
+- **WHEN** 用户选择不同的主题
+- **THEN** 应当立即显示预览效果
+- **AND** 不影响全局主题设置
+
+#### Scenario: 保存主题
+- **WHEN** 用户点击底部"保存"按钮
+- **THEN** 应当将预览的主题应用到全局
+- **AND** 关闭设置页面
+
+#### Scenario: 放弃修改
+- **WHEN** 用户点击返回按钮
+- **THEN** 应当放弃未保存的修改
+- **AND** 恢复原有主题
+
+

@@ -8,6 +8,10 @@ import { SubPageLayout } from '../../components';
 import TagSettings from '../../TagSettings';
 import styles from './styles.module.css';
 
+// 标签管理头图
+const TAG_HEADER_IMAGE = 'https://img.alicdn.com/imgextra/i1/O1CN01lmaP8j1hurFaAFYDn_!!6000000004338-2-tps-1080-960.png';
+const TAG_HEADER_BACKGROUND = 'linear-gradient(135deg, #FDF6E3 0%, #F5E6D3 100%)';
+
 export interface TagSettingsPageProps {
   /** 返回上一页 */
   onBack: () => void;
@@ -23,6 +27,8 @@ const TagSettingsPage: React.FC<TagSettingsPageProps> = ({
     <SubPageLayout
       title="标签管理"
       description="管理任务的标签分类"
+      headerImage={TAG_HEADER_IMAGE}
+      headerBackground={TAG_HEADER_BACKGROUND}
       onBack={onBack}
     >
       <div className={styles.content}>
@@ -47,3 +53,4 @@ const TagSettingsContent: React.FC<{ onTagDeleted?: (tagId: string) => void }> =
 };
 
 export default TagSettingsPage;
+

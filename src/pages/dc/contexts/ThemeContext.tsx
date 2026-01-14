@@ -74,6 +74,13 @@ const saveThemeToStorage = (theme: ThemeKey) => {
   }
 };
 
+// 应用主题 CSS 变量到 document
+const applyThemeCSSVariables = (theme: ThemeKey) => {
+  const colors = themePresets[theme];
+  document.documentElement.style.setProperty('--theme-primary', colors.primary);
+  document.documentElement.style.setProperty('--theme-primary-hover', colors.primaryHover);
+};
+
 interface ThemeProviderProps {
   children: ReactNode;
 }
@@ -85,11 +92,13 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   useEffect(() => {
     const loadedTheme = loadThemeFromStorage();
     setCurrentTheme(loadedTheme);
+    applyThemeCSSVariables(loadedTheme);
   }, []);
 
   const setTheme = useCallback((theme: ThemeKey) => {
     setCurrentTheme(theme);
     saveThemeToStorage(theme);
+    applyThemeCSSVariables(theme);
   }, []);
 
   const value: ThemeContextValue = {

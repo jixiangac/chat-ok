@@ -17,6 +17,8 @@ export interface SubPageLayoutProps {
   description?: string;
   /** 头图 URL */
   headerImage?: string;
+  /** 头图背景色（渐变） */
+  headerBackground?: string;
   /** 返回按钮点击事件 */
   onBack: () => void;
   /** 子元素 */
@@ -29,6 +31,7 @@ const SubPageLayout: React.FC<SubPageLayoutProps> = ({
   title,
   description,
   headerImage = DEFAULT_HEADER_IMAGE,
+  headerBackground,
   onBack,
   children,
   rightAction,
@@ -36,7 +39,7 @@ const SubPageLayout: React.FC<SubPageLayoutProps> = ({
   return (
     <div className={styles.container}>
       {/* 头图区域 */}
-      <div className={styles.headerImage}>
+      <div className={styles.headerImage} style={headerBackground ? { background: headerBackground } : undefined}>
         <button className={styles.backButton} onClick={onBack}>
           <ChevronLeft size={24} />
         </button>
@@ -65,3 +68,4 @@ const SubPageLayout: React.FC<SubPageLayoutProps> = ({
 };
 
 export default SubPageLayout;
+

@@ -1,13 +1,14 @@
 /**
  * 统一设置面板组件
  * 整合页面栈管理和所有设置子页面
+ * 支持整屏横移动画和手势返回
  */
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { X } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react';
 import { SafeArea } from 'antd-mobile';
-import { usePageStack } from '../hooks';
+import { usePageStack, useSwipeBack } from '../hooks';
 import {
   SettingsMainPage,
   ThemeSettingsPage,
@@ -17,6 +18,7 @@ import {
 } from '../pages';
 import type { Task } from '@/pages/dc/types';
 import styles from './styles.module.css';
+import '../animations/index.css';
 
 export interface UnifiedSettingsPanelProps {
   /** 是否可见 */
@@ -44,32 +46,79 @@ const UnifiedSettingsPanel: React.FC<UnifiedSettingsPanelProps> = ({
   onTagDeleted,
   onDataChanged,
 }) => {
-  const { currentPage, push, pop, canGoBack, reset } = usePageStack();
+  const { currentPage, stack, push, pop, canGoBack, reset } = usePageStack();
   const containerRef = useRef<HTMLDivElement>(null);
+  
+  // 面板动画状态
+  const [isExiting, setIsExiting] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+  
+  // 页面切换动画状态
+  const [pageAnimationState, setPageAnimationState] = useState<'idle' | 'entering' | 'exiting' | 'closing'>('idle');
   
   // 今日毕任务只读模式
   const [todayMustCompleteReadOnly, setTodayMustCompleteReadOnly] = useState(false);
 
+  // 处理面板显示/隐藏动画
+  useEffect(() => {
+    if (visible) {
+      setIsVisible(true);
+      setIsExiting(false);
+      setPageAnimationState('idle');
+    }
+  }, [visible]);
+
   // 关闭时重置页面栈
   useEffect(() => {
-    if (!visible) {
+    if (!visible && !isExiting) {
       reset();
     }
-  }, [visible, reset]);
+  }, [visible, isExiting, reset]);
+
+  // 处理关闭动画 - 主页面右滑退出
+  const handleClose = useCallback(() => {
+    setIsExiting(true);
+    setPageAnimationState('closing');
+    setTimeout(() => {
+      setIsVisible(false);
+      setIsExiting(false);
+      setPageAnimationState('idle');
+      onClose();
+    }, 400);
+  }, [onClose]);
 
   // 处理导航（进入子页面）
   const handleNavigate = useCallback((pageId: string, title: string) => {
+    setPageAnimationState('entering');
     push({ id: pageId, title });
+    // 动画完成后重置状态
+    setTimeout(() => setPageAnimationState('idle'), 400);
   }, [push]);
 
   // 处理返回（退出子页面）
   const handleBack = useCallback(() => {
     if (canGoBack) {
-      pop();
+      setPageAnimationState('exiting');
+      setTimeout(() => {
+        pop();
+        setPageAnimationState('idle');
+      }, 400);
     } else {
-      onClose();
+      handleClose();
     }
-  }, [canGoBack, pop, onClose]);
+  }, [canGoBack, pop, handleClose]);
+
+  // 子页面手势返回支持
+  const { pageRef: subPageRef } = useSwipeBack({
+    onBack: handleBack,
+    enabled: canGoBack,
+  });
+
+  // 主页面手势关闭支持
+  const { pageRef: mainPageRef } = useSwipeBack({
+    onBack: handleClose,
+    enabled: !canGoBack && isVisible && !isExiting,
+  });
 
   // 处理今日毕任务点击
   const handleOpenTodayMustComplete = useCallback((readOnly?: boolean) => {
@@ -107,32 +156,73 @@ const UnifiedSettingsPanel: React.FC<UnifiedSettingsPanelProps> = ({
     }
   };
 
-  if (!visible) return null;
+  // 获取页面层级样式
+  const getPageLayerClass = (index: number) => {
+    const isCurrentPage = index === stack.length - 1;
+    const isBackgroundPage = index === stack.length - 2;
+    
+    // 主页面关闭时的动画
+    if (pageAnimationState === 'closing' && isCurrentPage) {
+      return styles.pageLayerExiting;
+    }
+    
+    if (pageAnimationState === 'entering') {
+      if (isCurrentPage) return styles.pageLayerEntering;
+      if (isBackgroundPage) return styles.pageLayerBackground;
+    }
+    
+    if (pageAnimationState === 'exiting') {
+      if (isCurrentPage) return styles.pageLayerExiting;
+      if (isBackgroundPage) return styles.pageLayerActive;
+    }
+    
+    if (isCurrentPage) return styles.pageLayerActive;
+    if (isBackgroundPage) return styles.pageLayerBackground;
+    
+    return styles.pageLayerHidden;
+  };
+
+  // 获取页面的 ref（主页面用 mainPageRef，子页面用 subPageRef）
+  const getPageRef = (index: number, pageId: string) => {
+    if (index !== stack.length - 1) return undefined;
+    return pageId === 'main' ? mainPageRef : subPageRef;
+  };
+
+  if (!isVisible) return null;
 
   return createPortal(
-    <div className={styles.overlay} onClick={onClose}>
-      <div 
-        ref={containerRef}
-        className={styles.container} 
-        onClick={e => e.stopPropagation()}
-      >
-        {/* 主页面头部 - 只在主页面显示 */}
-        {currentPage.id === 'main' && (
-          <div className={styles.header}>
-            <h2 className={styles.title}>设置</h2>
-            <button className={styles.closeButton} onClick={onClose}>
-              <X size={20} />
-            </button>
+    <div 
+      className={`${styles.panel} ${isExiting ? styles.panelExiting : styles.panelVisible}`}
+      ref={containerRef}
+    >
+      {/* 页面栈 */}
+      <div className={styles.pageStack}>
+        {stack.map((page, index) => (
+          <div
+            key={page.id}
+            ref={getPageRef(index, page.id)}
+            className={`${styles.pageLayer} ${getPageLayerClass(index)}`}
+          >
+            {/* 主页面头部 - 只在主页面显示，使用返回箭头 */}
+            {page.id === 'main' && (
+              <div className={styles.header}>
+                <button className={styles.backButton} onClick={handleClose}>
+                  <ChevronLeft size={24} />
+                </button>
+                <h2 className={styles.title}>设置</h2>
+                <div className={styles.headerSpacer} />
+              </div>
+            )}
+
+            {/* 页面内容 */}
+            <div className={styles.content}>
+              {renderPageContent(page.id)}
+            </div>
           </div>
-        )}
-
-        {/* 页面内容 */}
-        <div className={styles.content}>
-          {renderPageContent(currentPage.id)}
-        </div>
-
-        <SafeArea position="bottom" />
+        ))}
       </div>
+
+      <SafeArea position="bottom" />
     </div>,
     document.body
   );

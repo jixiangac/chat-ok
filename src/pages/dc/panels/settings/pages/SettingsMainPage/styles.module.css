@@ -2,3 +2,31 @@
 .container {
   padding: 8px 0;
 }
+
+/* ==================== 状态标签 ==================== */
+
+/* 已设置状态标签 - 图标 + 数字 */
+/* 固定颜色，不随主题变化 */
+.statusTagDone {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  font-size: 13px;
+  font-weight: 500;
+  /* 固定深色，不使用主题色变量 */
+  color: rgb(55, 53, 47);
+  background: transparent;
+  white-space: nowrap;
+}
+
+/* 待设置状态标签 - 空心圆图标 */
+.statusTagPending {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  font-size: 13px;
+  color: rgba(55, 53, 47, 0.35);
+  background: transparent;
+  white-space: nowrap;
+}

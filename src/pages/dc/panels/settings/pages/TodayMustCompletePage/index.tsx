@@ -1,9 +1,11 @@
 /**
  * 今日毕任务子页面
  * 在设置面板中作为子页面使用
+ * 底部固定按钮
  */
 
 import React, { useState, useMemo, useEffect } from 'react';
+import { SafeArea } from 'antd-mobile';
 import { SubPageLayout } from '../../components';
 import type { Task } from '@/pages/dc/types';
 import { SidelineTaskCard } from '@/pages/dc/components/card';
@@ -24,6 +26,8 @@ export interface TodayMustCompletePageProps {
   onConfirm: (taskIds: string[]) => void;
   /** 跳过 */
   onSkip: () => void;
+  /** 是否显示跳过按钮（弹窗模式显示，设置页面不显示） */
+  showSkipButton?: boolean;
 }
 
 const TodayMustCompletePage: React.FC<TodayMustCompletePageProps> = ({
@@ -32,6 +36,7 @@ const TodayMustCompletePage: React.FC<TodayMustCompletePageProps> = ({
   readOnly = false,
   onConfirm,
   onSkip,
+  showSkipButton = false, // 默认不显示跳过按钮（设置页面模式）
 }) => {
   const [selectedTaskIds, setSelectedTaskIds] = useState<string[]>([]);
 
@@ -75,7 +80,7 @@ const TodayMustCompletePage: React.FC<TodayMustCompletePageProps> = ({
       .filter(Boolean) as Task[];
   }, [selectedTaskIds, tasks]);
 
-  // 处理确认
+  // 处理确认/保存
   const handleConfirm = () => {
     onConfirm(selectedTaskIds);
     onBack();
@@ -146,23 +151,42 @@ const TodayMustCompletePage: React.FC<TodayMustCompletePageProps> = ({
                 </div>
               ))}
             </div>
-
-            {/* 底部按钮 */}
-            <div className={styles.footer}>
-              <button className={styles.skipButton} onClick={handleSkip}>
-                跳过
-              </button>
-              <button
-                className={styles.confirmButton}
-                onClick={handleConfirm}
-                disabled={selectedTaskIds.length === 0}
-              >
-                确定
-              </button>
-            </div>
           </>
         )}
       </div>
+
+      {/* 底部固定按钮区域 - 编辑模式显示 */}
+      {!readOnly && (
+        <div className={styles.bottomFixed}>
+          <div className={styles.footer}>
+            {showSkipButton ? (
+              // 弹窗模式：显示跳过和确定按钮
+              <>
+                <button className={styles.skipButton} onClick={handleSkip}>
+                  跳过
+                </button>
+                <button
+                  className={styles.confirmButton}
+                  onClick={handleConfirm}
+                  disabled={selectedTaskIds.length === 0}
+                >
+                  确定
+                </button>
+              </>
+            ) : (
+              // 设置页面模式：只显示保存按钮
+              <button
+                className={styles.saveButton}
+                onClick={handleConfirm}
+                disabled={selectedTaskIds.length === 0}
+              >
+                保存
+              </button>
+            )}
+          </div>
+          <SafeArea position="bottom" />
+        </div>
+      )}
     </SubPageLayout>
   );
 };

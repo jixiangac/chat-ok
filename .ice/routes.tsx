@@ -4215,7 +4215,7 @@ const createRoutes: CreateRoutes = ({
     index: undefined,
     id: 'dc/utils/mainlineTaskHelper',
     exact: true,
-    exports: ["calculateCheckInProgress","calculateChecklistProgress","calculateCurrentCycleNumber","calculateNumericProgress","calculateRemainingDays","isTodayCheckedIn","updateMainlineTaskProgress"],
+    exports: ["DEADLINE_COLORS","calculateCheckInProgress","calculateChecklistProgress","calculateCurrentCycleNumber","calculateNumericProgress","calculateRemainingDays","formatNumber","getDeadlineColor","getDeadlineText","isTodayCheckedIn","updateMainlineTaskProgress"],
   },{
     path: 'dc/utils/progressCalculator',
     async lazy() {
@@ -5240,7 +5240,7 @@ const createRoutes: CreateRoutes = ({
     index: undefined,
     id: 'dc/types',
     exact: true,
-    exports: ["getCompatibleTaskFields"],
+    exports: [],
   },{
     path: 'aitrend',
     async lazy() {

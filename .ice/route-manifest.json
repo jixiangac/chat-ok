@@ -1875,11 +1875,15 @@
     "componentName": "dc-utils-mainlinetaskhelper",
     "layout": false,
     "exports": [
+      "DEADLINE_COLORS",
       "calculateCheckInProgress",
       "calculateChecklistProgress",
       "calculateCurrentCycleNumber",
       "calculateNumericProgress",
       "calculateRemainingDays",
+      "formatNumber",
+      "getDeadlineColor",
+      "getDeadlineText",
       "isTodayCheckedIn",
       "updateMainlineTaskProgress"
     ]
@@ -2593,9 +2597,7 @@
     "file": "dc/types.ts",
     "componentName": "dc-types",
     "layout": false,
-    "exports": [
-      "getCompatibleTaskFields"
-    ]
+    "exports": []
   },
   {
     "path": "aitrend",

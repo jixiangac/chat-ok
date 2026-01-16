@@ -146,12 +146,12 @@ export default function GoalDetailModal({
   const isPlanEnded = task?.isPlanEnded ?? false;
   
   // 任务类型判断（直接使用 category 字段）
-  const mainlineType: Category = task?.category ?? 'CHECK_IN';
+  const taskCategory: Category = task?.category ?? 'CHECK_IN';
   
   // tabs 配置
   const tabs = useMemo(() => {
-    return getTabsConfig(mainlineType, isPlanEnded);
-  }, [mainlineType, isPlanEnded]);
+    return getTabsConfig(taskCategory, isPlanEnded);
+  }, [taskCategory, isPlanEnded]);
   
   // 总打卡次数（从 checkInConfig.records 计算）
   const totalCheckIns = useMemo(() => {
@@ -211,7 +211,6 @@ export default function GoalDetailModal({
         Toast.show({ icon: 'success', content: '记录成功！' });
         setShowRecordModal(false);
         refreshTasks();
-        onDataChange?.();
       } else {
         Toast.show({ icon: 'fail', content: '记录失败，请重试' });
       }
@@ -229,7 +228,7 @@ export default function GoalDetailModal({
       if (success) {
         Toast.show({ icon: 'success', content: '更新成功！' });
         refreshTasks();
-        onDataChange?.();
+        // onDataChange?.();
       } else {
         Toast.show({ icon: 'fail', content: '更新失败，请重试' });
       }
@@ -305,7 +304,7 @@ export default function GoalDetailModal({
     if (isPlanEnded) {
       return <><Archive size={16} style={{ marginRight: 6 }} /> 归档总结</>;
     }
-    switch (mainlineType) {
+    switch (taskCategory) {
       case 'NUMERIC': return <><FileText size={16} style={{ marginRight: 6 }} /> 记录新数据</>;
       case 'CHECKLIST': return <><FileText size={16} style={{ marginRight: 6 }} /> 更新进度</>;
       case 'CHECK_IN':
@@ -323,31 +322,31 @@ export default function GoalDetailModal({
         return <><Check size={16} style={{ marginRight: 6 }} /> 立即打卡</>;
       }
     }
-  }, [isPlanEnded, mainlineType, task, todayCheckInStatus.isCompleted]);
+  }, [isPlanEnded, taskCategory, task, todayCheckInStatus.isCompleted]);
   
   // 按钮禁用状态
   const isCheckInButtonDisabled = useMemo(() => {
     if (isPlanEnded) return false;
-    if (mainlineType !== 'CHECK_IN') return false;
+    if (taskCategory !== 'CHECK_IN') return false;
     return todayCheckInStatus.isCompleted;
-  }, [isPlanEnded, mainlineType, todayCheckInStatus.isCompleted]);
+  }, [isPlanEnded, taskCategory, todayCheckInStatus.isCompleted]);
   
   // 底部按钮点击处理
   const buttonHandler = useMemo(() => {
     if (isPlanEnded) return handleArchive;
-    switch (mainlineType) {
+    switch (taskCategory) {
       case 'NUMERIC': return handleRecordData;
       case 'CHECKLIST': return () => handleUpdateProgress('');
       case 'CHECK_IN':
       default: return handleCheckInClick;
     }
-  }, [isPlanEnded, mainlineType, handleArchive, handleRecordData, handleUpdateProgress, handleCheckInClick]);
+  }, [isPlanEnded, taskCategory, handleArchive, handleRecordData, handleUpdateProgress, handleCheckInClick]);
   
   // 内容渲染
   const renderedContent = useMemo(() => {
     if (!task || !currentCycle) return null;
     
-    switch (mainlineType) {
+    switch (taskCategory) {
       case 'NUMERIC':
         if (activeTab === 'targets') {
           return <NumericCyclePanel goal={task} cycle={currentCycle} onRecordData={handleRecordData} />;
@@ -377,7 +376,7 @@ export default function GoalDetailModal({
         }
         return null;
     }
-  }, [mainlineType, activeTab, task, currentCycle, handleRecordData, handleUpdateProgress]);
+  }, [taskCategory, activeTab, task, currentCycle, handleRecordData, handleUpdateProgress]);
   
   // 数据准备状态
   const isDataReady = task && currentCycle;
@@ -442,7 +441,7 @@ export default function GoalDetailModal({
             <SafeArea position="bottom" />
           </>)}
           
-          {mainlineType === 'NUMERIC' && task.numericConfig && (
+          {taskCategory === 'NUMERIC' && task.numericConfig && (
             <RecordDataModal
               visible={showRecordModal}
               onClose={() => setShowRecordModal(false)}
@@ -454,7 +453,7 @@ export default function GoalDetailModal({
             />
           )}
           
-          {mainlineType === 'CHECK_IN' && task.checkInConfig && (
+          {taskCategory === 'CHECK_IN' && task.checkInConfig && (
             <CheckInModal
               visible={showCheckInModal}
               onClose={() => setShowCheckInModal(false)}

@@ -25,6 +25,8 @@ function NumericCyclePanelComponent({
   const config = goal.numericConfig;
   const progress = goal.progress;
   const debtDisplay = goal.debtDisplay;
+
+  console.log(cycle,'cycle')
   
   // 获取模拟的"今日"日期
   const effectiveToday = getSimulatedToday(goal as any);

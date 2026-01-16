@@ -4,6 +4,7 @@
  */
 
 import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import dayjs from 'dayjs';
 import type { Task, CheckInEntry, TodayProgress, DailyCheckInRecord } from '../../types';
 import type { TaskContextValue, HistoryRecord, CycleInfo, TodayCheckInStatus, GoalDetailData } from './types';
 import type { SceneType } from '../SceneProvider/types';
@@ -36,20 +37,16 @@ const generateId = (): string => {
   return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 };
 
-// 将 Date 对象格式化为本地时区的 YYYY-MM-DD 字符串
-const formatLocalDate = (date: Date): string => {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-};
-
 // 获取模拟的"今天"日期
 const getSimulatedToday = (task: Task): string => {
-  const realToday = new Date();
   const offset = (task as any).debugDayOffset || 0;
-  realToday.setDate(realToday.getDate() + offset);
-  return formatLocalDate(realToday);
+  return dayjs().add(offset, 'day').format('YYYY-MM-DD');
+};
+
+// 获取模拟的时间戳
+const getSimulatedTimestamp = (task: Task): number => {
+  const offset = (task as any).debugDayOffset || 0;
+  return dayjs().add(offset, 'day').valueOf();
 };
 
 // 从 checkInConfig.records 获取今日打卡记录
@@ -71,7 +68,7 @@ const calculateTodayProgress = (task: Task): TodayProgress => {
       todayCount: todayCheckIns.length,
       todayValue: 0,
       isCompleted: todayCheckIns.length > 0,
-      lastUpdatedAt: new Date().toISOString()
+      lastUpdatedAt: dayjs().toISOString()
     };
   }
 
@@ -86,7 +83,7 @@ const calculateTodayProgress = (task: Task): TodayProgress => {
       todayValue: todayCheckIns.length,
       isCompleted: todayCheckIns.length >= dailyMax,
       dailyTarget: dailyMax,
-      lastUpdatedAt: new Date().toISOString()
+      lastUpdatedAt: dayjs().toISOString()
     };
   } else if (unit === 'DURATION') {
     const dailyTarget = checkInConfig.dailyTargetMinutes || 15;
@@ -96,7 +93,7 @@ const calculateTodayProgress = (task: Task): TodayProgress => {
       todayValue,
       isCompleted: todayValue >= dailyTarget,
       dailyTarget,
-      lastUpdatedAt: new Date().toISOString()
+      lastUpdatedAt: dayjs().toISOString()
     };
   } else if (unit === 'QUANTITY') {
     const dailyTarget = checkInConfig.dailyTargetValue || 0;
@@ -106,11 +103,11 @@ const calculateTodayProgress = (task: Task): TodayProgress => {
       todayValue,
       isCompleted: dailyTarget > 0 && todayValue >= dailyTarget,
       dailyTarget,
-      lastUpdatedAt: new Date().toISOString()
+      lastUpdatedAt: dayjs().toISOString()
     };
   }
 
-  return { canCheckIn: true, todayCount: 0, todayValue: 0, isCompleted: false, lastUpdatedAt: new Date().toISOString() };
+  return { canCheckIn: true, todayCount: 0, todayValue: 0, isCompleted: false, lastUpdatedAt: dayjs().toISOString() };
 };
 
 export function TaskProvider({ children }: TaskProviderProps) {
@@ -147,7 +144,7 @@ export function TaskProvider({ children }: TaskProviderProps) {
       type: taskData.type || 'sidelineA',
       category: taskData.category || 'CHECK_IN',
       from: sceneType,
-      startDate: taskData.startDate || new Date().toISOString().split('T')[0],
+      startDate: taskData.startDate || dayjs().format('YYYY-MM-DD'),
       totalDays: taskData.totalDays || 30,
       cycleDays: taskData.cycleDays || 10,
       ...taskData,
@@ -236,14 +233,15 @@ export function TaskProvider({ children }: TaskProviderProps) {
     const task = scene.getTaskById(taskId, targetScene);
     if (!task || !task.checkInConfig) return;
 
-    const today = formatLocalDate(new Date());
+    // 使用模拟日期
+    const today = getSimulatedToday(task);
     const records = [...(task.checkInConfig.records || [])];
     
     // 查找今日记录
     const todayRecordIndex = records.findIndex(r => r.date === today);
     const newEntry: CheckInEntry = {
       id: entry.id || generateId(),
-      time: new Date().toTimeString().split(' ')[0],
+      time: dayjs().format('HH:mm:ss'),
       value: entry.value,
       note: entry.note,
     };
@@ -287,11 +285,14 @@ export function TaskProvider({ children }: TaskProviderProps) {
       progress: { 
         ...task.progress,
         totalPercentage: 100, 
-        cyclePercentage: 100 
+        cyclePercentage: 100,
+        cycleAchieved: task.progress.cycleAchieved,
+        cycleRemaining: 0,
+        lastUpdatedAt: dayjs().toISOString()
       },
       time: { 
         ...task.time,
-        completedAt: new Date().toISOString() 
+        completedAt: dayjs().toISOString() 
       },
     });
   }, [scene, detectScene]);
@@ -330,37 +331,26 @@ export function TaskProvider({ children }: TaskProviderProps) {
       return null;
     }
 
-    const startDate = new Date(startDateStr);
+    const startDate = dayjs(startDateStr);
     
     // 获取模拟的"今天"日期
     const debugOffset = (task as any).debugDayOffset || 0;
-    const realToday = new Date();
-    const simulatedToday = new Date(realToday);
-    simulatedToday.setDate(simulatedToday.getDate() + debugOffset);
+    const realToday = dayjs();
+    const simulatedToday = realToday.add(debugOffset, 'day');
     
-    // 考虑cycleSnapshots数量
-    const snapshotCount = (task as any).cycleSnapshots?.length || 0;
-    
-    // 基于真实日期计算周期编号
-    const realElapsedDays = Math.floor((realToday.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-    const realCycleNumber = Math.floor(realElapsedDays / cycleDays) + 1;
-    
-    // 当前周期编号 = max(基于真实时间的周期, 快照数+1)，但不超过总周期数
-    const currentCycle = Math.min(Math.max(realCycleNumber, snapshotCount + 1), totalCycles);
+    // 使用 task.cycle.currentCycle 作为当前周期编号
+    const currentCycle = task.cycle.currentCycle;
     
     // 计算当前周期的起始天数
     const cycleStartDay = (currentCycle - 1) * cycleDays;
     const cycleEndDay = cycleStartDay + cycleDays - 1;
     
     // 计算当前周期的开始和结束日期
-    const currentCycleStart = new Date(startDate);
-    currentCycleStart.setDate(startDate.getDate() + cycleStartDay);
-    
-    const currentCycleEnd = new Date(startDate);
-    currentCycleEnd.setDate(startDate.getDate() + cycleEndDay);
+    const currentCycleStart = startDate.add(cycleStartDay, 'day');
+    const currentCycleEnd = startDate.add(cycleEndDay, 'day');
     
     // 计算剩余天数
-    const daysInCurrentCycle = Math.floor((simulatedToday.getTime() - currentCycleStart.getTime()) / (1000 * 60 * 60 * 24));
+    const daysInCurrentCycle = simulatedToday.diff(currentCycleStart, 'day');
     const daysRemainingInCycle = cycleDays - daysInCurrentCycle;
 
     return {
@@ -368,8 +358,8 @@ export function TaskProvider({ children }: TaskProviderProps) {
       totalCycles,
       daysInCurrentCycle,
       daysRemainingInCycle: Math.max(0, daysRemainingInCycle),
-      cycleStartDate: formatLocalDate(currentCycleStart),
-      cycleEndDate: formatLocalDate(currentCycleEnd),
+      cycleStartDate: currentCycleStart.format('YYYY-MM-DD'),
+      cycleEndDate: currentCycleEnd.format('YYYY-MM-DD'),
       isLastCycle: currentCycle === totalCycles,
     };
   }, [scene, detectScene]);
@@ -461,10 +451,13 @@ export function TaskProvider({ children }: TaskProviderProps) {
     const task = scene.getTaskById(taskId, targetScene);
     if (!task) return false;
 
+    console.log(task,'config')
+    console.log(task.checkInConfig, 'config')
+
     try {
       const simulatedToday = getSimulatedToday(task);
-      const now = new Date();
       const config = task.checkInConfig;
+      
       const todayCheckIns = getTodayCheckInsFromRecords(task, simulatedToday);
 
       // 检查是否可以打卡
@@ -496,7 +489,7 @@ export function TaskProvider({ children }: TaskProviderProps) {
       // 创建新的打卡记录
       const newEntry: CheckInEntry = {
         id: `checkin_${Date.now()}`,
-        time: now.toTimeString().split(' ')[0],
+        time: dayjs().format('HH:mm:ss'),
         value: value,
         note: note || undefined
       };
@@ -526,11 +519,11 @@ export function TaskProvider({ children }: TaskProviderProps) {
       if (config) {
         const uniqueDates = [...new Set(records.filter(r => r.checked).map(r => r.date))].sort();
         let currentStreak = 0;
-        let checkDate = new Date(simulatedToday);
+        let checkDate = dayjs(simulatedToday);
         
-        while (uniqueDates.includes(formatLocalDate(checkDate))) {
+        while (uniqueDates.includes(checkDate.format('YYYY-MM-DD'))) {
           currentStreak++;
-          checkDate.setDate(checkDate.getDate() - 1);
+          checkDate = checkDate.subtract(1, 'day');
         }
         
         updatedConfig.currentStreak = currentStreak;
@@ -566,15 +559,35 @@ export function TaskProvider({ children }: TaskProviderProps) {
           const totalTarget = totalCycles * perCycleTarget;
           const totalPercentage = Math.min(100, Math.round((totalValue / totalTarget) * 100));
 
+          // 计算 cycleAchieved 和 cycleRemaining
+          const cycleAchieved = currentCycleValue;
+          const cycleRemaining = Math.max(0, perCycleTarget - currentCycleValue);
+
           progressUpdate = {
             progress: {
               ...task.progress,
               cyclePercentage,
-              totalPercentage
+              totalPercentage,
+              cycleAchieved,
+              cycleRemaining,
+              lastUpdatedAt: dayjs().toISOString()
             }
           };
         }
       }
+
+      // 添加活动日志（使用模拟日期）
+      const newActivity = {
+        id: generateId(),
+        type: 'CHECK_IN' as const,
+        date: simulatedToday,
+        timestamp: getSimulatedTimestamp(task),
+        count: 1,
+        value: value,
+        note: note || undefined
+      };
+
+      const updatedActivities = [...task.activities, newActivity];
 
       // 计算更新后的今日进度
       const updatedTask = {
@@ -586,6 +599,7 @@ export function TaskProvider({ children }: TaskProviderProps) {
       scene.updateTask(targetScene, taskId, {
         checkInConfig: updatedConfig,
         todayProgress,
+        activities: updatedActivities,
         ...progressUpdate
       });
 
@@ -605,7 +619,6 @@ export function TaskProvider({ children }: TaskProviderProps) {
     if (!task) return false;
 
     try {
-      const now = new Date();
       const config = task.numericConfig;
       if (!config) return false;
 
@@ -642,17 +655,22 @@ export function TaskProvider({ children }: TaskProviderProps) {
         currentValue: value
       };
 
-      // 添加活动日志
+      // 添加活动日志（使用模拟日期）
+      const simulatedToday = getSimulatedToday(task);
       const newActivity = {
         id: generateId(),
         type: 'UPDATE_VALUE' as const,
-        date: formatLocalDate(now),
-        timestamp: now.getTime(),
+        date: simulatedToday,
+        timestamp: getSimulatedTimestamp(task),
         oldValue: previousValue,
         newValue: value,
         delta: change,
         note: note || undefined
       };
+
+      // 计算 cycleAchieved 和 cycleRemaining（数值型任务）
+      const cycleAchieved = effectiveCycleChange;
+      const cycleRemaining = Math.max(0, perCycleTarget - effectiveCycleChange);
 
       const updates: Partial<Task> = {
         numericConfig: updatedNumericConfig,
@@ -662,6 +680,9 @@ export function TaskProvider({ children }: TaskProviderProps) {
           totalPercentage,
           cyclePercentage,
           cycleStartValue,
+          cycleAchieved,
+          cycleRemaining,
+          lastUpdatedAt: dayjs().toISOString(),
           cycleTargetValue: cycleStartValue + perCycleTarget * (isDecrease ? -1 : 1),
         }
       };
@@ -744,7 +765,7 @@ export function TaskProvider({ children }: TaskProviderProps) {
             status: updates.status as any,
           };
           if (updates.status === 'COMPLETED') {
-            items[itemIndex].completedAt = new Date().toISOString();
+            items[itemIndex].completedAt = dayjs().toISOString();
           }
         }
         if (updates.subProgress) {
@@ -773,11 +794,18 @@ export function TaskProvider({ children }: TaskProviderProps) {
           const cyclePercentage = Math.min(100, Math.round((currentCycleCompleted / perCycleTarget) * 100));
           const totalPercentage = Math.round((completedCount / totalItems) * 100);
 
+          // 计算 cycleAchieved 和 cycleRemaining（清单型任务）
+          const cycleAchieved = currentCycleCompleted;
+          const cycleRemaining = Math.max(0, perCycleTarget - currentCycleCompleted);
+
           progressUpdate = {
             progress: {
               ...task.progress,
               cyclePercentage,
-              totalPercentage
+              totalPercentage,
+              cycleAchieved,
+              cycleRemaining,
+              lastUpdatedAt: dayjs().toISOString()
             }
           };
         }
@@ -821,7 +849,7 @@ export function TaskProvider({ children }: TaskProviderProps) {
         isPlanEnded: true,
         time: {
           ...task.time,
-          completedAt: new Date().toISOString()
+          completedAt: dayjs().toISOString()
         }
       });
       return true;
@@ -860,13 +888,12 @@ export function TaskProvider({ children }: TaskProviderProps) {
     
     let isPlanEnded = task.isPlanEnded || false;
     if (!isPlanEnded && startDate && cycleDays && totalCycles) {
-      const start = new Date(startDate);
+      const start = dayjs(startDate);
       const simulatedToday = getSimulatedToday(task);
-      const today = new Date(simulatedToday);
-      const planEndDate = new Date(start);
-      planEndDate.setDate(start.getDate() + totalCycles * cycleDays - 1);
+      const today = dayjs(simulatedToday);
+      const planEndDate = start.add(totalCycles * cycleDays - 1, 'day');
       
-      const isPlanEndedByTime = today > planEndDate;
+      const isPlanEndedByTime = today.isAfter(planEndDate);
       const isPlanEndedByStatus = status === 'COMPLETED' || status === 'ARCHIVED' || status === 'ARCHIVED_HISTORY';
       const isPlanEndedBySnapshots = cycleSnapshots.length >= totalCycles;
       isPlanEnded = isPlanEndedByTime || isPlanEndedByStatus || isPlanEndedBySnapshots;
@@ -912,95 +939,68 @@ export function TaskProvider({ children }: TaskProviderProps) {
     try {
       const currentOffset = (task as any).debugDayOffset || 0;
       const newOffset = currentOffset + 1;
-
-      const startDateStr = task.time.startDate;
       const cycleDays = task.cycle.cycleDays;
-      const totalCycles = task.cycle.totalCycles;
+      const currentCycle = task.cycle.currentCycle;
 
-      if (!startDateStr || !cycleDays || !totalCycles) {
-        scene.updateTask(targetScene, taskId, { debugDayOffset: newOffset } as any);
-        return { success: true, enteredNextCycle: false };
-      }
+      // 计算当前周期内已过的天数（基于 debugDayOffset）
+      // 每个周期有 cycleDays 天，当 offset 超过当前周期的天数时，需要进入下一周期
+      const daysInCurrentCycle = currentOffset % cycleDays;
+      const newDaysInCycle = (currentOffset + 1) % cycleDays;
 
-      const startDate = new Date(startDateStr);
-      const realToday = new Date();
-      realToday.setDate(realToday.getDate() + newOffset);
-      const newSimulatedToday = realToday;
+      // 如果新的天数回到 0，说明超过了周期天数，需要进入下一周期
+      const shouldEnterNextCycle = newDaysInCycle === 0 && currentOffset > 0;
 
-      const realElapsedDays = Math.floor((new Date().getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-      const snapshotCount = (task as any).cycleSnapshots?.length || 0;
-      const realCycleNumber = Math.floor(realElapsedDays / cycleDays) + 1;
-      const currentCycleNumber = Math.min(Math.max(realCycleNumber, snapshotCount + 1), totalCycles);
-      const cycleEndDay = currentCycleNumber * cycleDays;
-      const currentCycleEnd = new Date(startDate);
-      currentCycleEnd.setDate(startDate.getDate() + cycleEndDay);
-
-      const shouldEnterNextCycle = newSimulatedToday > currentCycleEnd && currentCycleNumber < totalCycles;
+      // 更新 debugDayOffset
+      scene.updateTask(targetScene, taskId, { debugDayOffset: newOffset } as any);
 
       if (shouldEnterNextCycle) {
-        const cycleSnapshots = [...((task as any).cycleSnapshots || [])];
-        const cycleInfo = calculateCycle(taskId, targetScene);
+        // 调用 debugNextCycle 的逻辑
+        const updatedTask = scene.getTaskById(taskId, targetScene);
+        if (updatedTask) {
+          const totalCycles = updatedTask.cycle.totalCycles;
+          const currentCycleNum = updatedTask.cycle.currentCycle;
 
-        if (cycleInfo && task.checkInConfig) {
-          const config = task.checkInConfig;
-          const unit = config.unit || 'TIMES';
-          const records = config.records || [];
-
-          const cycleRecords = records.filter(r =>
-            r.date >= cycleInfo.cycleStartDate && r.date <= cycleInfo.cycleEndDate && r.checked
-          );
-
-          let targetValue: number;
-          let actualValue: number;
-          let unitLabel: string;
-
-          if (unit === 'TIMES') {
-            targetValue = config.cycleTargetTimes || config.perCycleTarget || 3;
-            actualValue = cycleRecords.reduce((sum, r) => sum + r.entries.length, 0);
-            unitLabel = '次';
-          } else if (unit === 'DURATION') {
-            targetValue = config.cycleTargetMinutes || config.perCycleTarget || 150;
-            actualValue = cycleRecords.reduce((sum, r) => sum + (r.totalValue || 0), 0);
-            unitLabel = '分钟';
+          if (currentCycleNum >= totalCycles) {
+            // 已经是最后一个周期，结束计划
+            scene.updateTask(targetScene, taskId, {
+              status: 'COMPLETED',
+              isPlanEnded: true,
+              time: {
+                ...updatedTask.time,
+                completedAt: dayjs().toISOString()
+              }
+            });
           } else {
-            targetValue = config.cycleTargetValue || config.perCycleTarget || 0;
-            actualValue = cycleRecords.reduce((sum, r) => sum + (r.totalValue || 0), 0);
-            unitLabel = config.valueUnit || '个';
+            // 进入下一周期
+            const newCycleNumber = currentCycleNum + 1;
+            const perCycleTarget = updatedTask.checkInConfig?.perCycleTarget || updatedTask.numericConfig?.perCycleTarget || updatedTask.checklistConfig?.perCycleTarget || 0;
+
+            scene.updateTask(targetScene, taskId, {
+              cycle: {
+                ...updatedTask.cycle,
+                currentCycle: newCycleNumber
+              },
+              progress: {
+                ...updatedTask.progress,
+                cyclePercentage: 0,
+                cycleAchieved: 0,
+                cycleRemaining: perCycleTarget,
+                lastUpdatedAt: dayjs().toISOString()
+              }
+            });
           }
-
-          const completionRate = targetValue > 0 ? Math.min(100, Math.round((actualValue / targetValue) * 100)) : 0;
-
-          cycleSnapshots.push({
-            cycleNumber: currentCycleNumber,
-            startDate: cycleInfo.cycleStartDate,
-            endDate: cycleInfo.cycleEndDate,
-            targetValue,
-            actualValue,
-            completionRate,
-            unit: unitLabel
-          });
         }
-
-        const newCycleNumber = currentCycleNumber + 1;
-        const newCycleStartDay = (newCycleNumber - 1) * cycleDays;
-        const newCycleStartDate = new Date(startDate);
-        newCycleStartDate.setDate(startDate.getDate() + newCycleStartDay);
-
-        const realTodayForOffset = new Date();
-        realTodayForOffset.setHours(0, 0, 0, 0);
-        newCycleStartDate.setHours(0, 0, 0, 0);
-        const newCycleOffset = Math.floor((newCycleStartDate.getTime() - realTodayForOffset.getTime()) / (1000 * 60 * 60 * 24));
-
-        scene.updateTask(targetScene, taskId, {
-          debugDayOffset: newCycleOffset,
-          cycleSnapshots
-        } as any);
-
-        return { success: true, enteredNextCycle: true };
-      } else {
-        scene.updateTask(targetScene, taskId, { debugDayOffset: newOffset } as any);
-        return { success: true, enteredNextCycle: false };
       }
+
+      // 重新计算新一天的 todayProgress
+      const finalTask = scene.getTaskById(taskId, targetScene);
+      if (finalTask) {
+        scene.updateTask(targetScene, taskId, {
+          todayProgress: calculateTodayProgress(finalTask)
+        });
+      }
+
+      return { success: true, enteredNextCycle: shouldEnterNextCycle };
     } catch (error) {
       console.error('Debug进入下一天失败:', error);
       return { success: false, enteredNextCycle: false };
@@ -1016,50 +1016,53 @@ export function TaskProvider({ children }: TaskProviderProps) {
     if (!task) return false;
 
     try {
-      const cycleInfo = calculateCycle(taskId, targetScene);
       const totalCycles = task.cycle.totalCycles;
-
-      if (!cycleInfo || cycleInfo.currentCycle >= totalCycles) {
-        console.log('已经是最后一个周期，计划已结束');
-        return false;
-      }
-
-      const cycleSnapshots = [...((task as any).cycleSnapshots || [])];
+      const currentCycle = task.cycle.currentCycle;
       const cycleDays = task.cycle.cycleDays;
-      const startDateStr = task.time.startDate;
 
-      cycleSnapshots.push({
-        cycleNumber: cycleInfo.currentCycle,
-        startDate: cycleInfo.cycleStartDate,
-        endDate: cycleInfo.cycleEndDate,
-        targetValue: 0,
-        actualValue: 0,
-        completionRate: 0,
-        unit: ''
-      });
-
-      const newCycleNumber = cycleInfo.currentCycle + 1;
-      const startDate = new Date(startDateStr);
-      const newCycleStartDay = (newCycleNumber - 1) * cycleDays;
-      const newCycleStartDate = new Date(startDate);
-      newCycleStartDate.setDate(startDate.getDate() + newCycleStartDay);
-
-      const realTodayForOffset = new Date();
-      realTodayForOffset.setHours(0, 0, 0, 0);
-      newCycleStartDate.setHours(0, 0, 0, 0);
-      const newCycleOffset = Math.floor((newCycleStartDate.getTime() - realTodayForOffset.getTime()) / (1000 * 60 * 60 * 24));
-
-      let newStatus = task.status;
-      const remainingCycles = totalCycles - cycleInfo.currentCycle;
-      if (remainingCycles === 0) {
-        newStatus = 'COMPLETED';
+      // 检查是否已经是最后一个周期，如果是则结束计划
+      if (currentCycle >= totalCycles) {
+        // 和 endPlanEarly 一样结束计划
+        scene.updateTask(targetScene, taskId, {
+          status: 'COMPLETED',
+          isPlanEnded: true,
+          time: {
+            ...task.time,
+            completedAt: dayjs().toISOString()
+          }
+        });
+        return true;
       }
 
-      scene.updateTask(targetScene, taskId, {
-        debugDayOffset: newCycleOffset,
-        cycleSnapshots,
-        status: newStatus
-      } as any);
+      // 新周期编号
+      const newCycleNumber = currentCycle + 1;
+
+      // 根据 startDate 重新计算 debugDayOffset，使模拟日期为新周期的第一天
+      const startDate = dayjs(task.time.startDate);
+      // const realToday = dayjs();
+      // 新周期的开始日期 = startDate + (newCycleNumber - 1) * cycleDays
+      const newCycleStartDate = startDate.add((newCycleNumber - 1) * cycleDays, 'day');
+      const newDebugDayOffset = newCycleStartDate.diff(startDate, 'day');
+
+      // 获取新周期的目标值用于重置 cycleRemaining
+      const perCycleTarget = task.checkInConfig?.perCycleTarget || task.numericConfig?.perCycleTarget || task.checklistConfig?.perCycleTarget || 0;
+
+      // 更新 cycle.currentCycle 和重置周期相关的 progress 数据
+      scene.updateTask(targetScene, taskId, ({
+        cycle: {
+          ...task.cycle,
+          currentCycle: newCycleNumber
+        },
+        progress: {
+          ...task.progress,
+          cyclePercentage: 0,
+          cycleAchieved: 0,
+          cycleRemaining: perCycleTarget,
+          lastUpdatedAt: dayjs().toISOString()
+        },
+        todayProgress: calculateTodayProgress({ ...task, cycle: { ...task.cycle, currentCycle: newCycleNumber }, debugDayOffset: newDebugDayOffset } as Task),
+        debugDayOffset: newDebugDayOffset
+      }) as Partial<Task>);
 
       return true;
     } catch (error) {
@@ -1082,11 +1085,12 @@ export function TaskProvider({ children }: TaskProviderProps) {
     const task = scene.getTaskById(taskId, targetScene);
     if (!task) return;
 
+    // 使用模拟日期
     const newActivity = {
       id: generateId(),
       type: record.type as any,
-      date: new Date().toISOString().split('T')[0],
-      timestamp: Date.now(),
+      date: getSimulatedToday(task),
+      timestamp: getSimulatedTimestamp(task),
     };
 
     scene.updateTask(targetScene, taskId, {
@@ -1174,3 +1178,30 @@ export function useTaskContext(): TaskContextValue {
 }
 
 export type { TaskContextValue, HistoryRecord, CycleInfo, TodayCheckInStatus, GoalDetailData } from './types';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

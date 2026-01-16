@@ -22,6 +22,16 @@ export {
   type CheckInProgressResult
 } from './progressCalculator';
 
+// 进度计算器类
+export { ProgressCalculator, getEffectiveCategory } from './progressCalculator';
+
+// 数据迁移工具
+export {
+  TaskMigration,
+  createTask,
+  default as MigrationTool
+} from './migration';
+
 // 响应式工具函数
 export {
   LAYOUT_CONSTANTS,
@@ -88,6 +98,8 @@ export {
   exportToClipboard,
   getDataStats,
   clearData,
+  repairTaskProgressData,
+  migrateToNewFormat,
   DATA_TYPE_CONFIG,
   type DataType
 } from './dataExportImport';
@@ -102,5 +114,21 @@ export {
   saveDailyTaskIdsCache,
   clearDailyViewCache
 } from './dailyViewCache';
+
+// 归档存储工具
+export {
+  getArchivedTasks,
+  saveArchivedTasks,
+  archiveTask,
+  restoreFromArchive,
+  deleteArchivedTask,
+  getArchiveStats,
+  clearAllArchivedTasks,
+  migrateOldArchivedTasks,
+  type ArchivedTask
+} from './archiveStorage';
+
+
+
 
 

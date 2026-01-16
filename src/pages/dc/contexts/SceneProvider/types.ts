@@ -75,14 +75,34 @@ export interface SceneData {
   };
 }
 
+// 今日进度数据
+export interface TodayProgressData {
+  completed: number;
+  total: number;
+  percentage: number;
+}
+
 // 常规场景快捷访问
 export interface NormalSceneAccess {
+  // 任务列表
   mainlineTasks: Task[];
   sidelineTasks: Task[];
   activeTasks: Task[];
   completedTasks: Task[];
   archivedTasks: Task[];
   todayTasks: Task[];
+  displayedSidelineTasks: Task[];
+  
+  // 计算属性
+  hasMainlineTask: boolean;
+  todayProgress: TodayProgressData;
+  
+  // 一日清单任务ID列表（缓存）
+  dailyViewTaskIds: string[];
+  
+  // 工具方法
+  isTodayCompleted: (task: Task) => boolean;
+  isCycleCompleted: (task: Task) => boolean;
   getById: (id: string) => Task | undefined;
 }
 
@@ -214,4 +234,7 @@ export const createEmptySceneData = (): SceneData => ({
     version: 1,
   },
 });
+
+
+
 

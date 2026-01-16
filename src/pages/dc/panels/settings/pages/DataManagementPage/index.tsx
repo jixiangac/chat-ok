@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useCallback, useMemo } from 'react';
-import { Download, Upload, Database, Tag, Umbrella, Heart, Settings, Wrench } from 'lucide-react';
+import { Download, Upload, Database, Tag, Umbrella, Heart, Settings, Wrench, RefreshCw, Archive } from 'lucide-react';
 import { Toast, Dialog, TextArea } from 'antd-mobile';
 import { SubPageLayout } from '../../components';
 import {
@@ -14,7 +14,9 @@ import {
   importData,
   getDataStats,
   repairTaskProgressData,
+  migrateToNewFormat,
 } from '@/pages/dc/utils/dataExportImport';
+import { migrateOldArchivedTasks, getArchiveStats } from '@/pages/dc/utils/archiveStorage';
 import styles from './styles.module.css';
 
 // 数据管理头图
@@ -141,6 +143,70 @@ const DataManagementPage: React.FC<DataManagementPageProps> = ({
     }
   }, [onDataChanged]);
 
+  // 处理迁移到新格式
+  const handleMigrateToNewFormat = useCallback(async () => {
+    const result = await Dialog.confirm({
+      content: '将把所有旧格式任务数据迁移到新的 v2 格式。迁移前会自动备份旧数据，迁移成功后页面将自动刷新。确定继续吗？',
+    });
+
+    if (result) {
+      Toast.show({
+        icon: 'loading',
+        content: '正在迁移...',
+        duration: 0,
+      });
+      
+      const migrateResult = await migrateToNewFormat();
+      Toast.clear();
+      
+      if (migrateResult.success) {
+        if (migrateResult.migratedCount > 0) {
+          Toast.show({
+            icon: 'success',
+            content: `${migrateResult.message}，页面将自动刷新...`,
+          });
+          // 延迟刷新页面，让用户看到成功提示
+          setTimeout(() => {
+            window.location.reload();
+          }, 1500);
+        } else {
+          Toast.show({
+            icon: 'success',
+            content: migrateResult.message,
+          });
+        }
+      } else {
+        Toast.show({
+          icon: 'fail',
+          content: migrateResult.message,
+        });
+      }
+    }
+  }, [onDataChanged]);
+
+  // 处理迁移归档任务
+  const handleMigrateArchivedTasks = useCallback(async () => {
+    const result = await Dialog.confirm({
+      content: '将把主存储中已归档的任务迁移到独立的归档存储，确定继续吗？',
+    });
+
+    if (result) {
+      const migrateResult = migrateOldArchivedTasks();
+      if (migrateResult.success) {
+        Toast.show({
+          icon: 'success',
+          content: migrateResult.message,
+        });
+        onDataChanged?.();
+      } else {
+        Toast.show({
+          icon: 'fail',
+          content: migrateResult.message,
+        });
+      }
+    }
+  }, [onDataChanged]);
+
   return (
     <SubPageLayout
       title="数据管理"
@@ -206,6 +272,30 @@ const DataManagementPage: React.FC<DataManagementPageProps> = ({
               修复
             </button>
           </div>
+          <div className={styles.repairItem}>
+            <div className={styles.repairInfo}>
+              <span className={styles.repairLabel}>迁移到新格式</span>
+              <span className={styles.repairDesc}>将旧版任务数据迁移到 v2 新格式（推荐）</span>
+            </div>
+            <button
+              className={`${styles.repairButton} ${styles.migrateButton}`}
+              onClick={handleMigrateToNewFormat}
+            >
+              <RefreshCw size={14} /> 迁移
+            </button>
+          </div>
+          <div className={styles.repairItem}>
+            <div className={styles.repairInfo}>
+              <span className={styles.repairLabel}>迁移归档任务</span>
+              <span className={styles.repairDesc}>将已归档任务移动到独立存储，减少主数据体积</span>
+            </div>
+            <button
+              className={styles.repairButton}
+              onClick={handleMigrateArchivedTasks}
+            >
+              <Archive size={14} /> 迁移
+            </button>
+          </div>
         </div>
 
         <div className={styles.tips}>
@@ -252,5 +342,8 @@ const DataManagementPage: React.FC<DataManagementPageProps> = ({
 };
 
 export default DataManagementPage;
+
+
+
 
 

@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
 import dayjs from 'dayjs';
 import { TrendingUp, TrendingDown } from 'lucide-react';
-import type { GoalDetail } from '../../types';
+import type { Task, ValueUpdateLog } from '../../../../types';
 import styles from '../../../../css/HistoryRecordPanel.module.css';
 
 interface HistoryRecordPanelProps {
-  goal: GoalDetail;
+  goal: Task;
 }
 
 // 千分位格式化
@@ -14,15 +14,25 @@ const formatNumber = (num: number): string => {
 };
 
 export default function HistoryRecordPanel({ goal }: HistoryRecordPanelProps) {
-  const history = goal.history || [];
   const config = goal.numericConfig;
   const isDecrease = config?.direction === 'DECREASE';
   
-  // 按日期排序（降序）
+  // 从 activities 中提取数值更新记录
+  const history = useMemo(() => {
+    return goal.activities
+      .filter((a): a is ValueUpdateLog => a.type === 'UPDATE_VALUE')
+      .map(a => ({
+        date: a.date,
+        timestamp: a.timestamp,
+        value: a.newValue,
+        change: a.delta,
+        note: a.note
+      }));
+  }, [goal.activities]);
+  
+  // 按时间戳排序（降序）
   const sortedHistory = useMemo(() => {
-    return [...history].sort((a, b) => 
-      new Date(b.date).getTime() - new Date(a.date).getTime()
-    );
+    return [...history].sort((a, b) => b.timestamp - a.timestamp);
   }, [history]);
   
   if (sortedHistory.length === 0) {
@@ -49,7 +59,7 @@ export default function HistoryRecordPanel({ goal }: HistoryRecordPanelProps) {
           const isPositive = isDecrease ? changeValue < 0 : changeValue > 0;
           
           return (
-            <div key={`${record.date}-${index}`} className={styles.recordItem}>
+            <div key={`${record.timestamp}-${index}`} className={styles.recordItem}>
               <div className={styles.recordContent}>
                 <div className={styles.recordValue}>
                   {formatNumber(record.value ?? 0)}{config?.unit || ''}
@@ -64,7 +74,7 @@ export default function HistoryRecordPanel({ goal }: HistoryRecordPanelProps) {
                   <div className={styles.recordNote}>{record.note}</div>
                 )}
                 <div className={styles.recordDate}>
-                  {dayjs(record.date).format('YYYY-MM-DD HH:mm:ss')}
+                  {dayjs(record.timestamp).format('YYYY-MM-DD HH:mm:ss')}
                 </div>
               </div>
             </div>
@@ -74,4 +84,3 @@ export default function HistoryRecordPanel({ goal }: HistoryRecordPanelProps) {
     </div>
   );
 }
-

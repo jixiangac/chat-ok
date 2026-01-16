@@ -2,7 +2,7 @@ import type { TaskType, Priority, MainlineTaskType, NumericConfig, ChecklistConf
 
 export interface GoalDetailModalProps {
   visible: boolean;
-  goalId: string;
+  taskId?: string; // 可选，不传则从 TaskProvider 的 selectedTaskId 获取
   onClose: () => void;
   onDataChange?: () => void; // 数据变化时的回调，用于刷新卡片列表
 }
@@ -82,7 +82,7 @@ export interface GoalDetail {
   customDuration?: boolean;
   targetCompletionRate?: number;
   createdAt?: string;
-  status?: 'active' | 'completed' | 'failed' | 'downgraded' | 'archived';
+  status?: 'active' | 'completed' | 'failed' | 'downgraded' | 'archived' | 'ACTIVE' | 'COMPLETED' | 'ARCHIVED' | 'ARCHIVED_HISTORY';
   
   // Debug模拟天数偏移（用于模拟时间推进）
   debugDayOffset?: number;
@@ -155,6 +155,8 @@ export interface CheckInRecordPanelProps {
   cycleStartDate: string;
   cycleEndDate: string;
 }
+
+
 
 
 

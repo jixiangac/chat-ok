@@ -1,24 +1,23 @@
 import { useMemo, useState } from 'react';
 import dayjs from 'dayjs';
 import { CheckCircle, Circle, Calendar, Info, Clock, Hash } from 'lucide-react';
-import type { GoalDetail, CheckIn } from '../../types';
-import type { CheckInUnit } from '../../../../types';
+import type { Task, CheckInUnit, CheckInEntry } from '../../../../types';
 import { getSimulatedToday } from '../../hooks';
 import styles from '../../../../css/CalendarViewPanel.module.css';
 
 interface CalendarViewPanelProps {
-  goal: GoalDetail;
+  goal: Task;
 }
 
 export default function CalendarViewPanel({ goal }: CalendarViewPanelProps) {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const checkIns = goal.checkIns || [];
   const config = goal.checkInConfig;
+  const records = config?.records || [];
   const unit: CheckInUnit = config?.unit || 'TIMES';
   const valueUnit = config?.valueUnit || '个';
   
   // 获取模拟的"今天"日期
-  const simulatedToday = getSimulatedToday(goal);
+  const simulatedToday = getSimulatedToday(goal as any);
   
   // 获取当前月份的日历数据
   const calendarData = useMemo(() => {
@@ -61,26 +60,28 @@ export default function CalendarViewPanel({ goal }: CalendarViewPanelProps) {
   }, [simulatedToday]);
   
   // 按日期分组打卡记录
-  const checkInsByDate = useMemo(() => {
-    const map = new Map<string, CheckIn[]>();
-    checkIns.forEach(c => {
-      const existing = map.get(c.date) || [];
-      existing.push(c);
-      map.set(c.date, existing);
+  const recordsByDate = useMemo(() => {
+    const map = new Map<string, { entries: CheckInEntry[]; totalValue: number }>();
+    records.forEach(r => {
+      if (r.checked && r.entries) {
+        map.set(r.date, {
+          entries: r.entries,
+          totalValue: r.totalValue || r.entries.reduce((sum, e) => sum + (e.value || 1), 0)
+        });
+      }
     });
     return map;
-  }, [checkIns]);
+  }, [records]);
   
   // 获取某天的打卡汇总
   const getDaySummary = (date: string) => {
-    const dayCheckIns = checkInsByDate.get(date) || [];
-    if (dayCheckIns.length === 0) return null;
+    const dayData = recordsByDate.get(date);
+    if (!dayData) return null;
     
-    const totalValue = dayCheckIns.reduce((sum, c) => sum + (c.value || 1), 0);
     return {
-      count: dayCheckIns.length,
-      totalValue,
-      entries: dayCheckIns
+      count: dayData.entries.length,
+      totalValue: dayData.totalValue,
+      entries: dayData.entries
     };
   };
   
@@ -88,7 +89,7 @@ export default function CalendarViewPanel({ goal }: CalendarViewPanelProps) {
   const selectedDayData = useMemo(() => {
     if (!selectedDate) return null;
     return getDaySummary(selectedDate);
-  }, [selectedDate, checkInsByDate]);
+  }, [selectedDate, recordsByDate]);
   
   const weekDays = ['日', '一', '二', '三', '四', '五', '六'];
   
@@ -192,7 +193,7 @@ export default function CalendarViewPanel({ goal }: CalendarViewPanelProps) {
                 {selectedDayData.entries.map((entry, idx) => (
                   <div key={entry.id} className={styles.entryItem}>
                     <span className={styles.entryTime}>
-                      {dayjs(entry.timestamp).format('HH:mm')}
+                      {entry.time}
                     </span>
                     {unit !== 'TIMES' && entry.value && (
                       <span className={styles.entryValue}>
@@ -216,4 +217,3 @@ export default function CalendarViewPanel({ goal }: CalendarViewPanelProps) {
     </div>
   );
 }
-

@@ -1,0 +1,361 @@
+/* MainlineTaskCard 样式 */
+
+/* 卡片容器 */
+.card {
+  background: #ffffff;
+  border: 1px solid rgba(55, 53, 47, 0.12);
+  border-left: 3px solid rgb(55, 53, 47);
+  border-radius: 8px;
+  padding: 20px;
+  padding-left: 18px;
+  margin-bottom: 12px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.card:hover {
+  background: rgba(55, 53, 47, 0.03);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.card:active {
+  background: rgba(55, 53, 47, 0.06);
+  transform: scale(0.995);
+}
+
+.content {
+  position: relative;
+  z-index: 10;
+}
+
+/* 头部区域 */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.titleWrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.titleDot {
+  font-size: 14px;
+  line-height: 1;
+  font-weight: 600;
+}
+
+.title {
+  font-size: 15px;
+  font-weight: 500;
+  margin: 0;
+  color: rgb(55, 53, 47);
+  line-height: 1.4;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.deadlineText {
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.cycleBadge {
+  font-size: 11px;
+  color: rgba(55, 53, 47, 0.5);
+  background-color: rgba(55, 53, 47, 0.06);
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.completedBadge {
+  font-size: 11px;
+  color: rgba(55, 53, 47, 0.5);
+  background-color: rgba(55, 53, 47, 0.06);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+/* 进度区域 */
+.progressSection {
+  margin-bottom: 16px;
+}
+
+.progressHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.progressLabel {
+  font-size: 13px;
+  color: rgba(55, 53, 47, 0.65);
+}
+
+.progressDebtTarget {
+  margin-left: 4px;
+  font-weight: 500;
+}
+
+.progressValue {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgb(55, 53, 47);
+}
+
+.progressBar {
+  height: 4px;
+  background-color: rgba(55, 53, 47, 0.08);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: rgb(55, 53, 47);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+/* 当前进行中项目 */
+.currentItemSection {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(55, 53, 47, 0.06);
+}
+
+.currentItemLabel {
+  font-size: 12px;
+  color: rgba(55, 53, 47, 0.5);
+  margin-bottom: 4px;
+}
+
+.currentItemTitle {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgb(55, 53, 47);
+  margin-bottom: 2px;
+}
+
+.currentItemProgress {
+  font-size: 12px;
+  color: rgba(55, 53, 47, 0.5);
+}
+
+/* 连续打卡区域 */
+.streakSection {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background-color: rgba(55, 53, 47, 0.04);
+  border-radius: 6px;
+}
+
+.streakLabel {
+  font-size: 13px;
+  color: rgba(55, 53, 47, 0.65);
+}
+
+.streakValue {
+  font-size: 15px;
+  font-weight: 600;
+  color: rgb(55, 53, 47);
+}
+
+/* 底部总进度区域 */
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 12px;
+  border-top: 1px solid rgba(55, 53, 47, 0.06);
+}
+
+.footerLabel {
+  font-size: 12px;
+  color: rgba(55, 53, 47, 0.5);
+}
+
+.footerProgress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.footerProgressBar {
+  width: 48px;
+  height: 3px;
+  background-color: rgba(55, 53, 47, 0.08);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.footerProgressFill {
+  height: 100%;
+  background-color: rgba(55, 53, 47, 0.35);
+  border-radius: 2px;
+}
+
+.footerProgressValue {
+  font-size: 12px;
+  color: rgba(55, 53, 47, 0.5);
+}
+
+/* 已完成卡片样式 */
+.completedHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.completedTitleWrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.completedIcon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.completedTitle {
+  font-size: 15px;
+  font-weight: 500;
+  margin: 0;
+  color: rgb(55, 53, 47);
+  line-height: 1.4;
+}
+
+/* 结算对比区域 */
+.settlementSection {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.settlementCard {
+  flex: 1;
+  padding: 10px 12px;
+  background-color: rgba(55, 53, 47, 0.04);
+  border-radius: 8px;
+}
+
+.settlementLabel {
+  font-size: 11px;
+  color: rgba(55, 53, 47, 0.5);
+  margin-bottom: 4px;
+}
+
+.settlementValue {
+  font-size: 14px;
+  color: rgb(55, 53, 47);
+  font-weight: 500;
+}
+
+/* 底部统计区域 */
+.statsSection {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 12px;
+  border-top: 1px solid rgba(55, 53, 47, 0.06);
+}
+
+.statItem {
+  text-align: center;
+}
+
+.statValue {
+  font-size: 15px;
+  font-weight: 500;
+  color: rgb(55, 53, 47);
+}
+
+.statLabel {
+  font-size: 11px;
+  color: rgba(55, 53, 47, 0.5);
+}
+
+/* 旧版兼容样式 */
+.legacyHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.legacyTitle {
+  color: rgb(55, 53, 47);
+  margin: 0;
+  padding-right: 12px;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.legacyCycleBadge {
+  background-color: rgba(55, 53, 47, 0.06);
+  padding: 3px 8px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.legacyCycleText {
+  font-size: 11px;
+  color: rgba(55, 53, 47, 0.65);
+  font-weight: 500;
+}
+
+.legacyProgressContainer {
+  margin-bottom: 8px;
+}
+
+.legacyProgressBar {
+  height: 4px;
+  background-color: rgba(55, 53, 47, 0.08);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.legacyProgressFill {
+  height: 100%;
+  background-color: rgb(55, 53, 47);
+  transition: width 0.3s ease;
+  border-radius: 4px;
+}
+
+.legacyFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+.legacyDaysText {
+  color: rgba(55, 53, 47, 0.5);
+  font-size: 12px;
+}
+
+.legacyProgressInfo {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: rgba(55, 53, 47, 0.65);
+  font-weight: 500;
+}

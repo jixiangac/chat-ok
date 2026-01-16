@@ -146,6 +146,11 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.repairItem:last-child {
+  margin-bottom: 0;
 }
 
 .repairInfo {
@@ -185,4 +190,20 @@
 .repairButton:active {
   transform: scale(0.98);
 }
+
+/* 迁移按钮特殊样式 */
+.migrateButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+}
+
+.migrateButton:hover {
+  background: linear-gradient(135deg, #5a6fd6 0%, #6a4190 100%);
+  border: none;
+}
+
 

@@ -1,8 +1,8 @@
 import { useState, useMemo, useCallback, memo } from 'react';
-import { X, Pencil, MoreHorizontal, BarChart3, ClipboardList, CheckCircle, Target, StopCircle, GitBranch, Copy } from 'lucide-react';
+import { X, Pencil, MoreHorizontal, StopCircle, GitBranch, Copy } from 'lucide-react';
 import { Toast } from 'antd-mobile';
 import type { GoalHeaderProps } from '../../types';
-import type { MainlineTaskType } from '../../../../types';
+import type { Category } from '../../../../types';
 import { getProgressImage, getCompletionImage } from '../../constants';
 import { formatLargeNumber } from '../../utils';
 import { exportSingleTask, copyToClipboard, getDeveloperMode } from '../../../../utils';
@@ -30,14 +30,21 @@ function GoalHeaderComponent({
   const isDeveloperMode = useMemo(() => getDeveloperMode(), []);
   
   // 智能判断任务类型 - 使用 useMemo 缓存
-  const mainlineType = useMemo((): MainlineTaskType => {
+  const mainlineType = useMemo((): Category => {
     if (goal.numericConfig) return 'NUMERIC';
     if (goal.checklistConfig) return 'CHECKLIST';
     return 'CHECK_IN';
   }, [goal.numericConfig, goal.checklistConfig]);
   
-  // 根据任务类型计算进度 - 使用 useMemo 缓存
+  // 根据任务类型计算进度 - 直接使用预计算的 progress
   const progress = useMemo(() => {
+    // 优先使用预计算的进度
+    const goalAny = goal as any;
+    if (goalAny.progress?.totalPercentage !== undefined) {
+      return goalAny.progress.totalPercentage;
+    }
+    
+    // 兼容旧格式
     if (mainlineType === 'NUMERIC' && goal.numericConfig) {
       const config = goal.numericConfig;
       const isDecrease = config.direction === 'DECREASE';
@@ -56,21 +63,22 @@ function GoalHeaderComponent({
     // CHECK_IN 类型
     const config = goal.checkInConfig;
     const unit = config?.unit || 'TIMES';
-    const checkIns = goal.checkIns || [];
+    const records = config?.records || [];
+    const checkedRecords = records.filter(r => r.checked);
     
     if (unit === 'TIMES') {
       const perCycleTarget = config?.cycleTargetTimes || config?.perCycleTarget || requiredCheckIns;
       const totalRequired = totalCycles * perCycleTarget;
-      return totalRequired > 0 ? Math.round((checkIns.length / totalRequired) * 100) : 0;
+      return totalRequired > 0 ? Math.round((checkedRecords.length / totalRequired) * 100) : 0;
     } else if (unit === 'DURATION') {
       const perCycleTarget = config?.cycleTargetMinutes || config?.perCycleTarget || 0;
       const totalRequired = totalCycles * perCycleTarget;
-      const totalValue = checkIns.reduce((sum, c) => sum + (c.value || 0), 0);
+      const totalValue = checkedRecords.reduce((sum, r) => sum + (r.totalValue || 0), 0);
       return totalRequired > 0 ? Math.round((totalValue / totalRequired) * 100) : 0;
     } else {
       const perCycleTarget = config?.cycleTargetValue || config?.perCycleTarget || 0;
       const totalRequired = totalCycles * perCycleTarget;
-      const totalValue = checkIns.reduce((sum, c) => sum + (c.value || 0), 0);
+      const totalValue = checkedRecords.reduce((sum, r) => sum + (r.totalValue || 0), 0);
       return totalRequired > 0 ? Math.round((totalValue / totalRequired) * 100) : 0;
     }
   }, [mainlineType, goal, requiredCheckIns, totalCycles]);
@@ -104,14 +112,15 @@ function GoalHeaderComponent({
     // CHECK_IN 类型
     const config = goal.checkInConfig;
     const unit = config?.unit || 'TIMES';
-    const checkIns = goal.checkIns || [];
+    const records = config?.records || [];
+    const checkedRecords = records.filter(r => r.checked);
     
     if (unit === 'TIMES') {
       const perCycleTarget = config?.cycleTargetTimes || config?.perCycleTarget || requiredCheckIns;
       const totalTarget = totalCycles * perCycleTarget;
       return (
         <>
-          {checkIns.length}
+          {checkedRecords.length}
           <span style={{ padding: '0 5px' }}>/</span>
           <span className={styles.infoValueTarget}>{totalTarget}</span>次
         </>
@@ -119,7 +128,7 @@ function GoalHeaderComponent({
     } else if (unit === 'DURATION') {
       const perCycleTarget = config?.cycleTargetMinutes || config?.perCycleTarget || 0;
       const totalTarget = totalCycles * perCycleTarget;
-      const totalValue = checkIns.reduce((sum, c) => sum + (c.value || 0), 0);
+      const totalValue = checkedRecords.reduce((sum, r) => sum + (r.totalValue || 0), 0);
       return (
         <>
           {totalValue}
@@ -130,7 +139,7 @@ function GoalHeaderComponent({
     } else {
       const perCycleTarget = config?.cycleTargetValue || config?.perCycleTarget || 0;
       const totalTarget = totalCycles * perCycleTarget;
-      const totalValue = checkIns.reduce((sum, c) => sum + (c.value || 0), 0);
+      const totalValue = checkedRecords.reduce((sum, r) => sum + (r.totalValue || 0), 0);
       return (
         <>
           {totalValue}
@@ -313,5 +322,3 @@ function GoalHeaderComponent({
 // 使用 memo 包装，优化渲染性能
 export const GoalHeader = memo(GoalHeaderComponent);
 export default GoalHeader;
-
-

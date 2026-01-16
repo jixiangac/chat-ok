@@ -4,12 +4,8 @@ import { useTaskContext } from '../../contexts';
 import { Task } from '../../types';
 import styles from './RandomTaskPicker.module.css';
 
-interface RandomTaskPickerProps {
-  onSelectTask: (taskId: string) => void;
-}
-
-export default function RandomTaskPicker({ onSelectTask }: RandomTaskPickerProps) {
-  const { tasks } = useTaskContext();
+export default function RandomTaskPicker() {
+  const { tasks, setSelectedTaskId } = useTaskContext();
   const [showModal, setShowModal] = useState(false);
   const [pickedTask, setPickedTask] = useState<Task | null>(null);
   const [excludedIds, setExcludedIds] = useState<Set<string>>(new Set());
@@ -17,23 +13,21 @@ export default function RandomTaskPicker({ onSelectTask }: RandomTaskPickerProps
   // 获取所有未归档的支线任务数量
   const sidelineTaskCount = tasks.filter(t => 
     (t.type === 'sidelineA' || t.type === 'sidelineB') &&
-    (t as any).status !== 'archived'
+    t.status !== 'ARCHIVED' && t.status !== 'ARCHIVED_HISTORY'
   ).length;
 
   // 检查任务今日是否已完成打卡
   const isTodayCompleted = useCallback((task: Task) => {
     const today = dayjs().format('YYYY-MM-DD');
-    const mainlineTask = task.mainlineTask;
+    
+    const checkInConfig = task.checkInConfig;
     
     // 检查打卡类型任务
-    if (mainlineTask?.checkInConfig?.records) {
-      const todayRecord = mainlineTask.checkInConfig.records.find(r => r.date === today);
-      if (todayRecord?.checked) return true;
-    }
-    
-    // 检查旧版checkIns字段
-    if (task.checkIns?.some(c => dayjs(c.date).format('YYYY-MM-DD') === today)) {
-      return true;
+    if (checkInConfig?.records) {
+      const todayRecord = checkInConfig.records.find(r => r.date === today);
+      if (todayRecord?.checked || (todayRecord?.entries && todayRecord.entries.length > 0)) {
+        return true;
+      }
     }
     
     return false;
@@ -41,23 +35,17 @@ export default function RandomTaskPicker({ onSelectTask }: RandomTaskPickerProps
 
   // 检查任务当前周期是否已完成目标
   const isCycleCompleted = useCallback((task: Task) => {
-    const mainlineTask = task.mainlineTask;
-    if (!mainlineTask) return false;
-    
-    // 检查当前周期进度是否达到100%
-    if (mainlineTask.progress?.currentCyclePercentage >= 100) {
-      return true;
-    }
+    if (task.progress?.cyclePercentage >= 100) return true;
     
     // 检查打卡类型任务的周期目标
-    if (mainlineTask.checkInConfig) {
-      const config = mainlineTask.checkInConfig;
+    const checkInConfig = task.checkInConfig;
+    if (checkInConfig) {
+      const config = checkInConfig;
       const records = config.records || [];
       
-      // 计算当前周期内的打卡次数/时长/数值
-      const startDate = task.startDate;
-      const cycleDays = task.cycleDays || 7;
-      const currentCycle = mainlineTask.cycleConfig?.currentCycle || 1;
+      const startDate = task.time.startDate;
+      const cycleDays = task.cycle.cycleDays;
+      const currentCycle = task.cycle.currentCycle;
       
       if (startDate) {
         const cycleStartDate = dayjs(startDate).add((currentCycle - 1) * cycleDays, 'day');
@@ -79,7 +67,7 @@ export default function RandomTaskPicker({ onSelectTask }: RandomTaskPickerProps
           const target = config.cycleTargetMinutes || (config.perCycleTarget * (config.dailyTargetMinutes || 15));
           if (totalMinutes >= target) return true;
         } else if (config.unit === 'QUANTITY') {
-          const totalValue = cycleRecords.reduce((sum, r) => sum + (r.totalValue || 0), 0);
+          const totalValue = cycleRecords.reduce((sum: number, r: any) => sum + (r.totalValue || 0), 0);
           const target = config.cycleTargetValue || config.perCycleTarget;
           if (totalValue >= target) return true;
         }
@@ -94,9 +82,9 @@ export default function RandomTaskPicker({ onSelectTask }: RandomTaskPickerProps
     // 筛选支线任务，排除已归档、已完成、今日已完成、当前周期已完成的
     const sidelineTasks = tasks.filter(t => 
       (t.type === 'sidelineA' || t.type === 'sidelineB') &&
-      (t as any).status !== 'archived' &&
-      !t.completed &&
-      t.mainlineTask?.status !== 'COMPLETED' &&
+      t.status !== 'COMPLETED' &&
+      t.status !== 'ARCHIVED' &&
+      t.status !== 'ARCHIVED_HISTORY' &&
       !isTodayCompleted(t) && // 排除今日已完成的任务
       !isCycleCompleted(t) // 排除当前周期已完成的任务
     );
@@ -107,8 +95,10 @@ export default function RandomTaskPicker({ onSelectTask }: RandomTaskPickerProps
     // 按优先级排序
     // 时长类任务优先（CHECK_IN类型中的DURATION）
     return availableTasks.sort((a, b) => {
-      const aIsDuration = a.mainlineTask?.checkInConfig?.unit === 'DURATION';
-      const bIsDuration = b.mainlineTask?.checkInConfig?.unit === 'DURATION';
+      const aCheckInConfig = a.checkInConfig;
+      const bCheckInConfig = b.checkInConfig;
+      const aIsDuration = aCheckInConfig?.unit === 'DURATION';
+      const bIsDuration = bCheckInConfig?.unit === 'DURATION';
       
       if (aIsDuration && !bIsDuration) return -1;
       if (!aIsDuration && bIsDuration) return 1;
@@ -160,7 +150,7 @@ export default function RandomTaskPicker({ onSelectTask }: RandomTaskPickerProps
   // 确定选择
   const handleConfirm = () => {
     if (pickedTask) {
-      onSelectTask(pickedTask.id);
+      setSelectedTaskId(pickedTask.id);
       handleClose();
     }
   };
@@ -175,9 +165,9 @@ export default function RandomTaskPicker({ onSelectTask }: RandomTaskPickerProps
     setTimeout(() => {
       const eligibleTasks = tasks.filter(t => 
         (t.type === 'sidelineA' || t.type === 'sidelineB') &&
-        (t as any).status !== 'archived' &&
-        !t.completed &&
-        t.mainlineTask?.status !== 'COMPLETED' &&
+        t.status !== 'COMPLETED' &&
+        t.status !== 'ARCHIVED' &&
+        t.status !== 'ARCHIVED_HISTORY' &&
         !isTodayCompleted(t) && // 排除今日已完成的任务
         !isCycleCompleted(t) && // 排除当前周期已完成的任务
         !excludedIds.has(t.id) &&
@@ -191,8 +181,10 @@ export default function RandomTaskPicker({ onSelectTask }: RandomTaskPickerProps
 
       // 重新排序和抽取（时长类优先）
       const sorted = eligibleTasks.sort((a, b) => {
-        const aIsDuration = a.mainlineTask?.checkInConfig?.unit === 'DURATION';
-        const bIsDuration = b.mainlineTask?.checkInConfig?.unit === 'DURATION';
+        const aCheckInConfig = a.checkInConfig;
+        const bCheckInConfig = b.checkInConfig;
+        const aIsDuration = aCheckInConfig?.unit === 'DURATION';
+        const bIsDuration = bCheckInConfig?.unit === 'DURATION';
         
         if (aIsDuration && !bIsDuration) return -1;
         if (!aIsDuration && bIsDuration) return 1;
@@ -220,8 +212,9 @@ export default function RandomTaskPicker({ onSelectTask }: RandomTaskPickerProps
 
   // 获取任务类型标签
   const getTaskTypeLabel = (task: Task) => {
-    const type = task.mainlineTask?.mainlineType;
-    const unit = task.mainlineTask?.checkInConfig?.unit;
+    const type = task.category;
+    const checkInConfig = task.checkInConfig;
+    const unit = checkInConfig?.unit;
     
     if (type === 'CHECK_IN') {
       if (unit === 'DURATION') return '时长打卡';
@@ -237,9 +230,9 @@ export default function RandomTaskPicker({ onSelectTask }: RandomTaskPickerProps
   const getRemainingCount = () => {
     const eligibleTasks = tasks.filter(t => 
       (t.type === 'sidelineA' || t.type === 'sidelineB') &&
-      (t as any).status !== 'archived' &&
-      !t.completed &&
-      t.mainlineTask?.status !== 'COMPLETED' &&
+      t.status !== 'COMPLETED' &&
+      t.status !== 'ARCHIVED' &&
+      t.status !== 'ARCHIVED_HISTORY' &&
       !isTodayCompleted(t) && // 排除今日已完成的任务
       !isCycleCompleted(t) && // 排除当前周期已完成的任务
       !excludedIds.has(t.id) &&
@@ -317,7 +310,7 @@ export default function RandomTaskPicker({ onSelectTask }: RandomTaskPickerProps
                         今日待完成
                       </span>
                     )}
-                    {pickedTask.mainlineTask?.checkInConfig?.unit === 'DURATION' && (
+                    {pickedTask.checkInConfig?.unit === 'DURATION' && (
                       <span className={styles.taskTag}>
                         时长类
                       </span>
@@ -364,3 +357,6 @@ export default function RandomTaskPicker({ onSelectTask }: RandomTaskPickerProps
     </>
   );
 }
+
+
+

@@ -5,12 +5,15 @@ import * as dc_components_CreateMainlineTaskModal_steps_configs_CheckInConfig fr
 import * as dc_components_CreateMainlineTaskModal_steps_configs_NumericConfig from '@/pages/dc/components/CreateMainlineTaskModal/steps/configs/NumericConfig';
 import * as dc_panels_memorial_components_CreateMemorialModal_LoadingSkeleton from '@/pages/dc/panels/memorial/components/CreateMemorialModal/LoadingSkeleton';
 import * as dc_components_CreateGoalModal_components_EncouragementInput from '@/pages/dc/components/CreateGoalModal/components/EncouragementInput';
+import * as dc_viewmodel_CreateTaskModal_steps_configs_ChecklistConfig from '@/pages/dc/viewmodel/CreateTaskModal/steps/configs/ChecklistConfig';
 import * as dc_components_CreateGoalModal_components_DurationSelector from '@/pages/dc/components/CreateGoalModal/components/DurationSelector';
 import * as dc_components_CreateGoalModal_components_PrioritySelector from '@/pages/dc/components/CreateGoalModal/components/PrioritySelector';
 import * as dc_components_CreateGoalModal_components_RulesExplanation from '@/pages/dc/components/CreateGoalModal/components/RulesExplanation';
 import * as dc_components_CreateGoalModal_components_TaskTypeSelector from '@/pages/dc/components/CreateGoalModal/components/TaskTypeSelector';
 import * as dc_panels_memorial_components_MemorialCardSkeleton from '@/pages/dc/panels/memorial/components/MemorialCardSkeleton/index';
 import * as dc_panels_memorial_components_MemorialListSkeleton from '@/pages/dc/panels/memorial/components/MemorialListSkeleton/index';
+import * as dc_viewmodel_CreateTaskModal_steps_configs_CheckInConfig from '@/pages/dc/viewmodel/CreateTaskModal/steps/configs/CheckInConfig';
+import * as dc_viewmodel_CreateTaskModal_steps_configs_NumericConfig from '@/pages/dc/viewmodel/CreateTaskModal/steps/configs/NumericConfig';
 import * as dc_panels_memorial_components_CreateMemorialModal from '@/pages/dc/panels/memorial/components/CreateMemorialModal/index';
 import * as dc_panels_memorial_components_VirtualMemorialList from '@/pages/dc/panels/memorial/components/VirtualMemorialList/index';
 import * as dc_components_CreateGoalModal_components_CycleSelector from '@/pages/dc/components/CreateGoalModal/components/CycleSelector';
@@ -58,10 +61,13 @@ import * as dc_panels_memorial_components_IconPicker from '@/pages/dc/panels/mem
 import * as dc_panels_settings_pages_TagSettingsPage from '@/pages/dc/panels/settings/pages/TagSettingsPage/index';
 import * as dc_panels_happy_components_AddGoalModal from '@/pages/dc/panels/happy/components/AddGoalModal/index';
 import * as dc_panels_settings_UnifiedSettingsPanel from '@/pages/dc/panels/settings/UnifiedSettingsPanel/index';
+import * as dc_viewmodel_CreateTaskModal_steps_ConfigStep from '@/pages/dc/viewmodel/CreateTaskModal/steps/ConfigStep';
 import * as dc_panels_detail_components_GoalHeader from '@/pages/dc/panels/detail/components/GoalHeader/index';
 import * as dc_panels_happy_components_TripList_TripCard from '@/pages/dc/panels/happy/components/TripList/TripCard';
+import * as dc_viewmodel_CreateTaskModal_steps_CycleStep from '@/pages/dc/viewmodel/CreateTaskModal/steps/CycleStep';
 import * as dc_components_CreateMainlineTaskModal from '@/pages/dc/components/CreateMainlineTaskModal/index';
 import * as dc_components_CreateMainlineTaskModal_types from '@/pages/dc/components/CreateMainlineTaskModal/types';
+import * as dc_viewmodel_CreateTaskModal_steps_TypeStep from '@/pages/dc/viewmodel/CreateTaskModal/steps/TypeStep';
 import * as dc_panels_settings_DeveloperSettings from '@/pages/dc/panels/settings/DeveloperSettings/index';
 import * as dc_components_SidelineTaskEditModal from '@/pages/dc/components/SidelineTaskEditModal/index';
 import * as dc_components_shared_CircleProgress from '@/pages/dc/components/shared/CircleProgress/index';
@@ -72,6 +78,7 @@ import * as dc_panels_detail_components_TabBar from '@/pages/dc/panels/detail/co
 import * as dc_panels_happy_components_DayTabs from '@/pages/dc/panels/happy/components/DayTabs/index';
 import * as dc_panels_happy_contexts_VacationContext from '@/pages/dc/panels/happy/contexts/VacationContext';
 import * as dc_panels_memorial_constants_backgrounds from '@/pages/dc/panels/memorial/constants/backgrounds';
+import * as dc_viewmodel_CreateTaskModal_steps from '@/pages/dc/viewmodel/CreateTaskModal/steps/index';
 import * as dc_components_CreateGoalModal_constants from '@/pages/dc/components/CreateGoalModal/constants';
 import * as dc_panels_happy_hooks_useTripNavigation from '@/pages/dc/panels/happy/hooks/useTripNavigation';
 import * as dc_panels_memorial_utils_dateCalculator from '@/pages/dc/panels/memorial/utils/dateCalculator';
@@ -81,6 +88,8 @@ import * as dc_contexts_SceneProvider_cacheManager from '@/pages/dc/contexts/Sce
 import * as dc_contexts_SceneProvider_indexBuilder from '@/pages/dc/contexts/SceneProvider/indexBuilder';
 import * as dc_panels_memorial_hooks_useDateFormat from '@/pages/dc/panels/memorial/hooks/useDateFormat';
 import * as dc_panels_settings_ThemeSettings from '@/pages/dc/panels/settings/ThemeSettings/index';
+import * as dc_viewmodel_CreateTaskModal_constants from '@/pages/dc/viewmodel/CreateTaskModal/constants';
+import * as dc_viewmodel_MainlineTaskSection from '@/pages/dc/viewmodel/MainlineTaskSection/index';
 import * as dc_viewmodel_SidelineTaskSection from '@/pages/dc/viewmodel/SidelineTaskSection/index';
 import * as dc_panels_memorial_hooks_useMemorials from '@/pages/dc/panels/memorial/hooks/useMemorials';
 import * as dc_panels_settings_hooks_usePageStack from '@/pages/dc/panels/settings/hooks/usePageStack';
@@ -98,8 +107,12 @@ import * as dc_panels_memorial_components from '@/pages/dc/panels/memorial/compo
 import * as dc_panels_settings_components from '@/pages/dc/panels/settings/components/index';
 import * as dc_viewmodel_RandomTaskPicker from '@/pages/dc/viewmodel/RandomTaskPicker/index';
 import * as dc_viewmodel_SidelineTaskGrid from '@/pages/dc/viewmodel/SidelineTaskGrid/index';
+import * as dc_components_LocationFilter from '@/pages/dc/components/LocationFilter/index';
+import * as dc_components_MigrationModal from '@/pages/dc/components/MigrationModal/index';
 import * as dc_panels_memorial_constants_icons from '@/pages/dc/panels/memorial/constants/icons';
 import * as dc_panels_memorial_constants from '@/pages/dc/panels/memorial/constants/index';
+import * as dc_viewmodel_CreateTaskModal from '@/pages/dc/viewmodel/CreateTaskModal/index';
+import * as dc_viewmodel_CreateTaskModal_types from '@/pages/dc/viewmodel/CreateTaskModal/types';
 import * as dc_components_DailyProgress from '@/pages/dc/components/DailyProgress/index';
 import * as dc_contexts_SceneProvider_storage from '@/pages/dc/contexts/SceneProvider/storage';
 import * as dc_panels_detail_components from '@/pages/dc/panels/detail/components/index';
@@ -149,22 +162,20 @@ import * as dc_panels_happy_utils from '@/pages/dc/panels/happy/utils/index';
 import * as dc_utils_mainlineTaskHelper from '@/pages/dc/utils/mainlineTaskHelper';
 import * as dc_utils_progressCalculator from '@/pages/dc/utils/progressCalculator';
 import * as dc_components_shared from '@/pages/dc/components/shared/index';
-import * as dc_contexts_UIStateContext from '@/pages/dc/contexts/UIStateContext';
 import * as dc_panels_memorial_storage from '@/pages/dc/panels/memorial/storage';
 import * as dc_utils_dataExportImport from '@/pages/dc/utils/dataExportImport';
 import * as dc_utils_developerStorage from '@/pages/dc/utils/developerStorage';
 import * as dc_components_card from '@/pages/dc/components/card/index';
-import * as dc_contexts_ThemeContext from '@/pages/dc/contexts/ThemeContext';
 import * as dc_panels_memorial from '@/pages/dc/panels/memorial/index';
 import * as dc_panels_memorial_types from '@/pages/dc/panels/memorial/types';
 import * as dc_panels_settings from '@/pages/dc/panels/settings/index';
 import * as dc_utils_cycleCalculator from '@/pages/dc/utils/cycleCalculator';
 import * as dc_utils_dailyViewFilter from '@/pages/dc/utils/dailyViewFilter';
 import * as dc_constants_animations from '@/pages/dc/constants/animations';
-import * as dc_contexts_TaskContext from '@/pages/dc/contexts/TaskContext';
 import * as dc_hooks_useSpriteImage from '@/pages/dc/hooks/useSpriteImage';
 import * as dc_panels_archive from '@/pages/dc/panels/archive/index';
 import * as dc_panels_happy_storage from '@/pages/dc/panels/happy/storage';
+import * as dc_utils_archiveStorage from '@/pages/dc/utils/archiveStorage';
 import * as dc_utils_dailyViewCache from '@/pages/dc/utils/dailyViewCache';
 import * as dc_panels_detail from '@/pages/dc/panels/detail/index';
 import * as dc_panels_detail_types from '@/pages/dc/panels/detail/types';
@@ -180,6 +191,7 @@ import * as dc_constants_colors from '@/pages/dc/constants/colors';
 import * as dc_utils_responsive from '@/pages/dc/utils/responsive';
 import * as dc_utils_tagStorage from '@/pages/dc/utils/tagStorage';
 import * as dc_constants from '@/pages/dc/constants/index';
+import * as dc_utils_migration from '@/pages/dc/utils/migration';
 import * as dc_viewmodel from '@/pages/dc/viewmodel/index';
 import * as dc_contexts from '@/pages/dc/contexts/index';
 import * as dc_panels from '@/pages/dc/panels/index';
@@ -327,6 +339,31 @@ const createRoutes: CreateRoutes = ({
     componentName: 'dc-components-creategoalmodal-components-encouragementinput',
     index: undefined,
     id: 'dc/components/CreateGoalModal/components/EncouragementInput',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/viewmodel/CreateTaskModal/steps/configs/ChecklistConfig',
+    async lazy() {
+      ;
+      return {
+        ...dc_viewmodel_CreateTaskModal_steps_configs_ChecklistConfig,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/viewmodel/CreateTaskModal/steps/configs/ChecklistConfig',
+          isLayout: false,
+          routeExports: dc_viewmodel_CreateTaskModal_steps_configs_ChecklistConfig,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/viewmodel/CreateTaskModal/steps/configs/ChecklistConfig',
+          requestContext,
+          renderMode,
+          module: dc_viewmodel_CreateTaskModal_steps_configs_ChecklistConfig,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-viewmodel-createtaskmodal-steps-configs-checklistconfig',
+    index: undefined,
+    id: 'dc/viewmodel/CreateTaskModal/steps/configs/ChecklistConfig',
     exact: true,
     exports: ["default"],
   },{
@@ -479,6 +516,56 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/panels/memorial/components/MemorialListSkeleton',
     exact: true,
     exports: ["MemorialListSkeleton","default"],
+  },{
+    path: 'dc/viewmodel/CreateTaskModal/steps/configs/CheckInConfig',
+    async lazy() {
+      ;
+      return {
+        ...dc_viewmodel_CreateTaskModal_steps_configs_CheckInConfig,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/viewmodel/CreateTaskModal/steps/configs/CheckInConfig',
+          isLayout: false,
+          routeExports: dc_viewmodel_CreateTaskModal_steps_configs_CheckInConfig,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/viewmodel/CreateTaskModal/steps/configs/CheckInConfig',
+          requestContext,
+          renderMode,
+          module: dc_viewmodel_CreateTaskModal_steps_configs_CheckInConfig,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-viewmodel-createtaskmodal-steps-configs-checkinconfig',
+    index: undefined,
+    id: 'dc/viewmodel/CreateTaskModal/steps/configs/CheckInConfig',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/viewmodel/CreateTaskModal/steps/configs/NumericConfig',
+    async lazy() {
+      ;
+      return {
+        ...dc_viewmodel_CreateTaskModal_steps_configs_NumericConfig,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/viewmodel/CreateTaskModal/steps/configs/NumericConfig',
+          isLayout: false,
+          routeExports: dc_viewmodel_CreateTaskModal_steps_configs_NumericConfig,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/viewmodel/CreateTaskModal/steps/configs/NumericConfig',
+          requestContext,
+          renderMode,
+          module: dc_viewmodel_CreateTaskModal_steps_configs_NumericConfig,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-viewmodel-createtaskmodal-steps-configs-numericconfig',
+    index: undefined,
+    id: 'dc/viewmodel/CreateTaskModal/steps/configs/NumericConfig',
+    exact: true,
+    exports: ["default"],
   },{
     path: 'dc/panels/memorial/components/CreateMemorialModal',
     async lazy() {
@@ -1655,6 +1742,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["default"],
   },{
+    path: 'dc/viewmodel/CreateTaskModal/steps/ConfigStep',
+    async lazy() {
+      ;
+      return {
+        ...dc_viewmodel_CreateTaskModal_steps_ConfigStep,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/viewmodel/CreateTaskModal/steps/ConfigStep',
+          isLayout: false,
+          routeExports: dc_viewmodel_CreateTaskModal_steps_ConfigStep,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/viewmodel/CreateTaskModal/steps/ConfigStep',
+          requestContext,
+          renderMode,
+          module: dc_viewmodel_CreateTaskModal_steps_ConfigStep,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-viewmodel-createtaskmodal-steps-configstep',
+    index: undefined,
+    id: 'dc/viewmodel/CreateTaskModal/steps/ConfigStep',
+    exact: true,
+    exports: ["default"],
+  },{
     path: 'dc/panels/detail/components/GoalHeader',
     async lazy() {
       ;
@@ -1702,6 +1814,31 @@ const createRoutes: CreateRoutes = ({
     componentName: 'dc-panels-happy-components-triplist-tripcard',
     index: undefined,
     id: 'dc/panels/happy/components/TripList/TripCard',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/viewmodel/CreateTaskModal/steps/CycleStep',
+    async lazy() {
+      ;
+      return {
+        ...dc_viewmodel_CreateTaskModal_steps_CycleStep,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/viewmodel/CreateTaskModal/steps/CycleStep',
+          isLayout: false,
+          routeExports: dc_viewmodel_CreateTaskModal_steps_CycleStep,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/viewmodel/CreateTaskModal/steps/CycleStep',
+          requestContext,
+          renderMode,
+          module: dc_viewmodel_CreateTaskModal_steps_CycleStep,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-viewmodel-createtaskmodal-steps-cyclestep',
+    index: undefined,
+    id: 'dc/viewmodel/CreateTaskModal/steps/CycleStep',
     exact: true,
     exports: ["default"],
   },{
@@ -1754,6 +1891,31 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/components/CreateMainlineTaskModal/types',
     exact: true,
     exports: [],
+  },{
+    path: 'dc/viewmodel/CreateTaskModal/steps/TypeStep',
+    async lazy() {
+      ;
+      return {
+        ...dc_viewmodel_CreateTaskModal_steps_TypeStep,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/viewmodel/CreateTaskModal/steps/TypeStep',
+          isLayout: false,
+          routeExports: dc_viewmodel_CreateTaskModal_steps_TypeStep,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/viewmodel/CreateTaskModal/steps/TypeStep',
+          requestContext,
+          renderMode,
+          module: dc_viewmodel_CreateTaskModal_steps_TypeStep,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-viewmodel-createtaskmodal-steps-typestep',
+    index: undefined,
+    id: 'dc/viewmodel/CreateTaskModal/steps/TypeStep',
+    exact: true,
+    exports: ["default"],
   },{
     path: 'dc/panels/settings/DeveloperSettings',
     async lazy() {
@@ -2005,6 +2167,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["ALL_BACKGROUNDS","COLOR_BACKGROUNDS","GRADIENT_BACKGROUNDS","getBackgroundStyle","getDefaultBackground","isDarkBackground"],
   },{
+    path: 'dc/viewmodel/CreateTaskModal/steps',
+    async lazy() {
+      ;
+      return {
+        ...dc_viewmodel_CreateTaskModal_steps,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/viewmodel/CreateTaskModal/steps',
+          isLayout: false,
+          routeExports: dc_viewmodel_CreateTaskModal_steps,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/viewmodel/CreateTaskModal/steps',
+          requestContext,
+          renderMode,
+          module: dc_viewmodel_CreateTaskModal_steps,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-viewmodel-createtaskmodal-steps-index',
+    index: true,
+    id: 'dc/viewmodel/CreateTaskModal/steps',
+    exact: true,
+    exports: ["ConfigStep","CycleStep","TypeStep"],
+  },{
     path: 'dc/components/CreateGoalModal/constants',
     async lazy() {
       ;
@@ -2227,6 +2414,56 @@ const createRoutes: CreateRoutes = ({
     componentName: 'dc-panels-settings-themesettings-index',
     index: true,
     id: 'dc/panels/settings/ThemeSettings',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/viewmodel/CreateTaskModal/constants',
+    async lazy() {
+      ;
+      return {
+        ...dc_viewmodel_CreateTaskModal_constants,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/viewmodel/CreateTaskModal/constants',
+          isLayout: false,
+          routeExports: dc_viewmodel_CreateTaskModal_constants,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/viewmodel/CreateTaskModal/constants',
+          requestContext,
+          renderMode,
+          module: dc_viewmodel_CreateTaskModal_constants,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-viewmodel-createtaskmodal-constants',
+    index: undefined,
+    id: 'dc/viewmodel/CreateTaskModal/constants',
+    exact: true,
+    exports: ["CHECK_IN_TYPE_OPTIONS","CYCLE_LENGTH_OPTIONS","DIRECTION_OPTIONS","TASK_TYPE_OPTIONS","TOTAL_DURATION_OPTIONS"],
+  },{
+    path: 'dc/viewmodel/MainlineTaskSection',
+    async lazy() {
+      ;
+      return {
+        ...dc_viewmodel_MainlineTaskSection,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/viewmodel/MainlineTaskSection',
+          isLayout: false,
+          routeExports: dc_viewmodel_MainlineTaskSection,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/viewmodel/MainlineTaskSection',
+          requestContext,
+          renderMode,
+          module: dc_viewmodel_MainlineTaskSection,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-viewmodel-mainlinetasksection-index',
+    index: true,
+    id: 'dc/viewmodel/MainlineTaskSection',
     exact: true,
     exports: ["default"],
   },{
@@ -2655,6 +2892,56 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["default"],
   },{
+    path: 'dc/components/LocationFilter',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_LocationFilter,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/LocationFilter',
+          isLayout: false,
+          routeExports: dc_components_LocationFilter,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/LocationFilter',
+          requestContext,
+          renderMode,
+          module: dc_components_LocationFilter,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-locationfilter-index',
+    index: true,
+    id: 'dc/components/LocationFilter',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/components/MigrationModal',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_MigrationModal,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/MigrationModal',
+          isLayout: false,
+          routeExports: dc_components_MigrationModal,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/MigrationModal',
+          requestContext,
+          renderMode,
+          module: dc_components_MigrationModal,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-migrationmodal-index',
+    index: true,
+    id: 'dc/components/MigrationModal',
+    exact: true,
+    exports: ["default"],
+  },{
     path: 'dc/panels/memorial/constants/icons',
     async lazy() {
       ;
@@ -2702,6 +2989,56 @@ const createRoutes: CreateRoutes = ({
     componentName: 'dc-panels-memorial-constants-index',
     index: true,
     id: 'dc/panels/memorial/constants',
+    exact: true,
+    exports: [],
+  },{
+    path: 'dc/viewmodel/CreateTaskModal',
+    async lazy() {
+      ;
+      return {
+        ...dc_viewmodel_CreateTaskModal,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/viewmodel/CreateTaskModal',
+          isLayout: false,
+          routeExports: dc_viewmodel_CreateTaskModal,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/viewmodel/CreateTaskModal',
+          requestContext,
+          renderMode,
+          module: dc_viewmodel_CreateTaskModal,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-viewmodel-createtaskmodal-index',
+    index: true,
+    id: 'dc/viewmodel/CreateTaskModal',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/viewmodel/CreateTaskModal/types',
+    async lazy() {
+      ;
+      return {
+        ...dc_viewmodel_CreateTaskModal_types,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/viewmodel/CreateTaskModal/types',
+          isLayout: false,
+          routeExports: dc_viewmodel_CreateTaskModal_types,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/viewmodel/CreateTaskModal/types',
+          requestContext,
+          renderMode,
+          module: dc_viewmodel_CreateTaskModal_types,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-viewmodel-createtaskmodal-types',
+    index: undefined,
+    id: 'dc/viewmodel/CreateTaskModal/types',
     exact: true,
     exports: [],
   },{
@@ -3703,7 +4040,7 @@ const createRoutes: CreateRoutes = ({
     index: undefined,
     id: 'dc/panels/detail/hooks',
     exact: true,
-    exports: ["formatLocalDate","getCurrentCycle","getSimulatedToday","getSimulatedTodayDate","getTodayCheckInStatusForTask","useGoalDetail"],
+    exports: ["DEBT_COLOR_SCHEMES","formatLocalDate","getCurrentCycle","getRandomColorScheme","getSimulatedToday","getSimulatedTodayDate","getTodayCheckInStatusForTask"],
   },{
     path: 'dc/panels/detail/utils',
     async lazy() {
@@ -3903,7 +4240,7 @@ const createRoutes: CreateRoutes = ({
     index: undefined,
     id: 'dc/utils/progressCalculator',
     exact: true,
-    exports: ["calculateCheckInProgress","calculateChecklistProgress","calculateNumericProgress","formatLargeNumber","formatNumber","getEffectiveMainlineType"],
+    exports: ["ProgressCalculator","calculateCheckInProgress","calculateChecklistProgress","calculateNumericProgress","default","formatLargeNumber","formatNumber","getEffectiveCategory","getEffectiveMainlineType"],
   },{
     path: 'dc/components/shared',
     async lazy() {
@@ -3929,31 +4266,6 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/components/shared',
     exact: true,
     exports: ["CircleProgress","ProgressBar","StatCard","StatCardGrid"],
-  },{
-    path: 'dc/contexts/UIStateContext',
-    async lazy() {
-      ;
-      return {
-        ...dc_contexts_UIStateContext,
-        Component: () => WrapRouteComponent({
-          routeId: 'dc/contexts/UIStateContext',
-          isLayout: false,
-          routeExports: dc_contexts_UIStateContext,
-        }),
-        loader: createRouteLoader({
-          routeId: 'dc/contexts/UIStateContext',
-          requestContext,
-          renderMode,
-          module: dc_contexts_UIStateContext,
-        }),
-      };
-    },
-    errorElement: <RouteErrorComponent />,
-    componentName: 'dc-contexts-uistatecontext',
-    index: undefined,
-    id: 'dc/contexts/UIStateContext',
-    exact: true,
-    exports: ["UIStateProvider","default","useUIState"],
   },{
     path: 'dc/panels/memorial/storage',
     async lazy() {
@@ -4003,7 +4315,7 @@ const createRoutes: CreateRoutes = ({
     index: undefined,
     id: 'dc/utils/dataExportImport',
     exact: true,
-    exports: ["DATA_TYPE_CONFIG","clearData","exportData","exportToClipboard","getDataStats","importData","repairTaskProgressData"],
+    exports: ["DATA_TYPE_CONFIG","clearData","exportData","exportToClipboard","getDataStats","importData","migrateToNewFormat","repairTaskProgressData"],
   },{
     path: 'dc/utils/developerStorage',
     async lazy() {
@@ -4054,31 +4366,6 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/components/card',
     exact: true,
     exports: ["MainlineTaskCard","SidelineTaskCard"],
-  },{
-    path: 'dc/contexts/ThemeContext',
-    async lazy() {
-      ;
-      return {
-        ...dc_contexts_ThemeContext,
-        Component: () => WrapRouteComponent({
-          routeId: 'dc/contexts/ThemeContext',
-          isLayout: false,
-          routeExports: dc_contexts_ThemeContext,
-        }),
-        loader: createRouteLoader({
-          routeId: 'dc/contexts/ThemeContext',
-          requestContext,
-          renderMode,
-          module: dc_contexts_ThemeContext,
-        }),
-      };
-    },
-    errorElement: <RouteErrorComponent />,
-    componentName: 'dc-contexts-themecontext',
-    index: undefined,
-    id: 'dc/contexts/ThemeContext',
-    exact: true,
-    exports: ["ThemeProvider","default","themePresets","useTheme"],
   },{
     path: 'dc/panels/memorial',
     async lazy() {
@@ -4230,31 +4517,6 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["ANIMATION_ENABLED","RESPECT_REDUCED_MOTION","cardVariants","drawerLeftVariants","drawerRightVariants","fadeVariants","gridItemVariants","listContainerVariants","listItemVariants","modalVariants","optionVariants","overlayVariants","quickTransition","scaleVariants","smoothTransition","springTransition","stepVariants"],
   },{
-    path: 'dc/contexts/TaskContext',
-    async lazy() {
-      ;
-      return {
-        ...dc_contexts_TaskContext,
-        Component: () => WrapRouteComponent({
-          routeId: 'dc/contexts/TaskContext',
-          isLayout: false,
-          routeExports: dc_contexts_TaskContext,
-        }),
-        loader: createRouteLoader({
-          routeId: 'dc/contexts/TaskContext',
-          requestContext,
-          renderMode,
-          module: dc_contexts_TaskContext,
-        }),
-      };
-    },
-    errorElement: <RouteErrorComponent />,
-    componentName: 'dc-contexts-taskcontext',
-    index: undefined,
-    id: 'dc/contexts/TaskContext',
-    exact: true,
-    exports: ["TaskProvider","default","useTaskContext"],
-  },{
     path: 'dc/hooks/useSpriteImage',
     async lazy() {
       ;
@@ -4329,6 +4591,31 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/panels/happy/storage',
     exact: true,
     exports: ["addGoalToSchedule","calculateTripStats","completeGoal","createTrip","deleteGoal","deleteTrip","getTrip","loadTrips","loadVacationState","saveTrips","saveVacationState","updateGoal","updateTrip"],
+  },{
+    path: 'dc/utils/archiveStorage',
+    async lazy() {
+      ;
+      return {
+        ...dc_utils_archiveStorage,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/utils/archiveStorage',
+          isLayout: false,
+          routeExports: dc_utils_archiveStorage,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/utils/archiveStorage',
+          requestContext,
+          renderMode,
+          module: dc_utils_archiveStorage,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-utils-archivestorage',
+    index: undefined,
+    id: 'dc/utils/archiveStorage',
+    exact: true,
+    exports: ["archiveTask","clearAllArchivedTasks","deleteArchivedTask","getArchiveStats","getArchivedTasks","migrateOldArchivedTasks","restoreFromArchive","saveArchivedTasks"],
   },{
     path: 'dc/utils/dailyViewCache',
     async lazy() {
@@ -4603,7 +4890,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/components',
     exact: true,
-    exports: ["CircleProgress","CreateGoalModal","CreateMainlineTaskModal","DailyProgress","MainlineTaskCard","ProgressBar","SidelineTaskCard","StatCard","StatCardGrid","ThemedButton"],
+    exports: ["CircleProgress","CreateGoalModal","CreateMainlineTaskModal","DailyProgress","LocationFilter","MainlineTaskCard","MigrationModal","ProgressBar","SidelineTaskCard","StatCard","StatCardGrid","ThemedButton"],
   },{
     path: 'dc/constants/colors',
     async lazy() {
@@ -4705,6 +4992,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["ANIMATION_ENABLED","DEBT_COLOR_SCHEMES","EMPTY_STATE_IMAGE","MEMORIAL_SPRITE_IMAGES","RESPECT_REDUCED_MOTION","SIDELINE_THEME_COLORS","SPRITE_IMAGES","TRIP_SPRITE_IMAGES","VACATION_SPRITE_IMAGES","cardVariants","drawerLeftVariants","drawerRightVariants","fadeVariants","getCurrentTimeSlot","getNextThemeColor","getRandomDebtColorScheme","gridItemVariants","listContainerVariants","listItemVariants","modalVariants","optionVariants","overlayVariants","quickTransition","scaleVariants","smoothTransition","springTransition","stepVariants"],
   },{
+    path: 'dc/utils/migration',
+    async lazy() {
+      ;
+      return {
+        ...dc_utils_migration,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/utils/migration',
+          isLayout: false,
+          routeExports: dc_utils_migration,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/utils/migration',
+          requestContext,
+          renderMode,
+          module: dc_utils_migration,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-utils-migration',
+    index: undefined,
+    id: 'dc/utils/migration',
+    exact: true,
+    exports: ["TaskMigration","createTask","default"],
+  },{
     path: 'dc/viewmodel',
     async lazy() {
       ;
@@ -4728,7 +5040,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/viewmodel',
     exact: true,
-    exports: ["AllSidelineTasksList","AllSidelineTasksPopup","DailyViewPopup","GroupCard","GroupModeGrid","MoonPhase","RandomTaskPicker","SidelineTaskGrid","SidelineTaskSection","TodayMustCompleteModal","TodayProgress"],
+    exports: ["AllSidelineTasksList","AllSidelineTasksPopup","CreateTaskModal","DailyViewPopup","GroupCard","GroupModeGrid","MainlineTaskSection","MoonPhase","RandomTaskPicker","SidelineTaskGrid","SidelineTaskSection","TodayMustCompleteModal","TodayProgress"],
   },{
     path: 'dc/contexts',
     async lazy() {
@@ -4828,7 +5140,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/utils',
     exact: true,
-    exports: ["CycleCalculator","DATA_TYPE_CONFIG","LAYOUT_CONSTANTS","TAG_COLORS","calculateCheckInProgress","calculateCheckInProgressV2","calculateChecklistProgress","calculateChecklistProgressV2","calculateCurrentCycleNumber","calculateGridColumns","calculateModalMaxHeight","calculateNumericProgress","calculateNumericProgressV2","calculateRemainingDays","calculateVisibleSidelineTasks","canOpenModalForEdit","canOpenModalForView","clearDailyViewCache","clearData","copyToClipboard","createTag","createTodayState","deleteTag","exportAllTasks","exportData","exportSingleTask","exportToClipboard","filterDailyViewTasks","formatLargeNumber","formatNumber","getAllTags","getCachedDailyTaskIds","getDataStats","getDeveloperMode","getEffectiveMainlineType","getNextTagColor","getSafeAreaInsets","getSavedLocationFilter","getScreenSize","getTagById","getTodayDateString","getTodayMustCompleteTaskIds","hasTodayBeenSet","hasTodaySetTasks","importAllTasks","importData","importSingleTask","isMobileDevice","isSmallScreen","isTaskTodayMustComplete","isTodayCheckedIn","loadTagsFromStorage","loadTodayMustCompleteState","markModalShown","prefersReducedMotion","removeFromTodayMustComplete","saveDailyTaskIdsCache","saveLocationFilter","saveTagsToStorage","saveTodayMustCompleteState","setDeveloperMode","setTodayMustCompleteTasks","shouldShowTodayMustCompleteModal","skipTodayMustComplete","updateMainlineTaskProgress","updateTag"],
+    exports: ["CycleCalculator","DATA_TYPE_CONFIG","LAYOUT_CONSTANTS","MigrationTool","ProgressCalculator","TAG_COLORS","TaskMigration","archiveTask","calculateCheckInProgress","calculateCheckInProgressV2","calculateChecklistProgress","calculateChecklistProgressV2","calculateCurrentCycleNumber","calculateGridColumns","calculateModalMaxHeight","calculateNumericProgress","calculateNumericProgressV2","calculateRemainingDays","calculateVisibleSidelineTasks","canOpenModalForEdit","canOpenModalForView","clearAllArchivedTasks","clearDailyViewCache","clearData","copyToClipboard","createTag","createTask","createTodayState","deleteArchivedTask","deleteTag","exportAllTasks","exportData","exportSingleTask","exportToClipboard","filterDailyViewTasks","formatLargeNumber","formatNumber","getAllTags","getArchiveStats","getArchivedTasks","getCachedDailyTaskIds","getDataStats","getDeveloperMode","getEffectiveCategory","getEffectiveMainlineType","getNextTagColor","getSafeAreaInsets","getSavedLocationFilter","getScreenSize","getTagById","getTodayDateString","getTodayMustCompleteTaskIds","hasTodayBeenSet","hasTodaySetTasks","importAllTasks","importData","importSingleTask","isMobileDevice","isSmallScreen","isTaskTodayMustComplete","isTodayCheckedIn","loadTagsFromStorage","loadTodayMustCompleteState","markModalShown","migrateOldArchivedTasks","migrateToNewFormat","prefersReducedMotion","removeFromTodayMustComplete","repairTaskProgressData","restoreFromArchive","saveArchivedTasks","saveDailyTaskIdsCache","saveLocationFilter","saveTagsToStorage","saveTodayMustCompleteState","setDeveloperMode","setTodayMustCompleteTasks","shouldShowTodayMustCompleteModal","skipTodayMustComplete","updateMainlineTaskProgress","updateTag"],
   },{
     path: 'stock_self',
     async lazy() {
@@ -4928,7 +5240,7 @@ const createRoutes: CreateRoutes = ({
     index: undefined,
     id: 'dc/types',
     exact: true,
-    exports: [],
+    exports: ["getCompatibleTaskFields"],
   },{
     path: 'aitrend',
     async lazy() {

@@ -4,7 +4,7 @@ import confetti from 'canvas-confetti';
 import dayjs from 'dayjs';
 import { Popup, SafeArea } from 'antd-mobile';
 import type { MainlineTaskType, NumericDirection, CheckInUnit } from '../../types';
-import { useTheme } from '../../contexts';
+import { useTheme, useScene } from '../../contexts';
 import type { Step, TaskCategory, CycleInfo, CreateMainlineTaskModalProps } from './types';
 import { CycleStep, TypeStep, ConfigStep } from './steps';
 import { stepVariants, smoothTransition } from '../../constants/animations';
@@ -15,6 +15,9 @@ export default function CreateMainlineTaskModal({
   onSubmit
 }: CreateMainlineTaskModalProps) {
   const { themeColors } = useTheme();
+  const { normal } = useScene();
+  
+  const { hasMainlineTask } = normal;
   
   // 任务类别
   const [taskCategory, setTaskCategory] = useState<TaskCategory>('MAINLINE');
@@ -68,26 +71,12 @@ export default function CreateMainlineTaskModal({
     remainingDays: totalDays % cycleDays
   }), [totalDays, cycleDays]);
   
-  // 每次弹窗打开时，判断应该创建主线还是支线任务
+  // 每次弹窗打开时，根据是否有主线任务决定创建类型
   useEffect(() => {
     if (visible) {
-      const storedTasks = localStorage.getItem('dc_tasks');
-      let hasActiveMainlineTask = false;
-      
-      if (storedTasks) {
-        try {
-          const parsedTasks = JSON.parse(storedTasks);
-          hasActiveMainlineTask = parsedTasks.some(
-            (t: any) => t.type === 'mainline' && t.status !== 'archived'
-          );
-        } catch (e) {
-          console.error('解析dc_tasks失败:', e);
-        }
-      }
-      
-      setTaskCategory(hasActiveMainlineTask ? 'SIDELINE' : 'MAINLINE');
+      setTaskCategory(hasMainlineTask ? 'SIDELINE' : 'MAINLINE');
     }
-  }, [visible]);
+  }, [visible, hasMainlineTask]);
   
   // 重置表单
   const resetForm = () => {
@@ -536,6 +525,7 @@ export default function CreateMainlineTaskModal({
     </Popup>
   );
 }
+
 
 
 

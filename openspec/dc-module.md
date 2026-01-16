@@ -52,6 +52,7 @@ src/pages/dc/
 │   ├── index.ts
 │   ├── cycleCalculator.ts       # 周期计算
 │   ├── mainlineTaskHelper.ts    # 主线任务辅助
+│   ├── migration.ts             # 数据迁移工具
 │   └── progressCalculator.ts    # 进度计算
 ├── constants/                   # 常量定义
 │   ├── index.ts
@@ -130,84 +131,163 @@ const BG_COLORS = {
 
 ## 核心类型定义
 
+> **版本**: v2 (2026-01-16 重构)
+
 ```typescript
-// 任务类型
+// ============ 基础类型 ============
+
+/** 任务类型 */
 type TaskType = 'mainline' | 'sidelineA' | 'sidelineB';
-type MainlineTaskType = 'NUMERIC' | 'CHECKLIST' | 'CHECK_IN';
 
-// 任务接口
-interface Task {
-  id: string;
-  title: string;
-  progress: ProgressInfo;
-  currentDay: number;
-  totalDays: number;
-  taskType: TaskType;
-  createdAt: string;
-  // 任务分类
-  taskCategory?: MainlineTaskType;
-  // 任务状态
-  status: 'ACTIVE' | 'COMPLETED' | 'FAILED' | 'DOWNGRADED' | 'PAUSED';
-  completedAt?: string;
-  archivedAt?: string;
-  // 周期配置
-  cycle?: string;
-  cycleConfig: CycleConfig;
-  cycleDays?: number;
-  totalCycles?: number;
-  // 进展
-  progress: ProgressInfo;
-  completed?: boolean;
-  
-  // 详情页需要的字段
-  icon?: string;
-  encouragement?: string;
-  startDate?: string;
-  // 支线任务主题色（创建时分配，固定不变）
-  themeColor?: string;
-  // 类型特定配置
-  numericConfig?: NumericConfig;
-  checklistConfig?: ChecklistConfig;
-  checkInConfig?: CheckInConfig;
-  
-  history?: Array<{
-    date: string;
-    type: string;
-    value?: any;
-    note?: string;
-  }>;
-}
+/** 任务分类（适用于所有任务类型） */
+type Category = 'NUMERIC' | 'CHECKLIST' | 'CHECK_IN';
 
-// 周期配置
+/** 任务状态 */
+type TaskStatus = 'ACTIVE' | 'COMPLETED' | 'ARCHIVED';
+
+/** 任务来源场景 */
+type SceneType = 'normal' | 'vacation' | 'memorial' | 'okr';
+
+/** 支线任务优先级 */
+type Priority = 'high' | 'medium' | 'low';
+
+/** 数值型任务方向 */
+type NumericDirection = 'INCREASE' | 'DECREASE';
+
+/** 打卡单位 */
+type CheckInUnit = 'TIMES' | 'DURATION' | 'QUANTITY';
+
+/** 活动日志类型 */
+type ActivityType =
+  | 'CREATE'           // 创建任务
+  | 'UPDATE_VALUE'     // 更新数值
+  | 'CHECK_IN'         // 打卡
+  | 'COMPLETE_ITEM'    // 完成清单项
+  | 'CYCLE_ADVANCE'    // 周期推进
+  | 'STATUS_CHANGE'    // 状态变更
+  | 'NOTE';            // 备注
+
+// ============ 核心配置 ============
+
+/** 周期配置 */
 interface CycleConfig {
-  totalDurationDays: number;
-  cycleLengthDays: number;
+  /** 总时长（天） */
+  totalDays: number;
+  /** 单周期长度（天） */
+  cycleDays: number;
+  /** 总周期数 */
   totalCycles: number;
+  /** 当前周期（1-based） */
   currentCycle: number;
 }
 
-// 进度信息
-interface ProgressInfo {
-  totalPercentage: number;
-  currentCyclePercentage: number;
-  currentCycleStart?: number | string;
-  currentCycleTarget?: number | string;
-  currentCycleAchieved?: number;
-  currentCycleRemaining?: number;
+/** 时间信息 */
+interface TimeInfo {
+  /** 创建时间 YYYY-MM-DD HH:mm:ss */
+  createdAt: string;
+  /** 开始日期 YYYY-MM-DD */
+  startDate: string;
+  /** 结束日期 YYYY-MM-DD */
+  endDate: string;
+  /** 完成时间 YYYY-MM-DD HH:mm:ss */
+  completedAt?: string;
+  /** 归档时间 YYYY-MM-DD HH:mm:ss */
+  archivedAt?: string;
 }
 
-// 数值型任务配置
+/** 进度信息（存储在数据中） */
+interface ProgressInfo {
+  /** 总进度百分比 0-100 */
+  totalPercentage: number;
+  /** 当前周期进度百分比 0-100 */
+  cyclePercentage: number;
+  /** 当前周期起始值 */
+  cycleStartValue: number | string;
+  /** 当前周期目标值 */
+  cycleTargetValue: number | string;
+  /** 当前周期已完成量 */
+  cycleAchieved: number;
+  /** 当前周期还需量 */
+  cycleRemaining: number;
+  /** 最后更新时间 YYYY-MM-DD HH:mm:ss */
+  lastUpdatedAt: string;
+}
+
+// ============ 主任务接口 ============
+
+/**
+ * 统一任务接口 v2
+ * 适用于主线任务和支线任务
+ */
+interface Task {
+  // ========== 基础信息 ==========
+  /** 任务 ID */
+  id: string;
+  /** 任务标题 */
+  title: string;
+  /** 任务类型 */
+  type: TaskType;
+  /** 任务分类 */
+  category: Category;
+  /** 任务状态 */
+  status: TaskStatus;
+  /** 任务来源场景 */
+  from: SceneType;
+
+  // ========== 时间信息 ==========
+  time: TimeInfo;
+
+  // ========== 周期配置 ==========
+  cycle: CycleConfig;
+
+  // ========== 进度信息 ==========
+  progress: ProgressInfo;
+
+  // ========== 类型特定配置 ==========
+  /** 数值型配置 */
+  numericConfig?: NumericConfig;
+  /** 清单型配置 */
+  checklistConfig?: ChecklistConfig;
+  /** 打卡型配置 */
+  checkInConfig?: CheckInConfig;
+
+  // ========== 支线任务特定 ==========
+  /** 优先级（仅支线任务） */
+  priority?: Priority;
+  /** 主题色（仅支线任务） */
+  themeColor?: string;
+
+  // ========== UI 展示 ==========
+  /** 图标 */
+  icon?: string;
+  /** 鼓励语 */
+  encouragement?: string;
+
+  // ========== 标签系统 ==========
+  /** 任务标签 */
+  tags?: TaskTags;
+
+  // ========== 活动日志 ==========
+  /** 活动历史记录 */
+  activities: ActivityLog[];
+}
+
+// ============ 类型特定配置 ============
+
+/** 数值型任务配置 */
 interface NumericConfig {
-  direction: 'INCREASE' | 'DECREASE';
+  direction: NumericDirection;
   unit: string;
   startValue: number;
   targetValue: number;
   currentValue: number;
   perCycleTarget: number;
   perDayAverage: number;
+  originalStartValue?: number;
+  originalPerCycleTarget?: number;
 }
 
-// 清单型任务配置
+/** 清单型任务配置 */
 interface ChecklistConfig {
   totalItems: number;
   completedItems: number;
@@ -215,16 +295,52 @@ interface ChecklistConfig {
   items: ChecklistItem[];
 }
 
-// 打卡型任务配置
+/** 打卡型任务配置 */
 interface CheckInConfig {
-  unit: 'TIMES' | 'DURATION' | 'QUANTITY';
+  unit: CheckInUnit;
+  dailyMaxTimes?: number;
+  cycleTargetTimes?: number;
+  dailyTargetMinutes?: number;
+  cycleTargetMinutes?: number;
+  dailyTargetValue?: number;
+  cycleTargetValue?: number;
   allowMultiplePerDay: boolean;
   weekendExempt: boolean;
   perCycleTarget: number;
   currentStreak: number;
   longestStreak: number;
   checkInRate: number;
-  records: CheckInRecord[];
+  streaks: StreakRecord[];
+  records: DailyCheckInRecord[];
+}
+
+// ============ 活动日志 ============
+
+/** 活动日志联合类型 */
+type ActivityLog =
+  | CreateLog
+  | ValueUpdateLog
+  | CheckInLog
+  | ItemCompleteLog
+  | CycleAdvanceLog
+  | StatusChangeLog
+  | NoteLog;
+
+/** 活动日志基础接口 */
+interface BaseActivityLog {
+  id: string;
+  date: string;           // YYYY-MM-DD
+  timestamp: number;      // 毫秒时间戳
+  type: ActivityType;
+  note?: string;
+}
+
+/** 数值更新日志 */
+interface ValueUpdateLog extends BaseActivityLog {
+  type: 'UPDATE_VALUE';
+  oldValue: number;
+  newValue: number;
+  delta: number;
 }
 ```
 
@@ -366,6 +482,48 @@ const saveTasksToStorage = (tasks: Task[]) => {
 };
 ```
 
+### 数据迁移
+
+```typescript
+import { TaskMigration } from './utils/migration';
+
+// 检查是否需要迁移
+if (TaskMigration.needsMigration()) {
+  // 执行迁移
+  const result = await TaskMigration.migrate();
+  
+  if (result.success) {
+    console.log(`迁移成功：${result.migratedCount} 个任务`);
+  } else {
+    console.error('迁移失败', result.errors);
+  }
+}
+
+// 回滚迁移
+TaskMigration.rollback();
+
+// 清理备份
+TaskMigration.cleanupBackup();
+```
+
+### 进度计算
+
+```typescript
+import { ProgressCalculator } from './utils/progressCalculator';
+
+// 计算任务进度
+const progress = ProgressCalculator.calculateProgress(task);
+
+// 更新任务进度
+updateTask(taskId, { progress });
+
+// 获取当前周期信息
+const cycleInfo = ProgressCalculator.getCurrentCycleInfo(task);
+console.log(cycleInfo.currentCycle);      // 当前周期
+console.log(cycleInfo.daysRemaining);     // 周期剩余天数
+console.log(cycleInfo.isLastCycle);       // 是否最后一个周期
+```
+
 ## 交互规范
 
 ### 弹窗/面板
@@ -458,3 +616,4 @@ Toast.show({ icon: 'fail', content: '操作失败，请重试' });
 - 每个目录使用 `index.ts` 统一导出
 - 导出时使用命名导出
 - 类型使用 `export type` 导出
+

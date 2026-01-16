@@ -55,16 +55,24 @@ export function buildIndex(tasks: Task[]): SceneIndex {
       index.byType.sidelineB.add(task.id);
     }
 
-    // 按状态索引
-    if (task.completed) {
-      index.byStatus.completed.add(task.id);
-    } else {
-      index.byStatus.active.add(task.id);
-    }
+    // 按状态索引 - 支持新旧格式
+    const taskStatus = (task as any).status || ((task as any).completed ? 'COMPLETED' : 'ACTIVE');
+    const normalizedStatus = taskStatus.toUpperCase();
     
-    // 检查主线任务状态
-    if (task.mainlineTask?.status === 'PAUSED') {
-      index.byStatus.paused.add(task.id);
+    switch (normalizedStatus) {
+      case 'COMPLETED':
+        index.byStatus.completed.add(task.id);
+        break;
+      case 'ARCHIVED':
+        index.byStatus.archived.add(task.id);
+        break;
+      case 'PAUSED':
+        index.byStatus.paused.add(task.id);
+        break;
+      case 'ACTIVE':
+      default:
+        index.byStatus.active.add(task.id);
+        break;
     }
 
     // 按标签索引
@@ -75,15 +83,16 @@ export function buildIndex(tasks: Task[]): SceneIndex {
       index.byTag.get(task.tags.normalTagId)!.add(task.id);
     }
     // 兼容旧版 tagId
-    if (task.tagId) {
-      if (!index.byTag.has(task.tagId)) {
-        index.byTag.set(task.tagId, new Set());
+    const legacyTagId = (task as any).tagId;
+    if (legacyTagId) {
+      if (!index.byTag.has(legacyTagId)) {
+        index.byTag.set(legacyTagId, new Set());
       }
-      index.byTag.get(task.tagId)!.add(task.id);
+      index.byTag.get(legacyTagId)!.add(task.id);
     }
 
-    // 按日期索引
-    const taskDate = task.startDate || task.mainlineTask?.createdAt;
+    // 按日期索引 - 支持新旧格式
+    const taskDate = (task as any).time?.startDate || (task as any).startDate || (task as any).mainlineTask?.createdAt;
     if (taskDate) {
       const taskDateObj = new Date(taskDate);
       const taskDateStr = taskDateObj.toISOString().split('T')[0];
@@ -121,9 +130,16 @@ export function addToIndex(index: SceneIndex, task: Task): SceneIndex {
     newIndex.byType.sidelineB.add(task.id);
   }
 
-  // 按状态索引
-  if (task.completed) {
+  // 按状态索引 - 支持新旧格式
+  const taskStatus = (task as any).status || ((task as any).completed ? 'COMPLETED' : 'ACTIVE');
+  const normalizedStatus = taskStatus.toUpperCase();
+  
+  if (normalizedStatus === 'COMPLETED') {
     newIndex.byStatus.completed.add(task.id);
+  } else if (normalizedStatus === 'ARCHIVED') {
+    newIndex.byStatus.archived.add(task.id);
+  } else if (normalizedStatus === 'PAUSED') {
+    newIndex.byStatus.paused.add(task.id);
   } else {
     newIndex.byStatus.active.add(task.id);
   }
@@ -198,4 +214,6 @@ function cloneIndex(index: SceneIndex): SceneIndex {
     },
   };
 }
+
+
 

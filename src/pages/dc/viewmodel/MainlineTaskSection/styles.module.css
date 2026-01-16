@@ -1,0 +1,87 @@
+/* 任务区块 */
+.taskSection {
+  margin-bottom: 16px;
+}
+
+.sectionHeader {
+  padding: 0 8px;
+  margin-bottom: 8px;
+}
+
+.sectionTitle {
+  font-size: 12px;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0;
+  font-weight: normal;
+}
+
+/* 空状态卡片 */
+.emptyCard {
+  background-color: white;
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid rgba(55, 53, 47, 0.09);
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+  min-height: 120px;
+}
+
+.emptyCardImage {
+  width: 90%;
+  height: auto;
+  opacity: 0.3;
+  position: absolute;
+  right: -60px;
+  top: 48%;
+  transform: translateY(-50%);
+}
+
+.emptyCardSkeleton {
+  position: relative;
+  z-index: 1;
+  width: 50%;
+}
+
+.skeletonLine {
+  background-color: rgba(55, 53, 47, 0.08);
+  border-radius: 4px;
+}
+
+.skeletonLine.title {
+  width: 100%;
+  height: 14px;
+  margin-bottom: 16px;
+}
+
+.skeletonLine.subtitle {
+  width: 70%;
+  height: 10px;
+  margin-bottom: 10px;
+  background-color: rgba(55, 53, 47, 0.06);
+}
+
+.skeletonLine.progress {
+  width: 100%;
+  height: 4px;
+  margin-bottom: 16px;
+  background-color: rgba(55, 53, 47, 0.06);
+  border-radius: 2px;
+}
+
+.skeletonLine.info {
+  width: 60%;
+  height: 10px;
+  margin-bottom: 8px;
+  background-color: rgba(55, 53, 47, 0.06);
+}
+
+.skeletonLine.small {
+  width: 40%;
+  height: 3px;
+  background-color: rgba(55, 53, 47, 0.04);
+  border-radius: 2px;
+}

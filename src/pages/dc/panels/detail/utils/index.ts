@@ -2,7 +2,7 @@
  * Detail 面板工具函数
  */
 
-import type { MainlineTaskType } from '../../../types';
+import type { Category } from '../../../types';
 import { TAB_KEYS } from '../constants';
 
 // 格式化大数字（如 1000000 -> 100W）
@@ -24,7 +24,7 @@ export const formatNumber = (num: number): string => {
 };
 
 // 根据任务类型获取Tab配置
-export const getTabsConfig = (mainlineType: MainlineTaskType, isPlanEnded = false) => {
+export const getTabsConfig = (mainlineType: Category, isPlanEnded = false) => {
   // 当计划结束时，第一个Tab改为"完结总结"
   const firstTabLabel = isPlanEnded ? '完结总结' : '周期目标';
   
@@ -51,7 +51,7 @@ export const getTabsConfig = (mainlineType: MainlineTaskType, isPlanEnded = fals
 };
 
 // 获取默认Tab
-export const getDefaultTab = (mainlineType: MainlineTaskType): string => {
+export const getDefaultTab = (mainlineType: Category): string => {
   switch (mainlineType) {
     case 'NUMERIC': return TAB_KEYS.TARGETS;
     case 'CHECKLIST': return TAB_KEYS.CURRENT;

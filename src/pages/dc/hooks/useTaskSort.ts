@@ -27,29 +27,34 @@ export function useTaskSort(tasks: Task[], todayMustCompleteTaskIds?: string[]) 
    * 检查任务当前周期是否已完成目标
    */
   const isCycleCompleted = (task: Task) => {
-    const mainlineTask = task.mainlineTask;
-    if (!mainlineTask) return false;
-    if (mainlineTask.progress?.currentCyclePercentage >= 100) return true;
-    if (mainlineTask.checkInConfig) {
-      const config = mainlineTask.checkInConfig;
+    // 使用新格式的 cyclePercentage
+    if (task.progress?.cyclePercentage >= 100) return true;
+    
+    // 检查打卡配置
+    const checkInConfig = task.checkInConfig;
+    if (checkInConfig) {
+      const config = checkInConfig;
       const records = config.records || [];
-      const startDate = task.startDate;
-      const cycleDays = task.cycleDays || 7;
-      const currentCycle = mainlineTask.cycleConfig?.currentCycle || 1;
+      
+      const startDate = task.time.startDate;
+      const cycleDays = task.cycle.cycleDays;
+      const currentCycle = task.cycle.currentCycle;
+      
       if (startDate) {
         const cycleStartDate = dayjs(startDate).add((currentCycle - 1) * cycleDays, 'day');
         const cycleEndDate = cycleStartDate.add(cycleDays, 'day');
         const cycleRecords = records.filter(r => {
           const recordDate = dayjs(r.date);
-          return recordDate.isAfter(cycleStartDate.subtract(1, 'day')) && 
+          return recordDate.isAfter(cycleStartDate.subtract(1, 'day')) &&
                  recordDate.isBefore(cycleEndDate) && r.checked;
         });
+        
         if (config.unit === 'TIMES') {
           const target = config.cycleTargetTimes || config.perCycleTarget || cycleDays;
           if (cycleRecords.length >= target) return true;
         } else if (config.unit === 'DURATION') {
           const totalMinutes = cycleRecords.reduce((sum, r) => sum + (r.totalValue || 0), 0);
-          const target = config.cycleTargetMinutes || (config.perCycleTarget * (config.dailyTargetMinutes || 15));
+          const target = config.cycleTargetMinutes || config.perCycleTarget || 0;
           if (totalMinutes >= target) return true;
         } else if (config.unit === 'QUANTITY') {
           const totalValue = cycleRecords.reduce((sum, r) => sum + (r.totalValue || 0), 0);
@@ -65,14 +70,14 @@ export function useTaskSort(tasks: Task[], todayMustCompleteTaskIds?: string[]) 
    * 获取周期完成率
    */
   const getCycleProgress = (task: Task): number => {
-    return task.mainlineTask?.progress?.currentCyclePercentage || 0;
+    return task.progress?.cyclePercentage || 0;
   };
 
   /**
    * 过滤掉已归档的任务
    */
   const activeTasks = useMemo(() => {
-    return tasks.filter(t => (t as any).status !== 'archived');
+    return tasks.filter(t => t.status !== 'ARCHIVED' && t.status !== 'ARCHIVED_HISTORY');
   }, [tasks]);
 
   /**
@@ -188,5 +193,7 @@ export function useTaskSort(tasks: Task[], todayMustCompleteTaskIds?: string[]) 
     getCycleProgress
   };
 }
+
+
 
 

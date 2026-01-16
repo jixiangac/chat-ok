@@ -3,6 +3,7 @@ import { ArrowLeft } from 'lucide-react';
 import { SafeArea } from 'antd-mobile';
 import { Task } from '../../types';
 import { useTheme } from '../../contexts';
+import { getArchivedTasks, migrateOldArchivedTasks, type ArchivedTask } from '../../utils/archiveStorage';
 import styles from './ArchiveList.module.css';
 
 interface ArchiveListProps {
@@ -36,8 +37,37 @@ const getCompletionImage = (completionRate: number): string => {
 
 // 计算任务完成率
 const calculateCompletionRate = (task: Task): number => {
-  const mainlineTask = task.mainlineTask;
-  if (!mainlineTask) return 0;
+  // 支持新格式
+  if (task.progress && typeof task.progress === 'object' && 'totalPercentage' in task.progress) {
+    return task.progress.totalPercentage || 0;
+  }
+
+  // 支持旧格式
+  const mainlineTask = (task as any).mainlineTask;
+  if (!mainlineTask) {
+    // 尝试从新格式计算
+    if (task.numericConfig) {
+      const config = task.numericConfig;
+      const originalStart = config.originalStartValue ?? config.startValue;
+      const targetValue = config.targetValue;
+      const finalValue = config.currentValue;
+      const totalChange = Math.abs(targetValue - originalStart);
+      const isDecrease = config.direction === 'DECREASE';
+      const rawChange = finalValue - originalStart;
+      const effectiveChange = isDecrease ? Math.max(0, -rawChange) : Math.max(0, rawChange);
+      return totalChange > 0 ? Math.min(100, Math.round((effectiveChange / totalChange) * 100)) : 0;
+    } else if (task.checklistConfig) {
+      const config = task.checklistConfig;
+      return config.totalItems > 0 ? Math.round((config.completedItems / config.totalItems) * 100) : 0;
+    } else if (task.checkInConfig) {
+      const config = task.checkInConfig;
+      const totalCycles = task.cycle?.totalCycles || 1;
+      const totalTarget = totalCycles * config.perCycleTarget;
+      const totalCheckIns = config.records?.filter(r => r.checked).length || 0;
+      return totalTarget > 0 ? Math.min(100, Math.round((totalCheckIns / totalTarget) * 100)) : 0;
+    }
+    return 0;
+  }
 
   if (mainlineTask.numericConfig) {
     const config = mainlineTask.numericConfig;
@@ -64,7 +94,38 @@ const calculateCompletionRate = (task: Task): number => {
 
 // 获取结算数据
 const getSettlementData = (task: Task) => {
-  const mainlineTask = task.mainlineTask;
+  // 支持新格式
+  if (task.numericConfig) {
+    const config = task.numericConfig;
+    return {
+      originalStart: config.originalStartValue ?? config.startValue,
+      targetValue: config.targetValue,
+      finalValue: config.currentValue,
+      unit: config.unit
+    };
+  } else if (task.checklistConfig) {
+    const config = task.checklistConfig;
+    return {
+      originalStart: 0,
+      targetValue: config.totalItems,
+      finalValue: config.completedItems,
+      unit: '项'
+    };
+  } else if (task.checkInConfig) {
+    const config = task.checkInConfig;
+    const totalCycles = task.cycle?.totalCycles || 1;
+    const totalTarget = totalCycles * config.perCycleTarget;
+    const totalCheckIns = config.records?.filter(r => r.checked).length || 0;
+    return {
+      originalStart: 0,
+      targetValue: totalTarget,
+      finalValue: totalCheckIns,
+      unit: '次'
+    };
+  }
+
+  // 支持旧格式
+  const mainlineTask = (task as any).mainlineTask;
   if (!mainlineTask) return { originalStart: 0, targetValue: 0, finalValue: 0, unit: '' };
 
   if (mainlineTask.numericConfig) {
@@ -103,18 +164,23 @@ type CompletionFilter = 'all' | 'completed' | 'incomplete';
 
 export default function ArchiveList({ onBack, onTaskClick }: ArchiveListProps) {
   const { themeColors } = useTheme();
-  const [archivedTasks, setArchivedTasks] = useState<Task[]>([]);
+  const [archivedTasks, setArchivedTasks] = useState<ArchivedTask[]>([]);
   const [taskTypeFilter, setTaskTypeFilter] = useState<TaskTypeFilter>('all');
   const [completionFilter, setCompletionFilter] = useState<CompletionFilter>('all');
 
   useEffect(() => {
     const loadArchivedTasks = () => {
       try {
-        const stored = localStorage.getItem('dc_tasks');
-        if (stored) {
-          const tasks = JSON.parse(stored) as Task[];
-          const archived = tasks.filter((t: any) => t.status === 'archived');
+        // 先尝试迁移旧的归档任务
+        migrateOldArchivedTasks();
+        
+        // 从新的归档存储获取任务
+        const archived = getArchivedTasks();
+        
+        if (archived.length > 0) {
           setArchivedTasks(archived);
+        } else {
+          setArchivedTasks([]);
         }
       } catch (error) {
         console.error('Failed to load archived tasks:', error);
@@ -211,7 +277,8 @@ export default function ArchiveList({ onBack, onTaskClick }: ArchiveListProps) {
               const completionRate = calculateCompletionRate(task);
               const { originalStart, targetValue, finalValue, unit } = getSettlementData(task);
               const isSuccess = completionRate >= 100;
-              const mainlineTask = task.mainlineTask;
+              const mainlineTask = (task as any).mainlineTask;
+              const totalCycles = task.cycle?.totalCycles || (task as any).totalCycles || 1;
 
               return (
                 <div 
@@ -251,7 +318,7 @@ export default function ArchiveList({ onBack, onTaskClick }: ArchiveListProps) {
                   <div className={styles.cardFooter}>
                     <div className={styles.footerItem}>
                       <div className={styles.footerValue}>
-                        {task.totalCycles}/{task.totalCycles}
+                        {totalCycles}/{totalCycles}
                       </div>
                       <div className={styles.footerLabel}>完成周期</div>
                     </div>
@@ -276,4 +343,5 @@ export default function ArchiveList({ onBack, onTaskClick }: ArchiveListProps) {
     </div>
   );
 }
+
 

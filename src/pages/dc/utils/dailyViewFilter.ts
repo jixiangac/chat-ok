@@ -28,8 +28,10 @@ export function filterDailyViewTasks(tasks: Task[]): Task[] {
   // 1. 获取今日必须完成的任务ID
   const mustCompleteIds = getTodayMustCompleteTaskIds();
   
-  // 2. 筛选所有打卡型任务（CHECK_IN类型）
-  const checkInTasks = tasks.filter(task => task.mainlineType === 'CHECK_IN');
+  // 2. 筛选所有打卡型任务（CHECK_IN类型）- 支持新旧格式
+  const checkInTasks = tasks.filter(task => 
+    task.category === 'CHECK_IN'
+  );
   
   // 3. 应用筛选规则
   return checkInTasks.filter(task => {
@@ -38,23 +40,23 @@ export function filterDailyViewTasks(tasks: Task[]): Task[] {
       return true;
     }
     
-    // 获取进度信息（优先从 mainlineTask 中获取）
-    const progress = task.mainlineTask?.progress || (task as any).progress;
-    const status = task.mainlineTask?.status || (task as any).status;
+    // 获取进度信息
+    const cyclePercentage = task.progress?.cyclePercentage ?? 0;
+    const totalPercentage = task.progress?.totalPercentage ?? 0;
+    const status = task.status;
     
     // 规则5: 排除总目标已完成
-    if (status === 'COMPLETED' || status === 'ARCHIVED' || (progress?.totalPercentage ?? 0) >= 100) {
+    if (status === 'COMPLETED' || status === 'ARCHIVED' || totalPercentage >= 100) {
       return false;
     }
     
     // 规则3: 排除周期内已完成100% - 直接使用存储的进度值
-    const currentCyclePercentage = progress?.currentCyclePercentage ?? 0;
-    if (currentCyclePercentage >= 100) {
+    if (cyclePercentage >= 100) {
       return false;
     }
     
     // 获取打卡配置
-    const config = (task as any).checkInConfig || task.mainlineTask?.checkInConfig;
+    const config = task.checkInConfig;
     if (!config) return false;
     
     // 规则2: 有每日打卡目标
@@ -111,7 +113,7 @@ function isCycleNTimesTask(config: CheckInConfig): boolean {
  * @returns 是否应该显示
  */
 function shouldShowCycleNTimesTask(task: Task): boolean {
-  const config = (task as any).checkInConfig || task.mainlineTask?.checkInConfig;
+  const config = task.checkInConfig;
   if (!config) return false;
   
   try {
@@ -127,7 +129,7 @@ function shouldShowCycleNTimesTask(task: Task): boolean {
     
     // 计算完成率和时间进度
     const completionRate = targetTimes > 0 ? (completedTimes / targetTimes) * 100 : 0;
-    const cycleDays = task.cycleDays || task.mainlineTask?.cycleConfig?.cycleLengthDays || 7;
+    const cycleDays = task.cycle.cycleDays;
     const remainingDays = cycleInfo.remainingDays;
     const timeProgress = cycleDays > 0 ? ((cycleDays - remainingDays) / cycleDays) * 100 : 0;
     
@@ -198,3 +200,6 @@ function hashCode(str: string): number {
   }
   return Math.abs(hash);
 }
+
+
+

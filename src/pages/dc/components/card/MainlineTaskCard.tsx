@@ -1,14 +1,6 @@
-import dayjs from 'dayjs';
-import { Task, PreviousCycleDebtSnapshot } from '../../types';
-import styles from '../../css/MainlineTaskCard.module.css';
-import { 
-  calculateRemainingDays, 
-  calculateNumericProgress,
-  calculateChecklistProgress,
-  calculateCheckInProgress,
-  isTodayCheckedIn,
-  calculateCurrentCycleNumber
-} from '../../utils/mainlineTaskHelper';
+import { Task } from '../../types';
+import styles from './MainlineTaskCard.module.css';
+import { calculateRemainingDays, formatNumber, getDeadlineColor, getDeadlineText } from '../../utils/mainlineTaskHelper';
 
 interface MainlineTaskCardProps {
   task: Task;
@@ -27,263 +19,44 @@ const COMPLETION_IMAGES = {
   terrible: 'https://img.alicdn.com/imgextra/i2/O1CN01BA0NSS247boF4jf09_!!6000000007344-2-tps-1056-992.png',
 };
 
-// 根据完成度获取图片
-const getCompletionImage = (completionRate: number): string => {
-  if (completionRate >= 100) return COMPLETION_IMAGES.perfect;
-  if (completionRate >= 80) return COMPLETION_IMAGES.excellent;
-  if (completionRate >= 70) return COMPLETION_IMAGES.good;
-  if (completionRate >= 50) return COMPLETION_IMAGES.nook;
-  if (completionRate >= 40) return COMPLETION_IMAGES.fair;
-  if (completionRate >= 30) return COMPLETION_IMAGES.poor;
-  if (completionRate >= 5) return COMPLETION_IMAGES.bad;
-  return COMPLETION_IMAGES.terrible;
-};
-
-// 根据完成度获取评价文案
-const getCompletionText = (completionRate: number): string => {
-  if (completionRate >= 100) return '完美完成！';
-  if (completionRate >= 80) return '表现优秀！';
-  if (completionRate >= 70) return '做得不错！';
-  if (completionRate >= 50) return '还可以';
-  if (completionRate >= 40) return '需要加油';
-  if (completionRate >= 30) return '有待提高';
-  if (completionRate >= 5) return '还需努力';
-  return '下次加油';
-};
-
-// 截止时间颜色配置
-const DEADLINE_COLORS = {
-  urgent: '#5c0011',      // 乌梅红 - 0天（今天截止）
-  warning: '#c41d7f',     // 玫瑰红 - 剩余1/3周期
-  caution: '#d48806',     // 烟黄 - 剩余2/3周期
-  normal: 'rgba(55, 53, 47, 0.5)'  // 默认灰色
-};
-
-// 根据剩余天数和周期天数获取截止时间颜色
-// 只有在剩余天数 ≤ 1/3 周期天数时才开始变色，在这个范围内按3个阶段依次变色
-// 如果周期完成率小于50%，从1/2时间开始变色
-const getDeadlineColor = (remainingDays: number, cycleDays: number, cycleProgress: number): string => {
-  // 根据周期完成率决定变色起始点
-  // 完成率 < 50%：从剩余 1/2 周期开始变色
-  // 完成率 >= 50%：从剩余 1/3 周期开始变色
-  const startThreshold = cycleProgress < 50 ? cycleDays / 2 : cycleDays / 3;
-  
-  // 如果剩余天数 > 变色起始点，使用默认颜色
-  if (remainingDays > startThreshold) return DEADLINE_COLORS.normal;
-  
-  // 在变色范围内，按3个阶段变色
-  if (remainingDays <= 0) return DEADLINE_COLORS.urgent;
-  if (remainingDays <= startThreshold / 3) return DEADLINE_COLORS.warning;
-  if (remainingDays <= (startThreshold * 2) / 3) return DEADLINE_COLORS.caution;
-  
-  return DEADLINE_COLORS.normal;
-};
-
-// 获取截止时间文案
-const getDeadlineText = (remainingDays: number): string => {
-  if (remainingDays <= 0) return '今天截止';
-  if (remainingDays === 1) return '明天截止';
-  return `${remainingDays}天后截止`;
-};
-
 export default function MainlineTaskCard({ task, onClick }: MainlineTaskCardProps) {
+  // ========== 直接从 task 获取已计算好的数据 ==========
+  const { progress, cycle, category, numericConfig, checklistConfig, checkInConfig } = task;
+  console.log(task,'tasks')
+  // 周期信息 - 直接使用
+  const currentCycle = cycle?.currentCycle || 1;
+  const totalCycles = cycle?.totalCycles || 1;
+  const cycleDays = cycle?.cycleDays || 7;
+  
+  // 进度信息 - 直接使用已计算好的值
+  const cycleProgress = progress?.cyclePercentage || 0;
+  const totalProgress = progress?.totalPercentage || 0;
+  const cycleStartValue = progress?.cycleStartValue;
+  const cycleTargetValue = progress?.cycleTargetValue;
+  
+  // 剩余天数 - 需要实时计算
   const remainingDays = calculateRemainingDays(task);
-  
-  // 计算当前周期（基于cycleSnapshots，与详情页逻辑一致）
-  const currentCycleNumber = calculateCurrentCycleNumber(task);
-
-  // 获取周期天数用于计算颜色
-  const cycleDays = task.cycleDays || 7;
-  
-  // 计算周期起始值和是否需要补上一周期欠账
-  const getCycleInfo = (): { 
-    cycleStartValue: number | undefined; 
-    hasPreviousCycleDebt: boolean;
-    previousCycleTarget: number | undefined;
-    debtCycleNumber: number | undefined;
-  } => {
-    if (!task.mainlineTask?.numericConfig) {
-      return { cycleStartValue: undefined, hasPreviousCycleDebt: false, previousCycleTarget: undefined, debtCycleNumber: undefined };
-    }
-    
-    const config = task.mainlineTask.numericConfig;
-    const cycleSnapshots = (task as any).cycleSnapshots || [];
-    const isDecrease = config.targetValue < (config.originalStartValue ?? config.startValue);
-    
-    // 默认值
-    let cycleStartValue = config.startValue;
-    let hasPreviousCycleDebt = false;
-    let previousCycleTarget: number | undefined = undefined;
-    let debtCycleNumber: number | undefined = undefined;
-    
-    // 如果有快照数据
-    if (cycleSnapshots.length > 0) {
-      const lastSnapshot = cycleSnapshots[cycleSnapshots.length - 1];
-      if (lastSnapshot.actualValue !== undefined) {
-        cycleStartValue = lastSnapshot.actualValue;
-        
-        // 检查上一周期是否完成（completionRate < 100）
-        if (lastSnapshot.completionRate !== undefined && lastSnapshot.completionRate < 100) {
-          // 直接从快照中获取上一周期的目标值
-          if (lastSnapshot.targetValue !== undefined) {
-            const lastTarget = Math.round(lastSnapshot.targetValue * 100) / 100;
-            
-            // 检查当前值是否已达到上一周期目标
-            const currentValue = config.currentValue;
-            let reachedLastTarget = false;
-            if (isDecrease) {
-              reachedLastTarget = currentValue <= lastTarget;
-            } else {
-              reachedLastTarget = currentValue >= lastTarget;
-            }
-            
-            if (!reachedLastTarget) {
-              // 当前值未达到上一周期目标，显示上一周期欠账
-              hasPreviousCycleDebt = true;
-              previousCycleTarget = lastTarget;
-              debtCycleNumber = lastSnapshot.cycleNumber;
-            } else if (cycleSnapshots.length > 1) {
-              // 当前值已达到上一周期目标，检查上上周期
-              const prevPrevSnapshot = cycleSnapshots[cycleSnapshots.length - 2];
-              if (prevPrevSnapshot.completionRate !== undefined && prevPrevSnapshot.completionRate < 100) {
-                if (prevPrevSnapshot.targetValue !== undefined) {
-                  const prevPrevTarget = Math.round(prevPrevSnapshot.targetValue * 100) / 100;
-                  
-                  // 检查当前值是否已达到上上周期目标
-                  let reachedPrevPrevTarget = false;
-                  if (isDecrease) {
-                    reachedPrevPrevTarget = currentValue <= prevPrevTarget;
-                  } else {
-                    reachedPrevPrevTarget = currentValue >= prevPrevTarget;
-                  }
-                  
-                  if (!reachedPrevPrevTarget) {
-                    // 当前值未达到上上周期目标，显示上上周期欠账
-                    hasPreviousCycleDebt = true;
-                    previousCycleTarget = prevPrevTarget;
-                    debtCycleNumber = prevPrevSnapshot.cycleNumber;
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-    
-    return { cycleStartValue, hasPreviousCycleDebt, previousCycleTarget, debtCycleNumber };
-  };
-  
-  const { cycleStartValue, hasPreviousCycleDebt, previousCycleTarget, debtCycleNumber } = getCycleInfo();
-  
-  // 获取已保存的欠账快照
-  const savedDebtSnapshot = (task as any).previousCycleDebtSnapshot as PreviousCycleDebtSnapshot | undefined;
-  
-  // 判断是否有欠账快照数据（需要有 debtCycleSnapshot 且周期编号匹配）
-  const hasDebtSnapshot = savedDebtSnapshot?.debtCycleSnapshot !== undefined && savedDebtSnapshot?.currentCycleNumber === currentCycleNumber;
-  
-  // 获取欠账显示的配色（使用快照中保存的配色）
-  const debtColors = hasDebtSnapshot && savedDebtSnapshot
-    ? { bgColor: savedDebtSnapshot.bgColor, progressColor: savedDebtSnapshot.progressColor, borderColor: savedDebtSnapshot.borderColor }
-    : { bgColor: 'rgba(246, 239, 239, 0.6)', progressColor: 'linear-gradient(90deg, #F6EFEF 0%, #E0CEC6 100%)', borderColor: '#E0CEC6' };
-  
-  // 判断是否显示上一周期欠账
-  // 优先使用已保存的快照数据，如果没有则实时计算
-  const getDebtDisplayInfo = (): { showDebt: boolean; debtTarget: number | undefined } => {
-    // 如果有已保存的快照且有 debtCycleSnapshot，直接使用
-    if (hasDebtSnapshot && savedDebtSnapshot) {
-      return { showDebt: true, debtTarget: savedDebtSnapshot.targetValue };
-    }
-    
-    // 否则实时计算
-    if (!hasPreviousCycleDebt || !task.mainlineTask?.numericConfig) return { showDebt: false, debtTarget: undefined };
-    if (previousCycleTarget === undefined) return { showDebt: false, debtTarget: undefined };
-    
-    // 计算当前周期进度
-    const progressData = calculateNumericProgress(task.mainlineTask, {
-      currentCycleNumber,
-      cycleStartValue
-    });
-    
-    // 如果当期已完成（>=100%）且剩余时间 > 1/2 周期，显示上一周期欠账
-    const shouldShow = progressData.cycleProgress >= 100 && remainingDays > cycleDays / 2;
-    return { showDebt: shouldShow, debtTarget: shouldShow ? previousCycleTarget : undefined };
-  };
-  
-  const debtDisplayInfo = getDebtDisplayInfo();
-  const showPreviousCycleDebt = debtDisplayInfo.showDebt;
-  const displayDebtTarget = debtDisplayInfo.debtTarget;
-  
-  // 直接使用已存储的周期完成率
-  const cycleProgress = (() => {
-    // 优先使用 mainlineTask.progress
-    if (task.mainlineTask?.progress?.currentCyclePercentage !== undefined) {
-      return task.mainlineTask.progress.currentCyclePercentage;
-    }
-    // 其次使用 task.progress（如果是对象类型）
-    if (task.progress && typeof task.progress === 'object' && 'currentCyclePercentage' in task.progress) {
-      return task.progress.currentCyclePercentage;
-    }
-    // 兼容旧版本（task.progress 是 number）
-    if (typeof task.progress === 'number') {
-      return task.progress;
-    }
-    return 0;
-  })();
   const deadlineColor = getDeadlineColor(remainingDays, cycleDays, cycleProgress);
   const deadlineText = getDeadlineText(remainingDays);
-  // 检查任务是否已完成（检查task.status、mainlineTask.status、时间或cycleSnapshots）
-  const isPlanEnded = (() => {
-    // 基于status判断
-    if ((task as any).status === 'completed') return true;
-    if ((task.mainlineTask?.status as string) === 'COMPLETED') return true;
-    if ((task.mainlineTask?.status as string) === 'completed') return true;
-    
-    // 基于时间判断
-    if (task.startDate && task.cycleDays && task.totalCycles) {
-      const start = dayjs(task.startDate);
-      const planEndDate = start.add(task.totalCycles * task.cycleDays - 1, 'day');
-      if (dayjs().isAfter(planEndDate)) return true;
-    }
-    
-    // 基于cycleSnapshots数量判断
-    const cycleSnapshots = (task as any).cycleSnapshots || [];
-    if (task.totalCycles && cycleSnapshots.length >= task.totalCycles) return true;
-    
-    return false;
-  })();
   
-  const isCompleted = isPlanEnded;
-
-  // 根据任务类型渲染不同的内容
-  const renderContent = () => {
-    // 如果任务已完成，显示结算卡片
-    if (isCompleted) {
-      return renderCompletedContent();
-    }
-    
-    if (!task.mainlineType || !task.mainlineTask) {
-      // 兼容旧版本
-      return renderLegacyContent();
-    }
-
-    switch (task.mainlineType) {
-      case 'NUMERIC':
-        return renderNumericContent();
-      case 'CHECKLIST':
-        return renderChecklistContent();
-      case 'CHECK_IN':
-        return renderCheckInContent();
-      default:
-        return renderLegacyContent();
-    }
+  // 欠账显示信息 - 直接使用已计算好的值
+  const debtDisplay = task.debtDisplay;
+  const showPreviousCycleDebt = debtDisplay?.showDebt || false;
+  const displayDebtTarget = debtDisplay?.debtTarget;
+  const debtProgress = debtDisplay?.debtProgress;
+  const debtColors = {
+    bgColor: debtDisplay?.bgColor || 'rgba(246, 239, 239, 0.6)',
+    progressColor: debtDisplay?.progressColor || 'linear-gradient(90deg, #F6EFEF 0%, #E0CEC6 100%)',
+    borderColor: debtDisplay?.borderColor || '#E0CEC6'
   };
   
-  // 已完成任务的结算卡片（参考详情页完结总结样式）
+  // 任务是否已完成 - 直接使用已计算好的值
+  const isCompleted = task.isPlanEnded || task.status === 'COMPLETED' || task.status === 'ARCHIVED';
+
+  // ========== 渲染函数 ==========
+  
+  // 已完成任务的结算卡片
   const renderCompletedContent = () => {
-    const mainlineTask = task.mainlineTask;
-    
-    // 计算最终完成度和结算数据
     let completionRate = 0;
     let originalStart = 0;
     let targetValue = 0;
@@ -291,30 +64,27 @@ export default function MainlineTaskCard({ task, onClick }: MainlineTaskCardProp
     let unit = '';
     let isSuccess = false;
     
-    if (mainlineTask?.numericConfig) {
-      const config = mainlineTask.numericConfig;
-      originalStart = config.originalStartValue ?? config.startValue;
-      targetValue = config.targetValue;
-      finalValue = config.currentValue;
-      unit = config.unit;
+    if (numericConfig) {
+      originalStart = numericConfig.originalStartValue ?? numericConfig.startValue;
+      targetValue = numericConfig.targetValue;
+      finalValue = numericConfig.currentValue;
+      unit = numericConfig.unit;
       const totalChange = Math.abs(targetValue - originalStart);
-      const isDecrease = config.direction === 'DECREASE';
+      const isDecrease = numericConfig.direction === 'DECREASE';
       const rawChange = finalValue - originalStart;
       const effectiveChange = isDecrease ? Math.max(0, -rawChange) : Math.max(0, rawChange);
       completionRate = totalChange > 0 ? Math.min(100, Math.round((effectiveChange / totalChange) * 100)) : 0;
       isSuccess = isDecrease ? finalValue <= targetValue : finalValue >= targetValue;
-    } else if (mainlineTask?.checklistConfig) {
-      const config = mainlineTask.checklistConfig;
-      completionRate = config.totalItems > 0 ? Math.round((config.completedItems / config.totalItems) * 100) : 0;
-      finalValue = config.completedItems;
-      targetValue = config.totalItems;
+    } else if (checklistConfig) {
+      completionRate = checklistConfig.totalItems > 0 
+        ? Math.round((checklistConfig.completedItems / checklistConfig.totalItems) * 100) : 0;
+      finalValue = checklistConfig.completedItems;
+      targetValue = checklistConfig.totalItems;
       unit = '项';
       isSuccess = completionRate >= 100;
-    } else if (mainlineTask?.checkInConfig) {
-      const config = mainlineTask.checkInConfig;
-      const cycleConfig = mainlineTask.cycleConfig;
-      const totalTarget = cycleConfig.totalCycles * config.perCycleTarget;
-      const totalCheckIns = config.records?.filter(r => r.checked).length || 0;
+    } else if (checkInConfig) {
+      const totalTarget = totalCycles * checkInConfig.perCycleTarget;
+      const totalCheckIns = checkInConfig.records?.filter(r => r.checked).length || 0;
       completionRate = totalTarget > 0 ? Math.min(100, Math.round((totalCheckIns / totalTarget) * 100)) : 0;
       finalValue = totalCheckIns;
       targetValue = totalTarget;
@@ -324,97 +94,42 @@ export default function MainlineTaskCard({ task, onClick }: MainlineTaskCardProp
     
     return (
       <>
-        {/* 标题和完成标记 */}
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '16px'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '18px', lineHeight: '1' }}>{isSuccess ? '✓' : '—'}</span>
-            <h3 style={{ 
-              fontSize: '15px', 
-              fontWeight: '500', 
-              margin: 0,
-              color: 'rgb(55, 53, 47)',
-              lineHeight: '1.4'
-            }}>
-              {task.title}
-            </h3>
+        <div className={styles.completedHeader}>
+          <div className={styles.completedTitleWrapper}>
+            <span className={styles.completedIcon}>{isSuccess ? '✓' : '—'}</span>
+            <h3 className={styles.completedTitle}>{task.title}</h3>
           </div>
-          <span style={{ 
-            fontSize: '11px',
-            color: 'rgba(55, 53, 47, 0.5)',
-            backgroundColor: 'rgba(55, 53, 47, 0.06)',
-            padding: '2px 8px',
-            borderRadius: '4px',
-            fontWeight: '500'
-          }}>
-            已完结
-          </span>
+          <span className={styles.completedBadge}>已完结</span>
         </div>
 
-        {/* 结算对比 */}
-        <div style={{ 
-          display: 'flex',
-          gap: '12px',
-          marginBottom: '12px'
-        }}>
-          {/* 初始计划 */}
-          <div style={{ 
-            flex: 1,
-            padding: '10px 12px',
-            backgroundColor: 'rgba(55, 53, 47, 0.04)',
-            borderRadius: '8px'
-          }}>
-            <div style={{ fontSize: '11px', color: 'rgba(55, 53, 47, 0.5)', marginBottom: '4px' }}>初始计划</div>
-            <div style={{ fontSize: '14px', color: 'rgb(55, 53, 47)', fontWeight: '500' }}>
-              {mainlineTask?.numericConfig 
-                ? `${originalStart} → ${targetValue}${unit}`
-                : `${targetValue}${unit}`
+        <div className={styles.settlementSection}>
+          <div className={styles.settlementCard}>
+            <div className={styles.settlementLabel}>初始计划</div>
+            <div className={styles.settlementValue}>
+              {numericConfig 
+                ? `${formatNumber(originalStart)} → ${formatNumber(targetValue)}${unit}`
+                : `${formatNumber(targetValue)}${unit}`
               }
             </div>
           </div>
-          
-          {/* 最终结算 */}
-          <div style={{ 
-            flex: 1,
-            padding: '10px 12px',
-            backgroundColor: 'rgba(55, 53, 47, 0.04)',
-            borderRadius: '8px'
-          }}>
-            <div style={{ fontSize: '11px', color: 'rgba(55, 53, 47, 0.5)', marginBottom: '4px' }}>最终结算</div>
-            <div style={{ fontSize: '14px', color: 'rgb(55, 53, 47)', fontWeight: '500' }}>
-              {finalValue}{unit}
-            </div>
+          <div className={styles.settlementCard}>
+            <div className={styles.settlementLabel}>最终结算</div>
+            <div className={styles.settlementValue}>{formatNumber(finalValue)}{unit}</div>
           </div>
         </div>
 
-        {/* 底部统计 */}
-        <div style={{ 
-          display: 'flex',
-          justifyContent: 'space-between',
-          paddingTop: '12px',
-          borderTop: '1px solid rgba(55, 53, 47, 0.06)'
-        }}>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '15px', fontWeight: '500', color: 'rgb(55, 53, 47)' }}>
-              {task.totalCycles}/{task.totalCycles}
-            </div>
-            <div style={{ fontSize: '11px', color: 'rgba(55, 53, 47, 0.5)' }}>完成周期</div>
+        <div className={styles.statsSection}>
+          <div className={styles.statItem}>
+            <div className={styles.statValue}>{totalCycles}/{totalCycles}</div>
+            <div className={styles.statLabel}>完成周期</div>
           </div>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '15px', fontWeight: '500', color: 'rgb(55, 53, 47)' }}>
-              {completionRate}%
-            </div>
-            <div style={{ fontSize: '11px', color: 'rgba(55, 53, 47, 0.5)' }}>完成率</div>
+          <div className={styles.statItem}>
+            <div className={styles.statValue}>{completionRate}%</div>
+            <div className={styles.statLabel}>完成率</div>
           </div>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '15px', fontWeight: '500', color: 'rgb(55, 53, 47)' }}>
-              {isSuccess ? '达成' : '未达成'}
-            </div>
-            <div style={{ fontSize: '11px', color: 'rgba(55, 53, 47, 0.5)' }}>目标状态</div>
+          <div className={styles.statItem}>
+            <div className={styles.statValue}>{isSuccess ? '达成' : '未达成'}</div>
+            <div className={styles.statLabel}>目标状态</div>
           </div>
         </div>
       </>
@@ -423,163 +138,63 @@ export default function MainlineTaskCard({ task, onClick }: MainlineTaskCardProp
 
   // 数值型任务卡片
   const renderNumericContent = () => {
-    const mainlineTask = task.mainlineTask;
-    if (!mainlineTask?.numericConfig) return renderLegacyContent();
-
-    const { numericConfig, cycleConfig } = mainlineTask;
-    const { unit } = numericConfig;
+    if (!numericConfig) return renderLegacyContent();
+    const { unit, originalStartValue, startValue, targetValue } = numericConfig;
     
-    // 计算进度（如果需要显示上一周期欠账，使用上一周期目标）
-    let progressData = calculateNumericProgress(mainlineTask, {
-      currentCycleNumber,
-      cycleStartValue
-    });
+    // 欠账模式下的进度 - 直接使用已计算好的值
+    const displayProgress = showPreviousCycleDebt && debtProgress !== undefined ? debtProgress : cycleProgress;
     
-    // 如果需要显示上一周期欠账，重新计算进度
-    let displayTarget = progressData.currentCycleTarget;
-    let displayProgress = progressData.cycleProgress;
-    let debtPerCycleTarget = numericConfig.perCycleTarget || 0;
-    
-    // 欠账模式下使用副本中的起始值和目标值
-    let displayCycleStart = progressData.currentCycleStart;
-    let displayCycleTarget = progressData.currentCycleTarget;
-    
-    if (showPreviousCycleDebt && savedDebtSnapshot?.debtCycleSnapshot) {
-      // 使用副本中保存的起始值
-      displayCycleStart = savedDebtSnapshot.debtCycleSnapshot.startValue;
-    }
-    
-    if (showPreviousCycleDebt && displayDebtTarget !== undefined) {
-      // 欠账模式下，进度基于从起始值到欠账目标值的变化量来计算
-      // 计算从起始值到欠账目标值需要的变化量
-      const targetChange = Math.abs(displayDebtTarget - (cycleStartValue || numericConfig.startValue));
-      
-      const isDecrease = numericConfig.targetValue < (numericConfig.originalStartValue ?? numericConfig.startValue);
-      const rawCycleChange = numericConfig.currentValue - (cycleStartValue || numericConfig.startValue);
-      const effectiveCycleChange = isDecrease ? Math.max(0, -rawCycleChange) : Math.max(0, rawCycleChange);
-      
-      // 基于欠账目标计算进度
-      displayProgress = targetChange > 0 ? Math.min(100, Math.round((effectiveCycleChange / targetChange) * 100)) : 100;
-      
-      // 使用副本中的目标值
-      displayCycleTarget = displayDebtTarget;
-    }
     return (
       <>
-        {/* 标题和周期信息 */}
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between',
-          alignItems: 'flex-start',
-          marginBottom: '16px'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
-            <span style={{ fontSize: '14px', lineHeight: '1', fontWeight: '600' }}>●</span>
-            <h3 style={{ 
-              fontSize: '15px', 
-              fontWeight: '500', 
-              margin: 0,
-              color: 'rgb(55, 53, 47)',
-              lineHeight: '1.4'
-            }}>
-              {task.title}
-            </h3>
+        <div className={styles.header}>
+          <div className={styles.titleWrapper}>
+            <span className={styles.titleDot}>●</span>
+            <h3 className={styles.title}>{task.title}</h3>
           </div>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            flexShrink: 0
-          }}>
-            <span style={{ 
-              fontSize: '12px',
-              color: deadlineColor,
-              fontWeight: '400'
-            }}>
-              {deadlineText}
-            </span>
-            <span style={{ 
-              fontSize: '11px',
-              color: 'rgba(55, 53, 47, 0.5)',
-              backgroundColor: 'rgba(55, 53, 47, 0.06)',
-              padding: '2px 6px',
-              borderRadius: '3px'
-            }}>
-              {currentCycleNumber}/{cycleConfig.totalCycles}
-            </span>
+          <div className={styles.headerRight}>
+            <span className={styles.deadlineText} style={{ color: deadlineColor }}>{deadlineText}</span>
+            <span className={styles.cycleBadge}>{currentCycle}/{totalCycles}</span>
           </div>
         </div>
 
-        {/* 本周期进度 */}
-        <div style={{ marginBottom: '16px' }}>
-          <div style={{ 
-            display: 'flex', 
-            justifyContent: 'space-between', 
-            alignItems: 'center',
-            marginBottom: '8px' 
-          }}>
-            <span style={{ fontSize: '13px', color: 'rgba(55, 53, 47, 0.65)' }}>
-              本周期 · {progressData.currentCycleStart}{unit} → {progressData.currentCycleTarget}{unit}
+        <div className={styles.progressSection}>
+          <div className={styles.progressHeader}>
+            <span className={styles.progressLabel}>
+              本周期 · {formatNumber(cycleStartValue)}{unit} → {formatNumber(cycleTargetValue)}{unit}
               {showPreviousCycleDebt && displayDebtTarget !== undefined && (
-                <span style={{ marginLeft: '4px', fontWeight: '500' }}>
-                  ({Math.round(displayDebtTarget * 100) / 100}{unit})
+                <span className={styles.progressDebtTarget}>
+                  ({formatNumber(displayDebtTarget)}{unit})
                 </span>
               )}
             </span>
-            <span style={{ 
-              fontSize: '13px', 
-              fontWeight: '500',
-              color: 'rgb(55, 53, 47)'
-            }}>
-              {showPreviousCycleDebt ? displayProgress : progressData.cycleProgress}%
+            <span className={styles.progressValue}>
+              {showPreviousCycleDebt ? displayProgress : cycleProgress}%
             </span>
           </div>
           
-          <div style={{ 
-            height: '4px',
-            backgroundColor: showPreviousCycleDebt ? debtColors.bgColor : 'rgba(55, 53, 47, 0.08)',
-            borderRadius: '2px',
-            overflow: 'hidden'
-          }}>
-            <div style={{ 
-              width: `${showPreviousCycleDebt ? displayProgress : progressData.cycleProgress}%`,
-              height: '100%',
-              background: showPreviousCycleDebt ? debtColors.progressColor : 'rgb(55, 53, 47)',
-              borderRadius: '2px',
-              transition: 'width 0.3s ease'
-            }}></div>
+          <div 
+            className={styles.progressBar}
+            style={showPreviousCycleDebt ? { backgroundColor: debtColors.bgColor } : undefined}
+          >
+            <div 
+              className={styles.progressFill}
+              style={{ 
+                width: `${showPreviousCycleDebt ? displayProgress : cycleProgress}%`,
+                background: showPreviousCycleDebt ? debtColors.progressColor : undefined
+              }}
+            />
           </div>
         </div>
 
-        {/* 总目标 */}
-        <div style={{ 
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          paddingTop: '12px',
-          borderTop: '1px solid rgba(55, 53, 47, 0.06)'
-        }}>
-          <span style={{ fontSize: '12px', color: 'rgba(55, 53, 47, 0.5)' }}>
-            总进度 · {numericConfig.originalStartValue ?? numericConfig.startValue}{unit} → {numericConfig.targetValue}{unit}
+        <div className={styles.footer}>
+          <span className={styles.footerLabel}>
+            总进度 · {formatNumber(originalStartValue ?? startValue)}{unit} → {formatNumber(targetValue)}{unit}
           </span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div style={{ 
-              width: '48px',
-              height: '3px',
-              backgroundColor: 'rgba(55, 53, 47, 0.08)',
-              borderRadius: '2px',
-              overflow: 'hidden'
-            }}>
-              <div style={{ 
-                width: `${progressData.totalProgress}%`,
-                height: '100%',
-                backgroundColor: 'rgba(55, 53, 47, 0.35)',
-                borderRadius: '2px'
-              }}></div>
+          <div className={styles.footerProgress}>
+            <div className={styles.footerProgressBar}>
+              <div className={styles.footerProgressFill} style={{ width: `${totalProgress}%` }} />
             </div>
-            <span style={{ fontSize: '12px', color: 'rgba(55, 53, 47, 0.5)' }}>
-              {progressData.totalProgress}%
-            </span>
+            <span className={styles.footerProgressValue}>{totalProgress}%</span>
           </div>
         </div>
       </>
@@ -588,123 +203,46 @@ export default function MainlineTaskCard({ task, onClick }: MainlineTaskCardProp
 
   // 清单型任务卡片
   const renderChecklistContent = () => {
-    const mainlineTask = task.mainlineTask;
-    if (!mainlineTask?.checklistConfig) return renderLegacyContent();
-
-    const { checklistConfig, cycleConfig } = mainlineTask;
-    const { completedItems, totalItems, items } = checklistConfig;
-    
-    // 找到当前正在进行的清单项
+    if (!checklistConfig) return renderLegacyContent();
+    const { completedItems, totalItems, items, perCycleTarget } = checklistConfig;
     const currentItem = items.find(item => item.status === 'IN_PROGRESS');
     
-    // 计算进度
-    const progressData = calculateChecklistProgress(mainlineTask);
+    // 计算本周期完成数
+    const currentCycleCompleted = items.filter(
+      item => item.status === 'COMPLETED' && item.cycle === currentCycle
+    ).length;
 
     return (
       <>
-        {/* 标题和周期信息 */}
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between',
-          alignItems: 'flex-start',
-          marginBottom: '16px'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
-            <span style={{ fontSize: '14px', lineHeight: '1', fontWeight: '600' }}>●</span>
-            <h3 style={{ 
-              fontSize: '15px', 
-              fontWeight: '500', 
-              margin: 0,
-              color: 'rgb(55, 53, 47)',
-              lineHeight: '1.4'
-            }}>
-              {task.title}
-            </h3>
+        <div className={styles.header}>
+          <div className={styles.titleWrapper}>
+            <span className={styles.titleDot}>●</span>
+            <h3 className={styles.title}>{task.title}</h3>
           </div>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            flexShrink: 0
-          }}>
-            <span style={{ 
-              fontSize: '12px',
-              color: deadlineColor,
-              fontWeight: '400'
-            }}>
-              {deadlineText}
-            </span>
-            <span style={{ 
-              fontSize: '11px',
-              color: 'rgba(55, 53, 47, 0.5)',
-              backgroundColor: 'rgba(55, 53, 47, 0.06)',
-              padding: '2px 6px',
-              borderRadius: '3px'
-            }}>
-              {currentCycleNumber}/{cycleConfig.totalCycles}
-            </span>
+          <div className={styles.headerRight}>
+            <span className={styles.deadlineText} style={{ color: deadlineColor }}>{deadlineText}</span>
+            <span className={styles.cycleBadge}>{currentCycle}/{totalCycles}</span>
           </div>
         </div>
 
-        {/* 本周期进度 */}
-        <div style={{ marginBottom: '16px' }}>
-          <div style={{ 
-            display: 'flex', 
-            justifyContent: 'space-between', 
-            alignItems: 'center',
-            marginBottom: '8px' 
-          }}>
-            <span style={{ fontSize: '13px', color: 'rgba(55, 53, 47, 0.65)' }}>
-              本周期 · {progressData.currentCycleCompleted}/{progressData.currentCycleTarget} 项
+        <div className={styles.progressSection}>
+          <div className={styles.progressHeader}>
+            <span className={styles.progressLabel}>
+              本周期 · {currentCycleCompleted}/{perCycleTarget} 项
             </span>
-            <span style={{ 
-              fontSize: '13px', 
-              fontWeight: '500',
-              color: 'rgb(55, 53, 47)'
-            }}>
-              {progressData.cycleProgress}%
-            </span>
+            <span className={styles.progressValue}>{cycleProgress}%</span>
           </div>
           
-          <div style={{ 
-            height: '4px',
-            backgroundColor: 'rgba(55, 53, 47, 0.08)',
-            borderRadius: '2px',
-            overflow: 'hidden'
-          }}>
-            <div style={{ 
-              width: `${progressData.cycleProgress}%`,
-              height: '100%',
-              backgroundColor: 'rgb(55, 53, 47)',
-              borderRadius: '2px',
-              transition: 'width 0.3s ease'
-            }}></div>
+          <div className={styles.progressBar}>
+            <div className={styles.progressFill} style={{ width: `${cycleProgress}%` }} />
           </div>
 
-          {/* 当前进行中的清单项 */}
           {currentItem && (
-            <div style={{
-              marginTop: '12px',
-              paddingTop: '12px',
-              borderTop: '1px solid rgba(55, 53, 47, 0.06)'
-            }}>
-              <div style={{ 
-                fontSize: '12px', 
-                color: 'rgba(55, 53, 47, 0.5)', 
-                marginBottom: '4px'
-              }}>
-                进行中
-              </div>
-              <div style={{ 
-                fontSize: '14px', 
-                fontWeight: '500', 
-                color: 'rgb(55, 53, 47)',
-                marginBottom: '2px'
-              }}>
-                {currentItem.title}
-              </div>
+            <div className={styles.currentItemSection}>
+              <div className={styles.currentItemLabel}>进行中</div>
+              <div className={styles.currentItemTitle}>{currentItem.title}</div>
               {currentItem.subProgress && (
-                <div style={{ fontSize: '12px', color: 'rgba(55, 53, 47, 0.5)' }}>
+                <div className={styles.currentItemProgress}>
                   {currentItem.subProgress.current}/{currentItem.subProgress.total}
                   {currentItem.subProgress.type === 'PAGES' ? '页' : '%'}
                 </div>
@@ -713,35 +251,13 @@ export default function MainlineTaskCard({ task, onClick }: MainlineTaskCardProp
           )}
         </div>
 
-        {/* 总目标 */}
-        <div style={{ 
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          paddingTop: '12px',
-          borderTop: '1px solid rgba(55, 53, 47, 0.06)'
-        }}>
-          <span style={{ fontSize: '12px', color: 'rgba(55, 53, 47, 0.5)' }}>
-            总进度 · {completedItems}/{totalItems} 本
-          </span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div style={{ 
-              width: '48px',
-              height: '3px',
-              backgroundColor: 'rgba(55, 53, 47, 0.08)',
-              borderRadius: '2px',
-              overflow: 'hidden'
-            }}>
-              <div style={{ 
-                width: `${progressData.totalProgress}%`,
-                height: '100%',
-                backgroundColor: 'rgba(55, 53, 47, 0.35)',
-                borderRadius: '2px'
-              }}></div>
+        <div className={styles.footer}>
+          <span className={styles.footerLabel}>总进度 · {completedItems}/{totalItems} 本</span>
+          <div className={styles.footerProgress}>
+            <div className={styles.footerProgressBar}>
+              <div className={styles.footerProgressFill} style={{ width: `${totalProgress}%` }} />
             </div>
-            <span style={{ fontSize: '12px', color: 'rgba(55, 53, 47, 0.5)' }}>
-              {progressData.totalProgress}%
-            </span>
+            <span className={styles.footerProgressValue}>{totalProgress}%</span>
           </div>
         </div>
       </>
@@ -750,153 +266,61 @@ export default function MainlineTaskCard({ task, onClick }: MainlineTaskCardProp
 
   // 打卡型任务卡片
   const renderCheckInContent = () => {
-    const mainlineTask = task.mainlineTask;
-    console.log(mainlineTask,'mainlineTask')
-    if (!mainlineTask?.checkInConfig) return renderLegacyContent();
-
-    const { checkInConfig, cycleConfig } = mainlineTask;
-    const { currentStreak, perCycleTarget } = checkInConfig;
+    if (!checkInConfig) return renderLegacyContent();
+    const { currentStreak, perCycleTarget, records } = checkInConfig;
+    const totalTarget = totalCycles * perCycleTarget;
+    const totalCheckIns = records?.filter(record => record.checked).length || 0;
     
-    // 计算进度
-    const progressData = calculateCheckInProgress(mainlineTask);
-    const totalTarget = cycleConfig.totalCycles * perCycleTarget;
-
-    // 检查今日是否已打卡
-    const todayChecked = isTodayCheckedIn(mainlineTask);
+    // 计算本周期打卡数
+    const startDate = task.time?.startDate ? new Date(task.time.startDate) : new Date();
+    const currentCycleStartDay = (currentCycle - 1) * cycleDays;
+    const currentCycleEndDay = currentCycle * cycleDays;
+    const currentCycleStartDate = new Date(startDate);
+    currentCycleStartDate.setDate(startDate.getDate() + currentCycleStartDay);
+    const currentCycleEndDate = new Date(startDate);
+    currentCycleEndDate.setDate(startDate.getDate() + currentCycleEndDay);
+    
+    const currentCycleCheckIns = records?.filter(record => {
+      const recordDate = new Date(record.date);
+      return record.checked && recordDate >= currentCycleStartDate && recordDate < currentCycleEndDate;
+    }).length || 0;
 
     return (
       <>
-        {/* 标题和周期信息 */}
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between',
-          alignItems: 'flex-start',
-          marginBottom: '16px'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
-            <span style={{ fontSize: '14px', lineHeight: '1', fontWeight: '600' }}>●</span>
-            <h3 style={{ 
-              fontSize: '15px', 
-              fontWeight: '500', 
-              margin: 0,
-              color: 'rgb(55, 53, 47)',
-              lineHeight: '1.4'
-            }}>
-              {task.title}
-            </h3>
+        <div className={styles.header}>
+          <div className={styles.titleWrapper}>
+            <span className={styles.titleDot}>●</span>
+            <h3 className={styles.title}>{task.title}</h3>
           </div>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            flexShrink: 0
-          }}>
-            <span style={{ 
-              fontSize: '12px',
-              color: deadlineColor,
-              fontWeight: '400'
-            }}>
-              {deadlineText}
-            </span>
-            <span style={{ 
-              fontSize: '11px',
-              color: 'rgba(55, 53, 47, 0.5)',
-              backgroundColor: 'rgba(55, 53, 47, 0.06)',
-              padding: '2px 6px',
-              borderRadius: '3px'
-            }}>
-              {currentCycleNumber}/{cycleConfig.totalCycles}
-            </span>
+          <div className={styles.headerRight}>
+            <span className={styles.deadlineText} style={{ color: deadlineColor }}>{deadlineText}</span>
+            <span className={styles.cycleBadge}>{currentCycle}/{totalCycles}</span>
           </div>
         </div>
 
-        {/* 本周期打卡 */}
-        <div style={{ marginBottom: '16px' }}>
-          <div style={{ 
-            display: 'flex', 
-            justifyContent: 'space-between', 
-            alignItems: 'center',
-            marginBottom: '8px' 
-          }}>
-            <span style={{ fontSize: '13px', color: 'rgba(55, 53, 47, 0.65)' }}>
-              本周期 · {progressData.currentCycleCheckIns}/{perCycleTarget} 次
-            </span>
-            <span style={{ 
-              fontSize: '13px', 
-              fontWeight: '500',
-              color: 'rgb(55, 53, 47)'
-            }}>
-              {progressData.cycleProgress}%
-            </span>
+        <div className={styles.progressSection}>
+          <div className={styles.progressHeader}>
+            <span className={styles.progressLabel}>本周期 · {currentCycleCheckIns}/{perCycleTarget} 次</span>
+            <span className={styles.progressValue}>{cycleProgress}%</span>
           </div>
           
-          <div style={{ 
-            height: '4px',
-            backgroundColor: 'rgba(55, 53, 47, 0.08)',
-            borderRadius: '2px',
-            overflow: 'hidden',
-            marginBottom: '12px'
-          }}>
-            <div style={{ 
-              width: `${progressData.cycleProgress}%`,
-              height: '100%',
-              backgroundColor: 'rgb(55, 53, 47)',
-              borderRadius: '2px',
-              transition: 'width 0.3s ease'
-            }}></div>
+          <div className={styles.progressBar}>
+            <div className={styles.progressFill} style={{ width: `${cycleProgress}%` }} />
           </div>
 
-          {/* 连续打卡 */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '10px 12px',
-            backgroundColor: 'rgba(55, 53, 47, 0.04)',
-            borderRadius: '6px'
-          }}>
-            <span style={{ fontSize: '13px', color: 'rgba(55, 53, 47, 0.65)' }}>
-              连续打卡
-            </span>
-            <span style={{ 
-              fontSize: '15px', 
-              fontWeight: '600', 
-              color: 'rgb(55, 53, 47)'
-            }}>
-              {currentStreak} 天
-            </span>
+          <div className={styles.streakSection} style={{ marginTop: '12px' }}>
+            <span className={styles.streakLabel}>连续打卡</span>
+            <span className={styles.streakValue}>{currentStreak} 天</span>
           </div>
         </div>
 
-        {/* 总打卡 */}
-        <div style={{ 
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          paddingTop: '12px',
-          borderTop: '1px solid rgba(55, 53, 47, 0.06)'
-        }}>
-          <span style={{ fontSize: '12px', color: 'rgba(55, 53, 47, 0.5)' }}>
-            总打卡 · {progressData.totalCheckIns}/{totalTarget} 次
-          </span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div style={{ 
-              width: '48px',
-              height: '3px',
-              backgroundColor: 'rgba(55, 53, 47, 0.08)',
-              borderRadius: '2px',
-              overflow: 'hidden'
-            }}>
-              <div style={{ 
-                width: `${progressData.totalProgress}%`,
-                height: '100%',
-                backgroundColor: 'rgba(55, 53, 47, 0.35)',
-                borderRadius: '2px'
-              }}></div>
+        <div className={styles.footer}>
+          <span className={styles.footerLabel}>总打卡 · {totalCheckIns}/{totalTarget} 次</span>
+          <div className={styles.footerProgress}>
+            <div className={styles.footerProgressBar}>
+              <div className={styles.footerProgressFill} style={{ width: `${totalProgress}%` }} />
             </div>
-            <span style={{ fontSize: '12px', color: 'rgba(55, 53, 47, 0.5)' }}>
-              {progressData.totalProgress}%
-            </span>
+            <span className={styles.footerProgressValue}>{totalProgress}%</span>
           </div>
         </div>
       </>
@@ -906,30 +330,27 @@ export default function MainlineTaskCard({ task, onClick }: MainlineTaskCardProp
   // 兼容旧版本的渲染
   const renderLegacyContent = () => (
     <>
-      <div className={styles.header}>
-        <h3 className={styles.title}>{task.title}</h3>
-        {task.cycle && (
-          <div className={styles.cycleBadge}>
-            <span className={styles.cycleText}>周期 {task.cycle}</span>
+      <div className={styles.legacyHeader}>
+        <h3 className={styles.legacyTitle}>{task.title}</h3>
+        {cycle && (
+          <div className={styles.legacyCycleBadge}>
+            <span className={styles.legacyCycleText}>周期 {currentCycle}/{totalCycles}</span>
           </div>
         )}
       </div>
       
-      <div className={styles.progressContainer}>
-        <div className={styles.progressBar}>
-          <div 
-            className={styles.progressFill}
-            style={{ width: `${typeof task.progress === 'number' ? task.progress : task.progress?.currentCyclePercentage || 0}%` }}
-          ></div>
+      <div className={styles.legacyProgressContainer}>
+        <div className={styles.legacyProgressBar}>
+          <div className={styles.legacyProgressFill} style={{ width: `${cycleProgress}%` }} />
         </div>
       </div>
       
-      <div className={styles.footer}>
-        <span className={styles.daysText}>
-          第 {task.currentDay} 天 / {task.totalDays} 天
+      <div className={styles.legacyFooter}>
+        <span className={styles.legacyDaysText}>
+          第 {(task as any).currentDay || 1} 天 / {cycle?.totalDays || 30} 天
         </span>
-        <div className={styles.progressInfo}>
-          <span>{typeof task.progress === 'number' ? task.progress : task.progress?.currentCyclePercentage || 0}%</span>
+        <div className={styles.legacyProgressInfo}>
+          <span>{cycleProgress}%</span>
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="m9 18 6-6-6-6"></path>
           </svg>
@@ -937,6 +358,19 @@ export default function MainlineTaskCard({ task, onClick }: MainlineTaskCardProp
       </div>
     </>
   );
+
+  // 根据任务类型渲染不同的内容
+  const renderContent = () => {
+    if (isCompleted) return renderCompletedContent();
+    if (!category) return renderLegacyContent();
+    
+    switch (category) {
+      case 'NUMERIC': return renderNumericContent();
+      case 'CHECKLIST': return renderChecklistContent();
+      case 'CHECK_IN': return renderCheckInContent();
+      default: return renderLegacyContent();
+    }
+  };
 
   return (
     <div
@@ -954,4 +388,8 @@ export default function MainlineTaskCard({ task, onClick }: MainlineTaskCardProp
     </div>
   );
 }
+
+
+
+
 

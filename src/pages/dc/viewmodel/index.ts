@@ -13,4 +13,8 @@ export { default as GroupModeGrid } from './GroupModeGrid';
 export { default as RandomTaskPicker } from './RandomTaskPicker';
 export { default as SidelineTaskGrid } from './SidelineTaskGrid';
 export { default as SidelineTaskSection } from './SidelineTaskSection';
+export { default as MainlineTaskSection } from './MainlineTaskSection';
+export { default as CreateTaskModal } from './CreateTaskModal';
+
+
 

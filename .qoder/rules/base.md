@@ -1,0 +1,120 @@
+---
+trigger: always_on
+---
+
+## 正确的行为
+
+## 组件库
+
+1. 尽量使用 antd-mobile 组件库，除非需要特别定制
+2. 如果需要使用其他组件库，必须先申请
+
+### antd-mobile 组件使用规范
+
+优先使用以下 antd-mobile 组件：
+
+| 场景 | 推荐组件 |
+|------|----------|
+| 滑动/走马灯效果 | `Swiper` |
+| 弹窗类 | `Popup` |
+| 进度条类 | `ProgressBar` / `ProgressCircle` |
+| 下拉刷新 | `PullToRefresh` |
+| 骨架屏 | `Skeleton` |
+| 日历 | `Calendar` |
+| 图片相关 | `ImageUploader` / `Image` / `ImageViewer` |
+| 选择器 | `Picker` |
+| 布局类 | `Grid` 栅格 / `Space` 间距 / `SafeArea` 安全区 / `Divider` 分割线 / `AutoCenter` 自动居中 |
+| 文本类 | `Ellipsis` 文本省略 |
+
+
+### OpenSpec Workflow 规则
+
+当用户请求执行以下 OpenSpec 相关操作时，应动态读取对应的 workflow 文件：
+
+1. **Proposal（提案）** - 当用户要求创建新的 OpenSpec 变更提案时：
+   - 读取文件：`.windsurf/workflows/openspec-proposal.md`
+   - 触发关键词：`openspec proposal`、`创建提案`、`新建变更`、`scaffold change`
+
+2. **Apply（应用）** - 当用户要求实施已批准的 OpenSpec 变更时：
+   - 读取文件：`.windsurf/workflows/openspec-apply.md`
+   - 触发关键词：`openspec apply`、`实施变更`、`应用提案`、`implement change`
+
+3. **Archive（归档）** - 当用户要求归档已部署的 OpenSpec 变更时：
+   - 读取文件：`.windsurf/workflows/openspec-archive.md`
+   - 触发关键词：`openspec archive`、`归档变更`、`archive change`
+
+4. **采访式需求澄清（Caifang）** - 当用户要求通过采访方式创建提案时：
+   - 读取文件：`.windsurf/workflows/openspec-caifang.md`
+   - 触发关键词：`采访式创建提案`、`openspec caifang`、`采访需求`
+
+5. **审查清单（Check）** - 当用户要求生成审查清单时：
+   - 读取文件：`.windsurf/workflows/openspec-check.md`
+   - 触发关键词：`openspec check`、`审查清单`、`检查提案`
+
+6. **分步确认提案（Review）** - 当用户要求分步确认提案时：
+   - 读取文件：`.windsurf/workflows/openspec-review.md`
+   - 触发关键词：`openspec review`、`分步确认`、`逐步审查`
+
+7. **UI/UX Pro Max（设计智能）** - 当用户请求 UI/UX 相关工作时：
+   - 读取文件：`.windsurf/workflows/ui-ux-pro-max.md`
+   - 触发关键词：`ui-ux-pro-max`
+
+### OpenSpec 通用规范
+
+- 优先采用简单、最小化的实现方式，只有在明确需要时才增加复杂性
+- 保持变更范围紧密聚焦于请求的结果
+- 如需额外的 OpenSpec 约定或说明，参考 `openspec/AGENTS.md`
+- 使用 `openspec list` 查看现有变更列表
+- 使用 `openspec show <id>` 查看特定变更详情
+- 使用 `openspec validate --strict` 验证变更
+
+### OpenSpec 上下文触发规则
+
+当用户请求涉及以下情况时，应首先读取 `openspec/AGENTS.md` 获取完整指导：
+
+1. **规划或提案相关**：
+   - 提及 proposal、spec、change、plan 等关键词
+   - 需要创建或修改变更提案
+
+2. **重大变更**：
+   - 引入新功能或能力
+   - 破坏性变更（API、schema）
+   - 架构调整或模式变更
+   - 性能或安全相关的重大工作
+
+3. **需要规范参考**：
+   - 请求模糊不清，需要权威规范指导
+   - 需要了解 spec 格式和约定
+   - 需要了解项目结构和指南
+
+### OpenSpec 项目上下文
+
+在执行 OpenSpec 相关任务前，应检查以下内容：
+- 读取 `openspec/project.md` 了解项目约定
+- 运行 `openspec list` 查看活跃变更
+- 运行 `openspec list --specs` 查看现有能力规范
+- 检查 `openspec/specs/` 目录下的相关规范
+- 检查 `openspec/changes/` 目录下的待处理变更
+
+### 目标管理功能规则
+
+当进行目标管理（Goal Management）相关功能的开发时：
+
+- **必须**在 `src/pages/dc/` 目录下进行所有相关代码的编写和修改
+- **只能**在 `src/pages/dc/` 目录及其子目录中创建目标管理相关的组件、hooks、工具函数等
+- 目标管理相关功能包括但不限于：目标创建、目标编辑、目标追踪、任务管理、进度展示等
+- 如需创建新的子目录或文件，应遵循 `src/pages/dc/` 现有的目录结构规范
+
+#### 优秀的行为
+- 如果是跟当前文件完全无关的工具函数实现，应该放到 `src/pages/dc/utils`下
+- 如果是跟当前文件完全无关的UI实现，并且不需要直接使用上下文的组件，应该放到 `src/pages/dc/components`下
+- 如果使用上下文的独立组件，应该放到 `src/pages/dc/viewmodel`下
+- `src/pages/dc/panels` 一般是比较大的独立页面才会放在这里
+
+
+## 错误的行为
+
+1. 禁止写在没有要求的情况下写.md文件
+2. 禁止在没有要求的情况下写example
+3. 禁止有open http://127.0.0.1:3002/ 类似的话术
+4. 禁止在 `src/pages/dc/` 目录以外的位置进行目标管理相关功能的开发

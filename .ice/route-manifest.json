@@ -50,6 +50,16 @@
     ]
   },
   {
+    "path": "dc/viewmodel/CreateTaskModal/steps/configs/ChecklistConfig",
+    "id": "dc/viewmodel/CreateTaskModal/steps/configs/ChecklistConfig",
+    "file": "dc/viewmodel/CreateTaskModal/steps/configs/ChecklistConfig.tsx",
+    "componentName": "dc-viewmodel-createtaskmodal-steps-configs-checklistconfig",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
     "path": "dc/components/CreateGoalModal/components/DurationSelector",
     "id": "dc/components/CreateGoalModal/components/DurationSelector",
     "file": "dc/components/CreateGoalModal/components/DurationSelector.tsx",
@@ -110,6 +120,26 @@
     "layout": false,
     "exports": [
       "MemorialListSkeleton",
+      "default"
+    ]
+  },
+  {
+    "path": "dc/viewmodel/CreateTaskModal/steps/configs/CheckInConfig",
+    "id": "dc/viewmodel/CreateTaskModal/steps/configs/CheckInConfig",
+    "file": "dc/viewmodel/CreateTaskModal/steps/configs/CheckInConfig.tsx",
+    "componentName": "dc-viewmodel-createtaskmodal-steps-configs-checkinconfig",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/viewmodel/CreateTaskModal/steps/configs/NumericConfig",
+    "id": "dc/viewmodel/CreateTaskModal/steps/configs/NumericConfig",
+    "file": "dc/viewmodel/CreateTaskModal/steps/configs/NumericConfig.tsx",
+    "componentName": "dc-viewmodel-createtaskmodal-steps-configs-numericconfig",
+    "layout": false,
+    "exports": [
       "default"
     ]
   },
@@ -644,6 +674,16 @@
     ]
   },
   {
+    "path": "dc/viewmodel/CreateTaskModal/steps/ConfigStep",
+    "id": "dc/viewmodel/CreateTaskModal/steps/ConfigStep",
+    "file": "dc/viewmodel/CreateTaskModal/steps/ConfigStep.tsx",
+    "componentName": "dc-viewmodel-createtaskmodal-steps-configstep",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
     "path": "dc/panels/detail/components/GoalHeader",
     "index": true,
     "id": "dc/panels/detail/components/GoalHeader",
@@ -660,6 +700,16 @@
     "id": "dc/panels/happy/components/TripList/TripCard",
     "file": "dc/panels/happy/components/TripList/TripCard.tsx",
     "componentName": "dc-panels-happy-components-triplist-tripcard",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/viewmodel/CreateTaskModal/steps/CycleStep",
+    "id": "dc/viewmodel/CreateTaskModal/steps/CycleStep",
+    "file": "dc/viewmodel/CreateTaskModal/steps/CycleStep.tsx",
+    "componentName": "dc-viewmodel-createtaskmodal-steps-cyclestep",
     "layout": false,
     "exports": [
       "default"
@@ -683,6 +733,16 @@
     "componentName": "dc-components-createmainlinetaskmodal-types",
     "layout": false,
     "exports": []
+  },
+  {
+    "path": "dc/viewmodel/CreateTaskModal/steps/TypeStep",
+    "id": "dc/viewmodel/CreateTaskModal/steps/TypeStep",
+    "file": "dc/viewmodel/CreateTaskModal/steps/TypeStep.tsx",
+    "componentName": "dc-viewmodel-createtaskmodal-steps-typestep",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
   },
   {
     "path": "dc/panels/settings/DeveloperSettings",
@@ -801,6 +861,19 @@
     ]
   },
   {
+    "path": "dc/viewmodel/CreateTaskModal/steps",
+    "index": true,
+    "id": "dc/viewmodel/CreateTaskModal/steps",
+    "file": "dc/viewmodel/CreateTaskModal/steps/index.ts",
+    "componentName": "dc-viewmodel-createtaskmodal-steps-index",
+    "layout": false,
+    "exports": [
+      "ConfigStep",
+      "CycleStep",
+      "TypeStep"
+    ]
+  },
+  {
     "path": "dc/components/CreateGoalModal/constants",
     "id": "dc/components/CreateGoalModal/constants",
     "file": "dc/components/CreateGoalModal/constants.ts",
@@ -911,6 +984,31 @@
     "id": "dc/panels/settings/ThemeSettings",
     "file": "dc/panels/settings/ThemeSettings/index.tsx",
     "componentName": "dc-panels-settings-themesettings-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/viewmodel/CreateTaskModal/constants",
+    "id": "dc/viewmodel/CreateTaskModal/constants",
+    "file": "dc/viewmodel/CreateTaskModal/constants.ts",
+    "componentName": "dc-viewmodel-createtaskmodal-constants",
+    "layout": false,
+    "exports": [
+      "CHECK_IN_TYPE_OPTIONS",
+      "CYCLE_LENGTH_OPTIONS",
+      "DIRECTION_OPTIONS",
+      "TASK_TYPE_OPTIONS",
+      "TOTAL_DURATION_OPTIONS"
+    ]
+  },
+  {
+    "path": "dc/viewmodel/MainlineTaskSection",
+    "index": true,
+    "id": "dc/viewmodel/MainlineTaskSection",
+    "file": "dc/viewmodel/MainlineTaskSection/index.tsx",
+    "componentName": "dc-viewmodel-mainlinetasksection-index",
     "layout": false,
     "exports": [
       "default"
@@ -1114,6 +1212,28 @@
     ]
   },
   {
+    "path": "dc/components/LocationFilter",
+    "index": true,
+    "id": "dc/components/LocationFilter",
+    "file": "dc/components/LocationFilter/index.tsx",
+    "componentName": "dc-components-locationfilter-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/components/MigrationModal",
+    "index": true,
+    "id": "dc/components/MigrationModal",
+    "file": "dc/components/MigrationModal/index.tsx",
+    "componentName": "dc-components-migrationmodal-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
     "path": "dc/panels/memorial/constants/icons",
     "id": "dc/panels/memorial/constants/icons",
     "file": "dc/panels/memorial/constants/icons.ts",
@@ -1133,6 +1253,25 @@
     "id": "dc/panels/memorial/constants",
     "file": "dc/panels/memorial/constants/index.ts",
     "componentName": "dc-panels-memorial-constants-index",
+    "layout": false,
+    "exports": []
+  },
+  {
+    "path": "dc/viewmodel/CreateTaskModal",
+    "index": true,
+    "id": "dc/viewmodel/CreateTaskModal",
+    "file": "dc/viewmodel/CreateTaskModal/index.tsx",
+    "componentName": "dc-viewmodel-createtaskmodal-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/viewmodel/CreateTaskModal/types",
+    "id": "dc/viewmodel/CreateTaskModal/types",
+    "file": "dc/viewmodel/CreateTaskModal/types.ts",
+    "componentName": "dc-viewmodel-createtaskmodal-types",
     "layout": false,
     "exports": []
   },
@@ -1650,12 +1789,13 @@
     "componentName": "dc-panels-detail-hooks",
     "layout": false,
     "exports": [
+      "DEBT_COLOR_SCHEMES",
       "formatLocalDate",
       "getCurrentCycle",
+      "getRandomColorScheme",
       "getSimulatedToday",
       "getSimulatedTodayDate",
-      "getTodayCheckInStatusForTask",
-      "useGoalDetail"
+      "getTodayCheckInStatusForTask"
     ]
   },
   {
@@ -1751,11 +1891,14 @@
     "componentName": "dc-utils-progresscalculator",
     "layout": false,
     "exports": [
+      "ProgressCalculator",
       "calculateCheckInProgress",
       "calculateChecklistProgress",
       "calculateNumericProgress",
+      "default",
       "formatLargeNumber",
       "formatNumber",
+      "getEffectiveCategory",
       "getEffectiveMainlineType"
     ]
   },
@@ -1771,18 +1914,6 @@
       "ProgressBar",
       "StatCard",
       "StatCardGrid"
-    ]
-  },
-  {
-    "path": "dc/contexts/UIStateContext",
-    "id": "dc/contexts/UIStateContext",
-    "file": "dc/contexts/UIStateContext.tsx",
-    "componentName": "dc-contexts-uistatecontext",
-    "layout": false,
-    "exports": [
-      "UIStateProvider",
-      "default",
-      "useUIState"
     ]
   },
   {
@@ -1812,6 +1943,7 @@
       "exportToClipboard",
       "getDataStats",
       "importData",
+      "migrateToNewFormat",
       "repairTaskProgressData"
     ]
   },
@@ -1843,19 +1975,6 @@
     "exports": [
       "MainlineTaskCard",
       "SidelineTaskCard"
-    ]
-  },
-  {
-    "path": "dc/contexts/ThemeContext",
-    "id": "dc/contexts/ThemeContext",
-    "file": "dc/contexts/ThemeContext.tsx",
-    "componentName": "dc-contexts-themecontext",
-    "layout": false,
-    "exports": [
-      "ThemeProvider",
-      "default",
-      "themePresets",
-      "useTheme"
     ]
   },
   {
@@ -1935,18 +2054,6 @@
     ]
   },
   {
-    "path": "dc/contexts/TaskContext",
-    "id": "dc/contexts/TaskContext",
-    "file": "dc/contexts/TaskContext.tsx",
-    "componentName": "dc-contexts-taskcontext",
-    "layout": false,
-    "exports": [
-      "TaskProvider",
-      "default",
-      "useTaskContext"
-    ]
-  },
-  {
     "path": "dc/hooks/useSpriteImage",
     "id": "dc/hooks/useSpriteImage",
     "file": "dc/hooks/useSpriteImage.ts",
@@ -1987,6 +2094,23 @@
       "saveVacationState",
       "updateGoal",
       "updateTrip"
+    ]
+  },
+  {
+    "path": "dc/utils/archiveStorage",
+    "id": "dc/utils/archiveStorage",
+    "file": "dc/utils/archiveStorage.ts",
+    "componentName": "dc-utils-archivestorage",
+    "layout": false,
+    "exports": [
+      "archiveTask",
+      "clearAllArchivedTasks",
+      "deleteArchivedTask",
+      "getArchiveStats",
+      "getArchivedTasks",
+      "migrateOldArchivedTasks",
+      "restoreFromArchive",
+      "saveArchivedTasks"
     ]
   },
   {
@@ -2119,7 +2243,9 @@
       "CreateGoalModal",
       "CreateMainlineTaskModal",
       "DailyProgress",
+      "LocationFilter",
       "MainlineTaskCard",
+      "MigrationModal",
       "ProgressBar",
       "SidelineTaskCard",
       "StatCard",
@@ -2229,6 +2355,18 @@
     ]
   },
   {
+    "path": "dc/utils/migration",
+    "id": "dc/utils/migration",
+    "file": "dc/utils/migration.ts",
+    "componentName": "dc-utils-migration",
+    "layout": false,
+    "exports": [
+      "TaskMigration",
+      "createTask",
+      "default"
+    ]
+  },
+  {
     "path": "dc/viewmodel",
     "index": true,
     "id": "dc/viewmodel",
@@ -2238,9 +2376,11 @@
     "exports": [
       "AllSidelineTasksList",
       "AllSidelineTasksPopup",
+      "CreateTaskModal",
       "DailyViewPopup",
       "GroupCard",
       "GroupModeGrid",
+      "MainlineTaskSection",
       "MoonPhase",
       "RandomTaskPicker",
       "SidelineTaskGrid",
@@ -2336,7 +2476,11 @@
       "CycleCalculator",
       "DATA_TYPE_CONFIG",
       "LAYOUT_CONSTANTS",
+      "MigrationTool",
+      "ProgressCalculator",
       "TAG_COLORS",
+      "TaskMigration",
+      "archiveTask",
       "calculateCheckInProgress",
       "calculateCheckInProgressV2",
       "calculateChecklistProgress",
@@ -2350,11 +2494,14 @@
       "calculateVisibleSidelineTasks",
       "canOpenModalForEdit",
       "canOpenModalForView",
+      "clearAllArchivedTasks",
       "clearDailyViewCache",
       "clearData",
       "copyToClipboard",
       "createTag",
+      "createTask",
       "createTodayState",
+      "deleteArchivedTask",
       "deleteTag",
       "exportAllTasks",
       "exportData",
@@ -2364,9 +2511,12 @@
       "formatLargeNumber",
       "formatNumber",
       "getAllTags",
+      "getArchiveStats",
+      "getArchivedTasks",
       "getCachedDailyTaskIds",
       "getDataStats",
       "getDeveloperMode",
+      "getEffectiveCategory",
       "getEffectiveMainlineType",
       "getNextTagColor",
       "getSafeAreaInsets",
@@ -2387,8 +2537,13 @@
       "loadTagsFromStorage",
       "loadTodayMustCompleteState",
       "markModalShown",
+      "migrateOldArchivedTasks",
+      "migrateToNewFormat",
       "prefersReducedMotion",
       "removeFromTodayMustComplete",
+      "repairTaskProgressData",
+      "restoreFromArchive",
+      "saveArchivedTasks",
       "saveDailyTaskIdsCache",
       "saveLocationFilter",
       "saveTagsToStorage",
@@ -2438,7 +2593,9 @@
     "file": "dc/types.ts",
     "componentName": "dc-types",
     "layout": false,
-    "exports": []
+    "exports": [
+      "getCompatibleTaskFields"
+    ]
   },
   {
     "path": "aitrend",

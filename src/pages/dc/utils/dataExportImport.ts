@@ -11,6 +11,7 @@ import {
   calculateCurrentCycleNumber
 } from './mainlineTaskHelper';
 import type { Task, ProgressInfo } from '../types';
+import { TaskMigration } from './migration';
 
 // 存储键常量
 const STORAGE_KEYS = {
@@ -141,6 +142,101 @@ export const importData = (
 };
 
 /**
+ * 迁移旧数据到新格式
+ * 将所有旧格式任务转换为新的 v2 格式
+ */
+export const migrateToNewFormat = async (): Promise<{ success: boolean; message: string; migratedCount: number }> => {
+  try {
+    // 先重置迁移标记，强制重新迁移
+    TaskMigration.resetMigration();
+    
+    console.log('[Migration] 开始迁移...');
+    
+    // 检查是否有任何任务数据
+    const tasksJson = localStorage.getItem(STORAGE_KEYS.TASKS);
+    if (!tasksJson) {
+      return {
+        success: true,
+        message: '没有找到任务数据',
+        migratedCount: 0
+      };
+    }
+    
+    const tasks = JSON.parse(tasksJson);
+    if (!Array.isArray(tasks) || tasks.length === 0) {
+      console.log('[Migration] 没有找到任务数据');
+      return {
+        success: true,
+        message: '没有找到任务数据',
+        migratedCount: 0
+      };
+    }
+    
+    console.log(`[Migration] 找到 ${tasks.length} 个任务`);
+    
+    // 检查是否有旧格式数据（检查所有任务，而不只是第一个）
+    const hasLegacyData = tasks.some((task: any) => {
+      // 新格式必须有 time、cycle、progress 对象，且 progress 有 lastUpdatedAt
+      if (
+        task.time &&
+        task.cycle &&
+        task.progress &&
+        typeof task.progress === 'object' &&
+        task.progress.lastUpdatedAt
+      ) {
+        return false;
+      }
+      // 旧格式特征：progress 是数字，或有 currentDay 字段，或有 mainlineTask 字段
+      return (
+        typeof task.progress === 'number' ||
+        'currentDay' in task ||
+        'mainlineTask' in task
+      );
+    });
+    
+    if (!hasLegacyData) {
+      console.log('[Migration] 所有数据已经是新格式');
+      return {
+        success: true,
+        message: '所有数据已经是新格式，无需迁移',
+        migratedCount: 0
+      };
+    }
+    
+    console.log('[Migration] 检测到旧格式数据，开始执行迁移...');
+    
+    // 执行迁移
+    const result = await TaskMigration.migrate();
+    
+    console.log('[Migration] 迁移结果:', result);
+    
+    // 验证迁移后的数据
+    const migratedTasksJson = localStorage.getItem(STORAGE_KEYS.TASKS);
+    if (migratedTasksJson) {
+      const migratedTasks = JSON.parse(migratedTasksJson);
+      console.log('[Migration] 迁移后的第一个任务:', migratedTasks[0]);
+    }
+    
+    // 强制刷新页面以加载新数据
+    
+    return {
+      success: result.success,
+      message: result.success 
+        ? `成功迁移 ${result.migratedCount} 个任务到新格式` 
+        : `迁移失败：${result.errors.map(e => e.error).join('; ')}`,
+      migratedCount: result.migratedCount
+    };
+  } catch (error) {
+    console.error('Failed to migrate to new format:', error);
+    return {
+      success: false,
+      message: '迁移失败：' + (error instanceof Error ? error.message : '未知错误'),
+      migratedCount: 0
+    };
+  }
+};
+
+/**
  * 导出数据到剪贴板
  */
 export const exportToClipboard = async (dataType: DataType): Promise<boolean> => {
@@ -220,13 +316,9 @@ export const repairTaskProgressData = (): { success: boolean; message: string; r
     let repairedCount = 0;
 
     const repairedTasks = tasks.map(task => {
-      // 只处理有 mainlineTask 的任务
-      if (!task.mainlineTask) {
-        return task;
-      }
-
-      const mainlineTask = task.mainlineTask;
-      const mainlineType = task.mainlineType || mainlineTask.mainlineType;
+      // 只处理有 category 的任务
+      const category = task.category;
+      if (!category) return task;
       
       // 计算当前周期编号
       const currentCycleNumber = calculateCurrentCycleNumber(task);
@@ -234,7 +326,7 @@ export const repairTaskProgressData = (): { success: boolean; message: string; r
       // 获取周期起始值（从 cycleSnapshots 获取）
       const cycleSnapshots = (task as any).cycleSnapshots || [];
       let cycleStartValue: number | undefined;
-      if (cycleSnapshots.length > 0 && mainlineTask.numericConfig) {
+      if (cycleSnapshots.length > 0 && task.numericConfig) {
         const lastSnapshot = cycleSnapshots[cycleSnapshots.length - 1];
         if (lastSnapshot.actualValue !== undefined) {
           cycleStartValue = lastSnapshot.actualValue;
@@ -243,33 +335,46 @@ export const repairTaskProgressData = (): { success: boolean; message: string; r
 
       let newProgress: ProgressInfo;
 
-      switch (mainlineType) {
+      switch (category) {
         case 'NUMERIC': {
-          const progressData = calculateNumericProgress(mainlineTask, {
+          const progressData = calculateNumericProgress({ numericConfig: task.numericConfig, cycle: task.cycle } as any, {
             currentCycleNumber,
             cycleStartValue
           });
           newProgress = {
             totalPercentage: progressData.totalProgress,
-            currentCyclePercentage: progressData.cycleProgress,
-            currentCycleStart: progressData.currentCycleStart,
-            currentCycleTarget: progressData.currentCycleTarget
+            cyclePercentage: progressData.cycleProgress,
+            cycleStartValue: progressData.currentCycleStart,
+            cycleTargetValue: progressData.currentCycleTarget,
+            cycleAchieved: 0,
+            cycleRemaining: 0,
+            lastUpdatedAt: new Date().toISOString(),
           };
           break;
         }
         case 'CHECKLIST': {
-          const progressData = calculateChecklistProgress(mainlineTask);
+          const progressData = calculateChecklistProgress({ checklistConfig: task.checklistConfig, cycle: task.cycle } as any);
           newProgress = {
             totalPercentage: progressData.totalProgress,
-            currentCyclePercentage: progressData.cycleProgress
+            cyclePercentage: progressData.cycleProgress,
+            cycleStartValue: 0,
+            cycleTargetValue: 0,
+            cycleAchieved: 0,
+            cycleRemaining: 0,
+            lastUpdatedAt: new Date().toISOString(),
           };
           break;
         }
         case 'CHECK_IN': {
-          const progressData = calculateCheckInProgress(mainlineTask);
+          const progressData = calculateCheckInProgress({ checkInConfig: task.checkInConfig, cycle: task.cycle, time: task.time } as any);
           newProgress = {
             totalPercentage: progressData.totalProgress,
-            currentCyclePercentage: progressData.cycleProgress
+            cyclePercentage: progressData.cycleProgress,
+            cycleStartValue: 0,
+            cycleTargetValue: 0,
+            cycleAchieved: 0,
+            cycleRemaining: 0,
+            lastUpdatedAt: new Date().toISOString(),
           };
           break;
         }
@@ -279,14 +384,10 @@ export const repairTaskProgressData = (): { success: boolean; message: string; r
 
       repairedCount++;
 
-      // 更新 mainlineTask.progress 和 task.progress
+      // 更新 task.progress
       return {
         ...task,
-        progress: newProgress,
-        mainlineTask: {
-          ...mainlineTask,
-          progress: newProgress
-        }
+        progress: newProgress
       };
     });
 
@@ -307,4 +408,9 @@ export const repairTaskProgressData = (): { success: boolean; message: string; r
     };
   }
 };
+
+
+
+
+
 

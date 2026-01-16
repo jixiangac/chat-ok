@@ -3,17 +3,17 @@
  * 展示今日任务的时段分布 - 小票风格
  */
 
-import React, { useMemo, useState, useRef, useEffect } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Popup, SafeArea } from 'antd-mobile';
 import { 
-  MapPin, ChevronDown, Check, Sun, Sunset, Moon, X,
-  Home, Building2, Coffee, Dumbbell, Train, School, Hospital, ShoppingCart, Palmtree, TreePine
+  Check, Sun, Sunset, Moon, X
 } from 'lucide-react';
 import dayjs from 'dayjs';
 import type { Task, TagType } from '../../types';
-import { getTagsByType, getTaskTags, getUsedLocationTags } from '../../utils/tagStorage';
+import { getUsedLocationTags } from '../../utils/tagStorage';
+import { useTaskContext, useScene } from '../../contexts';
 import { getTodayCheckInStatusForTask } from '../../panels/detail/hooks';
-import { filterDailyViewTasks, getCachedDailyTaskIds, saveDailyTaskIdsCache } from '../../utils';
+import { LocationFilter } from '../../components';
 import styles from './styles.module.css';
 
 // 圆圈进度条组件（与支线卡片一致）
@@ -69,31 +69,9 @@ const CircleProgress: React.FC<CircleProgressProps> = ({
   );
 };
 
-// 地点图标映射
-const LOCATION_ICON_MAP: Record<string, React.ReactNode> = {
-  home: <Home size={12} />,
-  building: <Building2 size={12} />,
-  coffee: <Coffee size={12} />,
-  gym: <Dumbbell size={12} />,
-  train: <Train size={12} />,
-  school: <School size={12} />,
-  hospital: <Hospital size={12} />,
-  shop: <ShoppingCart size={12} />,
-  beach: <Palmtree size={12} />,
-  park: <TreePine size={12} />,
-};
-
-// 获取地点图标组件
-const getLocationIcon = (iconName?: string) => {
-  if (!iconName) return null;
-  return LOCATION_ICON_MAP[iconName] || null;
-};
-
 interface DailyViewPopupProps {
   visible: boolean;
   onClose: () => void;
-  tasks: Task[];
-  onTaskClick: (taskId: string) => void;
 }
 
 // 时段配置
@@ -140,65 +118,34 @@ interface TaskWithPeriod extends Task {
 const DailyViewPopup: React.FC<DailyViewPopupProps> = ({
   visible,
   onClose,
-  tasks,
-  onTaskClick,
 }) => {
+  const { setSelectedTaskId } = useTaskContext();
+  const { normal } = useScene();
+  
+  // 从上下文获取活跃任务
+  const tasks = useMemo(() => {
+    return [...normal.mainlineTasks, ...normal.sidelineTasks];
+  }, [normal.mainlineTasks, normal.sidelineTasks]);
   const [selectedLocationTagId, setSelectedLocationTagId] = useState<string | null>(null);
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const filterRef = useRef<HTMLDivElement>(null);
-
-  // 点击外部关闭筛选
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (filterRef.current && !filterRef.current.contains(event.target as Node)) {
-        setIsFilterOpen(false);
-      }
-    };
-
-    if (isFilterOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isFilterOpen]);
 
   // 获取已使用的地点标签
   const usedLocationTags = useMemo(() => {
     return getUsedLocationTags(tasks);
   }, [tasks]);
 
-  // 获取当前选中的地点标签
-  const selectedLocationTag = useMemo(() => {
-    if (!selectedLocationTagId) return null;
-    return usedLocationTags.find(tag => tag.id === selectedLocationTagId);
-  }, [selectedLocationTagId, usedLocationTags]);
-
   // 筛选后的任务（使用新的智能筛选逻辑）
   const filteredTasks = useMemo(() => {
-    // 1. 尝试从缓存获取今日任务ID列表
-    // const cachedTaskIds = getCachedDailyTaskIds();
-    const cachedTaskIds: any = null;
+    // 从 SceneProvider 获取缓存的一日清单任务ID
+    const dailyViewTaskIds = normal.dailyViewTaskIds;
     
-    let dailyTasks: Task[];
-
-    console.log(tasks, 'tasks')
+    // 根据缓存的ID列表筛选任务
+    const dailyTasks = tasks.filter(task => 
+      // 支持新旧格式
+      (task.category === 'CHECK_IN' || (task as any).mainlineType === 'CHECK_IN') && 
+      dailyViewTaskIds.includes(task.id)
+    );
     
-    if (cachedTaskIds) {
-      // 使用缓存的任务ID列表
-      dailyTasks = tasks.filter(task => 
-        task.mainlineType === 'CHECK_IN' && cachedTaskIds.includes(task.id)
-      );
-    } else {
-      // 执行智能筛选逻辑
-      dailyTasks = filterDailyViewTasks(tasks);
-      
-      // 保存到缓存，确保全天结果一致
-      saveDailyTaskIdsCache(dailyTasks.map(t => t.id));
-    }
-    
-    // 2. 应用地点筛选
+    // 应用地点筛选
     if (!selectedLocationTagId) {
       return dailyTasks;
     }
@@ -206,7 +153,7 @@ const DailyViewPopup: React.FC<DailyViewPopupProps> = ({
     return dailyTasks.filter(task => 
       task.tags?.locationTagId === selectedLocationTagId
     );
-  }, [tasks, selectedLocationTagId]);
+  }, [tasks, selectedLocationTagId, normal.dailyViewTaskIds]);
 
   // 将任务分配到时段
   const tasksWithPeriods = useMemo((): TaskWithPeriod[] => {
@@ -327,7 +274,7 @@ const DailyViewPopup: React.FC<DailyViewPopupProps> = ({
                   key={task.id}
                   className={`${styles.taskItem} ${task.isCompleted ? styles.taskCompleted : ''}`}
                   style={{ animationDelay }}
-                  onClick={() => onTaskClick(task.id)}
+                  onClick={() => setSelectedTaskId(task.id)}
                 >
                   <div className={styles.taskLeft}>
                     <span className={styles.taskTitle}>{task.title}</span>
@@ -359,6 +306,7 @@ const DailyViewPopup: React.FC<DailyViewPopupProps> = ({
   return (
     <Popup
       visible={visible}
+      mask={false}
       onMaskClick={onClose}
       position="bottom"
       bodyStyle={{
@@ -393,49 +341,11 @@ const DailyViewPopup: React.FC<DailyViewPopupProps> = ({
           </div>
           
           {/* 地点筛选 */}
-          {usedLocationTags.length > 0 && (
-            <div className={styles.filterWrapper} ref={filterRef}>
-              <button
-                className={`${styles.filterButton} ${selectedLocationTagId ? styles.filterActive : ''}`}
-                onClick={() => setIsFilterOpen(!isFilterOpen)}
-              >
-                <MapPin size={14} />
-                {selectedLocationTag && (
-                  <span className={styles.filterText}>{selectedLocationTag.name}</span>
-                )}
-                <ChevronDown size={12} />
-              </button>
-              
-              {isFilterOpen && (
-                <div className={styles.filterDropdown}>
-                  <div
-                    className={`${styles.filterOption} ${!selectedLocationTagId ? styles.filterOptionActive : ''}`}
-                    onClick={() => {
-                      setSelectedLocationTagId(null);
-                      setIsFilterOpen(false);
-                    }}
-                  >
-                    <span>全部</span>
-                    {!selectedLocationTagId && <Check size={12} className={styles.filterOptionCheck} />}
-                  </div>
-                  {usedLocationTags.map(tag => (
-                    <div
-                      key={tag.id}
-                      className={`${styles.filterOption} ${selectedLocationTagId === tag.id ? styles.filterOptionActive : ''}`}
-                      onClick={() => {
-                        setSelectedLocationTagId(tag.id);
-                        setIsFilterOpen(false);
-                      }}
-                    >
-                      <span className={styles.filterOptionIcon}>{getLocationIcon(tag.icon)}</span>
-                      <span>{tag.name}</span>
-                      {selectedLocationTagId === tag.id && <Check size={12} className={styles.filterOptionCheck} />}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+          <LocationFilter
+            locationTags={usedLocationTags}
+            selectedTagId={selectedLocationTagId}
+            onTagChange={setSelectedLocationTagId}
+          />
         </div>
 
         <div className={styles.dashedLine}></div>
@@ -471,3 +381,7 @@ const DailyViewPopup: React.FC<DailyViewPopupProps> = ({
 };
 
 export default DailyViewPopup;
+
+
+
+

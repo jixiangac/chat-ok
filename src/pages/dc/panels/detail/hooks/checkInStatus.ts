@@ -14,8 +14,23 @@ export function getTodayCheckInStatusForTask(taskDetail: any): {
   // 使用模拟的"今天"日期
   const effectiveToday = getSimulatedToday(targetGoalDetail);
   
-  const todayCheckIns = (targetGoalDetail.checkIns || []).filter((c: any) => c.date === effectiveToday);
-  const config = targetGoalDetail.checkInConfig;
+  // 支持新格式：从 checkInConfig.records 获取打卡记录
+  // 支持旧格式：从 checkIns 获取打卡记录
+  const checkInConfig = targetGoalDetail.checkInConfig || targetGoalDetail.mainlineTask?.checkInConfig;
+  let todayCheckIns: any[] = [];
+  
+  if (checkInConfig?.records) {
+    // 新格式：从 records 中查找今日记录
+    const todayRecord = checkInConfig.records.find((r: any) => r.date === effectiveToday);
+    if (todayRecord?.entries) {
+      todayCheckIns = todayRecord.entries;
+    }
+  } else {
+    // 旧格式：从 checkIns 获取
+    todayCheckIns = (targetGoalDetail.checkIns || []).filter((c: any) => c.date === effectiveToday);
+  }
+  
+  const config = checkInConfig;
   
   if (!config) {
     return {
@@ -60,3 +75,4 @@ export function getTodayCheckInStatusForTask(taskDetail: any): {
   
   return { canCheckIn: true, todayCount: 0, todayValue: 0, isCompleted: false };
 }
+

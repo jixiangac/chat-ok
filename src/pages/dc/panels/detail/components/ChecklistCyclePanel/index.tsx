@@ -1,10 +1,10 @@
 import { CheckCircle, FileText, ClipboardList, Calendar, Square, CheckSquare } from 'lucide-react';
-import type { GoalDetail, CurrentCycleInfo } from '../../types';
-import type { ChecklistItem } from '../../../../types';
+import type { Task, ChecklistItem } from '../../../../types';
+import type { CurrentCycleInfo } from '../../types';
 import styles from '../../../../css/ChecklistCyclePanel.module.css';
 
 interface ChecklistCyclePanelProps {
-  goal: GoalDetail;
+  goal: Task;
   cycle: CurrentCycleInfo;
   onUpdateProgress: (itemId: string) => void;
 }
@@ -118,4 +118,3 @@ export default function ChecklistCyclePanel({
     </div>
   );
 }
-

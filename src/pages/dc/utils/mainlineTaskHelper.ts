@@ -1,4 +1,67 @@
-import { MainlineTask, Task } from '../types';
+import { Task, NumericConfig, ChecklistConfig, CheckInConfig, CycleConfig } from '../types';
+
+// 兼容旧版 MainlineTask 类型
+interface MainlineTask {
+  numericConfig?: NumericConfig;
+  checklistConfig?: ChecklistConfig;
+  checkInConfig?: CheckInConfig;
+  cycleConfig?: any;
+  createdAt?: string;
+  mainlineType?: string;
+  progress?: any;
+}
+
+// ============ 格式化工具函数 ============
+
+/**
+ * 格式化数值：保留两位小数，使用字符串截取方式（不四舍五入）
+ */
+export function formatNumber(value: number | string | undefined): string {
+  if (value === undefined || value === null) return '0';
+  const num = typeof value === 'string' ? parseFloat(value) : value;
+  if (isNaN(num)) return '0';
+  
+  // 转为字符串，找到小数点位置
+  const str = num.toString();
+  const dotIndex = str.indexOf('.');
+  if (dotIndex === -1) return str; // 整数直接返回
+  
+  // 截取小数点后两位
+  return str.substring(0, dotIndex + 3);
+}
+
+// ============ 截止时间相关 ============
+
+/** 截止时间颜色配置 */
+export const DEADLINE_COLORS = {
+  urgent: '#5c0011',      // 乌梅红 - 0天（今天截止）
+  warning: '#c41d7f',     // 玫瑰红 - 剩余1/3周期
+  caution: '#d48806',     // 烟黄 - 剩余2/3周期
+  normal: 'rgba(55, 53, 47, 0.5)'  // 默认灰色
+};
+
+/**
+ * 根据剩余天数和周期天数获取截止时间颜色
+ */
+export function getDeadlineColor(remainingDays: number, cycleDays: number, cycleProgress: number): string {
+  const startThreshold = cycleProgress < 50 ? cycleDays / 2 : cycleDays / 3;
+  if (remainingDays > startThreshold) return DEADLINE_COLORS.normal;
+  if (remainingDays <= 0) return DEADLINE_COLORS.urgent;
+  if (remainingDays <= startThreshold / 3) return DEADLINE_COLORS.warning;
+  if (remainingDays <= (startThreshold * 2) / 3) return DEADLINE_COLORS.caution;
+  return DEADLINE_COLORS.normal;
+}
+
+/**
+ * 获取截止时间文案
+ */
+export function getDeadlineText(remainingDays: number): string {
+  if (remainingDays <= 0) return '今天截止';
+  if (remainingDays === 1) return '明天截止';
+  return `${remainingDays}天后截止`;
+}
+
+// ============ 进度计算函数 ============
 
 /**
  * 计算数值型任务的进度
@@ -14,7 +77,11 @@ export function calculateNumericProgress(
   currentCycleStart: number;
   currentCycleTarget: number;
 } {
-  if (!mainlineTask.numericConfig) {
+  // 支持新格式（直接传入配置）和旧格式（传入 mainlineTask）
+  const numericConfig = (mainlineTask as any).numericConfig;
+  const cycleConfig = (mainlineTask as any).cycleConfig || (mainlineTask as any).cycle;
+  
+  if (!numericConfig) {
     return {
       cycleProgress: 0,
       totalProgress: 0,
@@ -23,10 +90,10 @@ export function calculateNumericProgress(
     };
   }
 
-  const { startValue, targetValue, currentValue, perCycleTarget, originalStartValue } = mainlineTask.numericConfig;
+  const { startValue, targetValue, currentValue, perCycleTarget, originalStartValue } = numericConfig;
   
   // 使用传入的周期编号，否则使用 cycleConfig 中的值
-  const currentCycle = options?.currentCycleNumber ?? mainlineTask.cycleConfig.currentCycle;
+  const currentCycle = options?.currentCycleNumber ?? cycleConfig?.currentCycle ?? 1;
   const cycleStartValue = options?.cycleStartValue;
   
   // 使用原始起始值计算总进度（如果存在）
@@ -83,7 +150,11 @@ export function calculateChecklistProgress(mainlineTask: MainlineTask): {
   currentCycleCompleted: number;
   currentCycleTarget: number;
 } {
-  if (!mainlineTask.checklistConfig) {
+  // 支持新格式（直接传入配置）和旧格式（传入 mainlineTask）
+  const checklistConfig = (mainlineTask as any).checklistConfig;
+  const cycleConfig = (mainlineTask as any).cycleConfig || (mainlineTask as any).cycle;
+  
+  if (!checklistConfig) {
     return {
       cycleProgress: 0,
       totalProgress: 0,
@@ -92,8 +163,8 @@ export function calculateChecklistProgress(mainlineTask: MainlineTask): {
     };
   }
 
-  const { completedItems, totalItems, perCycleTarget, items } = mainlineTask.checklistConfig;
-  const { currentCycle } = mainlineTask.cycleConfig;
+  const { completedItems, totalItems, perCycleTarget, items } = checklistConfig;
+  const currentCycle = cycleConfig?.currentCycle ?? 1;
 
   // 计算总进度
   const totalProgress = Math.round((completedItems / totalItems) * 100);
@@ -123,7 +194,11 @@ export function calculateCheckInProgress(mainlineTask: MainlineTask): {
   currentCycleCheckIns: number;
   totalCheckIns: number;
 } {
-  if (!mainlineTask.checkInConfig) {
+  // 支持新格式（直接传入配置）和旧格式（传入 mainlineTask）
+  const checkInConfig = (mainlineTask as any).checkInConfig;
+  const cycleConfig = (mainlineTask as any).cycleConfig || (mainlineTask as any).cycle;
+  
+  if (!checkInConfig) {
     return {
       cycleProgress: 0,
       totalProgress: 0,
@@ -132,11 +207,14 @@ export function calculateCheckInProgress(mainlineTask: MainlineTask): {
     };
   }
 
-  const { perCycleTarget, records } = mainlineTask.checkInConfig;
-  const { currentCycle, totalCycles, cycleLengthDays } = mainlineTask.cycleConfig;
+  const { perCycleTarget, records } = checkInConfig;
+  const currentCycle = cycleConfig?.currentCycle ?? 1;
+  const totalCycles = cycleConfig?.totalCycles ?? 1;
+  const cycleLengthDays = cycleConfig?.cycleDays ?? cycleConfig?.cycleLengthDays ?? 7;
 
   // 计算当前周期的日期范围
-  const startDate = new Date(mainlineTask.createdAt);
+  const createdAt = (mainlineTask as any).createdAt || (mainlineTask as any).time?.createdAt;
+  const startDate = new Date(createdAt || new Date());
   const currentCycleStartDay = (currentCycle - 1) * cycleLengthDays;
   const currentCycleEndDay = currentCycle * cycleLengthDays;
 
@@ -175,9 +253,13 @@ export function calculateCheckInProgress(mainlineTask: MainlineTask): {
  * 与详情页的getCurrentCycle逻辑保持一致
  */
 export function calculateRemainingDays(task: Task): number {
-  if (!task.startDate || !task.cycleDays || !task.totalCycles) return 0;
+  const startDateStr = task.time.startDate;
+  const cycleDays = task.cycle.cycleDays;
+  const totalCycles = task.cycle.totalCycles;
   
-  const startDate = new Date(task.startDate);
+  if (!startDateStr || !cycleDays || !totalCycles) return 0;
+  
+  const startDate = new Date(startDateStr);
   const now = new Date();
   
   // 考虑debugDayOffset偏移，获取模拟的"今天"
@@ -195,13 +277,13 @@ export function calculateRemainingDays(task: Task): number {
   const snapshotCount = (task as any).cycleSnapshots?.length || 0;
   
   // 计算基于真实时间的周期编号
-  const realCycleNumber = Math.floor(realElapsedDays / task.cycleDays) + 1;
+  const realCycleNumber = Math.floor(realElapsedDays / cycleDays) + 1;
   
   // 当前周期编号 = max(基于真实时间的周期, 快照数+1)，但不超过总周期数
-  const currentCycleNumber = Math.min(Math.max(realCycleNumber, snapshotCount + 1), task.totalCycles);
+  const currentCycleNumber = Math.min(Math.max(realCycleNumber, snapshotCount + 1), totalCycles);
   
   // 计算当前周期的结束日期
-  const cycleEndDay = currentCycleNumber * task.cycleDays - 1;
+  const cycleEndDay = currentCycleNumber * cycleDays - 1;
   const currentCycleEnd = new Date(startDate);
   currentCycleEnd.setDate(startDate.getDate() + cycleEndDay);
   currentCycleEnd.setHours(0, 0, 0, 0);
@@ -214,11 +296,14 @@ export function calculateRemainingDays(task: Task): number {
  * 检查今日是否已打卡
  */
 export function isTodayCheckedIn(mainlineTask: MainlineTask): boolean {
-  if (!mainlineTask.checkInConfig?.records) return false;
+  // 支持新旧格式
+  const checkInConfig = (mainlineTask as any).checkInConfig;
+  
+  if (!checkInConfig?.records) return false;
   
   const now = new Date();
   const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-  return mainlineTask.checkInConfig.records.some(
+  return checkInConfig.records.some(
     record => record.date === today && record.checked
   );
 }
@@ -229,25 +314,27 @@ export function isTodayCheckedIn(mainlineTask: MainlineTask): boolean {
 export function updateMainlineTaskProgress(mainlineTask: MainlineTask): MainlineTask {
   let updatedProgress = { ...mainlineTask.progress };
 
-  if (mainlineTask.mainlineType === 'NUMERIC') {
+  const mainlineType = (mainlineTask as any).category;
+  
+  if (mainlineType === 'NUMERIC') {
     const progress = calculateNumericProgress(mainlineTask);
     updatedProgress = {
       totalPercentage: progress.totalProgress,
-      currentCyclePercentage: progress.cycleProgress,
-      currentCycleStart: progress.currentCycleStart,
-      currentCycleTarget: progress.currentCycleTarget
+      cyclePercentage: progress.cycleProgress,
+      cycleStartValue: progress.currentCycleStart,
+      cycleTargetValue: progress.currentCycleTarget
     };
-  } else if (mainlineTask.mainlineType === 'CHECKLIST') {
+  } else if (mainlineType === 'CHECKLIST') {
     const progress = calculateChecklistProgress(mainlineTask);
     updatedProgress = {
       totalPercentage: progress.totalProgress,
-      currentCyclePercentage: progress.cycleProgress
+      cyclePercentage: progress.cycleProgress
     };
-  } else if (mainlineTask.mainlineType === 'CHECK_IN') {
+  } else if (mainlineType === 'CHECK_IN') {
     const progress = calculateCheckInProgress(mainlineTask);
     updatedProgress = {
       totalPercentage: progress.totalProgress,
-      currentCyclePercentage: progress.cycleProgress
+      cyclePercentage: progress.cycleProgress
     };
   }
 
@@ -262,11 +349,17 @@ export function updateMainlineTaskProgress(mainlineTask: MainlineTask): Mainline
  * 这个函数与详情页的getCurrentCycle逻辑保持一致
  */
 export function calculateCurrentCycleNumber(task: Task): number {
-  if (!task.startDate || !task.cycleDays || !task.totalCycles) {
+  const startDateStr = task.time.startDate;
+  const cycleDays = task.cycle.cycleDays;
+  const totalCycles = task.cycle.totalCycles;
+  
+  if (!startDateStr || !cycleDays || !totalCycles) {
+    // 如果有 cycle.currentCycle，直接返回
+    if (task.cycle?.currentCycle) return task.cycle.currentCycle;
     return 1;
   }
   
-  const startDate = new Date(task.startDate);
+  const startDate = new Date(startDateStr);
   const now = new Date();
   
   // 考虑debugDayOffset偏移
@@ -283,11 +376,14 @@ export function calculateCurrentCycleNumber(task: Task): number {
   const snapshotCount = (task as any).cycleSnapshots?.length || 0;
   
   // 计算基于真实时间的周期编号
-  const realCycleNumber = Math.floor(realElapsedDays / task.cycleDays) + 1;
+  const realCycleNumber = Math.floor(realElapsedDays / cycleDays) + 1;
   
   // 当前周期编号 = max(基于真实时间的周期, 快照数+1)，但不超过总周期数
-  return Math.min(Math.max(realCycleNumber, snapshotCount + 1), task.totalCycles);
+  return Math.min(Math.max(realCycleNumber, snapshotCount + 1), totalCycles);
 }
+
+
+
 
 
 

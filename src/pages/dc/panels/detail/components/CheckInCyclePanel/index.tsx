@@ -1,13 +1,13 @@
 import { useMemo } from 'react';
 import dayjs from 'dayjs';
 import { Check, Calendar, Flame, Clock, Hash, PartyPopper, ChartNoAxesCombined } from 'lucide-react';
-import type { GoalDetail, CurrentCycleInfo } from '../../types';
-import type { CheckInUnit } from '../../../../types';
+import type { Task, CheckInUnit, CycleAdvanceLog } from '../../../../types';
+import type { CurrentCycleInfo } from '../../types';
 import { getSimulatedToday } from '../../hooks';
 import styles from '../../../../css/CheckInCyclePanel.module.css';
 
 interface CheckInCyclePanelProps {
-  goal: GoalDetail;
+  goal: Task;
   cycle: CurrentCycleInfo;
 }
 
@@ -19,33 +19,36 @@ export default function CheckInCyclePanel({
   const unit: CheckInUnit = config?.unit || 'TIMES';
   
   // 获取模拟的"今日"日期
-  const effectiveToday = getSimulatedToday(goal);
+  const effectiveToday = getSimulatedToday(goal as any);
   
-  const todayCheckIns = useMemo(() => {
-    // 使用有效的"今日"日期来过滤打卡记录
-    return (goal.checkIns || []).filter(c => c.date === effectiveToday);
-  }, [goal.checkIns, effectiveToday]);
+  // 从 records 中获取今日打卡记录
+  const todayRecord = useMemo(() => {
+    if (!config?.records) return null;
+    return config.records.find(r => r.date === effectiveToday && r.checked);
+  }, [config?.records, effectiveToday]);
   
-  // 获取本周期打卡数据（扩展周期日期范围以包含模拟日期的打卡）
-  const cycleCheckIns = useMemo(() => {
-    // 扩展周期范围：起始日期取较小值，结束日期取较大值
-    // 这样无论模拟日期在周期之前还是之后，都能正确统计
+  const todayEntries = todayRecord?.entries || [];
+  
+  // 获取本周期打卡数据
+  const cycleRecords = useMemo(() => {
+    if (!config?.records) return [];
+    
     const effectiveCycleStart = effectiveToday < cycle.startDate ? effectiveToday : cycle.startDate;
     const effectiveCycleEnd = effectiveToday > cycle.endDate ? effectiveToday : cycle.endDate;
     
-    return (goal.checkIns || []).filter(c => {
-      return c.date >= effectiveCycleStart && c.date <= effectiveCycleEnd;
+    return config.records.filter(r => {
+      return r.date >= effectiveCycleStart && r.date <= effectiveCycleEnd && r.checked;
     });
-  }, [goal.checkIns, cycle.startDate, cycle.endDate, effectiveToday]);
+  }, [config?.records, cycle.startDate, cycle.endDate, effectiveToday]);
   
   // 根据打卡类型计算进度
   const progressData = useMemo(() => {
+    const cycleCount = cycleRecords.length;
+    const todayCount = todayEntries.length;
+    
     if (unit === 'TIMES') {
-      // 次数型
       const dailyMax = config?.dailyMaxTimes || 1;
-      const cycleTarget = config?.cycleTargetTimes || config?.perCycleTarget || (cycle.requiredCheckIns);
-      const cycleCount = cycleCheckIns.length;
-      const todayCount = todayCheckIns.length;
+      const cycleTarget = config?.cycleTargetTimes || config?.perCycleTarget || cycle.requiredCheckIns;
       const todayCompleted = todayCount >= dailyMax;
       const cycleCompleted = cycleCount >= cycleTarget;
       
@@ -62,11 +65,10 @@ export default function CheckInCyclePanel({
         remaining: Math.max(0, cycleTarget - cycleCount)
       };
     } else if (unit === 'DURATION') {
-      // 时长型
       const dailyTarget = config?.dailyTargetMinutes || 15;
       const cycleTarget = config?.cycleTargetMinutes || config?.perCycleTarget || (dailyTarget * 10);
-      const cycleValue = cycleCheckIns.reduce((sum, c) => sum + (c.value || 0), 0);
-      const todayValue = todayCheckIns.reduce((sum, c) => sum + (c.value || 0), 0);
+      const cycleValue = cycleRecords.reduce((sum, r) => sum + (r.totalValue || 0), 0);
+      const todayValue = todayRecord?.totalValue || 0;
       const todayCompleted = todayValue >= dailyTarget;
       const cycleCompleted = cycleValue >= cycleTarget;
       
@@ -83,12 +85,11 @@ export default function CheckInCyclePanel({
         remaining: Math.max(0, cycleTarget - cycleValue)
       };
     } else {
-      // 数值型
       const dailyTarget = config?.dailyTargetValue || 0;
       const cycleTarget = config?.cycleTargetValue || config?.perCycleTarget || 0;
       const valueUnit = config?.valueUnit || '个';
-      const cycleValue = cycleCheckIns.reduce((sum, c) => sum + (c.value || 0), 0);
-      const todayValue = todayCheckIns.reduce((sum, c) => sum + (c.value || 0), 0);
+      const cycleValue = cycleRecords.reduce((sum, r) => sum + (r.totalValue || 0), 0);
+      const todayValue = todayRecord?.totalValue || 0;
       const todayCompleted = dailyTarget > 0 && todayValue >= dailyTarget;
       const cycleCompleted = cycleTarget > 0 && cycleValue >= cycleTarget;
       
@@ -105,21 +106,20 @@ export default function CheckInCyclePanel({
         remaining: Math.max(0, cycleTarget - cycleValue)
       };
     }
-  }, [unit, config, cycleCheckIns, todayCheckIns, cycle.requiredCheckIns]);
+  }, [unit, config, cycleRecords, todayRecord, todayEntries, cycle.requiredCheckIns]);
   
   // 计算连续打卡和累计打卡
   const currentStreak = config?.currentStreak || 0;
-  const totalCheckIns = goal.checkIns?.length || 0;
+  const totalCheckIns = config?.records?.filter(r => r.checked).length || 0;
   
-  // 根据打卡类型计算累计值（时长型累计分钟数，数值型累计数值）
+  // 根据打卡类型计算累计值
   const totalAccumulatedValue = useMemo(() => {
     if (unit === 'TIMES') {
       return totalCheckIns;
     }
-    return (goal.checkIns || []).reduce((sum, c) => sum + (c.value || 0), 0);
-  }, [goal.checkIns, unit, totalCheckIns]);
+    return (config?.records || []).reduce((sum, r) => sum + (r.totalValue || 0), 0);
+  }, [config?.records, unit, totalCheckIns]);
   
-  // 获取累计值的单位
   const getAccumulatedUnit = () => {
     if (unit === 'TIMES') return '次';
     if (unit === 'DURATION') return '分钟';
@@ -128,50 +128,41 @@ export default function CheckInCyclePanel({
   
   // 判断计划是否已结束
   const planEndInfo = useMemo(() => {
-    const { cycleDays, totalCycles, startDate, cycleSnapshots, status } = goal;
-    const start = dayjs(startDate);
-    // 使用模拟的"今天"日期
-    const today = dayjs(effectiveToday);
-    
-    // 计算计划结束日期
-    const planEndDate = start.add(totalCycles * cycleDays - 1, 'day');
-    // 判断计划是否结束：基于时间 或 基于status 或 基于cycleSnapshots数量
-    const isPlanEndedByTime = today.isAfter(planEndDate);
-    const isPlanEndedByStatus = status === 'completed' || status === 'archived';
-    const isPlanEndedBySnapshots = (cycleSnapshots?.length || 0) >= totalCycles;
-    const isPlanEnded = isPlanEndedByTime || isPlanEndedByStatus || isPlanEndedBySnapshots;
+    // 直接使用预计算的 isPlanEnded
+    const isPlanEnded = goal.isPlanEnded || goal.status === 'ARCHIVED' || goal.status === 'COMPLETED';
     
     if (!isPlanEnded) {
       return { isPlanEnded: false };
     }
     
-    // 计算总体完成率（所有周期的平均完成率）
-    const allCompletionRates = cycleSnapshots?.map(s => s.completionRate) || [];
+    // 从 activities 中提取周期快照
+    const cycleSnapshots = goal.activities
+      .filter((a): a is CycleAdvanceLog => a.type === 'CYCLE_ADVANCE')
+      .map(a => ({ completionRate: a.completionRate || 0 }));
+    
+    // 计算总体完成率
+    const allCompletionRates = cycleSnapshots.map(s => s.completionRate);
     const averageCompletionRate = allCompletionRates.length > 0 
       ? Math.round(allCompletionRates.reduce((a, b) => a + b, 0) / allCompletionRates.length)
       : 0;
     
-    // 计算总打卡次数
-    const totalCheckInsCount = goal.checkIns?.length || 0;
-    
-    // 判断是否达成目标（平均完成率 >= 100%）
+    const totalCheckInsCount = config?.records?.filter(r => r.checked).length || 0;
     const isSuccess = averageCompletionRate >= 100;
     
     return {
       isPlanEnded: true,
-      planStartDate: start.format('YYYY-MM-DD'),
-      planEndDate: planEndDate.format('YYYY-MM-DD'),
-      totalCycles,
-      completedCycles: cycleSnapshots?.length || 0,
+      planStartDate: goal.time.startDate,
+      planEndDate: goal.time.endDate,
+      totalCycles: goal.cycle.totalCycles,
+      completedCycles: cycleSnapshots.length,
       totalCheckInsCount,
       averageCompletionRate,
       isSuccess,
       currentStreak: config?.currentStreak || 0,
       longestStreak: config?.longestStreak || config?.currentStreak || 0
     };
-  }, [goal, config, effectiveToday]);
+  }, [goal, config]);
   
-  // 获取打卡类型图标和标签
   const getTypeInfo = () => {
     switch (unit) {
       case 'DURATION':
@@ -192,31 +183,30 @@ export default function CheckInCyclePanel({
       totalCheckInsCount, averageCompletionRate, isSuccess, longestStreak 
     } = planEndInfo;
     
+    // 计算累计值
+    const totalValue = (config?.records || []).reduce((sum, r) => sum + (r.totalValue || 0), 0);
+    
     return (
       <div className={styles.container}>
         <div className={styles.summaryContainer}>
-          {/* 总结标题 */}
           <div className={styles.summaryHeader}>
             <span className={styles.summaryIcon}>{isSuccess ? <PartyPopper size={24} /> : <ChartNoAxesCombined size={24} />}</span>
             <span className={styles.summaryTitle}>计划已完成</span>
           </div>
           
-          {/* 时间范围 */}
           <div className={styles.summaryPeriod}>
             {dayjs(planStartDate).format('YYYY/MM/DD')} - {dayjs(planEndDate).format('YYYY/MM/DD')}
           </div>
           
-          {/* 对比卡片 */}
           <div className={styles.comparisonCards}>
-            {/* 打卡统计 */}
             <div className={styles.comparisonCard}>
               <div className={styles.cardLabel}>{unit === 'TIMES' ? '累计打卡' : unit === 'DURATION' ? '累计时长' : '累计数值'}</div>
               <div className={styles.cardValue}>
                 {unit === 'TIMES' 
                   ? `${totalCheckInsCount}次` 
                   : unit === 'DURATION' 
-                    ? `${(goal.checkIns || []).reduce((sum, c) => sum + (c.value || 0), 0)}分钟`
-                    : `${(goal.checkIns || []).reduce((sum, c) => sum + (c.value || 0), 0)}${config?.valueUnit || '个'}`
+                    ? `${totalValue}分钟`
+                    : `${totalValue}${config?.valueUnit || '个'}`
                 }
               </div>
               <div className={styles.cardHint}>
@@ -224,7 +214,6 @@ export default function CheckInCyclePanel({
               </div>
             </div>
             
-            {/* 最终结果 */}
             <div className={`${styles.comparisonCard} ${isSuccess ? styles.successCard : styles.normalCard}`}>
               <div className={styles.cardLabel}>平均完成率</div>
               <div className={styles.cardValue}>
@@ -236,7 +225,6 @@ export default function CheckInCyclePanel({
             </div>
           </div>
           
-          {/* 统计数据 */}
           <div className={styles.summaryStats}>
             <div className={styles.statItem}>
               <div className={styles.statValue}>{completedCycles}/{totalCycles}</div>
@@ -258,13 +246,6 @@ export default function CheckInCyclePanel({
   
   return (
     <div className={styles.container}>
-      {/* 打卡类型标签 */}
-      {/* <div className={styles.typeTag}>
-        {typeInfo.icon}
-        <span>{typeInfo.label}</span>
-      </div> */}
-      
-      {/* 主要进度区域 */}
       <div className={styles.heroSection}>
         <div className={styles.heroNumber}>
           {progressData.cycleValue}
@@ -272,7 +253,6 @@ export default function CheckInCyclePanel({
         </div>
         <div className={styles.heroLabel}>本周期{unit === 'TIMES' ? '打卡次数' : unit === 'DURATION' ? '累计时长' : '累计数值'}</div>
         
-        {/* 进度条 */}
         <div className={styles.progressBar}>
           <div 
             className={styles.progressFill}
@@ -280,48 +260,34 @@ export default function CheckInCyclePanel({
           />
         </div>
         
-        {/* 当前日期和周期进度 */}
         <div className={styles.dateInfo}>
           <span className={styles.currentDate}>
             <Calendar size={14} />
             {dayjs(effectiveToday).format('M月D日')}
           </span>
           <span className={styles.cycleDayProgress}>
-            第 <strong>{Math.max(1, dayjs(effectiveToday).diff(dayjs(cycle.startDate), 'day') + 1)}</strong> / {goal.cycleDays} 天
+            第 <strong>{Math.max(1, dayjs(effectiveToday).diff(dayjs(cycle.startDate), 'day') + 1)}</strong> / {goal.cycle.cycleDays} 天
           </span>
         </div>
         
-        {/* 今日打卡 - 融入主区块 */}
         <div className={styles.todayRow}>
           <span className={styles.todayLabel}>今日</span>
           <span className={styles.todayValue}>{progressData.todayValue}/{progressData.todayTarget}{progressData.todayUnit}</span>
           {progressData.todayCompleted && <Check size={14} className={styles.todayCheck} />}
-          {todayCheckIns.length > 0 && (
+          {todayEntries.length > 0 && (
             <span className={styles.todayTimes}>
-              {todayCheckIns.slice(-2).map((entry, idx) => (
+              {todayEntries.slice(-2).map((entry, idx) => (
                 <span key={entry.id}>
                   {idx > 0 && ' '}
-                  {new Date(entry.timestamp).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}
+                  {entry.time}
                 </span>
               ))}
-              {todayCheckIns.length > 2 && ` +${todayCheckIns.length - 2}`}
+              {todayEntries.length > 2 && ` +${todayEntries.length - 2}`}
             </span>
           )}
         </div>
-        
-        {/* {progressData.cycleCompleted ? (
-          <div className={styles.completedBadge}>
-            <Check size={14} className={styles.checkIcon} />
-            本周期已完成
-          </div>
-        ) : !progressData.todayCompleted && (
-          <div className={styles.remainingHint}>
-            还需 <strong>{progressData.remaining}</strong> {progressData.cycleUnit}完成本周期
-          </div>
-        )} */}
       </div>
       
-      {/* 数据统计 - 两列布局 */}
       <div className={styles.statsGrid}>
         <div className={styles.statItem}>
           <div className={styles.statValue}>{currentStreak}天</div>
@@ -333,7 +299,6 @@ export default function CheckInCyclePanel({
         </div>
       </div>
       
-      {/* 连续打卡记录 */}
       {currentStreak > 0 && (
         <div className={styles.streakBanner}>
           <Flame size={16} className={styles.streakIcon} />
@@ -341,7 +306,6 @@ export default function CheckInCyclePanel({
         </div>
       )}
       
-      {/* 周期时间 */}
       <div className={styles.timeRange}>
         <Calendar size={14} className={styles.timeIcon} />
         <span>本周期: {cycle.startDate} - {cycle.endDate}</span>
@@ -349,4 +313,3 @@ export default function CheckInCyclePanel({
     </div>
   );
 }
-

@@ -1,8 +1,8 @@
-import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { useState, useMemo, useRef, useCallback, useEffect } from 'react';
 import { Popup, Toast, SafeArea } from 'antd-mobile';
 import { FileText, Check, Archive, Clock, Hash } from 'lucide-react';
 import { useTheme } from '../../contexts';
-import dayjs from 'dayjs';
+import { DEFAULT_TABS, TAB_KEYS } from './constants';
 import {
   GoalHeader,
   NumericCyclePanel,
@@ -11,92 +11,189 @@ import {
   HistoryRecordPanel,
   HistoryCyclePanel,
   CalendarViewPanel,
-  CheckInRecordPanel,
   RecordDataModal,
   CheckInModal,
   CheckInHistoryPanel
 } from './components';
-import { useGoalDetail, getCurrentCycle, getSimulatedToday } from './hooks';
+import { getSimulatedToday } from './hooks';
 import { useConfetti } from '../../hooks';
 import { useTaskContext } from '../../contexts';
 import { getTabsConfig, isCycleTab } from './utils';
-import { getEffectiveMainlineType } from '../../utils';
-import type { GoalDetailModalProps } from './types';
-import type { MainlineTaskType } from '../../types';
+import type { GoalDetailModalProps, CurrentCycleInfo } from './types';
+import type { Category, Task } from '../../types';
 import SidelineTaskEditModal from '../../components/SidelineTaskEditModal';
+import styles from './GoalDetailModal.module.css';
+import dayjs from 'dayjs';
+
+// 从 Task 构建 CurrentCycleInfo
+function buildCurrentCycleInfo(task: Task): CurrentCycleInfo {
+  const { cycle, time, checkInConfig, progress } = task;
+  
+  // 计算当前周期的开始和结束日期
+  const startDate = dayjs(time.startDate);
+  const cycleStartDay = (cycle.currentCycle - 1) * cycle.cycleDays;
+  const cycleEndDay = cycleStartDay + cycle.cycleDays - 1;
+  
+  const cycleStartDate = startDate.add(cycleStartDay, 'day').format('YYYY-MM-DD');
+  const cycleEndDate = startDate.add(cycleEndDay, 'day').format('YYYY-MM-DD');
+  
+  // 计算剩余天数
+  const today = dayjs();
+  const cycleEnd = dayjs(cycleEndDate);
+  const remainingDays = Math.max(0, cycleEnd.diff(today, 'day'));
+  
+  // 获取本周期的打卡记录
+  let checkInDates: string[] = [];
+  let checkInCount = 0;
+  
+  if (checkInConfig?.records) {
+    const cycleStart = dayjs(cycleStartDate);
+    const cycleEnd = dayjs(cycleEndDate);
+    
+    checkInDates = checkInConfig.records
+      .filter(r => {
+        const recordDate = dayjs(r.date);
+        return recordDate.isAfter(cycleStart.subtract(1, 'day')) && 
+               recordDate.isBefore(cycleEnd.add(1, 'day')) &&
+               r.checked;
+      })
+      .map(r => r.date);
+    
+    checkInCount = checkInDates.length;
+  }
+  
+  return {
+    cycleNumber: cycle.currentCycle,
+    totalCycles: cycle.totalCycles,
+    startDate: cycleStartDate,
+    endDate: cycleEndDate,
+    checkInCount,
+    requiredCheckIns: checkInConfig?.perCycleTarget || 3,
+    remainingDays,
+    checkInDates
+  };
+}
 
 export default function GoalDetailModal({ 
   visible, 
-  goalId, 
+  taskId: propTaskId, 
   onClose,
   onDataChange
 }: GoalDetailModalProps) {
   // ========== 所有 Hooks 必须在组件顶部，条件返回之前 ==========
   
   const { 
-    goalDetail, 
-    loading, 
-    checkInLoading, 
-    checkIn,
-    getTodayCheckInStatus,
-    recordNumericData, 
-    updateChecklistItem,
-    debugNextCycle,
-    debugNextDay,
-    endPlanEarly,
-    archiveTask
-  } = useGoalDetail(goalId, onDataChange);
+    getTaskById,
+    updateTask,
+    archiveTask,
+    checkIn: taskCheckIn,
+    recordNumericData: taskRecordNumericData,
+    updateChecklistItem: taskUpdateChecklistItem,
+    debugNextCycle: taskDebugNextCycle,
+    debugNextDay: taskDebugNextDay,
+    endPlanEarly: taskEndPlanEarly,
+    refreshTasks,
+    selectedTaskId
+  } = useTaskContext();
   
-  const [activeTab, setActiveTab] = useState<string>('');
+  // 优先使用传入的 taskId，否则使用上下文中的 selectedTaskId
+  const taskId = propTaskId || selectedTaskId;
+
+  // 获取任务详情
+  const task = useMemo(() => {
+    if (!taskId) return null;
+    return getTaskById(taskId);
+  }, [taskId, getTaskById]);
+  
+  const [activeTab, setActiveTab] = useState<string>(TAB_KEYS.TARGETS);
   const [showRecordModal, setShowRecordModal] = useState(false);
   const [showCheckInModal, setShowCheckInModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [checkInLoading, setCheckInLoading] = useState(false);
   const checkInButtonRef = useRef<HTMLButtonElement>(null);
   const { themeColors } = useTheme();
-  const { updateTask, getTaskById } = useTaskContext();
 
   // 使用彩纸效果 hook
   const { triggerConfetti } = useConfetti(checkInButtonRef);
   
-  // 每次打开时设置默认tab
+  // 从 Task 构建当前周期信息
+  const currentCycle = useMemo(() => {
+    if (!task) return null;
+    return buildCurrentCycleInfo(task);
+  }, [task]);
+
   useEffect(() => {
-    if (visible && goalDetail) {
-      let defaultTab = 'cycle';
-      if (goalDetail.numericConfig) {
-        defaultTab = 'targets';
-      } else if (goalDetail.checklistConfig) {
-        defaultTab = 'current';
-      }
-      setActiveTab(defaultTab);
+    if (task) { 
+      setActiveTab(DEFAULT_TABS[task.category]);
     }
-  }, [visible, goalDetail]);
+  }, [task]);
+  
+  // 直接使用 Task 中预计算的今日进度
+  const todayProgress = task?.todayProgress;
+  const todayCheckInStatus = useMemo(() => {
+    if (!todayProgress) {
+      return { canCheckIn: true, todayCount: 0, todayValue: 0, isCompleted: false };
+    }
+    return {
+      canCheckIn: todayProgress.canCheckIn,
+      todayCount: todayProgress.todayCount,
+      todayValue: todayProgress.todayValue,
+      isCompleted: todayProgress.isCompleted
+    };
+  }, [todayProgress]);
+  
+  // 直接使用 Task 中预计算的 isPlanEnded
+  const isPlanEnded = task?.isPlanEnded ?? false;
+  
+  // 任务类型判断（直接使用 category 字段）
+  const mainlineType: Category = task?.category ?? 'CHECK_IN';
+  
+  // tabs 配置
+  const tabs = useMemo(() => {
+    return getTabsConfig(mainlineType, isPlanEnded);
+  }, [mainlineType, isPlanEnded]);
+  
+  // 总打卡次数（从 checkInConfig.records 计算）
+  const totalCheckIns = useMemo(() => {
+    if (!task?.checkInConfig?.records) return 0;
+    return task.checkInConfig.records
+      .filter(r => r.checked)
+      .reduce((sum, r) => sum + (r.entries?.length || 1), 0);
+  }, [task]);
   
   // 提交打卡
   const handleCheckInSubmit = useCallback(async (value?: number, note?: string) => {
-    const success = await checkIn(value, note);
-    if (success) {
-      triggerConfetti();
-      Toast.show({ icon: 'success', content: '打卡成功！' });
-      setShowCheckInModal(false);
-    } else {
-      const todayStatus = getTodayCheckInStatus();
-      Toast.show({ 
-        icon: 'fail', 
-        content: todayStatus.isCompleted ? '今日目标已完成' : '打卡失败，请重试'
-      });
+    if (!taskId) return;
+    setCheckInLoading(true);
+    try {
+      const success = await taskCheckIn(taskId, value, note);
+      if (success) {
+        triggerConfetti();
+        Toast.show({ icon: 'success', content: '打卡成功！' });
+        setShowCheckInModal(false);
+        refreshTasks();
+        onDataChange?.();
+      } else {
+        Toast.show({ 
+          icon: 'fail', 
+          content: todayCheckInStatus.isCompleted ? '今日目标已完成' : '打卡失败，请重试'
+        });
+      }
+    } finally {
+      setCheckInLoading(false);
     }
-  }, [checkIn, triggerConfetti, getTodayCheckInStatus]);
+  }, [taskId, taskCheckIn, triggerConfetti, todayCheckInStatus.isCompleted, refreshTasks, onDataChange]);
   
   // 处理打卡按钮点击
   const handleCheckInClick = useCallback(() => {
-    const config = goalDetail?.checkInConfig;
+    const config = task?.checkInConfig;
     const unit = config?.unit || 'TIMES';
     if (unit === 'TIMES') {
       handleCheckInSubmit(1);
     } else {
       setShowCheckInModal(true);
     }
-  }, [goalDetail?.checkInConfig, handleCheckInSubmit]);
+  }, [task, handleCheckInSubmit]);
   
   // 处理数值型记录数据
   const handleRecordData = useCallback(() => {
@@ -105,61 +202,87 @@ export default function GoalDetailModal({
   
   // 提交数值记录
   const handleRecordSubmit = useCallback(async (value: number, note?: string) => {
-    const success = await recordNumericData(value, note);
-    if (success) {
-      triggerConfetti();
-      Toast.show({ icon: 'success', content: '记录成功！' });
-      setShowRecordModal(false);
-    } else {
-      Toast.show({ icon: 'fail', content: '记录失败，请重试' });
+    if (!taskId) return;
+    setCheckInLoading(true);
+    try {
+      const success = await taskRecordNumericData(taskId, value, note);
+      if (success) {
+        triggerConfetti();
+        Toast.show({ icon: 'success', content: '记录成功！' });
+        setShowRecordModal(false);
+        refreshTasks();
+        onDataChange?.();
+      } else {
+        Toast.show({ icon: 'fail', content: '记录失败，请重试' });
+      }
+    } finally {
+      setCheckInLoading(false);
     }
-  }, [recordNumericData, triggerConfetti]);
+  }, [taskId, taskRecordNumericData, triggerConfetti, refreshTasks, onDataChange]);
   
   // 处理清单项更新
   const handleUpdateProgress = useCallback(async (itemId: string) => {
-    const success = await updateChecklistItem(itemId, { status: 'COMPLETED' });
-    if (success) {
-      Toast.show({ icon: 'success', content: '更新成功！' });
-    } else {
-      Toast.show({ icon: 'fail', content: '更新失败，请重试' });
+    if (!taskId) return;
+    setCheckInLoading(true);
+    try {
+      const success = await taskUpdateChecklistItem(taskId, itemId, { status: 'COMPLETED' });
+      if (success) {
+        Toast.show({ icon: 'success', content: '更新成功！' });
+        refreshTasks();
+        onDataChange?.();
+      } else {
+        Toast.show({ icon: 'fail', content: '更新失败，请重试' });
+      }
+    } finally {
+      setCheckInLoading(false);
     }
-  }, [updateChecklistItem]);
+  }, [taskId, taskUpdateChecklistItem, refreshTasks, onDataChange]);
   
   // 处理归档
   const handleArchive = useCallback(async () => {
-    const success = await archiveTask();
-    if (success) {
+    if (!taskId) return;
+    const result = archiveTask(taskId);
+    if (result.success) {
       Toast.show({ icon: 'success', content: '已归档！' });
       onClose();
     } else {
       Toast.show({ icon: 'fail', content: '归档失败，请重试' });
     }
-  }, [archiveTask, onClose]);
+  }, [archiveTask, taskId, onClose]);
   
   // Debug 回调
   const handleDebugNextDay = useCallback(async () => {
-    const result = await debugNextDay();
+    if (!taskId) return;
+    const result = await taskDebugNextDay(taskId);
     if (result && result.success) {
       Toast.show({
         icon: 'success',
         content: result.enteredNextCycle ? '已进入下一周期' : '已进入下一天',
       });
+      refreshTasks();
+      onDataChange?.();
     }
-  }, [debugNextDay]);
+  }, [taskId, taskDebugNextDay, refreshTasks, onDataChange]);
   
   const handleDebugNextCycle = useCallback(async () => {
-    const success = await debugNextCycle();
+    if (!taskId) return;
+    const success = await taskDebugNextCycle(taskId);
     if (success) {
       Toast.show({ icon: 'success', content: '已进入下一周期' });
+      refreshTasks();
+      onDataChange?.();
     }
-  }, [debugNextCycle]);
+  }, [taskId, taskDebugNextCycle, refreshTasks, onDataChange]);
   
   const handleEndPlanEarly = useCallback(async () => {
-    const success = await endPlanEarly();
+    if (!taskId) return;
+    const success = await taskEndPlanEarly(taskId);
     if (success) {
       Toast.show({ icon: 'success', content: '任务已提前结束' });
+      refreshTasks();
+      onDataChange?.();
     }
-  }, [endPlanEarly]);
+  }, [taskId, taskEndPlanEarly, refreshTasks, onDataChange]);
   
   const handleConvertToSideline = useCallback(() => {
     Toast.show({ content: '功能开发中...' });
@@ -176,68 +299,6 @@ export default function GoalDetailModal({
     Toast.show({ icon: 'success', content: '保存成功！' });
     onDataChange?.();
   }, [updateTask, onDataChange]);
-
-  // 获取当前任务对象（用于编辑弹窗）
-  const currentTask = useMemo(() => {
-    if (!goalId) return null;
-    return getTaskById(goalId);
-  }, [goalId, getTaskById]);
-  
-  // 判断计划是否已结束
-  const isPlanEnded = useMemo(() => {
-    if (!goalDetail) return false;
-    const { cycleDays, totalCycles, startDate, cycleSnapshots, status } = goalDetail;
-    const start = dayjs(startDate);
-    const simulatedToday = getSimulatedToday(goalDetail);
-    const today = dayjs(simulatedToday);
-    const planEndDate = start.add(totalCycles * cycleDays - 1, 'day');
-    const isPlanEndedByTime = today.isAfter(planEndDate);
-    const isPlanEndedByStatus = status === 'completed' || status === 'archived';
-    const isPlanEndedBySnapshots = (cycleSnapshots?.length || 0) >= totalCycles;
-    return isPlanEndedByTime || isPlanEndedByStatus || isPlanEndedBySnapshots;
-  }, [goalDetail]);
-  
-  // 获取当前周期信息
-  const currentCycle = useMemo(() => {
-    if (!goalDetail) return null;
-    return getCurrentCycle(goalDetail);
-  }, [goalDetail]);
-  
-  // 任务类型判断
-  const mainlineType = useMemo((): MainlineTaskType => {
-    if (!goalDetail) return 'CHECK_IN';
-    return getEffectiveMainlineType(
-      goalDetail.numericConfig,
-      goalDetail.checklistConfig,
-      goalDetail.checkInConfig
-    );
-  }, [goalDetail]);
-  
-  // tabs 配置
-  const tabs = useMemo(() => {
-    return getTabsConfig(mainlineType, isPlanEnded);
-  }, [mainlineType, isPlanEnded]);
-  
-  // 总打卡次数
-  const totalCheckIns = useMemo(() => {
-    return goalDetail?.checkIns?.length || 0;
-  }, [goalDetail?.checkIns?.length]);
-  
-  // 本周期的打卡记录
-  const cycleRecords = useMemo(() => {
-    if (!goalDetail?.checkIns || !currentCycle) return [];
-    return goalDetail.checkIns.filter(c => {
-      const checkInDate = new Date(c.date);
-      const cycleStart = new Date(currentCycle.startDate);
-      const cycleEnd = new Date(currentCycle.endDate);
-      return checkInDate >= cycleStart && checkInDate <= cycleEnd;
-    });
-  }, [goalDetail?.checkIns, currentCycle]);
-  
-  // 今日打卡状态
-  const todayCheckInStatus = useMemo(() => {
-    return getTodayCheckInStatus();
-  }, [getTodayCheckInStatus]);
   
   // 底部按钮文案
   const buttonText = useMemo(() => {
@@ -249,7 +310,7 @@ export default function GoalDetailModal({
       case 'CHECKLIST': return <><FileText size={16} style={{ marginRight: 6 }} /> 更新进度</>;
       case 'CHECK_IN':
       default: {
-        const config = goalDetail?.checkInConfig;
+        const config = task?.checkInConfig;
         const unit = config?.unit || 'TIMES';
         if (todayCheckInStatus.isCompleted) {
           return <><Check size={16} style={{ marginRight: 6 }} /> 今日已完成打卡</>;
@@ -262,7 +323,7 @@ export default function GoalDetailModal({
         return <><Check size={16} style={{ marginRight: 6 }} /> 立即打卡</>;
       }
     }
-  }, [isPlanEnded, mainlineType, goalDetail?.checkInConfig, todayCheckInStatus.isCompleted]);
+  }, [isPlanEnded, mainlineType, task, todayCheckInStatus.isCompleted]);
   
   // 按钮禁用状态
   const isCheckInButtonDisabled = useMemo(() => {
@@ -284,53 +345,42 @@ export default function GoalDetailModal({
   
   // 内容渲染
   const renderedContent = useMemo(() => {
-    if (!goalDetail || !currentCycle) return null;
+    if (!task || !currentCycle) return null;
+    
     switch (mainlineType) {
       case 'NUMERIC':
         if (activeTab === 'targets') {
-          return <NumericCyclePanel goal={goalDetail} cycle={currentCycle} onRecordData={handleRecordData} />;
+          return <NumericCyclePanel goal={task} cycle={currentCycle} onRecordData={handleRecordData} />;
         }
         if (activeTab === 'records') {
-          return <HistoryRecordPanel goal={goalDetail} />;
+          return <HistoryRecordPanel goal={task as any} />;
         }
         if (activeTab === 'history') {
-          return <HistoryCyclePanel goal={goalDetail} />;
+          return <HistoryCyclePanel goal={task as any} />;
         }
         return null;
       case 'CHECKLIST':
         if (activeTab === 'current' || activeTab === 'cycle') {
-          return <ChecklistCyclePanel goal={goalDetail} cycle={currentCycle} onUpdateProgress={handleUpdateProgress} />;
+          return <ChecklistCyclePanel goal={task as any} cycle={currentCycle} onUpdateProgress={handleUpdateProgress} />;
         }
-        return <div style={{ padding: 20, textAlign: 'center', color: '#999' }}>清单视图开发中...</div>;
+        return <div className={styles.checklistPlaceholder}>清单视图开发中...</div>;
       case 'CHECK_IN':
       default:
         if (activeTab === 'cycle') {
-          return <CheckInCyclePanel goal={goalDetail} cycle={currentCycle} />;
+          return <CheckInCyclePanel goal={task as any} cycle={currentCycle} />;
         }
         if (activeTab === 'calendar') {
-          return <CalendarViewPanel goal={goalDetail} />;
+          return <CalendarViewPanel goal={task as any} />;
         }
         if (activeTab === 'history') {
-          return <CheckInHistoryPanel goal={goalDetail} />;
-        }
-        if (activeTab === 'records') {
-          return (
-            <CheckInRecordPanel
-              records={cycleRecords}
-              cycleStartDate={currentCycle.startDate}
-              cycleEndDate={currentCycle.endDate}
-            />
-          );
+          return <CheckInHistoryPanel goal={task as any} />;
         }
         return null;
     }
-  }, [mainlineType, activeTab, goalDetail, currentCycle, cycleRecords, handleRecordData, handleUpdateProgress]);
+  }, [mainlineType, activeTab, task, currentCycle, handleRecordData, handleUpdateProgress]);
   
-  // ========== 条件返回 - 所有 Hooks 已在上面调用完毕 ==========
-  
-  if (loading || !goalDetail || !currentCycle) {
-    return null;
-  }
+  // 数据准备状态
+  const isDataReady = task && currentCycle;
   
   // ========== 渲染 ==========
   
@@ -339,154 +389,99 @@ export default function GoalDetailModal({
       visible={visible}
       onMaskClick={onClose}
       position='bottom'
-      destroyOnClose={false}
-      forceRender={false}
       style={{ zIndex: 1200 }}
-      bodyStyle={{
-        borderTopLeftRadius: '16px',
-        borderTopRightRadius: '16px',
-        height: '90vh',
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'hidden',
-        background: '#f5f5f5'
-      }}
+      bodyClassName={styles.popupBody}
     >
-      <GoalHeader 
-        goal={goalDetail} 
-        onClose={onClose}
-        currentCheckIns={currentCycle.checkInCount}
-        requiredCheckIns={currentCycle.requiredCheckIns}
-        totalCheckIns={totalCheckIns}
-        totalCycles={goalDetail.totalCycles}
-        currentCycle={currentCycle.cycleNumber}
-        remainingDays={currentCycle.remainingDays}
-        isPlanEnded={isPlanEnded}
-        onDebugNextDay={handleDebugNextDay}
-        onDebugNextCycle={handleDebugNextCycle}
-        onEndPlanEarly={handleEndPlanEarly}
-        onConvertToSideline={handleConvertToSideline}
-        onEdit={handleEdit}
-      />
-      
-      <div style={{ 
-        display: 'flex',
-        gap: '12px',
-        padding: '8px 20px 8px',
-        flexShrink: 0,
-        overflowX: 'auto',
-        borderBottom: '1px dashed #ddd',
-        borderTop: '1px dashed #ddd',
-        background: '#fff',
-        WebkitOverflowScrolling: 'touch'
-      }}>
-        {tabs.map(tab => (
-          <div
-            key={tab.key}
-            onClick={() => setActiveTab(tab.key)}
-            style={{
-              height: '32px',
-              padding: '0 16px',
-              borderRadius: '8px',
-              fontSize: '14px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              flexShrink: 0,
-              transition: 'all 0.3s',
-              background: activeTab === tab.key ? '#F5F5F5' : 'transparent',
-              color: activeTab === tab.key ? '#141414' : '#525252'
-            }}
-          >
-            {tab.label}
+      {isDataReady ? (
+        <>
+          <GoalHeader 
+            goal={task as any} 
+            onClose={onClose}
+            currentCheckIns={currentCycle.checkInCount}
+            requiredCheckIns={currentCycle.requiredCheckIns}
+            totalCheckIns={totalCheckIns}
+            totalCycles={task.cycle.totalCycles}
+            currentCycle={currentCycle.cycleNumber}
+            remainingDays={currentCycle.remainingDays}
+            isPlanEnded={isPlanEnded}
+            onDebugNextDay={handleDebugNextDay}
+            onDebugNextCycle={handleDebugNextCycle}
+            onEndPlanEarly={handleEndPlanEarly}
+            onConvertToSideline={handleConvertToSideline}
+            onEdit={handleEdit}
+          />
+          
+          <div className={styles.tabsContainer}>
+            {tabs.map(tab => (
+              <div
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={`${styles.tab} ${activeTab === tab.key ? styles.tabActive : ''}`}
+              >
+                {tab.label}
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
-      
-      <div style={{ 
-        flex: 1, 
-        overflowY: 'auto', 
-        background: '#fff',
-        WebkitOverflowScrolling: 'touch'
-      }}>
-        {renderedContent}
-      </div>
-      
-      {isCycleTab(activeTab) && goalDetail.status !== 'archived' && (<>
-        <div style={{
-          padding: '16px 20px',
-          background: '#fff',
-          flexShrink: 0
-        }}>
-          <button
-            ref={checkInButtonRef}
-            onClick={buttonHandler}
-            disabled={checkInLoading || isCheckInButtonDisabled}
-            style={{
-              width: '100%',
-              height: '52px',
-              background: (checkInLoading || isCheckInButtonDisabled) ? '#ccc' : themeColors.primary,
-              color: '#fff',
-              border: 'none',
-              borderRadius: '26px',
-              fontSize: '16px',
-              fontWeight: '600',
-              cursor: (checkInLoading || isCheckInButtonDisabled) ? 'not-allowed' : 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px',
-              transition: 'all 0.2s'
-            }}
-          >
-            {checkInLoading ? '处理中...' : buttonText}
-          </button>
-        </div>
-        <SafeArea position="bottom" />
-      </>)}
-      
-      {mainlineType === 'NUMERIC' && goalDetail.numericConfig && (
-        <RecordDataModal
-          visible={showRecordModal}
-          onClose={() => setShowRecordModal(false)}
-          onSubmit={handleRecordSubmit}
-          currentValue={goalDetail.numericConfig.currentValue}
-          unit={goalDetail.numericConfig.unit}
-          direction={goalDetail.numericConfig.direction}
-          loading={checkInLoading}
-        />
-      )}
-      
-      {mainlineType === 'CHECK_IN' && goalDetail.checkInConfig && (
-        <CheckInModal
-          visible={showCheckInModal}
-          onClose={() => setShowCheckInModal(false)}
-          onSubmit={handleCheckInSubmit}
-          unit={goalDetail.checkInConfig.unit || 'TIMES'}
-          loading={checkInLoading}
-          quickDurations={goalDetail.checkInConfig.quickDurations || [5, 10, 15]}
-          dailyTargetMinutes={goalDetail.checkInConfig.dailyTargetMinutes || 15}
-          valueUnit={goalDetail.checkInConfig.valueUnit || '个'}
-          dailyTargetValue={goalDetail.checkInConfig.dailyTargetValue || 0}
-          todayValue={todayCheckInStatus.todayValue}
-        />
-      )}
+          
+          <div className={styles.contentContainer}>
+            {renderedContent}
+          </div>
+          
+          {isCycleTab(activeTab) && task.status !== 'ARCHIVED' && task.status !== 'ARCHIVED_HISTORY' && (<>
+            <div className={styles.buttonContainer}>
+              <button
+                ref={checkInButtonRef}
+                onClick={buttonHandler}
+                disabled={checkInLoading || isCheckInButtonDisabled}
+                className={styles.actionButton}
+                style={{ background: (checkInLoading || isCheckInButtonDisabled) ? undefined : themeColors.primary }}
+              >
+                {checkInLoading ? '处理中...' : buttonText}
+              </button>
+            </div>
+            <SafeArea position="bottom" />
+          </>)}
+          
+          {mainlineType === 'NUMERIC' && task.numericConfig && (
+            <RecordDataModal
+              visible={showRecordModal}
+              onClose={() => setShowRecordModal(false)}
+              onSubmit={handleRecordSubmit}
+              currentValue={task.numericConfig.currentValue}
+              unit={task.numericConfig.unit}
+              direction={task.numericConfig.direction}
+              loading={checkInLoading}
+            />
+          )}
+          
+          {mainlineType === 'CHECK_IN' && task.checkInConfig && (
+            <CheckInModal
+              visible={showCheckInModal}
+              onClose={() => setShowCheckInModal(false)}
+              onSubmit={handleCheckInSubmit}
+              unit={task.checkInConfig.unit || 'TIMES'}
+              loading={checkInLoading}
+              quickDurations={task.checkInConfig.quickDurations || [5, 10, 15]}
+              dailyTargetMinutes={task.checkInConfig.dailyTargetMinutes || 15}
+              valueUnit={task.checkInConfig.valueUnit || '个'}
+              dailyTargetValue={task.checkInConfig.dailyTargetValue || 0}
+              todayValue={todayCheckInStatus.todayValue}
+            />
+          )}
 
-      {/* 编辑弹窗 */}
-      <SidelineTaskEditModal
-        visible={showEditModal}
-        task={currentTask || null}
-        onSave={handleEditSave}
-        onClose={() => setShowEditModal(false)}
-      />
+          {/* 编辑弹窗 */}
+          <SidelineTaskEditModal
+            visible={showEditModal}
+            task={task}
+            onSave={handleEditSave}
+            onClose={() => setShowEditModal(false)}
+          />
+        </>
+      ) : (
+        <div style={{ padding: 20, textAlign: 'center', color: '#999' }}>
+          加载中...
+        </div>
+      )}
     </Popup>
   );
 }
-
-
-
-
-
-
-

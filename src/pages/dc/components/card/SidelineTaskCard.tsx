@@ -181,15 +181,27 @@ export default function SidelineTaskCard({ task, onClick, isTodayCompleted, isCy
   // 计算当前周期（基于cycleSnapshots，与详情页逻辑一致）
   const currentCycleNumber = calculateCurrentCycleNumber(task);
   
-  // 获取周期天数用于计算颜色
-  const cycleDays = task.cycleDays || 7;
+  // 获取周期天数用于计算颜色（支持新旧格式）
+  const cycleDays = task.cycle?.cycleDays || (task as any).cycleDays || 7;
+  
+  // 获取总周期数（支持新旧格式）
+  const totalCycles = task.cycle?.totalCycles || (task as any).totalCycles || 1;
+  
+  // 获取任务分类（支持新旧格式）
+  const taskCategory = task.category || (task as any).mainlineType;
+  
+  // 获取配置（支持新旧格式）
+  const numericConfig = task.numericConfig || (task as any).mainlineTask?.numericConfig;
+  const checklistConfig = task.checklistConfig || (task as any).mainlineTask?.checklistConfig;
+  const checkInConfig = task.checkInConfig || (task as any).mainlineTask?.checkInConfig;
+  const cycleConfig = task.cycle || (task as any).mainlineTask?.cycleConfig;
   
   // 计算周期起始值（从cycleSnapshots获取上一周期的结算值）
   const getCycleStartValue = (): number | undefined => {
-    if (!task.mainlineTask?.numericConfig) return undefined;
+    if (!numericConfig) return undefined;
     
-    const config = task.mainlineTask.numericConfig;
-    const cycleSnapshots = (task as any).cycleSnapshots || [];
+    const config = numericConfig;
+    const cycleSnapshots = (task as any).cycleSnapshots || (task as any).mainlineTask?.cycleSnapshots || [];
     
     // 如果有快照数据，使用上一周期的结算值作为本周期起始值
     if (cycleSnapshots.length > 0) {
@@ -206,16 +218,29 @@ export default function SidelineTaskCard({ task, onClick, isTodayCompleted, isCy
   
   // 计算总进度和周期进度
   const getProgressData = () => {
-    if (!task.mainlineTask) return { totalProgress: typeof task.progress === 'number' ? task.progress : task.progress?.totalPercentage || 0, cycleProgress: 0, cycleInfo: '' };
+    // 如果有新格式的进度信息，直接使用
+    if (task.progress && typeof task.progress === 'object' && 'cyclePercentage' in task.progress) {
+      const progress = task.progress;
+      return {
+        totalProgress: progress.totalPercentage || 0,
+        cycleProgress: progress.cyclePercentage || 0,
+        cycleInfo: `${progress.cycleAchieved || 0}/${progress.cycleTargetValue || 0}`
+      };
+    }
     
-    switch (task.mainlineType) {
+    // 兼容旧格式
+    const mainlineTask = (task as any).mainlineTask;
+    if (!mainlineTask && !taskCategory) {
+      return { totalProgress: 0, cycleProgress: 0, cycleInfo: '' };
+    }
+    
+    switch (taskCategory) {
       case 'NUMERIC': {
-        const progressData = calculateNumericProgress(task.mainlineTask, {
+        const progressData = calculateNumericProgress({ numericConfig, cycleConfig } as any, {
           currentCycleNumber,
           cycleStartValue
         });
-        const config = task.mainlineTask.numericConfig;
-        const cycleInfo = config ? `${config.currentValue}/${progressData.currentCycleTarget}${config.unit}` : '';
+        const cycleInfo = numericConfig ? `${numericConfig.currentValue}/${progressData.currentCycleTarget}${numericConfig.unit}` : '';
         return { 
           totalProgress: progressData.totalProgress, 
           cycleProgress: progressData.cycleProgress,
@@ -223,7 +248,7 @@ export default function SidelineTaskCard({ task, onClick, isTodayCompleted, isCy
         };
       }
       case 'CHECKLIST': {
-        const progressData = calculateChecklistProgress(task.mainlineTask);
+        const progressData = calculateChecklistProgress({ checklistConfig, cycleConfig } as any);
         const cycleInfo = `${progressData.currentCycleCompleted}/${progressData.currentCycleTarget}项`;
         return { 
           totalProgress: progressData.totalProgress, 
@@ -232,13 +257,16 @@ export default function SidelineTaskCard({ task, onClick, isTodayCompleted, isCy
         };
       }
       case 'CHECK_IN': {
-        const config = task.mainlineTask.checkInConfig;
-        const checkIns = task.checkIns || [];
-        const { currentCycle, totalCycles, cycleLengthDays } = task.mainlineTask.cycleConfig;
-        const unit = config?.unit || 'TIMES';
+        const config = checkInConfig;
+        if (!config) return { totalProgress: 0, cycleProgress: 0, cycleInfo: '' };
+        
+        const checkIns = (task as any).checkIns || [];
+        const currentCycle = cycleConfig?.currentCycle || 1;
+        const cycleLengthDays = cycleConfig?.cycleDays || cycleDays;
+        const unit = config.unit || 'TIMES';
         
         // 计算当前周期的日期范围
-        const startDate = new Date(task.startDate || task.mainlineTask.createdAt);
+        const startDate = new Date(task.time?.startDate || (task as any).startDate || (task as any).mainlineTask?.createdAt);
         const currentCycleStartDay = (currentCycle - 1) * cycleLengthDays;
         const currentCycleEndDay = currentCycle * cycleLengthDays;
         
@@ -264,25 +292,25 @@ export default function SidelineTaskCard({ task, onClick, isTodayCompleted, isCy
         
         if (unit === 'TIMES') {
           // 次数型
-          perCycleTarget = config?.cycleTargetTimes || config?.perCycleTarget || 0;
+          perCycleTarget = config.cycleTargetTimes || config.perCycleTarget || 0;
           currentCycleValue = cycleCheckIns.length;
           totalValue = checkIns.length;
           totalTarget = totalCycles * perCycleTarget;
           unitLabel = '次';
         } else if (unit === 'DURATION') {
           // 时长型
-          perCycleTarget = config?.cycleTargetMinutes || config?.perCycleTarget || 0;
+          perCycleTarget = config.cycleTargetMinutes || config.perCycleTarget || 0;
           currentCycleValue = cycleCheckIns.reduce((sum, c) => sum + (c.value || 0), 0);
           totalValue = checkIns.reduce((sum, c) => sum + (c.value || 0), 0);
           totalTarget = totalCycles * perCycleTarget;
           unitLabel = '分钟';
         } else {
           // 数值型 (QUANTITY)
-          perCycleTarget = config?.cycleTargetValue || config?.perCycleTarget || 0;
+          perCycleTarget = config.cycleTargetValue || config.perCycleTarget || 0;
           currentCycleValue = cycleCheckIns.reduce((sum, c) => sum + (c.value || 0), 0);
           totalValue = checkIns.reduce((sum, c) => sum + (c.value || 0), 0);
           totalTarget = totalCycles * perCycleTarget;
-          unitLabel = config?.valueUnit || '个';
+          unitLabel = config.valueUnit || '个';
         }
         
         // 计算进度
@@ -301,7 +329,7 @@ export default function SidelineTaskCard({ task, onClick, isTodayCompleted, isCy
         };
       }
       default:
-        return { totalProgress: typeof task.progress === 'number' ? task.progress : task.progress?.totalPercentage || 0, cycleProgress: 0, cycleInfo: '' };
+        return { totalProgress: 0, cycleProgress: 0, cycleInfo: '' };
     }
   };
   
@@ -337,7 +365,7 @@ export default function SidelineTaskCard({ task, onClick, isTodayCompleted, isCy
         <div className={styles.gridContent}>
           <div className={styles.gridTitle}>{task.title}</div>
           <div className={styles.gridInfo}>
-            <span>{currentCycleNumber}/{task.totalCycles || 1}</span>
+            <span>{currentCycleNumber}/{totalCycles}</span>
             <span>{Math.round(totalProgress)}%</span>
           </div>
         </div>
@@ -393,9 +421,9 @@ export default function SidelineTaskCard({ task, onClick, isTodayCompleted, isCy
           {deadlineText}
         </span>
         <div className={styles.footerRight}>
-          {task.totalCycles && task.mainlineTask?.cycleConfig && (
+          {totalCycles > 1 && (
             <span className={styles.cycleText}>
-              {currentCycleNumber}/{task.totalCycles}
+              {currentCycleNumber}/{totalCycles}
             </span>
           )}
           <span className={styles.totalProgressText}>{totalProgress}%</span>
@@ -404,5 +432,6 @@ export default function SidelineTaskCard({ task, onClick, isTodayCompleted, isCy
     </div>
   );
 }
+
 
 

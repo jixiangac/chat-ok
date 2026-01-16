@@ -31,11 +31,11 @@ export type {
 
 // ========== SceneProvider ==========
 export { SceneProvider, useScene } from './SceneProvider';
-export type { SceneType, SceneData, NormalSceneAccess, TabConfig } from './SceneProvider/types';
+export type { SceneType, SceneData, NormalSceneAccess, TabConfig, TodayProgressData } from './SceneProvider/types';
 
 // ========== TaskProvider ==========
 export { TaskProvider, useTaskContext } from './TaskProvider';
-export type { TaskContextValue, HistoryRecord, CycleInfo } from './TaskProvider';
+export type { TaskContextValue, HistoryRecord, CycleInfo, TodayCheckInStatus, GoalDetailData } from './TaskProvider';
 
 // ========== UIProvider ==========
 export { UIProvider, useUI, UI_KEYS } from './UIProvider';
@@ -61,6 +61,8 @@ export { themePresets as themePresetsLegacy } from './AppProvider';
 
 // 旧版 UIStateContext 兼容
 export { useUIState as useUIStateLegacy } from './UIProvider/hooks';
+
+
 
 
 

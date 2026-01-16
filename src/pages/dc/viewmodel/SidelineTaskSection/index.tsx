@@ -12,6 +12,7 @@ import {
 import SidelineTaskGrid from '../SidelineTaskGrid';
 import GroupModeGrid from '../GroupModeGrid';
 import { fadeVariants } from '../../constants/animations';
+import { AllSidelineTasksPopup } from '../AllSidelineTasksList';
 import type { Task, TaskTag, ViewMode } from '../../types';
 import { getUsedLocationTags } from '../../utils/tagStorage';
 import { getSavedLocationFilter, saveLocationFilter } from '@/pages/dc/utils/developerStorage';
@@ -40,8 +41,6 @@ const getLocationIcon = (iconName?: string) => {
 interface SidelineTaskSectionProps {
   /** 支线任务列表 */
   tasks: Task[];
-  /** 是否有带标签的任务 */
-  hasTaggedTasks: boolean;
   /** 当前视图模式 */
   viewMode: ViewMode;
   /** 切换视图模式 */
@@ -52,20 +51,25 @@ interface SidelineTaskSectionProps {
   onTaskClick: (taskId: string) => void;
   /** 随机打开任务回调 */
   onRandomOpen: () => void;
-  /** 显示全部任务回调 */
-  onShowAll: () => void;
+  /** 判断任务今日是否完成 */
+  isTodayCompleted?: (task: Task) => boolean;
+  /** 判断任务周期是否完成 */
+  isCycleCompleted?: (task: Task) => boolean;
 }
 
 const SidelineTaskSection: React.FC<SidelineTaskSectionProps> = ({
   tasks,
-  hasTaggedTasks,
   viewMode,
   onToggleViewMode,
   onGroupClick,
   onTaskClick,
   onRandomOpen,
-  onShowAll,
+  isTodayCompleted,
+  isCycleCompleted,
 }) => {
+  // 显示全部支线任务弹窗状态
+  const [showAllSidelineTasks, setShowAllSidelineTasks] = useState(false);
+
   // 从本地存储读取初始地点筛选状态
   const [selectedLocationTagId, setSelectedLocationTagId] = useState<string | null>(() => getSavedLocationFilter());
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -74,6 +78,11 @@ const SidelineTaskSection: React.FC<SidelineTaskSectionProps> = ({
   // 获取已使用的地点标签
   const usedLocationTags = useMemo(() => {
     return getUsedLocationTags(tasks);
+  }, [tasks]);
+
+  // 检查是否有带标签的任务（用于显示切换图标）
+  const hasTaggedTasks = useMemo(() => {
+    return tasks.some(task => task.tags?.normalTagId || (task as any).tagId);
   }, [tasks]);
 
   // 点击外部关闭筛选下拉
@@ -195,22 +204,34 @@ const SidelineTaskSection: React.FC<SidelineTaskSectionProps> = ({
             tasks={tasks}
             onGroupClick={onGroupClick}
             onRandomOpen={onRandomOpen}
-            onShowAll={onShowAll}
+            onShowAll={() => setShowAllSidelineTasks(true)}
           />
         ) : (
           <SidelineTaskGrid 
             tasks={filteredTasks}
             onTaskClick={onTaskClick}
             onRandomOpen={onRandomOpen}
-            onShowAll={onShowAll}
+            onShowAll={() => setShowAllSidelineTasks(true)}
           />
         )}
+
+        {/* 所有支线任务抽屉 */}
+        <AllSidelineTasksPopup
+          visible={showAllSidelineTasks}
+          onClose={() => setShowAllSidelineTasks(false)}
+          tasks={tasks}
+          onTaskClick={onTaskClick}
+          isTodayCompleted={isTodayCompleted}
+          isCycleCompleted={isCycleCompleted}
+        />
       </motion.div>
     </AnimatePresence>
   );
 };
 
 export default SidelineTaskSection;
+
+
 
 
 

@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useCallback, useMemo } from 'react';
-import { Download, Upload, Database, Tag, Umbrella, Heart, Settings } from 'lucide-react';
+import { Download, Upload, Database, Tag, Umbrella, Heart, Settings, Wrench } from 'lucide-react';
 import { Toast, Dialog, TextArea } from 'antd-mobile';
 import { SubPageLayout } from '../../components';
 import {
@@ -13,6 +13,7 @@ import {
   exportToClipboard,
   importData,
   getDataStats,
+  repairTaskProgressData,
 } from '@/pages/dc/utils/dataExportImport';
 import styles from './styles.module.css';
 
@@ -117,6 +118,29 @@ const DataManagementPage: React.FC<DataManagementPageProps> = ({
     setImportDataType(null);
   }, []);
 
+  // 处理一键修复数据
+  const handleRepairData = useCallback(async () => {
+    const result = await Dialog.confirm({
+      content: '将重新计算所有任务的进度数据（周期完成率、总完成率），确定继续吗？',
+    });
+
+    if (result) {
+      const repairResult = repairTaskProgressData();
+      if (repairResult.success) {
+        Toast.show({
+          icon: 'success',
+          content: repairResult.message,
+        });
+        onDataChanged?.();
+      } else {
+        Toast.show({
+          icon: 'fail',
+          content: repairResult.message,
+        });
+      }
+    }
+  }, [onDataChanged]);
+
   return (
     <SubPageLayout
       title="数据管理"
@@ -164,6 +188,26 @@ const DataManagementPage: React.FC<DataManagementPageProps> = ({
           );
         })}
 
+        {/* 数据修复区域 */}
+        <div className={styles.repairSection}>
+          <div className={styles.repairHeader}>
+            <Wrench size={18} />
+            <span>数据修复</span>
+          </div>
+          <div className={styles.repairItem}>
+            <div className={styles.repairInfo}>
+              <span className={styles.repairLabel}>一键修复进度数据</span>
+              <span className={styles.repairDesc}>重新计算所有任务的周期完成率和总完成率</span>
+            </div>
+            <button
+              className={styles.repairButton}
+              onClick={handleRepairData}
+            >
+              修复
+            </button>
+          </div>
+        </div>
+
         <div className={styles.tips}>
           <p>提示：</p>
           <ul>
@@ -208,4 +252,5 @@ const DataManagementPage: React.FC<DataManagementPageProps> = ({
 };
 
 export default DataManagementPage;
+
 

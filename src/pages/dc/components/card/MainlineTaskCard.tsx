@@ -214,24 +214,22 @@ export default function MainlineTaskCard({ task, onClick }: MainlineTaskCardProp
   const showPreviousCycleDebt = debtDisplayInfo.showDebt;
   const displayDebtTarget = debtDisplayInfo.debtTarget;
   
-  // 计算周期完成率
-  const getCycleProgress = (): number => {
-    if (!task.mainlineTask) return 0;
-    switch (task.mainlineType) {
-      case 'NUMERIC':
-        return calculateNumericProgress(task.mainlineTask, {
-          currentCycleNumber,
-          cycleStartValue
-        }).cycleProgress;
-      case 'CHECKLIST':
-        return calculateChecklistProgress(task.mainlineTask).cycleProgress;
-      case 'CHECK_IN':
-        return calculateCheckInProgress(task.mainlineTask).cycleProgress;
-      default:
-        return 0;
+  // 直接使用已存储的周期完成率
+  const cycleProgress = (() => {
+    // 优先使用 mainlineTask.progress
+    if (task.mainlineTask?.progress?.currentCyclePercentage !== undefined) {
+      return task.mainlineTask.progress.currentCyclePercentage;
     }
-  };
-  const cycleProgress = getCycleProgress();
+    // 其次使用 task.progress（如果是对象类型）
+    if (task.progress && typeof task.progress === 'object' && 'currentCyclePercentage' in task.progress) {
+      return task.progress.currentCyclePercentage;
+    }
+    // 兼容旧版本（task.progress 是 number）
+    if (typeof task.progress === 'number') {
+      return task.progress;
+    }
+    return 0;
+  })();
   const deadlineColor = getDeadlineColor(remainingDays, cycleDays, cycleProgress);
   const deadlineText = getDeadlineText(remainingDays);
   // 检查任务是否已完成（检查task.status、mainlineTask.status、时间或cycleSnapshots）
@@ -921,7 +919,7 @@ export default function MainlineTaskCard({ task, onClick }: MainlineTaskCardProp
         <div className={styles.progressBar}>
           <div 
             className={styles.progressFill}
-            style={{ width: `${task.progress}%` }}
+            style={{ width: `${typeof task.progress === 'number' ? task.progress : task.progress?.currentCyclePercentage || 0}%` }}
           ></div>
         </div>
       </div>
@@ -931,7 +929,7 @@ export default function MainlineTaskCard({ task, onClick }: MainlineTaskCardProp
           第 {task.currentDay} 天 / {task.totalDays} 天
         </span>
         <div className={styles.progressInfo}>
-          <span>{task.progress}%</span>
+          <span>{typeof task.progress === 'number' ? task.progress : task.progress?.currentCyclePercentage || 0}%</span>
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="m9 18 6-6-6-6"></path>
           </svg>
@@ -956,3 +954,4 @@ export default function MainlineTaskCard({ task, onClick }: MainlineTaskCardProp
     </div>
   );
 }
+

@@ -1,13 +1,18 @@
+/**
+ * MoonPhase 组件
+ * 直接消费 SceneProvider 数据
+ */
+
 import { useMemo } from 'react';
+import { useScene } from '../../contexts';
 import styles from './MoonPhase.module.css';
 
 type MoonPhaseType = 'new' | 'waxingCrescent' | 'firstQuarter' | 'waxingGibbous' | 'full' | 'waningGibbous' | 'lastQuarter' | 'waningCrescent';
 
-interface MoonPhaseProps {
-  onClick?: () => void;
-}
-
-export default function MoonPhase({ onClick }: MoonPhaseProps) {
+export default function MoonPhase() {
+  // 从 SceneProvider 获取 randomizeSpriteImage
+  const { randomizeSpriteImage } = useScene();
+  
   // 根据当前时间计算月相
   const moonPhase = useMemo((): MoonPhaseType => {
     const now = new Date();
@@ -151,8 +156,8 @@ export default function MoonPhase({ onClick }: MoonPhaseProps) {
   return (
     <div 
       className={styles.moonContainer}
-      onClick={onClick}
-      style={{ cursor: onClick ? 'pointer' : 'default' }}
+      onClick={randomizeSpriteImage}
+      style={{ cursor: 'pointer' }}
     >
       {renderMoon()}
     </div>

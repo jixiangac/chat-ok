@@ -685,17 +685,6 @@
     "exports": []
   },
   {
-    "path": "dc/components/TodayMustCompleteModal",
-    "index": true,
-    "id": "dc/components/TodayMustCompleteModal",
-    "file": "dc/components/TodayMustCompleteModal/index.tsx",
-    "componentName": "dc-components-todaymustcompletemodal-index",
-    "layout": false,
-    "exports": [
-      "default"
-    ]
-  },
-  {
     "path": "dc/panels/settings/DeveloperSettings",
     "index": true,
     "id": "dc/panels/settings/DeveloperSettings",
@@ -752,15 +741,13 @@
     ]
   },
   {
-    "path": "dc/components/AllSidelineTasksList",
+    "path": "dc/viewmodel/TodayMustCompleteModal",
     "index": true,
-    "id": "dc/components/AllSidelineTasksList",
-    "file": "dc/components/AllSidelineTasksList/index.tsx",
-    "componentName": "dc-components-allsidelinetaskslist-index",
+    "id": "dc/viewmodel/TodayMustCompleteModal",
+    "file": "dc/viewmodel/TodayMustCompleteModal/index.tsx",
+    "componentName": "dc-viewmodel-todaymustcompletemodal-index",
     "layout": false,
     "exports": [
-      "AllSidelineTasksList",
-      "AllSidelineTasksPopup",
       "default"
     ]
   },
@@ -830,17 +817,6 @@
     ]
   },
   {
-    "path": "dc/components/SidelineTaskSection",
-    "index": true,
-    "id": "dc/components/SidelineTaskSection",
-    "file": "dc/components/SidelineTaskSection/index.tsx",
-    "componentName": "dc-components-sidelinetasksection-index",
-    "layout": false,
-    "exports": [
-      "default"
-    ]
-  },
-  {
     "path": "dc/panels/happy/hooks/useTripNavigation",
     "id": "dc/panels/happy/hooks/useTripNavigation",
     "file": "dc/panels/happy/hooks/useTripNavigation.ts",
@@ -871,6 +847,19 @@
     ]
   },
   {
+    "path": "dc/viewmodel/AllSidelineTasksList",
+    "index": true,
+    "id": "dc/viewmodel/AllSidelineTasksList",
+    "file": "dc/viewmodel/AllSidelineTasksList/index.tsx",
+    "componentName": "dc-viewmodel-allsidelinetaskslist-index",
+    "layout": false,
+    "exports": [
+      "AllSidelineTasksList",
+      "AllSidelineTasksPopup",
+      "default"
+    ]
+  },
+  {
     "path": "dc/components/shared/ProgressBar",
     "index": true,
     "id": "dc/components/shared/ProgressBar",
@@ -880,6 +869,30 @@
     "exports": [
       "ProgressBar",
       "default"
+    ]
+  },
+  {
+    "path": "dc/contexts/SceneProvider/cacheManager",
+    "id": "dc/contexts/SceneProvider/cacheManager",
+    "file": "dc/contexts/SceneProvider/cacheManager.ts",
+    "componentName": "dc-contexts-sceneprovider-cachemanager",
+    "layout": false,
+    "exports": [
+      "CacheManager",
+      "globalCacheManager"
+    ]
+  },
+  {
+    "path": "dc/contexts/SceneProvider/indexBuilder",
+    "id": "dc/contexts/SceneProvider/indexBuilder",
+    "file": "dc/contexts/SceneProvider/indexBuilder.ts",
+    "componentName": "dc-contexts-sceneprovider-indexbuilder",
+    "layout": false,
+    "exports": [
+      "addToIndex",
+      "buildIndex",
+      "removeFromIndex",
+      "updateInIndex"
     ]
   },
   {
@@ -898,6 +911,17 @@
     "id": "dc/panels/settings/ThemeSettings",
     "file": "dc/panels/settings/ThemeSettings/index.tsx",
     "componentName": "dc-panels-settings-themesettings-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/viewmodel/SidelineTaskSection",
+    "index": true,
+    "id": "dc/viewmodel/SidelineTaskSection",
+    "file": "dc/viewmodel/SidelineTaskSection/index.tsx",
+    "componentName": "dc-viewmodel-sidelinetasksection-index",
     "layout": false,
     "exports": [
       "default"
@@ -941,28 +965,6 @@
     "id": "dc/components/GroupDetailPopup",
     "file": "dc/components/GroupDetailPopup/index.tsx",
     "componentName": "dc-components-groupdetailpopup-index",
-    "layout": false,
-    "exports": [
-      "default"
-    ]
-  },
-  {
-    "path": "dc/components/RandomTaskPicker",
-    "index": true,
-    "id": "dc/components/RandomTaskPicker",
-    "file": "dc/components/RandomTaskPicker/index.tsx",
-    "componentName": "dc-components-randomtaskpicker-index",
-    "layout": false,
-    "exports": [
-      "default"
-    ]
-  },
-  {
-    "path": "dc/components/SidelineTaskGrid",
-    "index": true,
-    "id": "dc/components/SidelineTaskGrid",
-    "file": "dc/components/SidelineTaskGrid/index.tsx",
-    "componentName": "dc-components-sidelinetaskgrid-index",
     "layout": false,
     "exports": [
       "default"
@@ -1090,11 +1092,22 @@
     ]
   },
   {
-    "path": "dc/components/DailyViewPopup",
+    "path": "dc/viewmodel/RandomTaskPicker",
     "index": true,
-    "id": "dc/components/DailyViewPopup",
-    "file": "dc/components/DailyViewPopup/index.tsx",
-    "componentName": "dc-components-dailyviewpopup-index",
+    "id": "dc/viewmodel/RandomTaskPicker",
+    "file": "dc/viewmodel/RandomTaskPicker/index.tsx",
+    "componentName": "dc-viewmodel-randomtaskpicker-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/viewmodel/SidelineTaskGrid",
+    "index": true,
+    "id": "dc/viewmodel/SidelineTaskGrid",
+    "file": "dc/viewmodel/SidelineTaskGrid/index.tsx",
+    "componentName": "dc-viewmodel-sidelinetaskgrid-index",
     "layout": false,
     "exports": [
       "default"
@@ -1135,25 +1148,19 @@
     ]
   },
   {
-    "path": "dc/components/GroupModeGrid",
-    "index": true,
-    "id": "dc/components/GroupModeGrid",
-    "file": "dc/components/GroupModeGrid/index.tsx",
-    "componentName": "dc-components-groupmodegrid-index",
+    "path": "dc/contexts/SceneProvider/storage",
+    "id": "dc/contexts/SceneProvider/storage",
+    "file": "dc/contexts/SceneProvider/storage.ts",
+    "componentName": "dc-contexts-sceneprovider-storage",
     "layout": false,
     "exports": [
-      "default"
-    ]
-  },
-  {
-    "path": "dc/components/TodayProgress",
-    "index": true,
-    "id": "dc/components/TodayProgress",
-    "file": "dc/components/TodayProgress/index.tsx",
-    "componentName": "dc-components-todayprogress-index",
-    "layout": false,
-    "exports": [
-      "default"
+      "clearSceneData",
+      "loadSceneData",
+      "markMigrationComplete",
+      "migrateFromLegacyStorage",
+      "needsMigration",
+      "performMigration",
+      "saveSceneData"
     ]
   },
   {
@@ -1217,6 +1224,17 @@
     ]
   },
   {
+    "path": "dc/viewmodel/DailyViewPopup",
+    "index": true,
+    "id": "dc/viewmodel/DailyViewPopup",
+    "file": "dc/viewmodel/DailyViewPopup/index.tsx",
+    "componentName": "dc-viewmodel-dailyviewpopup-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
     "path": "dc/components/ThemedButton",
     "index": true,
     "id": "dc/components/ThemedButton",
@@ -1225,6 +1243,21 @@
     "layout": false,
     "exports": [
       "default"
+    ]
+  },
+  {
+    "path": "dc/contexts/UserProvider/storage",
+    "id": "dc/contexts/UserProvider/storage",
+    "file": "dc/contexts/UserProvider/storage.ts",
+    "componentName": "dc-contexts-userprovider-storage",
+    "layout": false,
+    "exports": [
+      "clearUserData",
+      "getTodayDateString",
+      "isToday",
+      "isYesterday",
+      "loadUserData",
+      "saveUserData"
     ]
   },
   {
@@ -1307,6 +1340,28 @@
     ]
   },
   {
+    "path": "dc/viewmodel/GroupModeGrid",
+    "index": true,
+    "id": "dc/viewmodel/GroupModeGrid",
+    "file": "dc/viewmodel/GroupModeGrid/index.tsx",
+    "componentName": "dc-viewmodel-groupmodegrid-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/viewmodel/TodayProgress",
+    "index": true,
+    "id": "dc/viewmodel/TodayProgress",
+    "file": "dc/viewmodel/TodayProgress/index.tsx",
+    "componentName": "dc-viewmodel-todayprogress-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
     "path": "dc/components/TagSelector",
     "index": true,
     "id": "dc/components/TagSelector",
@@ -1315,6 +1370,107 @@
     "layout": false,
     "exports": [
       "default"
+    ]
+  },
+  {
+    "path": "dc/contexts/AppProvider/storage",
+    "id": "dc/contexts/AppProvider/storage",
+    "file": "dc/contexts/AppProvider/storage.ts",
+    "componentName": "dc-contexts-appprovider-storage",
+    "layout": false,
+    "exports": [
+      "applyThemeCSSVariables",
+      "clearAppConfig",
+      "loadAppConfig",
+      "saveAppConfig"
+    ]
+  },
+  {
+    "path": "dc/contexts/SceneProvider",
+    "index": true,
+    "id": "dc/contexts/SceneProvider",
+    "file": "dc/contexts/SceneProvider/index.tsx",
+    "componentName": "dc-contexts-sceneprovider-index",
+    "layout": false,
+    "exports": [
+      "SceneProvider",
+      "useScene"
+    ]
+  },
+  {
+    "path": "dc/contexts/SceneProvider/types",
+    "id": "dc/contexts/SceneProvider/types",
+    "file": "dc/contexts/SceneProvider/types.ts",
+    "componentName": "dc-contexts-sceneprovider-types",
+    "layout": false,
+    "exports": [
+      "createEmptyIndex",
+      "createEmptySceneData"
+    ]
+  },
+  {
+    "path": "dc/contexts/WorldProvider",
+    "index": true,
+    "id": "dc/contexts/WorldProvider",
+    "file": "dc/contexts/WorldProvider/index.tsx",
+    "componentName": "dc-contexts-worldprovider-index",
+    "layout": false,
+    "exports": [
+      "WorldProvider",
+      "useWorld"
+    ]
+  },
+  {
+    "path": "dc/contexts/WorldProvider/types",
+    "id": "dc/contexts/WorldProvider/types",
+    "file": "dc/contexts/WorldProvider/types.ts",
+    "componentName": "dc-contexts-worldprovider-types",
+    "layout": false,
+    "exports": [
+      "defaultWorldData"
+    ]
+  },
+  {
+    "path": "dc/contexts/TaskProvider",
+    "index": true,
+    "id": "dc/contexts/TaskProvider",
+    "file": "dc/contexts/TaskProvider/index.tsx",
+    "componentName": "dc-contexts-taskprovider-index",
+    "layout": false,
+    "exports": [
+      "TaskProvider",
+      "useTaskContext"
+    ]
+  },
+  {
+    "path": "dc/contexts/TaskProvider/types",
+    "id": "dc/contexts/TaskProvider/types",
+    "file": "dc/contexts/TaskProvider/types.ts",
+    "componentName": "dc-contexts-taskprovider-types",
+    "layout": false,
+    "exports": []
+  },
+  {
+    "path": "dc/contexts/UserProvider",
+    "index": true,
+    "id": "dc/contexts/UserProvider",
+    "file": "dc/contexts/UserProvider/index.tsx",
+    "componentName": "dc-contexts-userprovider-index",
+    "layout": false,
+    "exports": [
+      "UserProvider",
+      "useUser"
+    ]
+  },
+  {
+    "path": "dc/contexts/UserProvider/types",
+    "id": "dc/contexts/UserProvider/types",
+    "file": "dc/contexts/UserProvider/types.ts",
+    "componentName": "dc-contexts-userprovider-types",
+    "layout": false,
+    "exports": [
+      "LEVEL_CONFIG",
+      "defaultUserData"
     ]
   },
   {
@@ -1413,25 +1569,28 @@
     ]
   },
   {
-    "path": "dc/components/GroupCard",
+    "path": "dc/contexts/AppProvider",
     "index": true,
-    "id": "dc/components/GroupCard",
-    "file": "dc/components/GroupCard/index.tsx",
-    "componentName": "dc-components-groupcard-index",
+    "id": "dc/contexts/AppProvider",
+    "file": "dc/contexts/AppProvider/index.tsx",
+    "componentName": "dc-contexts-appprovider-index",
     "layout": false,
     "exports": [
-      "default"
+      "AppProvider",
+      "themePresets",
+      "useApp",
+      "useTheme"
     ]
   },
   {
-    "path": "dc/components/MoonPhase",
-    "index": true,
-    "id": "dc/components/MoonPhase",
-    "file": "dc/components/MoonPhase/index.tsx",
-    "componentName": "dc-components-moonphase-index",
+    "path": "dc/contexts/AppProvider/types",
+    "id": "dc/contexts/AppProvider/types",
+    "file": "dc/contexts/AppProvider/types.ts",
+    "componentName": "dc-contexts-appprovider-types",
     "layout": false,
     "exports": [
-      "default"
+      "defaultAppConfig",
+      "themePresets"
     ]
   },
   {
@@ -1444,6 +1603,45 @@
       "default",
       "useTodayMustComplete"
     ]
+  },
+  {
+    "path": "dc/contexts/UIProvider/hooks",
+    "id": "dc/contexts/UIProvider/hooks",
+    "file": "dc/contexts/UIProvider/hooks.ts",
+    "componentName": "dc-contexts-uiprovider-hooks",
+    "layout": false,
+    "exports": [
+      "useActiveTab",
+      "useAddTrigger",
+      "useArchiveModal",
+      "useModal",
+      "useScrollPosition",
+      "useSettingsModal",
+      "useTodayMustCompleteModal",
+      "useUIState",
+      "useViewMode"
+    ]
+  },
+  {
+    "path": "dc/contexts/UIProvider",
+    "index": true,
+    "id": "dc/contexts/UIProvider",
+    "file": "dc/contexts/UIProvider/index.tsx",
+    "componentName": "dc-contexts-uiprovider-index",
+    "layout": false,
+    "exports": [
+      "UIProvider",
+      "UI_KEYS",
+      "useUI"
+    ]
+  },
+  {
+    "path": "dc/contexts/UIProvider/types",
+    "id": "dc/contexts/UIProvider/types",
+    "file": "dc/contexts/UIProvider/types.ts",
+    "componentName": "dc-contexts-uiprovider-types",
+    "layout": false,
+    "exports": []
   },
   {
     "path": "dc/panels/detail/hooks",
@@ -1473,6 +1671,38 @@
       "getDefaultTab",
       "getTabsConfig",
       "isCycleTab"
+    ]
+  },
+  {
+    "path": "dc/viewmodel/GroupCard",
+    "index": true,
+    "id": "dc/viewmodel/GroupCard",
+    "file": "dc/viewmodel/GroupCard/index.tsx",
+    "componentName": "dc-viewmodel-groupcard-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/viewmodel/MoonPhase",
+    "index": true,
+    "id": "dc/viewmodel/MoonPhase",
+    "file": "dc/viewmodel/MoonPhase/index.tsx",
+    "componentName": "dc-viewmodel-moonphase-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/contexts/UIProvider/keys",
+    "id": "dc/contexts/UIProvider/keys",
+    "file": "dc/contexts/UIProvider/keys.ts",
+    "componentName": "dc-contexts-uiprovider-keys",
+    "layout": false,
+    "exports": [
+      "UI_KEYS"
     ]
   },
   {
@@ -1581,7 +1811,8 @@
       "exportData",
       "exportToClipboard",
       "getDataStats",
-      "importData"
+      "importData",
+      "repairTaskProgressData"
     ]
   },
   {
@@ -1884,24 +2115,16 @@
     "componentName": "dc-components-index",
     "layout": false,
     "exports": [
-      "AllSidelineTasksList",
-      "AllSidelineTasksPopup",
       "CircleProgress",
       "CreateGoalModal",
       "CreateMainlineTaskModal",
       "DailyProgress",
-      "DailyViewPopup",
       "MainlineTaskCard",
-      "MoonPhase",
       "ProgressBar",
-      "RandomTaskPicker",
       "SidelineTaskCard",
-      "SidelineTaskGrid",
-      "SidelineTaskSection",
       "StatCard",
       "StatCardGrid",
-      "ThemedButton",
-      "TodayProgress"
+      "ThemedButton"
     ]
   },
   {
@@ -2006,6 +2229,27 @@
     ]
   },
   {
+    "path": "dc/viewmodel",
+    "index": true,
+    "id": "dc/viewmodel",
+    "file": "dc/viewmodel/index.ts",
+    "componentName": "dc-viewmodel-index",
+    "layout": false,
+    "exports": [
+      "AllSidelineTasksList",
+      "AllSidelineTasksPopup",
+      "DailyViewPopup",
+      "GroupCard",
+      "GroupModeGrid",
+      "MoonPhase",
+      "RandomTaskPicker",
+      "SidelineTaskGrid",
+      "SidelineTaskSection",
+      "TodayMustCompleteModal",
+      "TodayProgress"
+    ]
+  },
+  {
     "path": "dc/contexts",
     "index": true,
     "id": "dc/contexts",
@@ -2013,13 +2257,33 @@
     "componentName": "dc-contexts-index",
     "layout": false,
     "exports": [
+      "AppProvider",
+      "SceneProvider",
       "TaskProvider",
       "ThemeProvider",
-      "UIStateProvider",
+      "UIProvider",
+      "UI_KEYS",
+      "UserProvider",
+      "WorldProvider",
       "themePresets",
+      "themePresetsLegacy",
+      "useActiveTab",
+      "useAddTrigger",
+      "useApp",
+      "useArchiveModal",
+      "useModal",
+      "useScene",
+      "useScrollPosition",
+      "useSettingsModal",
       "useTaskContext",
       "useTheme",
-      "useUIState"
+      "useTodayMustCompleteModal",
+      "useUI",
+      "useUIState",
+      "useUIStateLegacy",
+      "useUser",
+      "useViewMode",
+      "useWorld"
     ]
   },
   {

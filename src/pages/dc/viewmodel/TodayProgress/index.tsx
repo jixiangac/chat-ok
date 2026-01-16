@@ -1,3 +1,8 @@
+/**
+ * TodayProgress 组件
+ * 直接消费 TaskProvider 数据
+ */
+
 import { useMemo, useState } from 'react';
 import dayjs from 'dayjs';
 import { SafeArea } from 'antd-mobile';
@@ -105,4 +110,6 @@ export default function TodayProgress({ onTaskSelect }: TodayProgressProps) {
     </>
   );
 }
+
+
 

@@ -206,7 +206,7 @@ export default function SidelineTaskCard({ task, onClick, isTodayCompleted, isCy
   
   // 计算总进度和周期进度
   const getProgressData = () => {
-    if (!task.mainlineTask) return { totalProgress: task.progress || 0, cycleProgress: 0, cycleInfo: '' };
+    if (!task.mainlineTask) return { totalProgress: typeof task.progress === 'number' ? task.progress : task.progress?.totalPercentage || 0, cycleProgress: 0, cycleInfo: '' };
     
     switch (task.mainlineType) {
       case 'NUMERIC': {
@@ -301,7 +301,7 @@ export default function SidelineTaskCard({ task, onClick, isTodayCompleted, isCy
         };
       }
       default:
-        return { totalProgress: task.progress || 0, cycleProgress: 0, cycleInfo: '' };
+        return { totalProgress: typeof task.progress === 'number' ? task.progress : task.progress?.totalPercentage || 0, cycleProgress: 0, cycleInfo: '' };
     }
   };
   
@@ -404,4 +404,5 @@ export default function SidelineTaskCard({ task, onClick, isTodayCompleted, isCy
     </div>
   );
 }
+
 

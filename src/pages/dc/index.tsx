@@ -1,68 +1,60 @@
-import { useState, useRef, useEffect } from 'react';
+import { useRef } from 'react';
 import { Plus, Archive, Settings as SettingsIcon } from 'lucide-react';
 import { SafeArea } from 'antd-mobile';
-
-// Components
-import MoonPhase from './components/MoonPhase';
 
 // Panels
 import { HappyPanel, ArchiveList, UnifiedSettingsPanel, MemorialPanel, NormalPanel } from './panels';
 import type { HappyPanelRef } from './panels';
 import type { MemorialPanelRef } from './panels';
 import type { NormalPanelRef } from './panels/normal';
-import TodayMustCompleteModal from './components/TodayMustCompleteModal';
 
-// Contexts
-import { TaskProvider, ThemeProvider, UIStateProvider, useUIState, useTaskContext } from './contexts';
+// ViewModel - 直接消费 Provider 的组件
+import { MoonPhase, TodayMustCompleteModal } from './viewmodel';
 
-// Hooks
-import { useSpriteImage, useTaskSort, useTodayMustComplete } from './hooks';
+// Contexts - 新架构
+import { 
+  AppProvider, 
+  WorldProvider, 
+  UserProvider, 
+  SceneProvider, 
+  TaskProvider, 
+  UIProvider,
+  useUIState, 
+  useTaskContext,
+  useScene
+} from './contexts';
 
 // Styles
 import styles from './css/DCPage.module.css';
 
-// Tab 配置
-const TABS = [
-  { key: 'normal', label: '常规' },
-  { key: 'vacation', label: '度假' },
-  { key: 'memorial', label: '纪念' }
-] as const;
-
 type TabKey = 'home' | 'normal' | 'vacation' | 'memorial';
 
 function DCPageContent() {
-  const { activeTab, setActiveTab, showArchive, showSettings, openArchive, openSettings, closeArchive, closeSettings } = useUIState();
-  const { tasks } = useTaskContext();
-  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  // 场景状态（从 SceneProvider）
+  const { 
+    tabs, 
+    spriteImage
+  } = useScene();
+  
+  // UI 状态（从 UIProvider）
+  const { 
+    activeTab, 
+    setActiveTab, 
+    showArchive, 
+    showSettings, 
+    openArchive, 
+    openSettings, 
+    closeArchive, 
+    closeSettings
+  } = useUIState();
+  
+  // 任务状态（从 TaskProvider）
+  const { setSelectedTaskId } = useTaskContext();
   
   // Panel refs
   const normalPanelRef = useRef<NormalPanelRef>(null);
   const happyPanelRef = useRef<HappyPanelRef>(null);
   const memorialPanelRef = useRef<MemorialPanelRef>(null);
-
-  // 使用自定义 hooks
-  const { getCurrentSpriteImage, randomizeSpriteImage } = useSpriteImage();
-
-  // 获取支线任务
-  const { sidelineTasks } = useTaskSort(tasks);
-
-  // 今日必须完成弹窗状态（只读模式）
-  const [todayMustCompleteReadOnly, setTodayMustCompleteReadOnly] = useState(false);
-
-  // 今日必须完成功能 - 在顶层管理，所有 TAB 都能触发
-  const {
-    showModal: showTodayMustCompleteModal,
-    openModal: openTodayMustCompleteModal,
-    closeModal: closeTodayMustCompleteModal,
-    confirmSelection,
-    skipSelection,
-    checkAndShowModal,
-  } = useTodayMustComplete({ sidelineTasks });
-
-  // 组件挂载时检查是否需要显示今日必须完成弹窗
-  useEffect(() => {
-    checkAndShowModal();
-  }, [checkAndShowModal]);
 
   // 处理添加按钮点击 - 根据当前 tab 触发对应 panel 的添加功能
   const handleAddClick = () => {
@@ -73,12 +65,6 @@ function DCPageContent() {
     } else if (activeTab === 'memorial') {
       memorialPanelRef.current?.triggerAdd();
     }
-  };
-
-  // 处理打开今日必须完成弹窗
-  const handleOpenTodayMustComplete = (readOnly?: boolean) => {
-    setTodayMustCompleteReadOnly(readOnly || false);
-    openTodayMustCompleteModal();
   };
 
   // 渲染 tab 对应的内容区域（小精灵下方的部分）
@@ -95,6 +81,9 @@ function DCPageContent() {
     }
   };
 
+  // 过滤显示的 tabs（不显示 okr）
+  const displayTabs = tabs.filter(tab => tab.key !== 'okr');
+
   return (
     <div className={styles.container}>
       {/* Header */}
@@ -102,7 +91,7 @@ function DCPageContent() {
         <div className={styles.headerContent}>
           {/* Tab 导航 */}
           <div className={styles.tabNav}>
-            {TABS.map((tab) => (
+            {displayTabs.map((tab) => (
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key as TabKey)}
@@ -147,10 +136,10 @@ function DCPageContent() {
         <div className={styles.spriteSection}>
           {/* 小精灵区域 */}
             <div className={styles.moonPhaseWrapper}>
-            <MoonPhase onClick={randomizeSpriteImage} />
+            <MoonPhase />
           </div>
           <img 
-            src={getCurrentSpriteImage()} 
+            src={spriteImage} 
             alt="可爱的小精灵"
             className={styles.spriteImage}
           />
@@ -172,24 +161,14 @@ function DCPageContent() {
         </div>
       )}
 
-      {/* 设置面板 - 今日毕任务在设置中作为子页面 */}
+      {/* 设置面板 */}
       <UnifiedSettingsPanel 
         visible={showSettings}
         onClose={closeSettings}
-        sidelineTasks={sidelineTasks}
-        onConfirmTodayMustComplete={confirmSelection}
-        onSkipTodayMustComplete={skipSelection}
       />
 
-      {/* 今日必须完成弹窗 - 仅用于自动弹出场景 */}
-      <TodayMustCompleteModal
-        visible={showTodayMustCompleteModal}
-        tasks={sidelineTasks}
-        readOnly={todayMustCompleteReadOnly}
-        onConfirm={confirmSelection}
-        onSkip={skipSelection}
-        onClose={closeTodayMustCompleteModal}
-      />
+      {/* 今日必须完成弹窗 - 直接消费 Provider 数据 */}
+      <TodayMustCompleteModal />
 
       {/* 底部安全区域 */}
       <SafeArea position="bottom" />
@@ -197,14 +176,38 @@ function DCPageContent() {
   );
 }
 
+/**
+ * DC 页面入口
+ * 
+ * Provider 层级架构：
+ * AppProvider (系统配置：主题、推送)
+ *   └─ WorldProvider (世界数据：优惠、活动)
+ *       └─ UserProvider (用户信息：等级、索引、今日必完成检查)
+ *           └─ UIProvider (UI状态：KV存储、弹窗状态)
+ *               └─ SceneProvider (场景数据：tabs、sprite、sidelineTasks、索引、缓存)
+ *                   └─ TaskProvider (任务操作：CRUD、计算、选中任务)
+ */
 export default function DCPage() {
   return (
-    <ThemeProvider>
-      <TaskProvider>
-        <UIStateProvider initialTab="normal">
-          <DCPageContent />
-        </UIStateProvider>
-      </TaskProvider>
-    </ThemeProvider>
+    <AppProvider>
+      <WorldProvider>
+        <UserProvider>
+          <UIProvider>
+            <SceneProvider>
+              <TaskProvider>
+                <DCPageContent />
+              </TaskProvider>
+            </SceneProvider>
+          </UIProvider>
+        </UserProvider>
+      </WorldProvider>
+    </AppProvider>
   );
 }
+
+
+
+
+
+
+

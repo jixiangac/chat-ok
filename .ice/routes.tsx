@@ -62,30 +62,30 @@ import * as dc_panels_detail_components_GoalHeader from '@/pages/dc/panels/detai
 import * as dc_panels_happy_components_TripList_TripCard from '@/pages/dc/panels/happy/components/TripList/TripCard';
 import * as dc_components_CreateMainlineTaskModal from '@/pages/dc/components/CreateMainlineTaskModal/index';
 import * as dc_components_CreateMainlineTaskModal_types from '@/pages/dc/components/CreateMainlineTaskModal/types';
-import * as dc_components_TodayMustCompleteModal from '@/pages/dc/components/TodayMustCompleteModal/index';
 import * as dc_panels_settings_DeveloperSettings from '@/pages/dc/panels/settings/DeveloperSettings/index';
 import * as dc_components_SidelineTaskEditModal from '@/pages/dc/components/SidelineTaskEditModal/index';
 import * as dc_components_shared_CircleProgress from '@/pages/dc/components/shared/CircleProgress/index';
 import * as dc_panels_happy_components_GoalCard from '@/pages/dc/panels/happy/components/GoalCard/index';
 import * as dc_panels_happy_components_TripList from '@/pages/dc/panels/happy/components/TripList/index';
-import * as dc_components_AllSidelineTasksList from '@/pages/dc/components/AllSidelineTasksList/index';
+import * as dc_viewmodel_TodayMustCompleteModal from '@/pages/dc/viewmodel/TodayMustCompleteModal/index';
 import * as dc_panels_detail_components_TabBar from '@/pages/dc/panels/detail/components/TabBar/index';
 import * as dc_panels_happy_components_DayTabs from '@/pages/dc/panels/happy/components/DayTabs/index';
 import * as dc_panels_happy_contexts_VacationContext from '@/pages/dc/panels/happy/contexts/VacationContext';
 import * as dc_panels_memorial_constants_backgrounds from '@/pages/dc/panels/memorial/constants/backgrounds';
 import * as dc_components_CreateGoalModal_constants from '@/pages/dc/components/CreateGoalModal/constants';
-import * as dc_components_SidelineTaskSection from '@/pages/dc/components/SidelineTaskSection/index';
 import * as dc_panels_happy_hooks_useTripNavigation from '@/pages/dc/panels/happy/hooks/useTripNavigation';
 import * as dc_panels_memorial_utils_dateCalculator from '@/pages/dc/panels/memorial/utils/dateCalculator';
+import * as dc_viewmodel_AllSidelineTasksList from '@/pages/dc/viewmodel/AllSidelineTasksList/index';
 import * as dc_components_shared_ProgressBar from '@/pages/dc/components/shared/ProgressBar/index';
+import * as dc_contexts_SceneProvider_cacheManager from '@/pages/dc/contexts/SceneProvider/cacheManager';
+import * as dc_contexts_SceneProvider_indexBuilder from '@/pages/dc/contexts/SceneProvider/indexBuilder';
 import * as dc_panels_memorial_hooks_useDateFormat from '@/pages/dc/panels/memorial/hooks/useDateFormat';
 import * as dc_panels_settings_ThemeSettings from '@/pages/dc/panels/settings/ThemeSettings/index';
+import * as dc_viewmodel_SidelineTaskSection from '@/pages/dc/viewmodel/SidelineTaskSection/index';
 import * as dc_panels_memorial_hooks_useMemorials from '@/pages/dc/panels/memorial/hooks/useMemorials';
 import * as dc_panels_settings_hooks_usePageStack from '@/pages/dc/panels/settings/hooks/usePageStack';
 import * as dc_panels_settings_hooks_useSwipeBack from '@/pages/dc/panels/settings/hooks/useSwipeBack';
 import * as dc_components_GroupDetailPopup from '@/pages/dc/components/GroupDetailPopup/index';
-import * as dc_components_RandomTaskPicker from '@/pages/dc/components/RandomTaskPicker/index';
-import * as dc_components_SidelineTaskGrid from '@/pages/dc/components/SidelineTaskGrid/index';
 import * as dc_panels_detail_hooks_checkInStatus from '@/pages/dc/panels/detail/hooks/checkInStatus';
 import * as dc_panels_happy_utils_scheduleHelper from '@/pages/dc/panels/happy/utils/scheduleHelper';
 import * as dc_panels_settings_TagSettings from '@/pages/dc/panels/settings/TagSettings/index';
@@ -96,22 +96,35 @@ import * as dc_components_card_SidelineTaskCard from '@/pages/dc/components/card
 import * as dc_components_shared_StatCard from '@/pages/dc/components/shared/StatCard/index';
 import * as dc_panels_memorial_components from '@/pages/dc/panels/memorial/components/index';
 import * as dc_panels_settings_components from '@/pages/dc/panels/settings/components/index';
-import * as dc_components_DailyViewPopup from '@/pages/dc/components/DailyViewPopup/index';
+import * as dc_viewmodel_RandomTaskPicker from '@/pages/dc/viewmodel/RandomTaskPicker/index';
+import * as dc_viewmodel_SidelineTaskGrid from '@/pages/dc/viewmodel/SidelineTaskGrid/index';
 import * as dc_panels_memorial_constants_icons from '@/pages/dc/panels/memorial/constants/icons';
 import * as dc_panels_memorial_constants from '@/pages/dc/panels/memorial/constants/index';
 import * as dc_components_DailyProgress from '@/pages/dc/components/DailyProgress/index';
-import * as dc_components_GroupModeGrid from '@/pages/dc/components/GroupModeGrid/index';
-import * as dc_components_TodayProgress from '@/pages/dc/components/TodayProgress/index';
+import * as dc_contexts_SceneProvider_storage from '@/pages/dc/contexts/SceneProvider/storage';
 import * as dc_panels_detail_components from '@/pages/dc/panels/detail/components/index';
 import * as dc_panels_happy_hooks_useSchedule from '@/pages/dc/panels/happy/hooks/useSchedule';
 import * as dc_utils_todayMustCompleteStorage from '@/pages/dc/utils/todayMustCompleteStorage';
+import * as dc_viewmodel_DailyViewPopup from '@/pages/dc/viewmodel/DailyViewPopup/index';
 import * as dc_components_ThemedButton from '@/pages/dc/components/ThemedButton/index';
+import * as dc_contexts_UserProvider_storage from '@/pages/dc/contexts/UserProvider/storage';
 import * as dc_panels_detail_constants from '@/pages/dc/panels/detail/constants/index';
 import * as dc_panels_detail_hooks_constants from '@/pages/dc/panels/detail/hooks/constants';
 import * as dc_panels_detail_hooks_dateUtils from '@/pages/dc/panels/detail/hooks/dateUtils';
 import * as dc_panels_happy_components from '@/pages/dc/panels/happy/components/index';
 import * as dc_panels_happy_utils_dateHelper from '@/pages/dc/panels/happy/utils/dateHelper';
+import * as dc_viewmodel_GroupModeGrid from '@/pages/dc/viewmodel/GroupModeGrid/index';
+import * as dc_viewmodel_TodayProgress from '@/pages/dc/viewmodel/TodayProgress/index';
 import * as dc_components_TagSelector from '@/pages/dc/components/TagSelector/index';
+import * as dc_contexts_AppProvider_storage from '@/pages/dc/contexts/AppProvider/storage';
+import * as dc_contexts_SceneProvider from '@/pages/dc/contexts/SceneProvider/index';
+import * as dc_contexts_SceneProvider_types from '@/pages/dc/contexts/SceneProvider/types';
+import * as dc_contexts_WorldProvider from '@/pages/dc/contexts/WorldProvider/index';
+import * as dc_contexts_WorldProvider_types from '@/pages/dc/contexts/WorldProvider/types';
+import * as dc_contexts_TaskProvider from '@/pages/dc/contexts/TaskProvider/index';
+import * as dc_contexts_TaskProvider_types from '@/pages/dc/contexts/TaskProvider/types';
+import * as dc_contexts_UserProvider from '@/pages/dc/contexts/UserProvider/index';
+import * as dc_contexts_UserProvider_types from '@/pages/dc/contexts/UserProvider/types';
 import * as dc_panels_happy_contexts from '@/pages/dc/panels/happy/contexts/index';
 import * as dc_panels_happy_hooks_useGoals from '@/pages/dc/panels/happy/hooks/useGoals';
 import * as dc_panels_happy_hooks_useTrips from '@/pages/dc/panels/happy/hooks/useTrips';
@@ -120,11 +133,17 @@ import * as dc_panels_memorial_utils from '@/pages/dc/panels/memorial/utils/inde
 import * as dc_panels_settings_hooks from '@/pages/dc/panels/settings/hooks/index';
 import * as dc_panels_settings_pages from '@/pages/dc/panels/settings/pages/index';
 import * as dc_panels_settings_theme from '@/pages/dc/panels/settings/theme/index';
-import * as dc_components_GroupCard from '@/pages/dc/components/GroupCard/index';
-import * as dc_components_MoonPhase from '@/pages/dc/components/MoonPhase/index';
+import * as dc_contexts_AppProvider from '@/pages/dc/contexts/AppProvider/index';
+import * as dc_contexts_AppProvider_types from '@/pages/dc/contexts/AppProvider/types';
 import * as dc_hooks_useTodayMustComplete from '@/pages/dc/hooks/useTodayMustComplete';
+import * as dc_contexts_UIProvider_hooks from '@/pages/dc/contexts/UIProvider/hooks';
+import * as dc_contexts_UIProvider from '@/pages/dc/contexts/UIProvider/index';
+import * as dc_contexts_UIProvider_types from '@/pages/dc/contexts/UIProvider/types';
 import * as dc_panels_detail_hooks from '@/pages/dc/panels/detail/hooks';
 import * as dc_panels_detail_utils from '@/pages/dc/panels/detail/utils/index';
+import * as dc_viewmodel_GroupCard from '@/pages/dc/viewmodel/GroupCard/index';
+import * as dc_viewmodel_MoonPhase from '@/pages/dc/viewmodel/MoonPhase/index';
+import * as dc_contexts_UIProvider_keys from '@/pages/dc/contexts/UIProvider/keys';
 import * as dc_panels_happy_hooks from '@/pages/dc/panels/happy/hooks/index';
 import * as dc_panels_happy_utils from '@/pages/dc/panels/happy/utils/index';
 import * as dc_utils_mainlineTaskHelper from '@/pages/dc/utils/mainlineTaskHelper';
@@ -161,6 +180,7 @@ import * as dc_constants_colors from '@/pages/dc/constants/colors';
 import * as dc_utils_responsive from '@/pages/dc/utils/responsive';
 import * as dc_utils_tagStorage from '@/pages/dc/utils/tagStorage';
 import * as dc_constants from '@/pages/dc/constants/index';
+import * as dc_viewmodel from '@/pages/dc/viewmodel/index';
 import * as dc_contexts from '@/pages/dc/contexts/index';
 import * as dc_panels from '@/pages/dc/panels/index';
 import * as dc_hooks from '@/pages/dc/hooks/index';
@@ -1735,31 +1755,6 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: [],
   },{
-    path: 'dc/components/TodayMustCompleteModal',
-    async lazy() {
-      ;
-      return {
-        ...dc_components_TodayMustCompleteModal,
-        Component: () => WrapRouteComponent({
-          routeId: 'dc/components/TodayMustCompleteModal',
-          isLayout: false,
-          routeExports: dc_components_TodayMustCompleteModal,
-        }),
-        loader: createRouteLoader({
-          routeId: 'dc/components/TodayMustCompleteModal',
-          requestContext,
-          renderMode,
-          module: dc_components_TodayMustCompleteModal,
-        }),
-      };
-    },
-    errorElement: <RouteErrorComponent />,
-    componentName: 'dc-components-todaymustcompletemodal-index',
-    index: true,
-    id: 'dc/components/TodayMustCompleteModal',
-    exact: true,
-    exports: ["default"],
-  },{
     path: 'dc/panels/settings/DeveloperSettings',
     async lazy() {
       ;
@@ -1885,30 +1880,30 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["default"],
   },{
-    path: 'dc/components/AllSidelineTasksList',
+    path: 'dc/viewmodel/TodayMustCompleteModal',
     async lazy() {
       ;
       return {
-        ...dc_components_AllSidelineTasksList,
+        ...dc_viewmodel_TodayMustCompleteModal,
         Component: () => WrapRouteComponent({
-          routeId: 'dc/components/AllSidelineTasksList',
+          routeId: 'dc/viewmodel/TodayMustCompleteModal',
           isLayout: false,
-          routeExports: dc_components_AllSidelineTasksList,
+          routeExports: dc_viewmodel_TodayMustCompleteModal,
         }),
         loader: createRouteLoader({
-          routeId: 'dc/components/AllSidelineTasksList',
+          routeId: 'dc/viewmodel/TodayMustCompleteModal',
           requestContext,
           renderMode,
-          module: dc_components_AllSidelineTasksList,
+          module: dc_viewmodel_TodayMustCompleteModal,
         }),
       };
     },
     errorElement: <RouteErrorComponent />,
-    componentName: 'dc-components-allsidelinetaskslist-index',
+    componentName: 'dc-viewmodel-todaymustcompletemodal-index',
     index: true,
-    id: 'dc/components/AllSidelineTasksList',
+    id: 'dc/viewmodel/TodayMustCompleteModal',
     exact: true,
-    exports: ["AllSidelineTasksList","AllSidelineTasksPopup","default"],
+    exports: ["default"],
   },{
     path: 'dc/panels/detail/components/TabBar',
     async lazy() {
@@ -2035,31 +2030,6 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["CYCLE_LENGTH_OPTIONS","ICONS","MIN_CHECK_INS_PER_CYCLE","POPULAR_GOALS","PRIORITY_OPTIONS","TASK_TYPES","TOTAL_DURATION_OPTIONS"],
   },{
-    path: 'dc/components/SidelineTaskSection',
-    async lazy() {
-      ;
-      return {
-        ...dc_components_SidelineTaskSection,
-        Component: () => WrapRouteComponent({
-          routeId: 'dc/components/SidelineTaskSection',
-          isLayout: false,
-          routeExports: dc_components_SidelineTaskSection,
-        }),
-        loader: createRouteLoader({
-          routeId: 'dc/components/SidelineTaskSection',
-          requestContext,
-          renderMode,
-          module: dc_components_SidelineTaskSection,
-        }),
-      };
-    },
-    errorElement: <RouteErrorComponent />,
-    componentName: 'dc-components-sidelinetasksection-index',
-    index: true,
-    id: 'dc/components/SidelineTaskSection',
-    exact: true,
-    exports: ["default"],
-  },{
     path: 'dc/panels/happy/hooks/useTripNavigation',
     async lazy() {
       ;
@@ -2110,6 +2080,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["calculateDays","formatDate","formatDays","getDaysDisplayText","getNextDateFormat","getShortDaysText","getStructuredDaysData","isFuture","isPast","isToday"],
   },{
+    path: 'dc/viewmodel/AllSidelineTasksList',
+    async lazy() {
+      ;
+      return {
+        ...dc_viewmodel_AllSidelineTasksList,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/viewmodel/AllSidelineTasksList',
+          isLayout: false,
+          routeExports: dc_viewmodel_AllSidelineTasksList,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/viewmodel/AllSidelineTasksList',
+          requestContext,
+          renderMode,
+          module: dc_viewmodel_AllSidelineTasksList,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-viewmodel-allsidelinetaskslist-index',
+    index: true,
+    id: 'dc/viewmodel/AllSidelineTasksList',
+    exact: true,
+    exports: ["AllSidelineTasksList","AllSidelineTasksPopup","default"],
+  },{
     path: 'dc/components/shared/ProgressBar',
     async lazy() {
       ;
@@ -2134,6 +2129,56 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/components/shared/ProgressBar',
     exact: true,
     exports: ["ProgressBar","default"],
+  },{
+    path: 'dc/contexts/SceneProvider/cacheManager',
+    async lazy() {
+      ;
+      return {
+        ...dc_contexts_SceneProvider_cacheManager,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/contexts/SceneProvider/cacheManager',
+          isLayout: false,
+          routeExports: dc_contexts_SceneProvider_cacheManager,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/contexts/SceneProvider/cacheManager',
+          requestContext,
+          renderMode,
+          module: dc_contexts_SceneProvider_cacheManager,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-contexts-sceneprovider-cachemanager',
+    index: undefined,
+    id: 'dc/contexts/SceneProvider/cacheManager',
+    exact: true,
+    exports: ["CacheManager","globalCacheManager"],
+  },{
+    path: 'dc/contexts/SceneProvider/indexBuilder',
+    async lazy() {
+      ;
+      return {
+        ...dc_contexts_SceneProvider_indexBuilder,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/contexts/SceneProvider/indexBuilder',
+          isLayout: false,
+          routeExports: dc_contexts_SceneProvider_indexBuilder,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/contexts/SceneProvider/indexBuilder',
+          requestContext,
+          renderMode,
+          module: dc_contexts_SceneProvider_indexBuilder,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-contexts-sceneprovider-indexbuilder',
+    index: undefined,
+    id: 'dc/contexts/SceneProvider/indexBuilder',
+    exact: true,
+    exports: ["addToIndex","buildIndex","removeFromIndex","updateInIndex"],
   },{
     path: 'dc/panels/memorial/hooks/useDateFormat',
     async lazy() {
@@ -2182,6 +2227,31 @@ const createRoutes: CreateRoutes = ({
     componentName: 'dc-panels-settings-themesettings-index',
     index: true,
     id: 'dc/panels/settings/ThemeSettings',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/viewmodel/SidelineTaskSection',
+    async lazy() {
+      ;
+      return {
+        ...dc_viewmodel_SidelineTaskSection,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/viewmodel/SidelineTaskSection',
+          isLayout: false,
+          routeExports: dc_viewmodel_SidelineTaskSection,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/viewmodel/SidelineTaskSection',
+          requestContext,
+          renderMode,
+          module: dc_viewmodel_SidelineTaskSection,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-viewmodel-sidelinetasksection-index',
+    index: true,
+    id: 'dc/viewmodel/SidelineTaskSection',
     exact: true,
     exports: ["default"],
   },{
@@ -2282,56 +2352,6 @@ const createRoutes: CreateRoutes = ({
     componentName: 'dc-components-groupdetailpopup-index',
     index: true,
     id: 'dc/components/GroupDetailPopup',
-    exact: true,
-    exports: ["default"],
-  },{
-    path: 'dc/components/RandomTaskPicker',
-    async lazy() {
-      ;
-      return {
-        ...dc_components_RandomTaskPicker,
-        Component: () => WrapRouteComponent({
-          routeId: 'dc/components/RandomTaskPicker',
-          isLayout: false,
-          routeExports: dc_components_RandomTaskPicker,
-        }),
-        loader: createRouteLoader({
-          routeId: 'dc/components/RandomTaskPicker',
-          requestContext,
-          renderMode,
-          module: dc_components_RandomTaskPicker,
-        }),
-      };
-    },
-    errorElement: <RouteErrorComponent />,
-    componentName: 'dc-components-randomtaskpicker-index',
-    index: true,
-    id: 'dc/components/RandomTaskPicker',
-    exact: true,
-    exports: ["default"],
-  },{
-    path: 'dc/components/SidelineTaskGrid',
-    async lazy() {
-      ;
-      return {
-        ...dc_components_SidelineTaskGrid,
-        Component: () => WrapRouteComponent({
-          routeId: 'dc/components/SidelineTaskGrid',
-          isLayout: false,
-          routeExports: dc_components_SidelineTaskGrid,
-        }),
-        loader: createRouteLoader({
-          routeId: 'dc/components/SidelineTaskGrid',
-          requestContext,
-          renderMode,
-          module: dc_components_SidelineTaskGrid,
-        }),
-      };
-    },
-    errorElement: <RouteErrorComponent />,
-    componentName: 'dc-components-sidelinetaskgrid-index',
-    index: true,
-    id: 'dc/components/SidelineTaskGrid',
     exact: true,
     exports: ["default"],
   },{
@@ -2585,28 +2605,53 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["BottomFixedButton","SettingsListItem","SettingsSection","SubPageLayout"],
   },{
-    path: 'dc/components/DailyViewPopup',
+    path: 'dc/viewmodel/RandomTaskPicker',
     async lazy() {
       ;
       return {
-        ...dc_components_DailyViewPopup,
+        ...dc_viewmodel_RandomTaskPicker,
         Component: () => WrapRouteComponent({
-          routeId: 'dc/components/DailyViewPopup',
+          routeId: 'dc/viewmodel/RandomTaskPicker',
           isLayout: false,
-          routeExports: dc_components_DailyViewPopup,
+          routeExports: dc_viewmodel_RandomTaskPicker,
         }),
         loader: createRouteLoader({
-          routeId: 'dc/components/DailyViewPopup',
+          routeId: 'dc/viewmodel/RandomTaskPicker',
           requestContext,
           renderMode,
-          module: dc_components_DailyViewPopup,
+          module: dc_viewmodel_RandomTaskPicker,
         }),
       };
     },
     errorElement: <RouteErrorComponent />,
-    componentName: 'dc-components-dailyviewpopup-index',
+    componentName: 'dc-viewmodel-randomtaskpicker-index',
     index: true,
-    id: 'dc/components/DailyViewPopup',
+    id: 'dc/viewmodel/RandomTaskPicker',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/viewmodel/SidelineTaskGrid',
+    async lazy() {
+      ;
+      return {
+        ...dc_viewmodel_SidelineTaskGrid,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/viewmodel/SidelineTaskGrid',
+          isLayout: false,
+          routeExports: dc_viewmodel_SidelineTaskGrid,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/viewmodel/SidelineTaskGrid',
+          requestContext,
+          renderMode,
+          module: dc_viewmodel_SidelineTaskGrid,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-viewmodel-sidelinetaskgrid-index',
+    index: true,
+    id: 'dc/viewmodel/SidelineTaskGrid',
     exact: true,
     exports: ["default"],
   },{
@@ -2685,55 +2730,30 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["default"],
   },{
-    path: 'dc/components/GroupModeGrid',
+    path: 'dc/contexts/SceneProvider/storage',
     async lazy() {
       ;
       return {
-        ...dc_components_GroupModeGrid,
+        ...dc_contexts_SceneProvider_storage,
         Component: () => WrapRouteComponent({
-          routeId: 'dc/components/GroupModeGrid',
+          routeId: 'dc/contexts/SceneProvider/storage',
           isLayout: false,
-          routeExports: dc_components_GroupModeGrid,
+          routeExports: dc_contexts_SceneProvider_storage,
         }),
         loader: createRouteLoader({
-          routeId: 'dc/components/GroupModeGrid',
+          routeId: 'dc/contexts/SceneProvider/storage',
           requestContext,
           renderMode,
-          module: dc_components_GroupModeGrid,
+          module: dc_contexts_SceneProvider_storage,
         }),
       };
     },
     errorElement: <RouteErrorComponent />,
-    componentName: 'dc-components-groupmodegrid-index',
-    index: true,
-    id: 'dc/components/GroupModeGrid',
+    componentName: 'dc-contexts-sceneprovider-storage',
+    index: undefined,
+    id: 'dc/contexts/SceneProvider/storage',
     exact: true,
-    exports: ["default"],
-  },{
-    path: 'dc/components/TodayProgress',
-    async lazy() {
-      ;
-      return {
-        ...dc_components_TodayProgress,
-        Component: () => WrapRouteComponent({
-          routeId: 'dc/components/TodayProgress',
-          isLayout: false,
-          routeExports: dc_components_TodayProgress,
-        }),
-        loader: createRouteLoader({
-          routeId: 'dc/components/TodayProgress',
-          requestContext,
-          renderMode,
-          module: dc_components_TodayProgress,
-        }),
-      };
-    },
-    errorElement: <RouteErrorComponent />,
-    componentName: 'dc-components-todayprogress-index',
-    index: true,
-    id: 'dc/components/TodayProgress',
-    exact: true,
-    exports: ["default"],
+    exports: ["clearSceneData","loadSceneData","markMigrationComplete","migrateFromLegacyStorage","needsMigration","performMigration","saveSceneData"],
   },{
     path: 'dc/panels/detail/components',
     async lazy() {
@@ -2810,6 +2830,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["canOpenModalForEdit","canOpenModalForView","createTodayState","getTodayDateString","getTodayMustCompleteTaskIds","hasTodayBeenSet","hasTodaySetTasks","isTaskTodayMustComplete","loadTodayMustCompleteState","markModalShown","removeFromTodayMustComplete","saveTodayMustCompleteState","setTodayMustCompleteTasks","shouldShowTodayMustCompleteModal","skipTodayMustComplete"],
   },{
+    path: 'dc/viewmodel/DailyViewPopup',
+    async lazy() {
+      ;
+      return {
+        ...dc_viewmodel_DailyViewPopup,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/viewmodel/DailyViewPopup',
+          isLayout: false,
+          routeExports: dc_viewmodel_DailyViewPopup,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/viewmodel/DailyViewPopup',
+          requestContext,
+          renderMode,
+          module: dc_viewmodel_DailyViewPopup,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-viewmodel-dailyviewpopup-index',
+    index: true,
+    id: 'dc/viewmodel/DailyViewPopup',
+    exact: true,
+    exports: ["default"],
+  },{
     path: 'dc/components/ThemedButton',
     async lazy() {
       ;
@@ -2834,6 +2879,31 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/components/ThemedButton',
     exact: true,
     exports: ["default"],
+  },{
+    path: 'dc/contexts/UserProvider/storage',
+    async lazy() {
+      ;
+      return {
+        ...dc_contexts_UserProvider_storage,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/contexts/UserProvider/storage',
+          isLayout: false,
+          routeExports: dc_contexts_UserProvider_storage,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/contexts/UserProvider/storage',
+          requestContext,
+          renderMode,
+          module: dc_contexts_UserProvider_storage,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-contexts-userprovider-storage',
+    index: undefined,
+    id: 'dc/contexts/UserProvider/storage',
+    exact: true,
+    exports: ["clearUserData","getTodayDateString","isToday","isYesterday","loadUserData","saveUserData"],
   },{
     path: 'dc/panels/detail/constants',
     async lazy() {
@@ -2960,6 +3030,56 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["formatDate","formatDateISO","getDateOnly","getDaysDiff","getToday","getTripDayIndex","getTripEndDate","isDateInRange","isTripActive","isTripExpired","isTripUpcoming"],
   },{
+    path: 'dc/viewmodel/GroupModeGrid',
+    async lazy() {
+      ;
+      return {
+        ...dc_viewmodel_GroupModeGrid,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/viewmodel/GroupModeGrid',
+          isLayout: false,
+          routeExports: dc_viewmodel_GroupModeGrid,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/viewmodel/GroupModeGrid',
+          requestContext,
+          renderMode,
+          module: dc_viewmodel_GroupModeGrid,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-viewmodel-groupmodegrid-index',
+    index: true,
+    id: 'dc/viewmodel/GroupModeGrid',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/viewmodel/TodayProgress',
+    async lazy() {
+      ;
+      return {
+        ...dc_viewmodel_TodayProgress,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/viewmodel/TodayProgress',
+          isLayout: false,
+          routeExports: dc_viewmodel_TodayProgress,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/viewmodel/TodayProgress',
+          requestContext,
+          renderMode,
+          module: dc_viewmodel_TodayProgress,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-viewmodel-todayprogress-index',
+    index: true,
+    id: 'dc/viewmodel/TodayProgress',
+    exact: true,
+    exports: ["default"],
+  },{
     path: 'dc/components/TagSelector',
     async lazy() {
       ;
@@ -2984,6 +3104,231 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/components/TagSelector',
     exact: true,
     exports: ["default"],
+  },{
+    path: 'dc/contexts/AppProvider/storage',
+    async lazy() {
+      ;
+      return {
+        ...dc_contexts_AppProvider_storage,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/contexts/AppProvider/storage',
+          isLayout: false,
+          routeExports: dc_contexts_AppProvider_storage,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/contexts/AppProvider/storage',
+          requestContext,
+          renderMode,
+          module: dc_contexts_AppProvider_storage,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-contexts-appprovider-storage',
+    index: undefined,
+    id: 'dc/contexts/AppProvider/storage',
+    exact: true,
+    exports: ["applyThemeCSSVariables","clearAppConfig","loadAppConfig","saveAppConfig"],
+  },{
+    path: 'dc/contexts/SceneProvider',
+    async lazy() {
+      ;
+      return {
+        ...dc_contexts_SceneProvider,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/contexts/SceneProvider',
+          isLayout: false,
+          routeExports: dc_contexts_SceneProvider,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/contexts/SceneProvider',
+          requestContext,
+          renderMode,
+          module: dc_contexts_SceneProvider,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-contexts-sceneprovider-index',
+    index: true,
+    id: 'dc/contexts/SceneProvider',
+    exact: true,
+    exports: ["SceneProvider","useScene"],
+  },{
+    path: 'dc/contexts/SceneProvider/types',
+    async lazy() {
+      ;
+      return {
+        ...dc_contexts_SceneProvider_types,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/contexts/SceneProvider/types',
+          isLayout: false,
+          routeExports: dc_contexts_SceneProvider_types,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/contexts/SceneProvider/types',
+          requestContext,
+          renderMode,
+          module: dc_contexts_SceneProvider_types,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-contexts-sceneprovider-types',
+    index: undefined,
+    id: 'dc/contexts/SceneProvider/types',
+    exact: true,
+    exports: ["createEmptyIndex","createEmptySceneData"],
+  },{
+    path: 'dc/contexts/WorldProvider',
+    async lazy() {
+      ;
+      return {
+        ...dc_contexts_WorldProvider,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/contexts/WorldProvider',
+          isLayout: false,
+          routeExports: dc_contexts_WorldProvider,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/contexts/WorldProvider',
+          requestContext,
+          renderMode,
+          module: dc_contexts_WorldProvider,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-contexts-worldprovider-index',
+    index: true,
+    id: 'dc/contexts/WorldProvider',
+    exact: true,
+    exports: ["WorldProvider","useWorld"],
+  },{
+    path: 'dc/contexts/WorldProvider/types',
+    async lazy() {
+      ;
+      return {
+        ...dc_contexts_WorldProvider_types,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/contexts/WorldProvider/types',
+          isLayout: false,
+          routeExports: dc_contexts_WorldProvider_types,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/contexts/WorldProvider/types',
+          requestContext,
+          renderMode,
+          module: dc_contexts_WorldProvider_types,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-contexts-worldprovider-types',
+    index: undefined,
+    id: 'dc/contexts/WorldProvider/types',
+    exact: true,
+    exports: ["defaultWorldData"],
+  },{
+    path: 'dc/contexts/TaskProvider',
+    async lazy() {
+      ;
+      return {
+        ...dc_contexts_TaskProvider,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/contexts/TaskProvider',
+          isLayout: false,
+          routeExports: dc_contexts_TaskProvider,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/contexts/TaskProvider',
+          requestContext,
+          renderMode,
+          module: dc_contexts_TaskProvider,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-contexts-taskprovider-index',
+    index: true,
+    id: 'dc/contexts/TaskProvider',
+    exact: true,
+    exports: ["TaskProvider","useTaskContext"],
+  },{
+    path: 'dc/contexts/TaskProvider/types',
+    async lazy() {
+      ;
+      return {
+        ...dc_contexts_TaskProvider_types,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/contexts/TaskProvider/types',
+          isLayout: false,
+          routeExports: dc_contexts_TaskProvider_types,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/contexts/TaskProvider/types',
+          requestContext,
+          renderMode,
+          module: dc_contexts_TaskProvider_types,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-contexts-taskprovider-types',
+    index: undefined,
+    id: 'dc/contexts/TaskProvider/types',
+    exact: true,
+    exports: [],
+  },{
+    path: 'dc/contexts/UserProvider',
+    async lazy() {
+      ;
+      return {
+        ...dc_contexts_UserProvider,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/contexts/UserProvider',
+          isLayout: false,
+          routeExports: dc_contexts_UserProvider,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/contexts/UserProvider',
+          requestContext,
+          renderMode,
+          module: dc_contexts_UserProvider,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-contexts-userprovider-index',
+    index: true,
+    id: 'dc/contexts/UserProvider',
+    exact: true,
+    exports: ["UserProvider","useUser"],
+  },{
+    path: 'dc/contexts/UserProvider/types',
+    async lazy() {
+      ;
+      return {
+        ...dc_contexts_UserProvider_types,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/contexts/UserProvider/types',
+          isLayout: false,
+          routeExports: dc_contexts_UserProvider_types,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/contexts/UserProvider/types',
+          requestContext,
+          renderMode,
+          module: dc_contexts_UserProvider_types,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-contexts-userprovider-types',
+    index: undefined,
+    id: 'dc/contexts/UserProvider/types',
+    exact: true,
+    exports: ["LEVEL_CONFIG","defaultUserData"],
   },{
     path: 'dc/panels/happy/contexts',
     async lazy() {
@@ -3185,55 +3530,55 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["ThemeProvider","themePresets","useTheme"],
   },{
-    path: 'dc/components/GroupCard',
+    path: 'dc/contexts/AppProvider',
     async lazy() {
       ;
       return {
-        ...dc_components_GroupCard,
+        ...dc_contexts_AppProvider,
         Component: () => WrapRouteComponent({
-          routeId: 'dc/components/GroupCard',
+          routeId: 'dc/contexts/AppProvider',
           isLayout: false,
-          routeExports: dc_components_GroupCard,
+          routeExports: dc_contexts_AppProvider,
         }),
         loader: createRouteLoader({
-          routeId: 'dc/components/GroupCard',
+          routeId: 'dc/contexts/AppProvider',
           requestContext,
           renderMode,
-          module: dc_components_GroupCard,
+          module: dc_contexts_AppProvider,
         }),
       };
     },
     errorElement: <RouteErrorComponent />,
-    componentName: 'dc-components-groupcard-index',
+    componentName: 'dc-contexts-appprovider-index',
     index: true,
-    id: 'dc/components/GroupCard',
+    id: 'dc/contexts/AppProvider',
     exact: true,
-    exports: ["default"],
+    exports: ["AppProvider","themePresets","useApp","useTheme"],
   },{
-    path: 'dc/components/MoonPhase',
+    path: 'dc/contexts/AppProvider/types',
     async lazy() {
       ;
       return {
-        ...dc_components_MoonPhase,
+        ...dc_contexts_AppProvider_types,
         Component: () => WrapRouteComponent({
-          routeId: 'dc/components/MoonPhase',
+          routeId: 'dc/contexts/AppProvider/types',
           isLayout: false,
-          routeExports: dc_components_MoonPhase,
+          routeExports: dc_contexts_AppProvider_types,
         }),
         loader: createRouteLoader({
-          routeId: 'dc/components/MoonPhase',
+          routeId: 'dc/contexts/AppProvider/types',
           requestContext,
           renderMode,
-          module: dc_components_MoonPhase,
+          module: dc_contexts_AppProvider_types,
         }),
       };
     },
     errorElement: <RouteErrorComponent />,
-    componentName: 'dc-components-moonphase-index',
-    index: true,
-    id: 'dc/components/MoonPhase',
+    componentName: 'dc-contexts-appprovider-types',
+    index: undefined,
+    id: 'dc/contexts/AppProvider/types',
     exact: true,
-    exports: ["default"],
+    exports: ["defaultAppConfig","themePresets"],
   },{
     path: 'dc/hooks/useTodayMustComplete',
     async lazy() {
@@ -3259,6 +3604,81 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/hooks/useTodayMustComplete',
     exact: true,
     exports: ["default","useTodayMustComplete"],
+  },{
+    path: 'dc/contexts/UIProvider/hooks',
+    async lazy() {
+      ;
+      return {
+        ...dc_contexts_UIProvider_hooks,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/contexts/UIProvider/hooks',
+          isLayout: false,
+          routeExports: dc_contexts_UIProvider_hooks,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/contexts/UIProvider/hooks',
+          requestContext,
+          renderMode,
+          module: dc_contexts_UIProvider_hooks,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-contexts-uiprovider-hooks',
+    index: undefined,
+    id: 'dc/contexts/UIProvider/hooks',
+    exact: true,
+    exports: ["useActiveTab","useAddTrigger","useArchiveModal","useModal","useScrollPosition","useSettingsModal","useTodayMustCompleteModal","useUIState","useViewMode"],
+  },{
+    path: 'dc/contexts/UIProvider',
+    async lazy() {
+      ;
+      return {
+        ...dc_contexts_UIProvider,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/contexts/UIProvider',
+          isLayout: false,
+          routeExports: dc_contexts_UIProvider,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/contexts/UIProvider',
+          requestContext,
+          renderMode,
+          module: dc_contexts_UIProvider,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-contexts-uiprovider-index',
+    index: true,
+    id: 'dc/contexts/UIProvider',
+    exact: true,
+    exports: ["UIProvider","UI_KEYS","useUI"],
+  },{
+    path: 'dc/contexts/UIProvider/types',
+    async lazy() {
+      ;
+      return {
+        ...dc_contexts_UIProvider_types,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/contexts/UIProvider/types',
+          isLayout: false,
+          routeExports: dc_contexts_UIProvider_types,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/contexts/UIProvider/types',
+          requestContext,
+          renderMode,
+          module: dc_contexts_UIProvider_types,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-contexts-uiprovider-types',
+    index: undefined,
+    id: 'dc/contexts/UIProvider/types',
+    exact: true,
+    exports: [],
   },{
     path: 'dc/panels/detail/hooks',
     async lazy() {
@@ -3309,6 +3729,81 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/panels/detail/utils',
     exact: true,
     exports: ["formatLargeNumber","formatNumber","getDefaultTab","getTabsConfig","isCycleTab"],
+  },{
+    path: 'dc/viewmodel/GroupCard',
+    async lazy() {
+      ;
+      return {
+        ...dc_viewmodel_GroupCard,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/viewmodel/GroupCard',
+          isLayout: false,
+          routeExports: dc_viewmodel_GroupCard,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/viewmodel/GroupCard',
+          requestContext,
+          renderMode,
+          module: dc_viewmodel_GroupCard,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-viewmodel-groupcard-index',
+    index: true,
+    id: 'dc/viewmodel/GroupCard',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/viewmodel/MoonPhase',
+    async lazy() {
+      ;
+      return {
+        ...dc_viewmodel_MoonPhase,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/viewmodel/MoonPhase',
+          isLayout: false,
+          routeExports: dc_viewmodel_MoonPhase,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/viewmodel/MoonPhase',
+          requestContext,
+          renderMode,
+          module: dc_viewmodel_MoonPhase,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-viewmodel-moonphase-index',
+    index: true,
+    id: 'dc/viewmodel/MoonPhase',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/contexts/UIProvider/keys',
+    async lazy() {
+      ;
+      return {
+        ...dc_contexts_UIProvider_keys,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/contexts/UIProvider/keys',
+          isLayout: false,
+          routeExports: dc_contexts_UIProvider_keys,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/contexts/UIProvider/keys',
+          requestContext,
+          renderMode,
+          module: dc_contexts_UIProvider_keys,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-contexts-uiprovider-keys',
+    index: undefined,
+    id: 'dc/contexts/UIProvider/keys',
+    exact: true,
+    exports: ["UI_KEYS"],
   },{
     path: 'dc/panels/happy/hooks',
     async lazy() {
@@ -3508,7 +4003,7 @@ const createRoutes: CreateRoutes = ({
     index: undefined,
     id: 'dc/utils/dataExportImport',
     exact: true,
-    exports: ["DATA_TYPE_CONFIG","clearData","exportData","exportToClipboard","getDataStats","importData"],
+    exports: ["DATA_TYPE_CONFIG","clearData","exportData","exportToClipboard","getDataStats","importData","repairTaskProgressData"],
   },{
     path: 'dc/utils/developerStorage',
     async lazy() {
@@ -4108,7 +4603,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/components',
     exact: true,
-    exports: ["AllSidelineTasksList","AllSidelineTasksPopup","CircleProgress","CreateGoalModal","CreateMainlineTaskModal","DailyProgress","DailyViewPopup","MainlineTaskCard","MoonPhase","ProgressBar","RandomTaskPicker","SidelineTaskCard","SidelineTaskGrid","SidelineTaskSection","StatCard","StatCardGrid","ThemedButton","TodayProgress"],
+    exports: ["CircleProgress","CreateGoalModal","CreateMainlineTaskModal","DailyProgress","MainlineTaskCard","ProgressBar","SidelineTaskCard","StatCard","StatCardGrid","ThemedButton"],
   },{
     path: 'dc/constants/colors',
     async lazy() {
@@ -4210,6 +4705,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["ANIMATION_ENABLED","DEBT_COLOR_SCHEMES","EMPTY_STATE_IMAGE","MEMORIAL_SPRITE_IMAGES","RESPECT_REDUCED_MOTION","SIDELINE_THEME_COLORS","SPRITE_IMAGES","TRIP_SPRITE_IMAGES","VACATION_SPRITE_IMAGES","cardVariants","drawerLeftVariants","drawerRightVariants","fadeVariants","getCurrentTimeSlot","getNextThemeColor","getRandomDebtColorScheme","gridItemVariants","listContainerVariants","listItemVariants","modalVariants","optionVariants","overlayVariants","quickTransition","scaleVariants","smoothTransition","springTransition","stepVariants"],
   },{
+    path: 'dc/viewmodel',
+    async lazy() {
+      ;
+      return {
+        ...dc_viewmodel,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/viewmodel',
+          isLayout: false,
+          routeExports: dc_viewmodel,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/viewmodel',
+          requestContext,
+          renderMode,
+          module: dc_viewmodel,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-viewmodel-index',
+    index: true,
+    id: 'dc/viewmodel',
+    exact: true,
+    exports: ["AllSidelineTasksList","AllSidelineTasksPopup","DailyViewPopup","GroupCard","GroupModeGrid","MoonPhase","RandomTaskPicker","SidelineTaskGrid","SidelineTaskSection","TodayMustCompleteModal","TodayProgress"],
+  },{
     path: 'dc/contexts',
     async lazy() {
       ;
@@ -4233,7 +4753,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/contexts',
     exact: true,
-    exports: ["TaskProvider","ThemeProvider","UIStateProvider","themePresets","useTaskContext","useTheme","useUIState"],
+    exports: ["AppProvider","SceneProvider","TaskProvider","ThemeProvider","UIProvider","UI_KEYS","UserProvider","WorldProvider","themePresets","themePresetsLegacy","useActiveTab","useAddTrigger","useApp","useArchiveModal","useModal","useScene","useScrollPosition","useSettingsModal","useTaskContext","useTheme","useTodayMustCompleteModal","useUI","useUIState","useUIStateLegacy","useUser","useViewMode","useWorld"],
   },{
     path: 'dc/panels',
     async lazy() {

@@ -11,6 +11,12 @@ import {
 } from './hooks/dateUtils';
 import { getTodayCheckInStatusForTask } from './hooks/checkInStatus';
 import { getRandomColorScheme } from './hooks/constants';
+import { 
+  calculateNumericProgress,
+  calculateChecklistProgress,
+  calculateCheckInProgress,
+  calculateCurrentCycleNumber
+} from '../../utils/mainlineTaskHelper';
 
 // 重新导出供外部使用
 export { 
@@ -140,6 +146,56 @@ export function useGoalDetail(goalId: string, onDataChange?: () => void) {
               goals[goalIndex].mainlineTask.checkInConfig = checkInConfig;
             }
             goals[goalIndex].checkInConfig = checkInConfig;
+            
+            // 计算并更新打卡型任务的进度
+            if (goals[goalIndex].mainlineTask?.mainlineType === 'CHECK_IN') {
+              const mainlineTask = goals[goalIndex].mainlineTask;
+              const checkIns = goals[goalIndex].checkIns || [];
+              const cycleInfo = getCurrentCycle(goals[goalIndex]);
+              const totalCycles = mainlineTask.cycleConfig?.totalCycles || 1;
+              const perCycleTarget = checkInConfig.perCycleTarget || 1;
+              const unit = checkInConfig.unit || 'TIMES';
+              
+              // 计算当前周期的打卡数据
+              const cycleCheckIns = checkIns.filter((c: CheckIn) => 
+                c.date >= cycleInfo.startDate && c.date <= cycleInfo.endDate
+              );
+              
+              let currentCycleValue: number;
+              let totalValue: number;
+              
+              if (unit === 'TIMES') {
+                currentCycleValue = cycleCheckIns.length;
+                totalValue = checkIns.length;
+              } else if (unit === 'DURATION') {
+                currentCycleValue = cycleCheckIns.reduce((sum: number, c: CheckIn) => sum + (c.value || 0), 0);
+                totalValue = checkIns.reduce((sum: number, c: CheckIn) => sum + (c.value || 0), 0);
+              } else {
+                currentCycleValue = cycleCheckIns.reduce((sum: number, c: CheckIn) => sum + (c.value || 0), 0);
+                totalValue = checkIns.reduce((sum: number, c: CheckIn) => sum + (c.value || 0), 0);
+              }
+              
+              const currentCyclePercentage = Math.min(100, Math.round((currentCycleValue / perCycleTarget) * 100));
+              const totalTarget = totalCycles * perCycleTarget;
+              const totalPercentage = Math.min(100, Math.round((totalValue / totalTarget) * 100));
+              
+              const progress = {
+                currentCyclePercentage,
+                totalPercentage
+              };
+              
+              // 更新进度到 mainlineTask 和 goal
+              if (goals[goalIndex].mainlineTask) {
+                goals[goalIndex].mainlineTask.progress = {
+                  ...goals[goalIndex].mainlineTask.progress,
+                  ...progress
+                };
+              }
+              goals[goalIndex].progress = {
+                ...goals[goalIndex].progress,
+                ...progress
+              };
+            }
           }
           
           localStorage.setItem('dc_tasks', JSON.stringify(goals));
@@ -376,6 +432,37 @@ export function useGoalDetail(goalId: string, onDataChange?: () => void) {
             
             const completedCount = items.filter((item: ChecklistItem) => item.status === 'COMPLETED').length;
             goals[goalIndex].checklistConfig.completedItems = completedCount;
+            
+            // 计算并更新清单型任务的进度
+            if (goals[goalIndex].mainlineTask?.mainlineType === 'CHECKLIST') {
+              const mainlineTask = goals[goalIndex].mainlineTask;
+              const totalItems = goals[goalIndex].checklistConfig.totalItems;
+              const perCycleTarget = goals[goalIndex].checklistConfig.perCycleTarget;
+              const currentCycle = mainlineTask.cycleConfig?.currentCycle || 1;
+              
+              const currentCycleCompleted = items.filter(
+                (item: ChecklistItem) => item.status === 'COMPLETED' && item.cycle === currentCycle
+              ).length;
+              
+              const currentCyclePercentage = Math.min(100, Math.round((currentCycleCompleted / perCycleTarget) * 100));
+              const totalPercentage = Math.round((completedCount / totalItems) * 100);
+              
+              const progress = {
+                currentCyclePercentage,
+                totalPercentage
+              };
+              
+              if (goals[goalIndex].mainlineTask) {
+                goals[goalIndex].mainlineTask.progress = { 
+                  ...goals[goalIndex].mainlineTask.progress, 
+                  ...progress 
+                };
+              }
+              goals[goalIndex].progress = { 
+                ...goals[goalIndex].progress, 
+                ...progress 
+              };
+            }
             
             localStorage.setItem('dc_tasks', JSON.stringify(goals));
             
@@ -826,4 +913,3 @@ export function useGoalDetail(goalId: string, onDataChange?: () => void) {
     archiveTask
   };
 }
-

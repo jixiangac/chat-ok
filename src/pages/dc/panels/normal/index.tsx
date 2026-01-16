@@ -7,10 +7,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import dayjs from 'dayjs';
 import { MainlineTaskCard } from '../../components/card';
 import CreateMainlineTaskModal from '../../components/CreateMainlineTaskModal';
-import TodayProgress from '../../components/TodayProgress';
 import GroupDetailPopup from '../../components/GroupDetailPopup';
-import SidelineTaskSection from '../../components/SidelineTaskSection';
-import { AllSidelineTasksPopup } from '../../components/AllSidelineTasksList';
+import { TodayProgress, SidelineTaskSection, AllSidelineTasksPopup } from '../../viewmodel';
 import GoalDetailModal from '../detail';
 import { useTaskContext } from '../../contexts';
 import { useTaskSort } from '../../hooks';
@@ -149,6 +147,9 @@ const NormalPanel = forwardRef<NormalPanelRef, NormalPanelProps>((props, ref) =>
     setMainlineModalVisible(true);
   };
 
+
+  console.log(tasks,'taskstasks')
+
   return (
     <>
       {/* 主线任务区块 */}
@@ -272,4 +273,5 @@ const NormalPanel = forwardRef<NormalPanelRef, NormalPanelProps>((props, ref) =>
 NormalPanel.displayName = 'NormalPanel';
 
 export default NormalPanel;
+
 

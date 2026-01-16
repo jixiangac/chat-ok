@@ -1,6 +1,7 @@
 /**
  * 今日必须完成任务设置弹窗
  * 支持编辑模式和只读模式
+ * 直接消费 Provider 数据
  */
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -8,44 +9,53 @@ import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { SafeArea } from 'antd-mobile';
 import type { Task } from '../../types';
-import { SidelineTaskCard } from '../card';
-import { getTodayMustCompleteTaskIds } from '../../utils/todayMustCompleteStorage';
+import { SidelineTaskCard } from '../../components/card';
 import { getTodayCheckInStatusForTask } from '../../panels/detail/hooks';
+import { useScene, useUser, useUIState } from '../../contexts';
 import styles from './styles.module.css';
 
 // IP 图片地址
 const HEADER_IMAGE_URL = 'https://img.alicdn.com/imgextra/i3/O1CN010etw8y22Bc3SeGWsQ_!!6000000007082-2-tps-1080-944.png';
 
-interface TodayMustCompleteModalProps {
-  visible: boolean;
-  tasks: Task[]; // 所有未完成的支线任务
-  readOnly?: boolean; // 只读模式
-  onConfirm: (taskIds: string[]) => void;
-  onSkip: () => void;
-  onClose: () => void;
-}
-
 const MAX_SELECTIONS = 3;
 
-const TodayMustCompleteModal: React.FC<TodayMustCompleteModalProps> = ({
-  visible,
-  tasks,
-  readOnly = false,
-  onConfirm,
-  onSkip,
-  onClose,
-}) => {
+const TodayMustCompleteModal: React.FC = () => {
+  // 从 Provider 获取数据
+  const { sidelineTasks } = useScene();
+  const { 
+    todayMustComplete, 
+    checkAndShowTodayMustComplete,
+    setTodayMustCompleteTasks, 
+    skipTodayMustComplete,
+    markTodayMustCompleteShown
+  } = useUser();
+  const { 
+    showTodayMustCompleteModal: visible, 
+    closeTodayMustCompleteModal: onClose,
+    openTodayMustCompleteModal
+  } = useUIState();
+  
+  const readOnly = todayMustComplete.readOnly;
+  const tasks = sidelineTasks;
+  
   const [selectedTaskIds, setSelectedTaskIds] = useState<string[]>([]);
+
+  // 组件挂载时检查是否需要显示今日必须完成弹窗
+  useEffect(() => {
+    if (checkAndShowTodayMustComplete()) {
+      openTodayMustCompleteModal();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // 只在组件挂载时执行一次
 
   // 只读模式下，加载已设置的任务
   useEffect(() => {
     if (visible && readOnly) {
-      const savedTaskIds = getTodayMustCompleteTaskIds();
-      setSelectedTaskIds(savedTaskIds);
+      setSelectedTaskIds(todayMustComplete.taskIds);
     } else if (visible && !readOnly) {
       setSelectedTaskIds([]);
     }
-  }, [visible, readOnly]);
+  }, [visible, readOnly, todayMustComplete.taskIds]);
 
   // 过滤掉今日已完成打卡的任务（仅编辑模式）
   const availableTasks = useMemo(() => {
@@ -81,20 +91,33 @@ const TodayMustCompleteModal: React.FC<TodayMustCompleteModalProps> = ({
 
   // 处理确认
   const handleConfirm = () => {
-    onConfirm(selectedTaskIds);
+    setTodayMustCompleteTasks(selectedTaskIds);
+    onClose();
+  };
+
+  // 处理跳过
+  const handleSkip = () => {
+    skipTodayMustComplete();
+    onClose();
+  };
+
+  // 处理关闭
+  const handleClose = () => {
+    markTodayMustCompleteShown();
+    onClose();
   };
 
   if (!visible) return null;
 
   // 使用 Portal 渲染到 body 下，避免被父容器的 overflow 影响
   return createPortal(
-    <div className={styles.modalOverlay} onClick={onClose}>
+    <div className={styles.modalOverlay} onClick={handleClose}>
       <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
         {/* 顶部图片区域 */}
         <div className={styles.headerImage}>
           {/* 只读模式显示关闭按钮 */}
           {readOnly && (
-            <button className={styles.closeButton} onClick={onClose}>
+            <button className={styles.closeButton} onClick={handleClose}>
               <X size={20} />
             </button>
           )}
@@ -174,7 +197,7 @@ const TodayMustCompleteModal: React.FC<TodayMustCompleteModalProps> = ({
         {/* 底部按钮 - 仅编辑模式显示 */}
         {!readOnly && (
           <div className={styles.footer}>
-            <button className={styles.skipButton} onClick={onSkip}>
+            <button className={styles.skipButton} onClick={handleSkip}>
               跳过
             </button>
             <button

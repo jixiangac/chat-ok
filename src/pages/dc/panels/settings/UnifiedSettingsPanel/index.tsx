@@ -16,7 +16,6 @@ import {
   DataManagementPage,
   TodayMustCompletePage,
 } from '../pages';
-import type { Task } from '@/pages/dc/types';
 import styles from './styles.module.css';
 import '../animations/index.css';
 
@@ -25,12 +24,6 @@ export interface UnifiedSettingsPanelProps {
   visible: boolean;
   /** 关闭回调 */
   onClose: () => void;
-  /** 支线任务列表（用于今日毕任务） */
-  sidelineTasks?: Task[];
-  /** 确认今日毕任务选择 */
-  onConfirmTodayMustComplete?: (taskIds: string[]) => void;
-  /** 跳过今日毕任务 */
-  onSkipTodayMustComplete?: () => void;
   /** 标签删除回调 */
   onTagDeleted?: (tagId: string) => void;
   /** 数据变更回调 */
@@ -40,9 +33,6 @@ export interface UnifiedSettingsPanelProps {
 const UnifiedSettingsPanel: React.FC<UnifiedSettingsPanelProps> = ({
   visible,
   onClose,
-  sidelineTasks = [],
-  onConfirmTodayMustComplete,
-  onSkipTodayMustComplete,
   onTagDeleted,
   onDataChanged,
 }) => {
@@ -56,9 +46,6 @@ const UnifiedSettingsPanel: React.FC<UnifiedSettingsPanelProps> = ({
   // 页面切换动画状态
   const [pageAnimationState, setPageAnimationState] = useState<'idle' | 'entering' | 'exiting' | 'closing'>('idle');
   
-  // 今日毕任务只读模式
-  const [todayMustCompleteReadOnly, setTodayMustCompleteReadOnly] = useState(false);
-
   // 处理面板显示/隐藏动画
   useEffect(() => {
     if (visible) {
@@ -122,7 +109,6 @@ const UnifiedSettingsPanel: React.FC<UnifiedSettingsPanelProps> = ({
 
   // 处理今日毕任务点击
   const handleOpenTodayMustComplete = useCallback((readOnly?: boolean) => {
-    setTodayMustCompleteReadOnly(readOnly || false);
     handleNavigate('todayMustComplete', '今日毕任务');
   }, [handleNavigate]);
 
@@ -139,10 +125,6 @@ const UnifiedSettingsPanel: React.FC<UnifiedSettingsPanelProps> = ({
         return (
           <TodayMustCompletePage
             onBack={handleBack}
-            tasks={sidelineTasks}
-            readOnly={todayMustCompleteReadOnly}
-            onConfirm={onConfirmTodayMustComplete || (() => {})}
-            onSkip={onSkipTodayMustComplete || (() => {})}
           />
         );
       case 'main':
@@ -229,3 +211,4 @@ const UnifiedSettingsPanel: React.FC<UnifiedSettingsPanelProps> = ({
 };
 
 export default UnifiedSettingsPanel;
+

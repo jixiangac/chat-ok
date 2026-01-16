@@ -220,7 +220,7 @@ export interface MainlineTask {
 export interface Task {
   id: string;
   title: string;
-  progress: number;
+  progress: number | ProgressInfo; // 支持旧版 number 和新版 ProgressInfo
   currentDay: number;
   totalDays: number;
   type: TaskType;
@@ -321,6 +321,7 @@ export interface ValidationResult {
   valid: boolean;
   message?: string;
 }
+
 
 
 

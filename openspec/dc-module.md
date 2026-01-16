@@ -139,40 +139,32 @@ type MainlineTaskType = 'NUMERIC' | 'CHECKLIST' | 'CHECK_IN';
 interface Task {
   id: string;
   title: string;
-  progress: number;
+  progress: ProgressInfo;
   currentDay: number;
   totalDays: number;
-  type: TaskType;
+  taskType: TaskType;
+  createdAt: string;
+  // 任务分类
+  taskCategory?: MainlineTaskType;
+  // 任务状态
+  status: 'ACTIVE' | 'COMPLETED' | 'FAILED' | 'DOWNGRADED' | 'PAUSED';
+  completedAt?: string;
+  archivedAt?: string;
+  // 周期配置
   cycle?: string;
+  cycleConfig: CycleConfig;
+  cycleDays?: number;
+  totalCycles?: number;
+  // 进展
+  progress: ProgressInfo;
   completed?: boolean;
-  
-  // 主线任务特定字段
-  mainlineType?: MainlineTaskType;
-  mainlineTask?: MainlineTask;
   
   // 详情页需要的字段
   icon?: string;
   encouragement?: string;
   startDate?: string;
-  cycleDays?: number;
-  totalCycles?: number;
-  
   // 支线任务主题色（创建时分配，固定不变）
   themeColor?: string;
-}
-
-// 主线任务
-interface MainlineTask {
-  id: string;
-  mainlineType: MainlineTaskType;
-  title: string;
-  status: 'ACTIVE' | 'COMPLETED' | 'FAILED' | 'DOWNGRADED' | 'PAUSED';
-  createdAt: string;
-  startDate?: string;
-  
-  cycleConfig: CycleConfig;
-  progress: ProgressInfo;
-  
   // 类型特定配置
   numericConfig?: NumericConfig;
   checklistConfig?: ChecklistConfig;

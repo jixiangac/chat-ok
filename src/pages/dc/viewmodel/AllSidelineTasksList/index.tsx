@@ -15,7 +15,7 @@ import {
   SmilePlus, Frown, Angry, Moon, HelpCircle, Zap, PartyPopper, Heart, Flame, Snowflake,
   Pin, Star, Target, BookOpen, Lightbulb, Wrench, Palette, Music, PersonStanding, Sparkles
 } from 'lucide-react';
-import { SidelineTaskCard } from '../card';
+import { SidelineTaskCard } from '../../components/card';
 import type { Task, TaskTag, TagType } from '../../types';
 import { getTagsByType, getUsedLocationTags } from '../../utils/tagStorage';
 import { getSavedLocationFilter, saveLocationFilter } from '@/pages/dc/utils/developerStorage';
@@ -440,5 +440,6 @@ export const AllSidelineTasksPopup: React.FC<AllSidelineTasksPopupProps> = ({
 };
 
 export default AllSidelineTasksList;
+
 
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Task } from '../../types';
-import { SidelineTaskCard } from '../card';
+import { SidelineTaskCard } from '../../components/card';
 import { calculateVisibleSidelineTasks, prefersReducedMotion } from '../../utils/responsive';
 import { gridItemVariants, listContainerVariants } from '../../constants/animations';
 
@@ -137,3 +137,4 @@ const SidelineTaskGrid: React.FC<SidelineTaskGridProps> = ({
 };
 
 export default SidelineTaskGrid;
+

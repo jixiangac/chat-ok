@@ -4,6 +4,13 @@
  */
 
 import { copyToClipboard } from './developerStorage';
+import { 
+  calculateNumericProgress, 
+  calculateChecklistProgress, 
+  calculateCheckInProgress,
+  calculateCurrentCycleNumber
+} from './mainlineTaskHelper';
+import type { Task, ProgressInfo } from '../types';
 
 // 存储键常量
 const STORAGE_KEYS = {
@@ -193,3 +200,111 @@ export const clearData = (dataType: DataType): boolean => {
     return false;
   }
 };
+
+/**
+ * 修复任务进度数据
+ * 遍历所有任务，重新计算并存储 progress 字段
+ */
+export const repairTaskProgressData = (): { success: boolean; message: string; repairedCount: number } => {
+  try {
+    const tasksJson = localStorage.getItem(STORAGE_KEYS.TASKS);
+    if (!tasksJson) {
+      return {
+        success: true,
+        message: '没有找到任务数据',
+        repairedCount: 0
+      };
+    }
+
+    const tasks: Task[] = JSON.parse(tasksJson);
+    let repairedCount = 0;
+
+    const repairedTasks = tasks.map(task => {
+      // 只处理有 mainlineTask 的任务
+      if (!task.mainlineTask) {
+        return task;
+      }
+
+      const mainlineTask = task.mainlineTask;
+      const mainlineType = task.mainlineType || mainlineTask.mainlineType;
+      
+      // 计算当前周期编号
+      const currentCycleNumber = calculateCurrentCycleNumber(task);
+      
+      // 获取周期起始值（从 cycleSnapshots 获取）
+      const cycleSnapshots = (task as any).cycleSnapshots || [];
+      let cycleStartValue: number | undefined;
+      if (cycleSnapshots.length > 0 && mainlineTask.numericConfig) {
+        const lastSnapshot = cycleSnapshots[cycleSnapshots.length - 1];
+        if (lastSnapshot.actualValue !== undefined) {
+          cycleStartValue = lastSnapshot.actualValue;
+        }
+      }
+
+      let newProgress: ProgressInfo;
+
+      switch (mainlineType) {
+        case 'NUMERIC': {
+          const progressData = calculateNumericProgress(mainlineTask, {
+            currentCycleNumber,
+            cycleStartValue
+          });
+          newProgress = {
+            totalPercentage: progressData.totalProgress,
+            currentCyclePercentage: progressData.cycleProgress,
+            currentCycleStart: progressData.currentCycleStart,
+            currentCycleTarget: progressData.currentCycleTarget
+          };
+          break;
+        }
+        case 'CHECKLIST': {
+          const progressData = calculateChecklistProgress(mainlineTask);
+          newProgress = {
+            totalPercentage: progressData.totalProgress,
+            currentCyclePercentage: progressData.cycleProgress
+          };
+          break;
+        }
+        case 'CHECK_IN': {
+          const progressData = calculateCheckInProgress(mainlineTask);
+          newProgress = {
+            totalPercentage: progressData.totalProgress,
+            currentCyclePercentage: progressData.cycleProgress
+          };
+          break;
+        }
+        default:
+          return task;
+      }
+
+      repairedCount++;
+
+      // 更新 mainlineTask.progress 和 task.progress
+      return {
+        ...task,
+        progress: newProgress,
+        mainlineTask: {
+          ...mainlineTask,
+          progress: newProgress
+        }
+      };
+    });
+
+    // 保存修复后的数据
+    localStorage.setItem(STORAGE_KEYS.TASKS, JSON.stringify(repairedTasks));
+
+    return {
+      success: true,
+      message: `成功修复 ${repairedCount} 个任务的进度数据`,
+      repairedCount
+    };
+  } catch (error) {
+    console.error('Failed to repair task progress data:', error);
+    return {
+      success: false,
+      message: '修复失败：' + (error instanceof Error ? error.message : '未知错误'),
+      repairedCount: 0
+    };
+  }
+};
+

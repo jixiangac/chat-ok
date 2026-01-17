@@ -285,6 +285,14 @@ export class TaskMigration {
    * 获取当前周期
    */
   private static getCurrentCycle(legacy: LegacyTask): number {
+    // 从 cycle 字符串解析（如 "1/6"）
+    if (legacy.cycle && typeof legacy.cycle === 'string') {
+      const match = legacy.cycle.match(/^(\d+)\/\d+$/);
+      if (match) {
+        return parseInt(match[1], 10);
+      }
+    }
+    
     // 从 mainlineTask 获取
     if (legacy.mainlineTask?.cycleConfig?.currentCycle) {
       return legacy.mainlineTask.cycleConfig.currentCycle;
@@ -314,6 +322,12 @@ export class TaskMigration {
       if (status === 'COMPLETED' || status === 'ARCHIVED' || status === 'ACTIVE') {
         return status as TaskStatus;
       }
+    }
+    
+    // 根据 archivedAt 判断
+    const legacyAny = legacy as any;
+    if (legacyAny.archivedAt) {
+      return 'ARCHIVED';
     }
     
     // 根据 completed 字段判断
@@ -401,8 +415,14 @@ export class TaskMigration {
     // 检查任务是否已超过结束日期
     this.checkAndUpdateStatus(task, today);
     
-    // 计算当前周期编号
-    const currentCycleNumber = calculateCurrentCycleNumber(task);
+    // 计算当前周期编号（基于时间计算，不使用 task.cycle.currentCycle）
+    const startDate = new Date(task.time.startDate);
+    const todayDate = new Date(today);
+    const elapsedDays = Math.floor(
+      (todayDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
+    );
+    const calculatedCycleNumber = Math.floor(elapsedDays / task.cycle.cycleDays) + 1;
+    const currentCycleNumber = Math.min(Math.max(calculatedCycleNumber, 1), task.cycle.totalCycles);
     task.cycle.currentCycle = currentCycleNumber;
     
     // 根据任务类型计算进度
@@ -422,6 +442,9 @@ export class TaskMigration {
             cycleRemaining: Math.abs(progressData.currentCycleTarget - task.numericConfig.currentValue),
             lastUpdatedAt: now,
           };
+          
+          // 数值型任务也计算今日进度
+          task.todayProgress = this.calculateNumericTodayProgress(task, today);
         }
         break;
       }
@@ -490,6 +513,37 @@ export class TaskMigration {
       // 但这里保持原状态，只设置 isPlanEnded 标记
       // 让用户自己决定是否归档
     }
+  }
+
+  /**
+   * 计算数值型任务的今日进度
+   */
+  private static calculateNumericTodayProgress(task: Task, today: string): Task['todayProgress'] {
+    if (!task.numericConfig) return undefined;
+    
+    // 查找今日是否有更新记录
+    const todayActivities = task.activities.filter(
+      a => a.date === today && a.type === 'UPDATE_VALUE'
+    );
+    
+    const todayCount = todayActivities.length;
+    const todayValue = todayActivities.reduce((sum, a) => {
+      if (a.type === 'UPDATE_VALUE') {
+        return sum + Math.abs((a as any).delta || 0);
+      }
+      return sum;
+    }, 0);
+    
+    const dailyTarget = task.numericConfig.perDayAverage || 0;
+    
+    return {
+      canCheckIn: true, // 数值型任务总是可以更新
+      todayCount,
+      todayValue,
+      isCompleted: todayCount > 0,
+      dailyTarget,
+      lastUpdatedAt: dayjs().format('YYYY-MM-DD HH:mm:ss'),
+    };
   }
 
   /**
@@ -884,6 +938,8 @@ export function createTask(data: {
 }
 
 export default TaskMigration;
+
+
 
 
 

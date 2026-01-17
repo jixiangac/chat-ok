@@ -40,7 +40,7 @@ const SubPageLayout: React.FC<SubPageLayoutProps> = ({
     <div className={styles.container}>
       {/* 头图区域 */}
       <div className={styles.headerImage} style={headerBackground ? { background: headerBackground } : undefined}>
-        <button className={styles.backButton} onClick={onBack}>
+        <button className={styles.backButton} onClick={() => onBack()}>
           <ChevronLeft size={24} />
         </button>
         {rightAction && (
@@ -68,4 +68,5 @@ const SubPageLayout: React.FC<SubPageLayoutProps> = ({
 };
 
 export default SubPageLayout;
+
 

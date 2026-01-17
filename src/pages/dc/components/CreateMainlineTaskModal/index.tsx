@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import dayjs from 'dayjs';
 import { Popup, SafeArea } from 'antd-mobile';
-import type { MainlineTaskType, NumericDirection, CheckInUnit } from '../../types';
+import type { Category, NumericDirection, CheckInUnit } from '../../types';
 import { useTheme, useScene } from '../../contexts';
 import { getCurrentDate } from '../../utils';
 import type { Step, TaskCategory, CycleInfo, CreateMainlineTaskModalProps } from './types';
@@ -39,7 +39,7 @@ export default function CreateMainlineTaskModal({
   const [startDate, setStartDate] = useState(getCurrentDate());
   
   // 步骤2：类型选择
-  const [selectedType, setSelectedType] = useState<MainlineTaskType | null>(null);
+  const [selectedType, setSelectedType] = useState<Category | null>(null);
   
   // 步骤3：具体配置
   const [taskTitle, setTaskTitle] = useState('');

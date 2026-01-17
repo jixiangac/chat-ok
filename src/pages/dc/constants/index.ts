@@ -28,3 +28,7 @@ export {
   RESPECT_REDUCED_MOTION
 } from './animations';
 
+// 修仙等级体系常量
+export * from './cultivation';
+
+

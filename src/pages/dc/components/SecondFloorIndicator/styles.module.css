@@ -1,0 +1,124 @@
+/* 二楼下拉指示器样式 - 浅色主题 */
+
+.container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 1100;
+  /* 固定在顶部，适配安全区域 */
+  padding-top: calc(12px + env(safe-area-inset-top));
+}
+
+.indicator {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(55, 53, 47, 0.09);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.indicator.triggered {
+  /* 优化后的柔和绿色渐变 - 参考今日毕色系 */
+  background: linear-gradient(128deg, rgba(165, 190, 165, 0.92) 0%, rgba(145, 175, 145, 0.95) 100%);
+  box-shadow: 0 4px 20px rgba(145, 175, 145, 0.3);
+  border-color: transparent;
+}
+
+/* 图标区域 */
+.iconWrapper {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+}
+
+.progressRing {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.progressCircle {
+  transition: stroke-dasharray 0.15s ease-out, stroke 0.3s ease;
+}
+
+/* 箭头图标 */
+.arrowIcon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin-left: -10px;
+  margin-top: -10px;
+  color: rgba(55, 53, 47, 0.65);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s ease;
+}
+
+.indicator.triggered .arrowIcon {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.arrowIcon svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* 文字区域 */
+.textWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mainHint {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgb(55, 53, 47);
+  white-space: nowrap;
+  transition: color 0.3s ease;
+}
+
+.mainHint.triggered {
+  color: #FFFFFF;
+}
+
+.subHint {
+  font-size: 11px;
+  color: rgba(55, 53, 47, 0.5);
+  white-space: nowrap;
+}
+
+.indicator.triggered .subHint {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* 动画偏好 */
+@media (prefers-reduced-motion: reduce) {
+  .indicator {
+    transition: none;
+  }
+  
+  .progressCircle {
+    transition: none;
+  }
+  
+  .arrowIcon {
+    transition: none;
+  }
+  
+  .mainHint {
+    transition: none;
+  }
+}
+
+

@@ -159,3 +159,21 @@ export {
   type CycleUpdateInfo,
   type DailyResetResult
 } from './dailyDataReset';
+
+// 修仙等级体系工具
+export {
+  getLevelDisplayName,
+  getCurrentExpCap,
+  getCurrentLevelInfo,
+  getNextLevel,
+  getPreviousLevel,
+  isCrossRealmDemotion,
+  getSeclusionInfo,
+  getLevelIndex,
+  compareLevels,
+  generateCultivationId,
+  getWeekKey,
+  formatExp,
+  getRealmIconPath
+} from './cultivation';
+

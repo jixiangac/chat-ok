@@ -66,15 +66,24 @@ const UnifiedSettingsPanel: React.FC<UnifiedSettingsPanelProps> = ({
   }, [visible, isExiting, reset]);
 
   // 处理关闭动画 - 主页面右滑退出
-  const handleClose = useCallback(() => {
-    setIsExiting(true);
-    setPageAnimationState('closing');
-    setTimeout(() => {
+  // skipAnimation: 是否跳过动画（滑动关闭时已经有动画了，不需要再播放）
+  const handleClose = useCallback((skipAnimation?: boolean) => {
+    if (skipAnimation) {
+      // 滑动关闭：直接关闭，不需要动画（滑动已经完成了动画）
       setIsVisible(false);
-      setIsExiting(false);
       setPageAnimationState('idle');
       onClose();
-    }, 400);
+    } else {
+      // 点击关闭：播放退出动画
+      setIsExiting(true);
+      setPageAnimationState('closing');
+      setTimeout(() => {
+        setIsVisible(false);
+        setIsExiting(false);
+        setPageAnimationState('idle');
+        onClose();
+      }, 400);
+    }
   }, [onClose]);
 
   // 处理导航（进入子页面）
@@ -86,13 +95,21 @@ const UnifiedSettingsPanel: React.FC<UnifiedSettingsPanelProps> = ({
   }, [push]);
 
   // 处理返回（退出子页面）
-  const handleBack = useCallback(() => {
+  // skipAnimation: 是否跳过动画（滑动返回时已经有动画了，不需要再播放）
+  const handleBack = useCallback((skipAnimation?: boolean) => {
     if (canGoBack) {
-      setPageAnimationState('exiting');
-      setTimeout(() => {
+      if (skipAnimation) {
+        // 滑动返回：直接执行 pop，不需要动画（滑动已经完成了动画）
         pop();
         setPageAnimationState('idle');
-      }, 400);
+      } else {
+        // 点击返回：播放退出动画
+        setPageAnimationState('exiting');
+        setTimeout(() => {
+          pop();
+          setPageAnimationState('idle');
+        }, 400);
+      }
     } else {
       handleClose();
     }
@@ -100,13 +117,13 @@ const UnifiedSettingsPanel: React.FC<UnifiedSettingsPanelProps> = ({
 
   // 子页面手势返回支持
   const { pageRef: subPageRef } = useSwipeBack({
-    onBack: handleBack,
+    onBack: () => handleBack(true), // 滑动返回时跳过动画
     enabled: canGoBack,
   });
 
   // 主页面手势关闭支持
   const { pageRef: mainPageRef } = useSwipeBack({
-    onBack: handleClose,
+    onBack: () => handleClose(true), // 滑动关闭时跳过动画
     enabled: !canGoBack && isVisible && !isExiting,
   });
 
@@ -195,7 +212,7 @@ const UnifiedSettingsPanel: React.FC<UnifiedSettingsPanelProps> = ({
             {/* 主页面头部 - 只在主页面显示，使用返回箭头 */}
             {page.id === 'main' && (
               <div className={styles.header}>
-                <button className={styles.backButton} onClick={handleClose}>
+                <button className={styles.backButton} onClick={() => handleClose()}>
                   <ChevronLeft size={24} />
                 </button>
                 <h2 className={styles.title}>设置</h2>
@@ -218,3 +235,6 @@ const UnifiedSettingsPanel: React.FC<UnifiedSettingsPanelProps> = ({
 };
 
 export default UnifiedSettingsPanel;
+
+
+

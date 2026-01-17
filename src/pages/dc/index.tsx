@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState, useCallback } from 'react';
 import { Plus, Archive, Settings as SettingsIcon } from 'lucide-react';
 import { SafeArea } from 'antd-mobile';
 
@@ -11,6 +11,12 @@ import type { NormalPanelRef } from './panels/normal';
 // ViewModel - 直接消费 Provider 的组件
 import { MoonPhase, TodayMustCompleteModal } from './viewmodel';
 
+// Hooks
+import { usePullToSecondFloor } from './hooks/usePullToSecondFloor';
+
+// Components
+import SecondFloorIndicator from './components/SecondFloorIndicator';
+
 // Contexts - 新架构
 import { 
   AppProvider, 
@@ -21,8 +27,13 @@ import {
   UIProvider,
   useUIState, 
   useTaskContext,
-  useScene
+  useScene,
+  CultivationProvider,
+  useCultivation
 } from './contexts';
+
+// Cultivation
+import SecondFloorPanel from './panels/cultivation/SecondFloorPanel';
 
 // Styles
 import styles from './css/DCPage.module.css';
@@ -51,10 +62,45 @@ function DCPageContent() {
   // 任务状态（从 TaskProvider）
   const { setSelectedTaskId } = useTaskContext();
   
+  // 修仙状态（从 CultivationProvider）
+  const { data: cultivationData, breakthrough } = useCultivation();
+  
   // Panel refs
   const normalPanelRef = useRef<NormalPanelRef>(null);
   const happyPanelRef = useRef<HappyPanelRef>(null);
   const memorialPanelRef = useRef<MemorialPanelRef>(null);
+
+  // 二楼状态
+  const [pullProgress, setPullProgress] = useState(0);
+  const [pullStage, setPullStage] = useState<'idle' | 'first' | 'second'>('idle');
+
+  // 下拉进度回调
+  const handlePullProgress = useCallback((progress: number, stage: 'idle' | 'first' | 'second') => {
+    setPullProgress(progress);
+    setPullStage(stage);
+  }, []);
+
+  // 下拉进入二楼 Hook
+  const { 
+    containerProps, 
+    isPulling, 
+    isInSecondFloor,
+    pullDistance,
+    leaveSecondFloor 
+  } = usePullToSecondFloor({
+    firstThreshold: 80,
+    secondThreshold: 100,
+    maxPull: 100,
+    onProgress: handlePullProgress,
+    onEnterSecondFloor: () => {
+      console.log('进入修炼二楼');
+    },
+    onLeaveSecondFloor: () => {
+      console.log('离开修炼二楼');
+      setPullProgress(0);
+      setPullStage('idle');
+    },
+  });
 
   // 处理添加按钮点击 - 根据当前 tab 触发对应 panel 的添加功能
   const handleAddClick = () => {
@@ -66,6 +112,17 @@ function DCPageContent() {
       memorialPanelRef.current?.triggerAdd();
     }
   };
+
+  // 关闭修炼面板
+  const handleCloseCultivation = useCallback(() => {
+    leaveSecondFloor();
+  }, [leaveSecondFloor]);
+
+  // 处理突破
+  const handleBreakthrough = useCallback(() => {
+    const result = breakthrough();
+    console.log(result.message);
+  }, [breakthrough]);
 
   // 渲染 tab 对应的内容区域（小精灵下方的部分）
   const renderTabContent = () => {
@@ -84,70 +141,98 @@ function DCPageContent() {
   // 过滤显示的 tabs（不显示 okr）
   const displayTabs = tabs.filter(tab => tab.key !== 'okr');
 
+  // 计算主内容区域的位移和样式
+  const mainContentStyle: React.CSSProperties = {
+    transform: pullDistance > 0 ? `translateY(${pullDistance}px)` : 'none',
+    transition: isPulling ? 'none' : 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    backgroundColor: 'white',
+    borderRadius: pullDistance > 0 ? '20px 20px 0 0' : '0',
+    boxShadow: pullDistance > 0 ? '0 -4px 20px rgba(0, 0, 0, 0.15)' : 'none',
+    overflow: 'hidden',
+    position: 'relative',
+    zIndex: 1,
+  };
+
   return (
-    <div className={styles.container}>
-      {/* Header */}
-      <div className={styles.header}>
-        <div className={styles.headerContent}>
-          {/* Tab 导航 */}
-          <div className={styles.tabNav}>
-            {displayTabs.map((tab) => (
-              <button
-                key={tab.key}
-                onClick={() => setActiveTab(tab.key as TabKey)}
-                className={`${styles.tabButton} ${activeTab === tab.key ? styles.active : styles.inactive}`}
+    <div className={styles.container} {...containerProps}>
+      {/* 二楼下拉指示器 */}
+      <SecondFloorIndicator
+        progress={pullProgress}
+        stage={pullStage}
+        isPulling={isPulling}
+        firstHint="查看等级修为"
+        secondHint="查看等级修为"
+        triggeredHint="进入二层楼"
+      />
+
+      {/* 主内容区域 - 下拉时跟随移动 */}
+      <div style={mainContentStyle}>
+        {/* Header */}
+        <div className={styles.header}>
+          <div className={styles.headerContent}>
+            {/* Tab 导航 */}
+            <div className={styles.tabNav}>
+              {displayTabs.map((tab) => (
+                <button
+                  key={tab.key}
+                  onClick={() => setActiveTab(tab.key as TabKey)}
+                  className={`${styles.tabButton} ${activeTab === tab.key ? styles.active : styles.inactive}`}
+                >
+                  {tab.label}
+                  <span className={`${styles.tabIndicator} ${activeTab === tab.key ? styles.active : styles.inactive}`} />
+                </button>
+              ))}
+            </div>
+
+            {/* 右侧按钮 */}
+            <div className={styles.headerActions}>
+              <button 
+                onClick={openArchive}
+                className={styles.iconButton}
+                title="归档任务"
               >
-                {tab.label}
-                <span className={`${styles.tabIndicator} ${activeTab === tab.key ? styles.active : styles.inactive}`} />
+                <Archive size={18} />
               </button>
-            ))}
-          </div>
-
-          {/* 右侧按钮 */}
-          <div className={styles.headerActions}>
-            <button 
-              onClick={openArchive}
-              className={styles.iconButton}
-              title="归档任务"
-            >
-              <Archive size={18} />
-            </button>
-            <button 
-              onClick={handleAddClick}
-              className={styles.iconButton}
-              title="新增"
-            >
-              <Plus size={18} />
-            </button>
-            <button 
-              onClick={openSettings}
-              className={styles.iconButton}
-              title="设置"
-            >
-              <SettingsIcon size={18} />
-            </button>
+              <button 
+                onClick={handleAddClick}
+                className={styles.iconButton}
+                title="新增"
+              >
+                <Plus size={18} />
+              </button>
+              <button 
+                onClick={openSettings}
+                className={styles.iconButton}
+                title="设置"
+              >
+                <SettingsIcon size={18} />
+              </button>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Content */}
-      <div className={`${styles.content} ${activeTab === 'normal' ? styles.contentWithBottomBar : ''}`}>
-        {/* 小精灵区域 - 固定不滚动 */}
-        <div className={styles.spriteSection}>
-          {/* 小精灵区域 */}
+        {/* Content */}
+        <div className={`${styles.content} ${activeTab === 'normal' ? styles.contentWithBottomBar : ''}`}>
+          {/* 小精灵区域 - 固定不滚动 */}
+          <div className={styles.spriteSection}>
+            {/* 小精灵区域 */}
             <div className={styles.moonPhaseWrapper}>
-            <MoonPhase />
+              <MoonPhase />
+            </div>
+            <img 
+              src={spriteImage} 
+              alt="可爱的小精灵"
+              className={styles.spriteImage}
+            />
           </div>
-          <img 
-            src={spriteImage} 
-            alt="可爱的小精灵"
-            className={styles.spriteImage}
-          />
-        </div>
 
-        {/* Tab 对应的内容 - 可滚动区域 */}
-        <div className={styles.tabContent}>
-          {renderTabContent()}
+          {/* Tab 对应的内容 - 可滚动区域 */}
+          <div className={styles.tabContent}>
+            {renderTabContent()}
+          </div>
         </div>
       </div>
 
@@ -169,6 +254,14 @@ function DCPageContent() {
 
       {/* 今日必须完成弹窗 - 直接消费 Provider 数据 */}
       <TodayMustCompleteModal />
+
+      {/* 二楼修炼面板 */}
+      <SecondFloorPanel
+        data={cultivationData}
+        visible={isInSecondFloor}
+        onClose={handleCloseCultivation}
+        onBreakthrough={handleBreakthrough}
+      />
 
       {/* 底部安全区域 */}
       <SafeArea position="bottom" />
@@ -193,21 +286,16 @@ export default function DCPage() {
       <WorldProvider>
         <UserProvider>
           <UIProvider>
-            <SceneProvider>
-              <TaskProvider>
-                <DCPageContent />
-              </TaskProvider>
-            </SceneProvider>
+            <CultivationProvider>
+              <SceneProvider>
+                <TaskProvider>
+                  <DCPageContent />
+                </TaskProvider>
+              </SceneProvider>
+            </CultivationProvider>
           </UIProvider>
         </UserProvider>
       </WorldProvider>
     </AppProvider>
   );
 }
-
-
-
-
-
-
-

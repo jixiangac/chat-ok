@@ -1,0 +1,146 @@
+/* 修炼入口组件样式 */
+
+.entry {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background-color: #FFFFFF;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+}
+
+.entry:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: var(--realm-color-light);
+}
+
+.entry:active {
+  transform: scale(0.98);
+}
+
+/* 境界图标 */
+.realmIcon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--realm-color) 0%, var(--realm-color-light) 100%);
+  color: #FFFFFF;
+}
+
+.realmIcon svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* 信息区域 */
+.info {
+  flex: 1;
+  min-width: 0;
+}
+
+.levelName {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1E293B;
+  margin: 0 0 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.expInfo {
+  font-size: 12px;
+  color: #64748B;
+}
+
+/* 进度条 */
+.progressWrapper {
+  width: 60px;
+}
+
+.progressBar {
+  height: 6px;
+  background-color: #E2E8F0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--realm-color) 0%, var(--realm-color-light) 100%);
+  transition: width 0.3s ease;
+}
+
+.progressText {
+  font-size: 10px;
+  color: #94A3B8;
+  text-align: right;
+  margin-top: 2px;
+}
+
+/* 箭头 */
+.arrow {
+  width: 20px;
+  height: 20px;
+  color: #CBD5E1;
+  flex-shrink: 0;
+}
+
+/* 紧凑模式 */
+.compact {
+  padding: 8px 12px;
+  gap: 8px;
+}
+
+.compact .realmIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+}
+
+.compact .realmIcon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.compact .levelName {
+  font-size: 13px;
+}
+
+.compact .expInfo {
+  font-size: 11px;
+}
+
+.compact .progressWrapper {
+  width: 50px;
+}
+
+.compact .progressBar {
+  height: 4px;
+}
+
+/* 闭关状态 */
+.seclusionBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background-color: #FEF3C7;
+  border-radius: 10px;
+  font-size: 10px;
+  color: #D97706;
+  margin-left: 8px;
+}
+
+.seclusionBadge svg {
+  width: 12px;
+  height: 12px;
+}

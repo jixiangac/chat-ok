@@ -12,6 +12,23 @@
   flex-direction: column;
   /* 隔离外部样式影响 */
   color: #333;
+  /* 防止过度滚动的默认行为 */
+  overscroll-behavior: contain;
+  /* 二楼背景 - 下拉时显示 */
+  position: relative;
+}
+
+/* 二楼背景层 - 浅色主题 */
+.container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 300px;
+  background: linear-gradient(180deg, #f7f7f5 0%, #f0f0ee 60%, transparent 100%);
+  z-index: -1;
+  pointer-events: none;
 }
 
 /* 重置 DC 页面内的 a 标签和 svg 样式 */
@@ -372,6 +389,3 @@
     transform: translateY(0);
   }
 }
-
-
-

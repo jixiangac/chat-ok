@@ -1,0 +1,404 @@
+/* 修炼面板样式 - 基于图3的现代极简风格 */
+
+/* ============ 面板容器 ============ */
+.panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #F8FAFC;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* ============ 顶部导航栏 ============ */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background-color: transparent;
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+  border: none;
+  background-color: transparent;
+  color: #64748B;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.backButton:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: #1E293B;
+}
+
+.backButton svg {
+  width: 20px;
+  height: 20px;
+}
+
+.detailButton {
+  padding: 8px 16px;
+  border: none;
+  background-color: transparent;
+  color: #64748B;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.detailButton:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: #1E293B;
+}
+
+/* ============ 主内容区域 ============ */
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 0 20px 24px;
+  overflow-y: auto;
+}
+
+/* ============ 境界徽章区域 ============ */
+.realmSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 0 24px;
+}
+
+.realmBadge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 32px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, var(--realm-color) 0%, var(--realm-color-light) 100%);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  animation: fadeInScale 0.4s ease-out 0.1s both;
+}
+
+@keyframes fadeInScale {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.realmIcon {
+  width: 32px;
+  height: 32px;
+  margin-bottom: 8px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.realmName {
+  font-size: 22px;
+  font-weight: 600;
+  color: #FFFFFF;
+  margin: 0 0 4px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.realmStage {
+  font-size: 14px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* ============ 角色意象展示区 ============ */
+.characterSection {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  max-height: 300px;
+  margin: 16px 0;
+  position: relative;
+}
+
+.characterBackground {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+  background: radial-gradient(circle at center, var(--realm-color-light) 0%, transparent 70%);
+  opacity: 0.15;
+}
+
+.characterImage {
+  position: relative;
+  z-index: 1;
+  width: 180px;
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.meditationFigure {
+  width: 100%;
+  height: 100%;
+  opacity: 0.8;
+}
+
+/* 打坐人物 SVG 样式 */
+.meditationFigure path {
+  fill: var(--realm-color);
+}
+
+/* ============ 进度区域 ============ */
+.progressSection {
+  padding: 24px;
+  background-color: #FFFFFF;
+  border-radius: 20px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  margin-bottom: 16px;
+}
+
+.progressHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.progressLabel {
+  font-size: 14px;
+  font-weight: 500;
+  color: #64748B;
+}
+
+.progressValue {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1E293B;
+}
+
+.progressBar {
+  height: 12px;
+  background-color: #E2E8F0;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 6px;
+  background: linear-gradient(90deg, var(--realm-color) 0%, var(--realm-color-light) 100%);
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.progressHint {
+  font-size: 13px;
+  color: #94A3B8;
+  text-align: center;
+}
+
+.progressHint.canBreakthrough {
+  color: var(--realm-color);
+  font-weight: 500;
+}
+
+/* ============ 统计卡片 ============ */
+.statsSection {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.statCard {
+  padding: 16px;
+  background-color: #FFFFFF;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.statLabel {
+  font-size: 12px;
+  color: #94A3B8;
+  margin-bottom: 4px;
+}
+
+.statValue {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1E293B;
+}
+
+.statUnit {
+  font-size: 12px;
+  font-weight: 400;
+  color: #64748B;
+  margin-left: 2px;
+}
+
+/* ============ 操作按钮 ============ */
+.actionSection {
+  padding: 0 20px 24px;
+}
+
+.breakthroughButton {
+  width: 100%;
+  padding: 16px 24px;
+  border: none;
+  border-radius: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.breakthroughButton.active {
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  color: #FFFFFF;
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+}
+
+.breakthroughButton.active:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+}
+
+.breakthroughButton.active:active {
+  transform: translateY(0);
+}
+
+.breakthroughButton.disabled {
+  background-color: #F1F5F9;
+  color: #94A3B8;
+  cursor: not-allowed;
+}
+
+.breakthroughButton svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* ============ 闭关状态 ============ */
+.seclusionBanner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+  border-radius: 16px;
+  margin-bottom: 16px;
+}
+
+.seclusionIcon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(245, 158, 11, 0.2);
+  border-radius: 12px;
+  color: #D97706;
+}
+
+.seclusionIcon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.seclusionInfo {
+  flex: 1;
+}
+
+.seclusionTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: #92400E;
+  margin-bottom: 2px;
+}
+
+.seclusionDesc {
+  font-size: 12px;
+  color: #B45309;
+}
+
+/* ============ 响应式设计 ============ */
+@media (min-width: 768px) {
+  .content {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 0 24px 32px;
+  }
+  
+  .realmBadge {
+    padding: 24px 40px;
+  }
+  
+  .realmName {
+    font-size: 26px;
+  }
+  
+  .characterSection {
+    max-height: 350px;
+  }
+  
+  .characterImage {
+    width: 220px;
+    height: 220px;
+  }
+}
+
+/* ============ 动画偏好 ============ */
+@media (prefers-reduced-motion: reduce) {
+  .panel {
+    animation: none;
+  }
+  
+  .realmBadge {
+    animation: none;
+  }
+  
+  .progressFill {
+    transition: none;
+  }
+  
+  .breakthroughButton {
+    transition: none;
+  }
+}

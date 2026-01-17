@@ -1,4 +1,4 @@
-import type { TaskType, Priority, MainlineTaskType, NumericConfig, ChecklistConfig, CheckInConfig, ProgressInfo, CycleConfig } from '../../types';
+import type { TaskType, Priority, Category, NumericConfig, ChecklistConfig, CheckInConfig, ProgressInfo, CycleConfig } from '../../types';
 
 export interface GoalDetailModalProps {
   visible: boolean;
@@ -32,7 +32,7 @@ export interface GoalDetail {
   priority?: Priority;
   
   // 主线任务类型
-  mainlineType?: MainlineTaskType;
+  mainlineType?: Category;
   
   // 周期配置
   totalDays: number;
@@ -146,15 +146,13 @@ export interface TabBarProps {
   onChange: (tab: 'cycle' | 'records') => void;
 }
 
-export interface CurrentCyclePanelProps {
-  cycle: CurrentCycleInfo;
-}
-
 export interface CheckInRecordPanelProps {
   records: CheckIn[];
   cycleStartDate: string;
   cycleEndDate: string;
 }
+
+
 
 
 

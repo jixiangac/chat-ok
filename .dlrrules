@@ -5,6 +5,12 @@
 1. 尽量使用 antd-mobile 组件库，除非需要特别定制
 2. 如果需要使用其他组件库，必须先申请
 
+## 目标管理界面相关的
+
+项目基础信息：
+- `openspec/dc-module.md`
+- `openspec/project.md`
+
 ### antd-mobile 组件使用规范
 
 优先使用以下 antd-mobile 组件：

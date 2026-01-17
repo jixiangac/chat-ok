@@ -62,6 +62,14 @@ export { themePresets as themePresetsLegacy } from './AppProvider';
 // 旧版 UIStateContext 兼容
 export { useUIState as useUIStateLegacy } from './UIProvider/hooks';
 
+// ========== CultivationProvider ==========
+export { CultivationProvider, useCultivation } from './CultivationProvider';
+export type { 
+  CultivationContextValue, 
+  ExpChangeParams, 
+  BreakthroughResult, 
+  SeclusionResult 
+} from './CultivationProvider/types';
 
 
 

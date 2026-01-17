@@ -45,7 +45,6 @@ function buildCurrentCycleInfo(task: Task): CurrentCycleInfo {
   
   // 获取本周期的打卡记录
   let checkInDates: string[] = [];
-  let checkInCount = 0;
   
   if (checkInConfig?.records) {
     const cycleStart = dayjs(cycleStartDate);
@@ -59,9 +58,11 @@ function buildCurrentCycleInfo(task: Task): CurrentCycleInfo {
                r.checked;
       })
       .map(r => r.date);
-    
-    checkInCount = checkInDates.length;
   }
+  
+  // 直接使用 task.progress.cycleAchieved，这是在 TaskProvider 中已经正确计算的周期打卡次数
+  // 对于 TIMES 类型，cycleAchieved 统计的是 entries 的总数量，而不是天数
+  const checkInCount = progress.cycleAchieved || 0;
   
   return {
     cycleNumber: cycle.currentCycle,
@@ -490,3 +491,4 @@ export default function GoalDetailModal({
     </Popup>
   );
 }
+

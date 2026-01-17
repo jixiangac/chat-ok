@@ -18,6 +18,15 @@ export { default as CreateGoalModal } from './CreateGoalModal';
 // Migration Components - 数据迁移组件
 export { default as MigrationModal } from './MigrationModal';
 
+// Cultivation Components - 修仙等级组件
+export { default as CultivationEntry } from './CultivationEntry';
+
+// Pull Indicator - 下拉指示器
+export { default as PullIndicator } from './PullIndicator';
+
+// Second Floor Indicator - 二楼下拉指示器
+export { default as SecondFloorIndicator } from './SecondFloorIndicator';
+
 // 注意：以下组件已迁移到 viewmodel 目录，因为它们直接消费 Provider 数据
 // - MoonPhase
 // - TodayProgress
@@ -29,5 +38,3 @@ export { default as MigrationModal } from './MigrationModal';
 // - GroupCard
 // - GroupModeGrid
 // - TodayMustCompleteModal
-
-

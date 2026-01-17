@@ -1,0 +1,273 @@
+/* 二楼修炼面板样式 - 采用设置列表高亮今日毕色系 */
+
+/* ============ 面板容器 ============ */
+.panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  /* 采用今日毕高亮色系 */
+  background: linear-gradient(180deg, #F1F1E8 0%, #E8F0E8 100%);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  animation: slideDown 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.panel.closing {
+  animation: none;
+}
+
+/* ============ 顶部导航栏 ============ */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  padding-top: calc(12px + env(safe-area-inset-top));
+  background-color: transparent;
+  flex-shrink: 0;
+}
+
+.backButton {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background-color: transparent;
+  color: rgb(55, 53, 47);
+  cursor: pointer;
+  border-radius: 12px;
+  transition: all 0.2s;
+  margin-left: -8px;
+}
+
+.backButton:hover {
+  background-color: rgba(55, 53, 47, 0.06);
+}
+
+.backButton:active {
+  transform: scale(0.95);
+}
+
+.headerTitle {
+  font-size: 17px;
+  font-weight: 600;
+  color: rgb(55, 53, 47);
+  flex: 1;
+  text-align: center;
+}
+
+.headerPlaceholder {
+  width: 40px;
+  height: 40px;
+  margin-right: -8px;
+}
+
+/* ============ 主内容区域 ============ */
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ============ 右上角 - 等级徽章 ============ */
+.levelBadge {
+  position: absolute;
+  top: 16px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  padding: 12px 16px;
+  border-radius: 16px;
+  /* 优化后的清新绿色渐变 - 更柔和的薄荷绿色系 */
+  background: linear-gradient(128deg, rgba(200, 220, 200, 0.45) 0%, rgba(180, 200, 175, 0.55) 100%);
+  box-shadow: 0 2px 8px rgba(160, 180, 160, 0.15);
+  backdrop-filter: blur(8px);
+  z-index: 5;
+  animation: fadeInRight 0.5s ease-out 0.2s both;
+}
+
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.levelName {
+font-size: 18px;
+    font-weight: 700;
+    color: rgb(91 88 78);
+    width: 15px;
+    margin: 24px auto;
+}
+
+.levelStage {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(55, 53, 47, 0.7);
+}
+
+/* ============ 中间 - 大图展示区 ============ */
+.characterSection {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+  position: relative;
+}
+
+.characterImage {
+  width: 640px;
+  max-width: 640px;
+  height: auto;
+  max-height: 55vh;
+  object-fit: contain;
+  animation: fadeInScale 0.6s ease-out 0.1s both;
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ============ 底部 - 进度条区域 ============ */
+.progressSection {
+  padding: 24px 82px;
+  background: transparent;
+  position: relative;
+  top: -100px;
+}
+
+.progressBar {
+  height: 8px;
+  background-color: rgba(55, 53, 47, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 12px;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.progressInfo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.progressText {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(55, 53, 47, 0.6);
+}
+
+/* ============ 底部区域 ============ */
+.footer {
+  flex-shrink: 0;
+  padding: 16px 24px 24px;
+  padding-bottom: calc(24px + env(safe-area-inset-bottom));
+  background-color: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.swipeHint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  color: rgb(55 53 47 / 15%);
+  font-size: 13px;
+}
+
+.swipeHint::before {
+  content: '';
+  width: 32px;
+  height: 1.5px;
+  background: rgb(106 104 98 / 16%);
+  border-radius: 2px;
+}
+.swipeHint::after {
+  content: '';
+  width: 32px;
+  height: 1.5px;
+  background: rgb(106 104 98 / 16%);
+  border-radius: 2px;
+}
+
+/* ============ 响应式设计 ============ */
+@media (min-width: 768px) {
+  .characterImage {
+    max-width: 600px;
+    max-height: 50vh;
+  }
+  
+  .levelBadge {
+    top: 24px;
+    right: 40px;
+  }
+  
+  .progressSection {
+    max-width: 480px;
+    margin: 0 auto;
+    width: 100%;
+  }
+}
+
+/* ============ 动画偏好 ============ */
+@media (prefers-reduced-motion: reduce) {
+  .panel {
+    animation: none;
+  }
+  
+  .characterImage,
+  .levelBadge {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+  
+  .progressFill {
+    transition: none;
+  }
+  
+  .backButton {
+    transition: none;
+  }
+}
+

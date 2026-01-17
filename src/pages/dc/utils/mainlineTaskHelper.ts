@@ -226,15 +226,18 @@ export function calculateCheckInProgress(mainlineTask: MainlineTask): {
   currentCycleEndDate.setDate(startDate.getDate() + currentCycleEndDay);
 
   // 统计本周期打卡次数
+  // 对于1日多次打卡，统计所有 entries 的数量，而不是 records 的数量
   const currentCycleCheckIns = records?.filter(record => {
     const recordDate = new Date(record.date);
     return record.checked && 
            recordDate >= currentCycleStartDate && 
            recordDate < currentCycleEndDate;
-  }).length || 0;
+  }).reduce((sum, record) => sum + (record.entries?.length || 1), 0) || 0;
 
   // 统计总打卡次数
-  const totalCheckIns = records?.filter(record => record.checked).length || 0;
+  // 对于1日多次打卡，统计所有 entries 的数量，而不是 records 的数量
+  const totalCheckIns = records?.filter(record => record.checked)
+    .reduce((sum, record) => sum + (record.entries?.length || 1), 0) || 0;
 
   // 计算进度
   const cycleProgress = Math.min(100, Math.round((currentCycleCheckIns / perCycleTarget) * 100));
@@ -398,4 +401,5 @@ export function calculateCurrentCycleNumber(task: Task): number {
   // 当前周期编号 = max(基于模拟时间的周期, 快照数+1)，但不超过总周期数
   return Math.min(Math.max(calculatedCycleNumber, snapshotCount + 1), totalCycles);
 }
+
 

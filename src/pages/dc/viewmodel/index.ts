@@ -15,6 +15,10 @@ export { default as SidelineTaskGrid } from './SidelineTaskGrid';
 export { default as SidelineTaskSection } from './SidelineTaskSection';
 export { default as MainlineTaskSection } from './MainlineTaskSection';
 export { default as CreateTaskModal } from './CreateTaskModal';
+// CultivationSection 需要单独导入以避免循环依赖
+// import CultivationSection from './viewmodel/CultivationSection';
+
+
 
 
 

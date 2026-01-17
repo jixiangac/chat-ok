@@ -293,10 +293,12 @@ export function TaskProvider({ children }: TaskProviderProps) {
 
     if (todayRecordIndex >= 0) {
       // 更新今日记录
+      // 确保 entries 数组存在，如果不存在则初始化为空数组
+      const existingEntries = records[todayRecordIndex].entries || [];
       records[todayRecordIndex] = {
         ...records[todayRecordIndex],
         checked: true,
-        entries: [...records[todayRecordIndex].entries, newEntry],
+        entries: [...existingEntries, newEntry],
         totalValue: (records[todayRecordIndex].totalValue || 0) + (entry.value || 1),
       };
     } else {
@@ -507,10 +509,12 @@ export function TaskProvider({ children }: TaskProviderProps) {
       const todayRecordIndex = records.findIndex(r => r.date === simulatedToday);
       
       if (todayRecordIndex >= 0) {
+        // 确保 entries 数组存在，如果不存在则初始化为空数组
+        const existingEntries = records[todayRecordIndex].entries || [];
         records[todayRecordIndex] = {
           ...records[todayRecordIndex],
           checked: true,
-          entries: [...records[todayRecordIndex].entries, newEntry],
+          entries: [...existingEntries, newEntry],
           totalValue: (records[todayRecordIndex].totalValue || 0) + (value || 1),
         };
       } else {
@@ -562,8 +566,9 @@ export function TaskProvider({ children }: TaskProviderProps) {
         let totalValue: number;
 
         if (unit === 'TIMES') {
-          currentCycleValue = cycleRecords.reduce((sum, r) => sum + r.entries.length, 0);
-          totalValue = records.filter(r => r.checked).reduce((sum, r) => sum + r.entries.length, 0);
+          // 确保 entries 数组存在，如果不存在则默认计为1次
+          currentCycleValue = cycleRecords.reduce((sum, r) => sum + (r.entries?.length || 1), 0);
+          totalValue = records.filter(r => r.checked).reduce((sum, r) => sum + (r.entries?.length || 1), 0);
         } else {
           currentCycleValue = cycleRecords.reduce((sum, r) => sum + (r.totalValue || 0), 0);
           totalValue = records.filter(r => r.checked).reduce((sum, r) => sum + (r.totalValue || 0), 0);
@@ -1583,3 +1588,6 @@ export function useTaskContext(): TaskContextValue {
 }
 
 export type { TaskContextValue, HistoryRecord, CycleInfo, TodayCheckInStatus, GoalDetailData } from './types';
+
+
+

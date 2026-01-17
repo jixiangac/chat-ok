@@ -70,14 +70,17 @@
 
 /* 进入中的页面 - 从右侧滑入 */
 .pageLayerEntering {
-  transform: translateX(100%);
   z-index: 2;
+  /* 禁用 transition，让 animation 完全控制 */
+  transition: none;
   animation: slideInFromRight 0.4s ease-out forwards;
 }
 
 /* 退出中的页面 - 向右滑出 */
 .pageLayerExiting {
   z-index: 2;
+  /* 禁用 transition，让 animation 完全控制 */
+  transition: none;
   animation: slideOutToRight 0.4s ease-in forwards;
 }
 
@@ -244,3 +247,6 @@
     border-radius: 16px;
   }
 }
+
+
+

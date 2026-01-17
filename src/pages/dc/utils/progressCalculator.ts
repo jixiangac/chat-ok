@@ -211,8 +211,13 @@ export class ProgressCalculator {
 
     if (unit === 'TIMES') {
       perCycleTarget = config.cycleTargetTimes || perCycleTarget;
-      totalValue = config.records.filter(r => r.checked).length;
-      cycleValue = cycleRecords.filter(r => r.checked).length;
+      // 对于1日多次打卡，统计所有 entries 的数量，而不是 records 的数量
+      totalValue = config.records
+        .filter(r => r.checked)
+        .reduce((sum, r) => sum + (r.entries?.length || 1), 0);
+      cycleValue = cycleRecords
+        .filter(r => r.checked)
+        .reduce((sum, r) => sum + (r.entries?.length || 1), 0);
     } else if (unit === 'DURATION') {
       perCycleTarget = config.cycleTargetMinutes || perCycleTarget;
       totalValue = config.records.reduce((sum, r) => sum + (r.totalValue || 0), 0);
@@ -479,3 +484,4 @@ export default ProgressCalculator;
 
 // 兼容旧版导出
 export { getEffectiveCategory as getEffectiveMainlineType };
+

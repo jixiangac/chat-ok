@@ -215,7 +215,7 @@ const DataManagementPage: React.FC<DataManagementPageProps> = ({
       headerBackground={DATA_HEADER_BACKGROUND}
       onBack={onBack}
     >
-      <div className={styles.container}>
+      <div className={styles.container} style={{marginTop: '12px'}}>
         {(Object.keys(DATA_TYPE_CONFIG) as DataType[]).map(dataType => {
           const config = DATA_TYPE_CONFIG[dataType];
           const stats = dataStats[dataType];
@@ -255,7 +255,7 @@ const DataManagementPage: React.FC<DataManagementPageProps> = ({
         })}
 
         {/* 数据修复区域 */}
-        <div className={styles.repairSection}>
+        {/* <div className={styles.repairSection}>
           <div className={styles.repairHeader}>
             <Wrench size={18} />
             <span>数据修复</span>
@@ -296,7 +296,7 @@ const DataManagementPage: React.FC<DataManagementPageProps> = ({
               <Archive size={14} /> 迁移
             </button>
           </div>
-        </div>
+        </div> */}
 
         <div className={styles.tips}>
           <p>提示：</p>

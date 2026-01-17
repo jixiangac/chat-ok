@@ -20,3 +20,8 @@ export type { MemorialPanelRef } from './memorial';
 export { default as NormalPanel } from './normal';
 export type { NormalPanelRef } from './normal';
 
+// Cultivation Panel
+export { default as CultivationPanel } from './cultivation';
+export type { CultivationPanelRef, CultivationPanelProps } from './cultivation';
+
+

@@ -36,7 +36,6 @@ import * as dc_panels_settings_components_SettingsListItem from '@/pages/dc/pane
 import * as dc_panels_settings_pages_TodayMustCompletePage from '@/pages/dc/panels/settings/pages/TodayMustCompletePage/index';
 import * as dc_panels_detail_components_CalendarViewPanel from '@/pages/dc/panels/detail/components/CalendarViewPanel/index';
 import * as dc_panels_detail_components_CheckInCyclePanel from '@/pages/dc/panels/detail/components/CheckInCyclePanel/index';
-import * as dc_panels_detail_components_CurrentCyclePanel from '@/pages/dc/panels/detail/components/CurrentCyclePanel/index';
 import * as dc_panels_detail_components_HistoryCyclePanel from '@/pages/dc/panels/detail/components/HistoryCyclePanel/index';
 import * as dc_panels_detail_components_NumericCyclePanel from '@/pages/dc/panels/detail/components/NumericCyclePanel/index';
 import * as dc_panels_settings_components_SettingsSection from '@/pages/dc/panels/settings/components/SettingsSection/index';
@@ -74,26 +73,33 @@ import * as dc_components_shared_CircleProgress from '@/pages/dc/components/shar
 import * as dc_panels_happy_components_GoalCard from '@/pages/dc/panels/happy/components/GoalCard/index';
 import * as dc_panels_happy_components_TripList from '@/pages/dc/panels/happy/components/TripList/index';
 import * as dc_viewmodel_TodayMustCompleteModal from '@/pages/dc/viewmodel/TodayMustCompleteModal/index';
+import * as dc_components_SecondFloorIndicator from '@/pages/dc/components/SecondFloorIndicator/index';
 import * as dc_panels_detail_components_TabBar from '@/pages/dc/panels/detail/components/TabBar/index';
 import * as dc_panels_happy_components_DayTabs from '@/pages/dc/panels/happy/components/DayTabs/index';
 import * as dc_panels_happy_contexts_VacationContext from '@/pages/dc/panels/happy/contexts/VacationContext';
 import * as dc_panels_memorial_constants_backgrounds from '@/pages/dc/panels/memorial/constants/backgrounds';
 import * as dc_viewmodel_CreateTaskModal_steps from '@/pages/dc/viewmodel/CreateTaskModal/steps/index';
 import * as dc_components_CreateGoalModal_constants from '@/pages/dc/components/CreateGoalModal/constants';
+import * as dc_contexts_CultivationProvider_storage from '@/pages/dc/contexts/CultivationProvider/storage';
 import * as dc_panels_happy_hooks_useTripNavigation from '@/pages/dc/panels/happy/hooks/useTripNavigation';
 import * as dc_panels_memorial_utils_dateCalculator from '@/pages/dc/panels/memorial/utils/dateCalculator';
 import * as dc_viewmodel_AllSidelineTasksList from '@/pages/dc/viewmodel/AllSidelineTasksList/index';
 import * as dc_components_shared_ProgressBar from '@/pages/dc/components/shared/ProgressBar/index';
 import * as dc_contexts_SceneProvider_cacheManager from '@/pages/dc/contexts/SceneProvider/cacheManager';
 import * as dc_contexts_SceneProvider_indexBuilder from '@/pages/dc/contexts/SceneProvider/indexBuilder';
+import * as dc_panels_cultivation_SecondFloorPanel from '@/pages/dc/panels/cultivation/SecondFloorPanel';
 import * as dc_panels_memorial_hooks_useDateFormat from '@/pages/dc/panels/memorial/hooks/useDateFormat';
 import * as dc_panels_settings_ThemeSettings from '@/pages/dc/panels/settings/ThemeSettings/index';
 import * as dc_viewmodel_CreateTaskModal_constants from '@/pages/dc/viewmodel/CreateTaskModal/constants';
 import * as dc_viewmodel_MainlineTaskSection from '@/pages/dc/viewmodel/MainlineTaskSection/index';
 import * as dc_viewmodel_SidelineTaskSection from '@/pages/dc/viewmodel/SidelineTaskSection/index';
+import * as dc_contexts_CultivationProvider from '@/pages/dc/contexts/CultivationProvider/index';
+import * as dc_contexts_CultivationProvider_types from '@/pages/dc/contexts/CultivationProvider/types';
 import * as dc_panels_memorial_hooks_useMemorials from '@/pages/dc/panels/memorial/hooks/useMemorials';
 import * as dc_panels_settings_hooks_usePageStack from '@/pages/dc/panels/settings/hooks/usePageStack';
 import * as dc_panels_settings_hooks_useSwipeBack from '@/pages/dc/panels/settings/hooks/useSwipeBack';
+import * as dc_viewmodel_CultivationSection from '@/pages/dc/viewmodel/CultivationSection/index';
+import * as dc_components_CultivationEntry from '@/pages/dc/components/CultivationEntry/index';
 import * as dc_components_GroupDetailPopup from '@/pages/dc/components/GroupDetailPopup/index';
 import * as dc_panels_detail_hooks_checkInStatus from '@/pages/dc/panels/detail/hooks/checkInStatus';
 import * as dc_panels_happy_utils_scheduleHelper from '@/pages/dc/panels/happy/utils/scheduleHelper';
@@ -114,6 +120,7 @@ import * as dc_panels_memorial_constants from '@/pages/dc/panels/memorial/consta
 import * as dc_viewmodel_CreateTaskModal from '@/pages/dc/viewmodel/CreateTaskModal/index';
 import * as dc_viewmodel_CreateTaskModal_types from '@/pages/dc/viewmodel/CreateTaskModal/types';
 import * as dc_components_DailyProgress from '@/pages/dc/components/DailyProgress/index';
+import * as dc_components_PullIndicator from '@/pages/dc/components/PullIndicator/index';
 import * as dc_contexts_SceneProvider_storage from '@/pages/dc/contexts/SceneProvider/storage';
 import * as dc_panels_detail_components from '@/pages/dc/panels/detail/components/index';
 import * as dc_panels_happy_hooks_useSchedule from '@/pages/dc/panels/happy/hooks/useSchedule';
@@ -147,6 +154,7 @@ import * as dc_panels_settings_hooks from '@/pages/dc/panels/settings/hooks/inde
 import * as dc_panels_settings_pages from '@/pages/dc/panels/settings/pages/index';
 import * as dc_contexts_AppProvider from '@/pages/dc/contexts/AppProvider/index';
 import * as dc_contexts_AppProvider_types from '@/pages/dc/contexts/AppProvider/types';
+import * as dc_hooks_usePullToSecondFloor from '@/pages/dc/hooks/usePullToSecondFloor';
 import * as dc_hooks_useTodayMustComplete from '@/pages/dc/hooks/useTodayMustComplete';
 import * as dc_contexts_UIProvider_hooks from '@/pages/dc/contexts/UIProvider/hooks';
 import * as dc_contexts_UIProvider from '@/pages/dc/contexts/UIProvider/index';
@@ -156,6 +164,7 @@ import * as dc_panels_detail_utils from '@/pages/dc/panels/detail/utils/index';
 import * as dc_viewmodel_GroupCard from '@/pages/dc/viewmodel/GroupCard/index';
 import * as dc_viewmodel_MoonPhase from '@/pages/dc/viewmodel/MoonPhase/index';
 import * as dc_contexts_UIProvider_keys from '@/pages/dc/contexts/UIProvider/keys';
+import * as dc_panels_cultivation from '@/pages/dc/panels/cultivation/index';
 import * as dc_panels_happy_hooks from '@/pages/dc/panels/happy/hooks/index';
 import * as dc_panels_happy_utils from '@/pages/dc/panels/happy/utils/index';
 import * as dc_utils_mainlineTaskHelper from '@/pages/dc/utils/mainlineTaskHelper';
@@ -165,6 +174,8 @@ import * as dc_panels_memorial_storage from '@/pages/dc/panels/memorial/storage'
 import * as dc_utils_dataExportImport from '@/pages/dc/utils/dataExportImport';
 import * as dc_utils_developerStorage from '@/pages/dc/utils/developerStorage';
 import * as dc_components_card from '@/pages/dc/components/card/index';
+import * as dc_constants_cultivation from '@/pages/dc/constants/cultivation';
+import * as dc_hooks_usePullToReveal from '@/pages/dc/hooks/usePullToReveal';
 import * as dc_panels_memorial from '@/pages/dc/panels/memorial/index';
 import * as dc_panels_memorial_types from '@/pages/dc/panels/memorial/types';
 import * as dc_utils_cycleCalculator from '@/pages/dc/utils/cycleCalculator';
@@ -185,6 +196,8 @@ import * as dc_constants_sprites from '@/pages/dc/constants/sprites';
 import * as dc_hooks_useConfetti from '@/pages/dc/hooks/useConfetti';
 import * as dc_hooks_useProgress from '@/pages/dc/hooks/useProgress';
 import * as dc_hooks_useTaskSort from '@/pages/dc/hooks/useTaskSort';
+import * as dc_types_cultivation from '@/pages/dc/types/cultivation';
+import * as dc_utils_cultivation from '@/pages/dc/utils/cultivation';
 import * as dc_utils_dateTracker from '@/pages/dc/utils/dateTracker';
 import * as dc_components from '@/pages/dc/components/index';
 import * as dc_constants_colors from '@/pages/dc/constants/colors';
@@ -196,11 +209,11 @@ import * as dc_viewmodel from '@/pages/dc/viewmodel/index';
 import * as dc_contexts from '@/pages/dc/contexts/index';
 import * as dc_panels from '@/pages/dc/panels/index';
 import * as dc_hooks from '@/pages/dc/hooks/index';
+import * as dc_types from '@/pages/dc/types';
 import * as dc_utils from '@/pages/dc/utils/index';
 import * as stock_self from '@/pages/stock_self';
 import * as aloglist from '@/pages/aloglist';
 import * as dc from '@/pages/dc/index';
-import * as dc_types from '@/pages/dc/types';
 import * as aitrend from '@/pages/aitrend';
 import * as apply from '@/pages/apply';
 import * as image from '@/pages/image';
@@ -1114,31 +1127,6 @@ const createRoutes: CreateRoutes = ({
     componentName: 'dc-panels-detail-components-checkincyclepanel-index',
     index: true,
     id: 'dc/panels/detail/components/CheckInCyclePanel',
-    exact: true,
-    exports: ["default"],
-  },{
-    path: 'dc/panels/detail/components/CurrentCyclePanel',
-    async lazy() {
-      ;
-      return {
-        ...dc_panels_detail_components_CurrentCyclePanel,
-        Component: () => WrapRouteComponent({
-          routeId: 'dc/panels/detail/components/CurrentCyclePanel',
-          isLayout: false,
-          routeExports: dc_panels_detail_components_CurrentCyclePanel,
-        }),
-        loader: createRouteLoader({
-          routeId: 'dc/panels/detail/components/CurrentCyclePanel',
-          requestContext,
-          renderMode,
-          module: dc_panels_detail_components_CurrentCyclePanel,
-        }),
-      };
-    },
-    errorElement: <RouteErrorComponent />,
-    componentName: 'dc-panels-detail-components-currentcyclepanel-index',
-    index: true,
-    id: 'dc/panels/detail/components/CurrentCyclePanel',
     exact: true,
     exports: ["default"],
   },{
@@ -2067,6 +2055,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["default"],
   },{
+    path: 'dc/components/SecondFloorIndicator',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_SecondFloorIndicator,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/SecondFloorIndicator',
+          isLayout: false,
+          routeExports: dc_components_SecondFloorIndicator,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/SecondFloorIndicator',
+          requestContext,
+          renderMode,
+          module: dc_components_SecondFloorIndicator,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-secondfloorindicator-index',
+    index: true,
+    id: 'dc/components/SecondFloorIndicator',
+    exact: true,
+    exports: ["SecondFloorIndicator","default"],
+  },{
     path: 'dc/panels/detail/components/TabBar',
     async lazy() {
       ;
@@ -2216,6 +2229,31 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/components/CreateGoalModal/constants',
     exact: true,
     exports: ["CYCLE_LENGTH_OPTIONS","ICONS","MIN_CHECK_INS_PER_CYCLE","POPULAR_GOALS","PRIORITY_OPTIONS","TASK_TYPES","TOTAL_DURATION_OPTIONS"],
+  },{
+    path: 'dc/contexts/CultivationProvider/storage',
+    async lazy() {
+      ;
+      return {
+        ...dc_contexts_CultivationProvider_storage,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/contexts/CultivationProvider/storage',
+          isLayout: false,
+          routeExports: dc_contexts_CultivationProvider_storage,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/contexts/CultivationProvider/storage',
+          requestContext,
+          renderMode,
+          module: dc_contexts_CultivationProvider_storage,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-contexts-cultivationprovider-storage',
+    index: undefined,
+    id: 'dc/contexts/CultivationProvider/storage',
+    exact: true,
+    exports: ["clearCultivationData","exportCultivationData","importCultivationData","loadCultivationData","loadCultivationHistory","saveCultivationData","saveCultivationHistory"],
   },{
     path: 'dc/panels/happy/hooks/useTripNavigation',
     async lazy() {
@@ -2367,6 +2405,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["addToIndex","buildIndex","removeFromIndex","updateInIndex"],
   },{
+    path: 'dc/panels/cultivation/SecondFloorPanel',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_cultivation_SecondFloorPanel,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/cultivation/SecondFloorPanel',
+          isLayout: false,
+          routeExports: dc_panels_cultivation_SecondFloorPanel,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/cultivation/SecondFloorPanel',
+          requestContext,
+          renderMode,
+          module: dc_panels_cultivation_SecondFloorPanel,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-cultivation-secondfloorpanel',
+    index: undefined,
+    id: 'dc/panels/cultivation/SecondFloorPanel',
+    exact: true,
+    exports: ["SecondFloorPanel","default"],
+  },{
     path: 'dc/panels/memorial/hooks/useDateFormat',
     async lazy() {
       ;
@@ -2492,6 +2555,56 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["default"],
   },{
+    path: 'dc/contexts/CultivationProvider',
+    async lazy() {
+      ;
+      return {
+        ...dc_contexts_CultivationProvider,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/contexts/CultivationProvider',
+          isLayout: false,
+          routeExports: dc_contexts_CultivationProvider,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/contexts/CultivationProvider',
+          requestContext,
+          renderMode,
+          module: dc_contexts_CultivationProvider,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-contexts-cultivationprovider-index',
+    index: true,
+    id: 'dc/contexts/CultivationProvider',
+    exact: true,
+    exports: ["CultivationProvider","default","useCultivation"],
+  },{
+    path: 'dc/contexts/CultivationProvider/types',
+    async lazy() {
+      ;
+      return {
+        ...dc_contexts_CultivationProvider_types,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/contexts/CultivationProvider/types',
+          isLayout: false,
+          routeExports: dc_contexts_CultivationProvider_types,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/contexts/CultivationProvider/types',
+          requestContext,
+          renderMode,
+          module: dc_contexts_CultivationProvider_types,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-contexts-cultivationprovider-types',
+    index: undefined,
+    id: 'dc/contexts/CultivationProvider/types',
+    exact: true,
+    exports: [],
+  },{
     path: 'dc/panels/memorial/hooks/useMemorials',
     async lazy() {
       ;
@@ -2566,6 +2679,56 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/panels/settings/hooks/useSwipeBack',
     exact: true,
     exports: ["default","useSwipeBack"],
+  },{
+    path: 'dc/viewmodel/CultivationSection',
+    async lazy() {
+      ;
+      return {
+        ...dc_viewmodel_CultivationSection,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/viewmodel/CultivationSection',
+          isLayout: false,
+          routeExports: dc_viewmodel_CultivationSection,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/viewmodel/CultivationSection',
+          requestContext,
+          renderMode,
+          module: dc_viewmodel_CultivationSection,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-viewmodel-cultivationsection-index',
+    index: true,
+    id: 'dc/viewmodel/CultivationSection',
+    exact: true,
+    exports: ["CultivationSection","default"],
+  },{
+    path: 'dc/components/CultivationEntry',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_CultivationEntry,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/CultivationEntry',
+          isLayout: false,
+          routeExports: dc_components_CultivationEntry,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/CultivationEntry',
+          requestContext,
+          renderMode,
+          module: dc_components_CultivationEntry,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-cultivationentry-index',
+    index: true,
+    id: 'dc/components/CultivationEntry',
+    exact: true,
+    exports: ["CultivationEntry","default"],
   },{
     path: 'dc/components/GroupDetailPopup',
     async lazy() {
@@ -3067,6 +3230,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["default"],
   },{
+    path: 'dc/components/PullIndicator',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_PullIndicator,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/PullIndicator',
+          isLayout: false,
+          routeExports: dc_components_PullIndicator,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/PullIndicator',
+          requestContext,
+          renderMode,
+          module: dc_components_PullIndicator,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-pullindicator-index',
+    index: true,
+    id: 'dc/components/PullIndicator',
+    exact: true,
+    exports: ["PullIndicator","default"],
+  },{
     path: 'dc/contexts/SceneProvider/storage',
     async lazy() {
       ;
@@ -3115,7 +3303,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/panels/detail/components',
     exact: true,
-    exports: ["CalendarViewPanel","CheckInCyclePanel","CheckInHistoryPanel","CheckInModal","CheckInRecordPanel","ChecklistCyclePanel","CurrentCyclePanel","GoalHeader","HistoryCyclePanel","HistoryRecordPanel","NumericCyclePanel","ProgressSection","RecordDataModal","TabBar","showCycleSummaryDialog"],
+    exports: ["CalendarViewPanel","CheckInCyclePanel","CheckInHistoryPanel","CheckInModal","CheckInRecordPanel","ChecklistCyclePanel","GoalHeader","HistoryCyclePanel","HistoryRecordPanel","NumericCyclePanel","ProgressSection","RecordDataModal","TabBar","showCycleSummaryDialog"],
   },{
     path: 'dc/panels/happy/hooks/useSchedule',
     async lazy() {
@@ -3892,6 +4080,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["defaultAppConfig","themePresets"],
   },{
+    path: 'dc/hooks/usePullToSecondFloor',
+    async lazy() {
+      ;
+      return {
+        ...dc_hooks_usePullToSecondFloor,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/hooks/usePullToSecondFloor',
+          isLayout: false,
+          routeExports: dc_hooks_usePullToSecondFloor,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/hooks/usePullToSecondFloor',
+          requestContext,
+          renderMode,
+          module: dc_hooks_usePullToSecondFloor,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-hooks-usepulltosecondfloor',
+    index: undefined,
+    id: 'dc/hooks/usePullToSecondFloor',
+    exact: true,
+    exports: ["default","usePullToSecondFloor"],
+  },{
     path: 'dc/hooks/useTodayMustComplete',
     async lazy() {
       ;
@@ -4117,6 +4330,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["UI_KEYS"],
   },{
+    path: 'dc/panels/cultivation',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_cultivation,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/cultivation',
+          isLayout: false,
+          routeExports: dc_panels_cultivation,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/cultivation',
+          requestContext,
+          renderMode,
+          module: dc_panels_cultivation,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-cultivation-index',
+    index: true,
+    id: 'dc/panels/cultivation',
+    exact: true,
+    exports: ["default"],
+  },{
     path: 'dc/panels/happy/hooks',
     async lazy() {
       ;
@@ -4341,6 +4579,56 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/components/card',
     exact: true,
     exports: ["MainlineTaskCard","SidelineTaskCard"],
+  },{
+    path: 'dc/constants/cultivation',
+    async lazy() {
+      ;
+      return {
+        ...dc_constants_cultivation,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/constants/cultivation',
+          isLayout: false,
+          routeExports: dc_constants_cultivation,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/constants/cultivation',
+          requestContext,
+          renderMode,
+          module: dc_constants_cultivation,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-constants-cultivation',
+    index: undefined,
+    id: 'dc/constants/cultivation',
+    exact: true,
+    exports: ["BASE_CULTIVATION","CYCLE_REWARD_CONFIG","LIANQI_GROWTH_RATE","LIANQI_LAYER_NAMES","PENALTY_CONFIG","REALM_CONFIG","REALM_GROWTH_RATE","REALM_ORDER","SECLUSION_CONFIG","STAGE_CONFIG","STAGE_GROWTH_RATE","STAGE_ORDER","TASK_EXP_CONFIG","getAllLevelExpCaps","getExpCap","getLianqiExpCap"],
+  },{
+    path: 'dc/hooks/usePullToReveal',
+    async lazy() {
+      ;
+      return {
+        ...dc_hooks_usePullToReveal,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/hooks/usePullToReveal',
+          isLayout: false,
+          routeExports: dc_hooks_usePullToReveal,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/hooks/usePullToReveal',
+          requestContext,
+          renderMode,
+          module: dc_hooks_usePullToReveal,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-hooks-usepulltoreveal',
+    index: undefined,
+    id: 'dc/hooks/usePullToReveal',
+    exact: true,
+    exports: ["default","usePullToReveal"],
   },{
     path: 'dc/panels/memorial',
     async lazy() {
@@ -4842,6 +5130,56 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["useTaskSort"],
   },{
+    path: 'dc/types/cultivation',
+    async lazy() {
+      ;
+      return {
+        ...dc_types_cultivation,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/types/cultivation',
+          isLayout: false,
+          routeExports: dc_types_cultivation,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/types/cultivation',
+          requestContext,
+          renderMode,
+          module: dc_types_cultivation,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-types-cultivation',
+    index: undefined,
+    id: 'dc/types/cultivation',
+    exact: true,
+    exports: ["INITIAL_CULTIVATION_DATA"],
+  },{
+    path: 'dc/utils/cultivation',
+    async lazy() {
+      ;
+      return {
+        ...dc_utils_cultivation,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/utils/cultivation',
+          isLayout: false,
+          routeExports: dc_utils_cultivation,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/utils/cultivation',
+          requestContext,
+          renderMode,
+          module: dc_utils_cultivation,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-utils-cultivation',
+    index: undefined,
+    id: 'dc/utils/cultivation',
+    exact: true,
+    exports: ["compareLevels","formatExp","generateCultivationId","getCurrentExpCap","getCurrentLevelInfo","getLevelDisplayName","getLevelIndex","getNextLevel","getPreviousLevel","getRealmIconPath","getSeclusionInfo","getWeekKey","isCrossRealmDemotion"],
+  },{
     path: 'dc/utils/dateTracker',
     async lazy() {
       ;
@@ -4890,7 +5228,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/components',
     exact: true,
-    exports: ["CircleProgress","CreateGoalModal","CreateMainlineTaskModal","DailyProgress","LocationFilter","MainlineTaskCard","MigrationModal","ProgressBar","SidelineTaskCard","StatCard","StatCardGrid","ThemedButton"],
+    exports: ["CircleProgress","CreateGoalModal","CreateMainlineTaskModal","CultivationEntry","DailyProgress","LocationFilter","MainlineTaskCard","MigrationModal","ProgressBar","PullIndicator","SecondFloorIndicator","SidelineTaskCard","StatCard","StatCardGrid","ThemedButton"],
   },{
     path: 'dc/constants/colors',
     async lazy() {
@@ -5065,7 +5403,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/contexts',
     exact: true,
-    exports: ["AppProvider","SceneProvider","TaskProvider","ThemeProvider","UIProvider","UI_KEYS","UserProvider","WorldProvider","themePresets","themePresetsLegacy","useActiveTab","useAddTrigger","useApp","useArchiveModal","useModal","useScene","useScrollPosition","useSettingsModal","useTaskContext","useTheme","useTodayMustCompleteModal","useUI","useUIState","useUIStateLegacy","useUser","useViewMode","useWorld"],
+    exports: ["AppProvider","CultivationProvider","SceneProvider","TaskProvider","ThemeProvider","UIProvider","UI_KEYS","UserProvider","WorldProvider","themePresets","themePresetsLegacy","useActiveTab","useAddTrigger","useApp","useArchiveModal","useCultivation","useModal","useScene","useScrollPosition","useSettingsModal","useTaskContext","useTheme","useTodayMustCompleteModal","useUI","useUIState","useUIStateLegacy","useUser","useViewMode","useWorld"],
   },{
     path: 'dc/panels',
     async lazy() {
@@ -5090,7 +5428,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/panels',
     exact: true,
-    exports: ["ArchiveList","GoalDetailModal","HappyPanel","MemorialPanel","NormalPanel","UnifiedSettingsPanel"],
+    exports: ["ArchiveList","CultivationPanel","GoalDetailModal","HappyPanel","MemorialPanel","NormalPanel","UnifiedSettingsPanel"],
   },{
     path: 'dc/hooks',
     async lazy() {
@@ -5115,7 +5453,32 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/hooks',
     exact: true,
-    exports: ["formatLocalDate","getCurrentCycle","getSimulatedToday","getSimulatedTodayDate","getTodayCheckInStatusForTask","useConfetti","usePlanEndStatus","useProgress","useSpriteImage","useTaskSort","useTodayCheckInStatus","useTodayMustComplete"],
+    exports: ["useConfetti","usePlanEndStatus","useProgress","usePullToReveal","usePullToSecondFloor","useSpriteImage","useTaskSort","useTodayCheckInStatus","useTodayMustComplete"],
+  },{
+    path: 'dc/types',
+    async lazy() {
+      ;
+      return {
+        ...dc_types,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/types',
+          isLayout: false,
+          routeExports: dc_types,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/types',
+          requestContext,
+          renderMode,
+          module: dc_types,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-types',
+    index: undefined,
+    id: 'dc/types',
+    exact: true,
+    exports: [],
   },{
     path: 'dc/utils',
     async lazy() {
@@ -5140,7 +5503,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/utils',
     exact: true,
-    exports: ["CycleCalculator","DATA_TYPE_CONFIG","LAYOUT_CONSTANTS","MigrationTool","ProgressCalculator","TAG_COLORS","TaskMigration","advanceTaskCycle","archiveTask","calculateCheckInProgress","calculateCheckInProgressV2","calculateChecklistProgress","calculateChecklistProgressV2","calculateCurrentCycleNumber","calculateFlexibleTaskLimit","calculateGridColumns","calculateModalMaxHeight","calculateNewCycle","calculateNumericProgress","calculateNumericProgressV2","calculateRemainingDays","calculateVisibleSidelineTasks","canOpenModalForEdit","canOpenModalForView","checkDateChange","clearAllArchivedTasks","clearDailyViewCache","clearData","clearTestDate","copyToClipboard","createTag","createTask","createTodayState","deleteArchivedTask","deleteTag","exportAllTasks","exportData","exportSingleTask","exportToClipboard","filterDailyViewTasks","filterDailyViewTasksEnhanced","forceCheckDateChange","formatLargeNumber","formatNumber","getAllTags","getArchiveStats","getArchivedTasks","getCachedDailyTaskIds","getCurrentDate","getDataStats","getDeveloperMode","getEffectiveCategory","getEffectiveMainlineType","getLastVisitedDate","getNextTagColor","getRealSystemDate","getSafeAreaInsets","getSavedLocationFilter","getScreenSize","getTagById","getTestDate","getTodayDateString","getTodayMustCompleteTaskIds","hasDailyTargetTask","hasTestDate","hasTodayBeenSet","hasTodaySetTasks","importAllTasks","importData","importSingleTask","isMobileDevice","isNearDeadline","isSmallScreen","isTaskTodayMustComplete","isTodayCheckedIn","loadTagsFromStorage","loadTodayMustCompleteState","markModalShown","migrateOldArchivedTasks","migrateToNewFormat","needsProgressReset","performDailyReset","prefersReducedMotion","removeFromTodayMustComplete","repairTaskProgressData","resetTodayProgress","restoreFromArchive","saveArchivedTasks","saveDailyTaskIdsCache","saveLocationFilter","saveTagsToStorage","saveTodayMustCompleteState","selectFlexibleTasks","setDeveloperMode","setLastVisitedDate","setTestDate","setTodayMustCompleteTasks","shouldAdvanceCycle","shouldShowTodayMustCompleteModal","skipTodayMustComplete","updateMainlineTaskProgress","updateTag"],
+    exports: ["CycleCalculator","DATA_TYPE_CONFIG","LAYOUT_CONSTANTS","MigrationTool","ProgressCalculator","TAG_COLORS","TaskMigration","advanceTaskCycle","archiveTask","calculateCheckInProgress","calculateCheckInProgressV2","calculateChecklistProgress","calculateChecklistProgressV2","calculateCurrentCycleNumber","calculateFlexibleTaskLimit","calculateGridColumns","calculateModalMaxHeight","calculateNewCycle","calculateNumericProgress","calculateNumericProgressV2","calculateRemainingDays","calculateVisibleSidelineTasks","canOpenModalForEdit","canOpenModalForView","checkDateChange","clearAllArchivedTasks","clearDailyViewCache","clearData","clearTestDate","compareLevels","copyToClipboard","createTag","createTask","createTodayState","deleteArchivedTask","deleteTag","exportAllTasks","exportData","exportSingleTask","exportToClipboard","filterDailyViewTasks","filterDailyViewTasksEnhanced","forceCheckDateChange","formatExp","formatLargeNumber","formatNumber","generateCultivationId","getAllTags","getArchiveStats","getArchivedTasks","getCachedDailyTaskIds","getCurrentDate","getCurrentExpCap","getCurrentLevelInfo","getDataStats","getDeveloperMode","getEffectiveCategory","getEffectiveMainlineType","getLastVisitedDate","getLevelDisplayName","getLevelIndex","getNextLevel","getNextTagColor","getPreviousLevel","getRealSystemDate","getRealmIconPath","getSafeAreaInsets","getSavedLocationFilter","getScreenSize","getSeclusionInfo","getTagById","getTestDate","getTodayDateString","getTodayMustCompleteTaskIds","getWeekKey","hasDailyTargetTask","hasTestDate","hasTodayBeenSet","hasTodaySetTasks","importAllTasks","importData","importSingleTask","isCrossRealmDemotion","isMobileDevice","isNearDeadline","isSmallScreen","isTaskTodayMustComplete","isTodayCheckedIn","loadTagsFromStorage","loadTodayMustCompleteState","markModalShown","migrateOldArchivedTasks","migrateToNewFormat","needsProgressReset","performDailyReset","prefersReducedMotion","removeFromTodayMustComplete","repairTaskProgressData","resetTodayProgress","restoreFromArchive","saveArchivedTasks","saveDailyTaskIdsCache","saveLocationFilter","saveTagsToStorage","saveTodayMustCompleteState","selectFlexibleTasks","setDeveloperMode","setLastVisitedDate","setTestDate","setTodayMustCompleteTasks","shouldAdvanceCycle","shouldShowTodayMustCompleteModal","skipTodayMustComplete","updateMainlineTaskProgress","updateTag"],
   },{
     path: 'stock_self',
     async lazy() {
@@ -5216,31 +5579,6 @@ const createRoutes: CreateRoutes = ({
     id: 'dc',
     exact: true,
     exports: ["default"],
-  },{
-    path: 'dc/types',
-    async lazy() {
-      ;
-      return {
-        ...dc_types,
-        Component: () => WrapRouteComponent({
-          routeId: 'dc/types',
-          isLayout: false,
-          routeExports: dc_types,
-        }),
-        loader: createRouteLoader({
-          routeId: 'dc/types',
-          requestContext,
-          renderMode,
-          module: dc_types,
-        }),
-      };
-    },
-    errorElement: <RouteErrorComponent />,
-    componentName: 'dc-types',
-    index: undefined,
-    id: 'dc/types',
-    exact: true,
-    exports: [],
   },{
     path: 'aitrend',
     async lazy() {

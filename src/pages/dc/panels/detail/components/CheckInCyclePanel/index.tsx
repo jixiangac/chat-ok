@@ -42,18 +42,25 @@ export default function CheckInCyclePanel({
   }, [config?.records, cycle.startDate, cycle.endDate, effectiveToday]);
   
   // 根据打卡类型计算进度
+  // 直接使用 goal.progress 中已经计算好的数据，避免重复计算
   const progressData = useMemo(() => {
-    const cycleCount = cycleRecords.length;
+    const progress = goal.progress;
     const todayCount = todayEntries.length;
+    const todayValue = todayRecord?.totalValue || 0;
+    
+    // 周期进度直接使用 progress 中的数据
+    const cycleValue = progress.cycleAchieved || 0;
+    const cycleTarget = progress.cycleTargetValue || config?.perCycleTarget || cycle.requiredCheckIns;
+    const cycleProgress = progress.cyclePercentage || 0;
+    const remaining = progress.cycleRemaining || 0;
     
     if (unit === 'TIMES') {
       const dailyMax = config?.dailyMaxTimes || 1;
-      const cycleTarget = config?.cycleTargetTimes || config?.perCycleTarget || cycle.requiredCheckIns;
       const todayCompleted = todayCount >= dailyMax;
-      const cycleCompleted = cycleCount >= cycleTarget;
+      const cycleCompleted = cycleProgress >= 100;
       
       return {
-        cycleValue: cycleCount,
+        cycleValue,
         cycleTarget,
         cycleUnit: '次',
         todayValue: todayCount,
@@ -61,16 +68,13 @@ export default function CheckInCyclePanel({
         todayUnit: '次',
         todayCompleted,
         cycleCompleted,
-        progress: cycleTarget > 0 ? (cycleCount / cycleTarget) * 100 : 0,
-        remaining: Math.max(0, cycleTarget - cycleCount)
+        progress: cycleProgress,
+        remaining
       };
     } else if (unit === 'DURATION') {
       const dailyTarget = config?.dailyTargetMinutes || 15;
-      const cycleTarget = config?.cycleTargetMinutes || config?.perCycleTarget || (dailyTarget * 10);
-      const cycleValue = cycleRecords.reduce((sum, r) => sum + (r.totalValue || 0), 0);
-      const todayValue = todayRecord?.totalValue || 0;
       const todayCompleted = todayValue >= dailyTarget;
-      const cycleCompleted = cycleValue >= cycleTarget;
+      const cycleCompleted = cycleProgress >= 100;
       
       return {
         cycleValue,
@@ -81,25 +85,22 @@ export default function CheckInCyclePanel({
         todayUnit: '分钟',
         todayCompleted,
         cycleCompleted,
-        progress: cycleTarget > 0 ? (cycleValue / cycleTarget) * 100 : 0,
-        remaining: Math.max(0, cycleTarget - cycleValue)
+        progress: cycleProgress,
+        remaining
       };
     } else {
       // QUANTITY 类型：数值型打卡
-      const cycleTarget = config?.cycleTargetValue || config?.perCycleTarget || 0;
       const valueUnit = config?.valueUnit || '个';
-      const cycleValue = cycleRecords.reduce((sum, r) => sum + (r.totalValue || 0), 0);
-      const todayValue = todayRecord?.totalValue || 0;
       
       // 计算每日目标：优先使用 dailyTargetValue，否则使用 cycleTarget / cycleDays
       let dailyTarget = config?.dailyTargetValue || 0;
-      if (dailyTarget === 0 && cycleTarget > 0) {
+      if (dailyTarget === 0 && (cycleTarget as number) > 0) {
         const cycleDays = goal.cycle?.cycleDays || 7;
-        dailyTarget = Math.ceil(cycleTarget / cycleDays);
+        dailyTarget = Math.ceil((cycleTarget as number) / cycleDays);
       }
       
       const todayCompleted = dailyTarget > 0 && todayValue >= dailyTarget;
-      const cycleCompleted = cycleTarget > 0 && cycleValue >= cycleTarget;
+      const cycleCompleted = cycleProgress >= 100;
       
       return {
         cycleValue,
@@ -110,14 +111,20 @@ export default function CheckInCyclePanel({
         todayUnit: valueUnit,
         todayCompleted,
         cycleCompleted,
-        progress: cycleTarget > 0 ? (cycleValue / cycleTarget) * 100 : 0,
-        remaining: Math.max(0, cycleTarget - cycleValue)
+        progress: cycleProgress,
+        remaining
       };
     }
-  }, [unit, config, cycleRecords, todayRecord, todayEntries, cycle.requiredCheckIns, goal.cycle?.cycleDays]);
+  }, [unit, config, goal.progress, todayRecord, todayEntries, cycle.requiredCheckIns, goal.cycle?.cycleDays]);
   
   // 计算累计打卡
-  const totalCheckIns = config?.records?.filter(r => r.checked).length || 0;
+  // 直接使用 records 中 entries 的总数量
+  const totalCheckIns = useMemo(() => {
+    if (!config?.records) return 0;
+    return config.records
+      .filter(r => r.checked)
+      .reduce((sum, r) => sum + (r.entries?.length || 1), 0);
+  }, [config?.records]);
   
   // 根据打卡类型计算累计值
   const totalAccumulatedValue = useMemo(() => {
@@ -294,4 +301,5 @@ export default function CheckInCyclePanel({
     </div>
   );
 }
+
 

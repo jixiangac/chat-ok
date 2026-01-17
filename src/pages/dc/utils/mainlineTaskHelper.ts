@@ -255,11 +255,15 @@ export function calculateCheckInProgress(mainlineTask: MainlineTask): {
  * 优先使用全局测试日期，其次使用任务级别的debugDayOffset
  */
 export function calculateRemainingDays(task: Task): number {
-  const startDateStr = task.time.startDate;
-  const cycleDays = task.cycle.cycleDays;
-  const totalCycles = task.cycle.totalCycles;
+  // 兼容处理：支持 task.time.startDate 和 task.startDate
+  const startDateStr = task.time?.startDate || (task as any).startDate;
+  // 兼容处理：支持 task.cycle.cycleDays 和 task.cycleDays
+  const cycleDays = task.cycle?.cycleDays || (task as any).cycleDays;
+  const totalCycles = task.cycle?.totalCycles || (task as any).totalCycles;
   
+  // 如果缺少必要数据，返回0
   if (!startDateStr || !cycleDays || !totalCycles) return 0;
+  
   
   const startDate = new Date(startDateStr);
   
@@ -359,10 +363,13 @@ export function calculateCurrentCycleNumber(task: Task): number {
   // 如果任务有 cycle.currentCycle，优先使用它
   if (task.cycle?.currentCycle) return task.cycle.currentCycle;
   
-  const startDateStr = task.time.startDate;
-  const cycleDays = task.cycle.cycleDays;
-  const totalCycles = task.cycle.totalCycles;
+  // 兼容处理：支持 task.time.startDate 和 task.startDate
+  const startDateStr = task.time?.startDate || (task as any).startDate;
+  // 兼容处理：支持 task.cycle.cycleDays 和 task.cycleDays
+  const cycleDays = task.cycle?.cycleDays || (task as any).cycleDays;
+  const totalCycles = task.cycle?.totalCycles || (task as any).totalCycles;
   
+  // 如果缺少必要数据，返回1
   if (!startDateStr || !cycleDays || !totalCycles) {
     return 1;
   }
@@ -391,3 +398,4 @@ export function calculateCurrentCycleNumber(task: Task): number {
   // 当前周期编号 = max(基于模拟时间的周期, 快照数+1)，但不超过总周期数
   return Math.min(Math.max(calculatedCycleNumber, snapshotCount + 1), totalCycles);
 }
+

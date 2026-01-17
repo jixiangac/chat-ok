@@ -1,6 +1,6 @@
 # daily-view Specification Delta
 
-## MODIFIED Requirements
+## ADDED Requirements
 
 ### Requirement: Daily View Task Filtering
 The system SHALL filter tasks for the daily view based on priority rules.
@@ -48,8 +48,6 @@ The system SHALL dynamically select additional tasks based on available slots.
 - **WHEN** selecting flexible tasks
 - **THEN** system uses weighted probability where lower completion rate = higher weight
 - **AND** selection is deterministic for the same date (using task ID + date as seed)
-
-## ADDED Requirements
 
 ### Requirement: Daily Data Reset
 The system SHALL reset daily progress data when date changes.

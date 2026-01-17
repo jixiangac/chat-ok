@@ -106,7 +106,12 @@ export {
 
 // 一日清单筛选和缓存工具
 export {
-  filterDailyViewTasks
+  filterDailyViewTasks,
+  filterDailyViewTasksEnhanced,
+  isNearDeadline,
+  hasDailyTargetTask,
+  calculateFlexibleTaskLimit,
+  selectFlexibleTasks
 } from './dailyViewFilter';
 
 export {
@@ -128,7 +133,29 @@ export {
   type ArchivedTask
 } from './archiveStorage';
 
+// 日期追踪工具
+export {
+  getCurrentDate,
+  getRealSystemDate,
+  getLastVisitedDate,
+  setLastVisitedDate,
+  checkDateChange,
+  getTestDate,
+  setTestDate,
+  clearTestDate,
+  hasTestDate,
+  forceCheckDateChange,
+  type DateChangeInfo
+} from './dateTracker';
 
-
-
-
+// 每日数据重置工具
+export {
+  resetTodayProgress,
+  shouldAdvanceCycle,
+  calculateNewCycle,
+  advanceTaskCycle,
+  performDailyReset,
+  needsProgressReset,
+  type CycleUpdateInfo,
+  type DailyResetResult
+} from './dailyDataReset';

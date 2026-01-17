@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import dayjs from 'dayjs';
 import { Calendar } from 'lucide-react';
 import type { Task, CycleAdvanceLog } from '../../../../types';
+import { getCurrentDate } from '../../../../utils';
 import styles from '../../../../css/HistoryCyclePanel.module.css';
 
 interface HistoryCyclePanelProps {
@@ -36,7 +37,7 @@ export default function HistoryCyclePanel({ goal }: HistoryCyclePanelProps) {
     const startDate = time.startDate;
     
     const start = dayjs(startDate);
-    const today = dayjs();
+    const today = dayjs(getCurrentDate());
     
     // 判断计划是否已结束
     const isPlanEnded = goal.isPlanEnded || goal.status === 'ARCHIVED' || goal.status === 'COMPLETED';

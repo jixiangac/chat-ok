@@ -199,7 +199,7 @@ function NumericCyclePanelComponent({
       <div className={styles.statsGrid}>
         <div className={styles.gridItem}>
           <div className={styles.gridValue}>{formatNumber(config.currentValue)}{config.unit}</div>
-          <div className={styles.gridLabel}>当前{isDecrease ? '体重' : '数值'}</div>
+          <div className={styles.gridLabel}>当前{isDecrease ? '数值' : '数值'}</div>
         </div>
         <div className={styles.gridItem}>
           <div className={styles.gridValue}>{showDebt ? debtProgress : cycleProgress}%</div>

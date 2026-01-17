@@ -7,6 +7,8 @@
  * 3. 确保全天结果一致
  */
 
+import { getCurrentDate } from './dateTracker';
+
 interface DailyViewCache {
   date: string; // YYYY-MM-DD
   taskIds: string[];
@@ -25,7 +27,7 @@ export function getCachedDailyTaskIds(): string[] | null {
     if (!cached) return null;
     
     const data: DailyViewCache = JSON.parse(cached);
-    const today = new Date().toISOString().split('T')[0];
+    const today = getCurrentDate();
     
     // 检查是否为今天的缓存
     if (data.date === today) {
@@ -47,7 +49,7 @@ export function getCachedDailyTaskIds(): string[] | null {
  */
 export function saveDailyTaskIdsCache(taskIds: string[]): void {
   try {
-    const today = new Date().toISOString().split('T')[0];
+    const today = getCurrentDate();
     const cache: DailyViewCache = {
       date: today,
       taskIds,

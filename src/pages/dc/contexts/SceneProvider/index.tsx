@@ -21,10 +21,13 @@ import { buildIndex, addToIndex, removeFromIndex, updateInIndex } from './indexB
 import { CacheManager } from './cacheManager';
 import { loadSceneData, saveSceneData, needsMigration, performMigration } from './storage';
 import { useSpriteImage } from '../../hooks';
-import { filterDailyViewTasks, getCachedDailyTaskIds, saveDailyTaskIdsCache } from '../../utils';
+import { filterDailyViewTasks, getCachedDailyTaskIds, saveDailyTaskIdsCache, clearDailyViewCache, getCurrentDate } from '../../utils';
 import { calculateRemainingDays } from '../../utils/mainlineTaskHelper';
 import { getTodayMustCompleteTaskIds } from '../../utils/todayMustCompleteStorage';
 import { getArchivedTasks } from '../../utils/archiveStorage';
+import { performDailyReset } from '../../utils/dailyDataReset';
+import { DATE_CHANGE_EVENT } from '../AppProvider';
+import type { DateChangeInfo } from '../AppProvider/types';
 
 // 创建 Context
 const SceneContext = createContext<SceneContextValue | null>(null);
@@ -75,6 +78,60 @@ export function SceneProvider({ children }: SceneProviderProps) {
       });
     }
   }, []);
+
+  // 监听日期变更事件
+  useEffect(() => {
+    const handleDateChange = (event: CustomEvent<DateChangeInfo>) => {
+      const { newDate, daysDiff } = event.detail;
+      console.log('[SceneProvider] 收到日期变更事件:', event.detail);
+      
+      // 1. 清空一日清单缓存
+      clearDailyViewCache();
+      console.log('[SceneProvider] 已清空一日清单缓存');
+      
+      // 2. 执行每日数据重置
+      setScenes(prev => {
+        const normalTasks = prev.normal.tasks;
+        
+        // 执行重置
+        const resetResult = performDailyReset(normalTasks, newDate);
+        console.log('[SceneProvider] 每日重置结果:', {
+          resetCount: resetResult.resetCount,
+          cycleAdvancedCount: resetResult.cycleAdvancedCount,
+          cycleAdvanceLogs: resetResult.cycleAdvanceLogs,
+        });
+        
+        // 如果有任务被更新，更新场景数据
+        if (resetResult.resetCount > 0 || resetResult.cycleAdvancedCount > 0) {
+          const newSceneData: SceneData = {
+            tasks: resetResult.updatedTasks,
+            index: buildIndex(resetResult.updatedTasks),
+            meta: {
+              lastUpdate: Date.now(),
+              version: prev.normal.meta.version + 1,
+            },
+          };
+          
+          // 清除缓存
+          cacheManager.clearScene('normal');
+          
+          // 保存到 localStorage
+          saveSceneData('normal', newSceneData);
+          
+          return { ...prev, normal: newSceneData };
+        }
+        
+        return prev;
+      });
+    };
+
+    // 添加事件监听
+    window.addEventListener(DATE_CHANGE_EVENT, handleDateChange as EventListener);
+    
+    return () => {
+      window.removeEventListener(DATE_CHANGE_EVENT, handleDateChange as EventListener);
+    };
+  }, [cacheManager]);
 
   // ========== 快速查询方法 ==========
 
@@ -355,7 +412,7 @@ export function SceneProvider({ children }: SceneProviderProps) {
    * 检查任务今日是否已完成打卡
    */
   const isTodayCompleted = useCallback((task: Task): boolean => {
-    const today = dayjs().format('YYYY-MM-DD');
+    const today = getCurrentDate();
     const checkInConfig = task.checkInConfig;
     if (!checkInConfig) return false;
     
@@ -642,6 +699,3 @@ export function useScene(): SceneContextValue {
 
 // 导出类型
 export type { SceneType, SceneData, NormalSceneAccess } from './types';
-
-
-

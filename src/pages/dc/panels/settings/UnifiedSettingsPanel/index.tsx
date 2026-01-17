@@ -15,6 +15,7 @@ import {
   TagSettingsPage,
   DataManagementPage,
   TodayMustCompletePage,
+  DateTestPage,
 } from '../pages';
 import { useUser } from '@/pages/dc/contexts';
 import styles from './styles.module.css';
@@ -130,6 +131,8 @@ const UnifiedSettingsPanel: React.FC<UnifiedSettingsPanelProps> = ({
             onBack={handleBack}
           />
         );
+      case 'dateTest':
+        return <DateTestPage onBack={handleBack} />;
       case 'main':  
       default:
         return (
@@ -215,4 +218,3 @@ const UnifiedSettingsPanel: React.FC<UnifiedSettingsPanelProps> = ({
 };
 
 export default UnifiedSettingsPanel;
-

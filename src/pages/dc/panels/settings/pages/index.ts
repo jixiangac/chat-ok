@@ -12,3 +12,6 @@ export type { DataManagementPageProps } from './DataManagementPage';
 
 export { default as TodayMustCompletePage } from './TodayMustCompletePage';
 export type { TodayMustCompletePageProps } from './TodayMustCompletePage';
+
+export { default as DateTestPage } from './DateTestPage';
+export type { DateTestPageProps } from './DateTestPage';

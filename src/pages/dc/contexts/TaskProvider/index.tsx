@@ -11,7 +11,7 @@ import type { SceneType } from '../SceneProvider/types';
 import { createTask as createNewFormatTask } from '../../utils/migration';
 import { useScene } from '../SceneProvider';
 import { archiveTask as archiveTaskToStorage } from '../../utils/archiveStorage';
-import { getEffectiveMainlineType } from '../../utils';
+import { getEffectiveMainlineType, getCurrentDate } from '../../utils';
 
 // 欠账快照配色方案
 const DEBT_COLOR_SCHEMES = [
@@ -37,16 +37,27 @@ const generateId = (): string => {
   return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 };
 
-// 获取模拟的"今天"日期
+// 获取模拟的"今天"日期（优先使用全局测试日期）
 const getSimulatedToday = (task: Task): string => {
+  // 优先使用全局测试日期
+  const currentDate = getCurrentDate();
   const offset = (task as any).debugDayOffset || 0;
-  return dayjs().add(offset, 'day').format('YYYY-MM-DD');
+  
+  if (offset === 0) {
+    return currentDate;
+  }
+  
+  // 如果有偏移量，在当前日期基础上计算
+  return dayjs(currentDate).add(offset, 'day').format('YYYY-MM-DD');
 };
 
-// 获取模拟的时间戳
+// 获取模拟的时间戳（优先使用全局测试日期）
 const getSimulatedTimestamp = (task: Task): number => {
+  // 优先使用全局测试日期
+  const currentDate = getCurrentDate();
   const offset = (task as any).debugDayOffset || 0;
-  return dayjs().add(offset, 'day').valueOf();
+  
+  return dayjs(currentDate).add(offset, 'day').valueOf();
 };
 
 // 从 checkInConfig.records 获取今日打卡记录
@@ -121,13 +132,22 @@ const calculateTodayProgress = (task: Task): TodayProgress => {
       lastUpdatedAt: dayjs().toISOString()
     };
   } else if (unit === 'QUANTITY') {
-    const dailyTarget = checkInConfig.dailyTargetValue || 0;
+    // 数值型打卡：优先使用 dailyTargetValue，如果没有则使用 cycleTargetValue / cycleDays 计算
+    let dailyTarget = checkInConfig.dailyTargetValue || 0;
+    
+    // 如果没有设置每日目标，但有周期目标，则计算每日平均目标
+    if (dailyTarget === 0 && checkInConfig.cycleTargetValue) {
+      // 从任务中获取周期天数
+      const cycleDays = task.cycle?.cycleDays || 7;
+      dailyTarget = Math.ceil(checkInConfig.cycleTargetValue / cycleDays);
+    }
+    
     return {
       canCheckIn: dailyTarget === 0 || todayValue < dailyTarget,
       todayCount: todayCheckIns.length,
       todayValue,
       isCompleted: dailyTarget > 0 && todayValue >= dailyTarget,
-      dailyTarget,
+      dailyTarget: dailyTarget > 0 ? dailyTarget : undefined,
       lastUpdatedAt: dayjs().toISOString()
     };
   }
@@ -169,7 +189,7 @@ export function TaskProvider({ children }: TaskProviderProps) {
       type: taskData.type || 'sidelineA',
       category: taskData.category || 'CHECK_IN',
       from: sceneType,
-      startDate: taskData.startDate || dayjs().format('YYYY-MM-DD'),
+      startDate: taskData.startDate || getCurrentDate(),
       totalDays: taskData.totalDays || 30,
       cycleDays: taskData.cycleDays || 10,
       ...taskData,
@@ -358,10 +378,10 @@ export function TaskProvider({ children }: TaskProviderProps) {
 
     const startDate = dayjs(startDateStr);
     
-    // 获取模拟的"今天"日期
+    // 获取模拟的"今天"日期（优先使用全局测试日期）
+    const currentDate = getCurrentDate();
     const debugOffset = (task as any).debugDayOffset || 0;
-    const realToday = dayjs();
-    const simulatedToday = realToday.add(debugOffset, 'day');
+    const simulatedToday = dayjs(currentDate).add(debugOffset, 'day');
     
     // 使用 task.cycle.currentCycle 作为当前周期编号
     const currentCycle = task.cycle.currentCycle;
@@ -462,7 +482,7 @@ export function TaskProvider({ children }: TaskProviderProps) {
           const todayTotal = todayCheckIns.reduce((sum, c) => sum + (c.value || 0), 0);
           if (todayTotal >= dailyTarget) {
             console.log('今日已达到时长目标');
-            return false;
+            // return false;
           }
         } else if (unit === 'QUANTITY') {
           const dailyTarget = config.dailyTargetValue || 0;

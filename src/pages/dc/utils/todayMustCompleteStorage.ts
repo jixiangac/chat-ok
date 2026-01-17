@@ -5,6 +5,7 @@
 
 import dayjs from 'dayjs';
 import type { TodayMustCompleteState } from '../types';
+import { getCurrentDate } from './dateTracker';
 
 const STORAGE_KEY = 'dc_today_must_complete';
 
@@ -12,10 +13,10 @@ const STORAGE_KEY = 'dc_today_must_complete';
 const TRIGGER_HOUR = 8;
 
 /**
- * 获取今日日期字符串
+ * 获取今日日期字符串（使用全局日期，支持测试日期）
  */
 export const getTodayDateString = (): string => {
-  return dayjs().format('YYYY-MM-DD');
+  return getCurrentDate();
 };
 
 /**
@@ -218,6 +219,3 @@ export const canOpenModalForEdit = (): boolean => {
 export const canOpenModalForView = (): boolean => {
   return hasTodaySetTasks();
 };
-
-
-

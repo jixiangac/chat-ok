@@ -152,6 +152,9 @@ export default function MainlineTaskCard({ task, onClick }: MainlineTaskCardProp
     // cycleTargetValue 保持原值不变，compensationTargetValue 是实际计算用的目标
     const displayTargetValue = hasCompensation ? compensationTargetValue : cycleTargetValue;
     
+    // 判断总目标是否已完成
+    const isTotalCompleted = totalProgress >= 100;
+    
     return (
       <>
         <div className={styles.header}>
@@ -196,7 +199,10 @@ export default function MainlineTaskCard({ task, onClick }: MainlineTaskCardProp
 
         <div className={styles.footer}>
           <span className={styles.footerLabel}>
-            总进度 · {formatNumber(originalStartValue ?? startValue)}{unit} → {formatNumber(targetValue)}{unit}
+            {isTotalCompleted 
+              ? '🎉 总目标已达成' 
+              : `总进度 · ${formatNumber(originalStartValue ?? startValue)}${unit} → ${formatNumber(targetValue)}${unit}`
+            }
           </span>
           <div className={styles.footerProgress}>
             <div className={styles.footerProgressBar}>
@@ -219,6 +225,9 @@ export default function MainlineTaskCard({ task, onClick }: MainlineTaskCardProp
     const currentCycleCompleted = items.filter(
       item => item.status === 'COMPLETED' && item.cycle === currentCycle
     ).length;
+    
+    // 判断总目标是否已完成
+    const isTotalCompleted = totalProgress >= 100;
 
     return (
       <>
@@ -260,7 +269,9 @@ export default function MainlineTaskCard({ task, onClick }: MainlineTaskCardProp
         </div>
 
         <div className={styles.footer}>
-          <span className={styles.footerLabel}>总进度 · {completedItems}/{totalItems} 本</span>
+          <span className={styles.footerLabel}>
+            {isTotalCompleted ? '🎉 总目标已达成' : `总进度 · ${completedItems}/${totalItems} 本`}
+          </span>
           <div className={styles.footerProgress}>
             <div className={styles.footerProgressBar}>
               <div className={styles.footerProgressFill} style={{ width: `${totalProgress}%` }} />
@@ -275,7 +286,7 @@ export default function MainlineTaskCard({ task, onClick }: MainlineTaskCardProp
   // 打卡型任务卡片
   const renderCheckInContent = () => {
     if (!checkInConfig) return renderLegacyContent();
-    const { currentStreak, perCycleTarget, records } = checkInConfig;
+    const { perCycleTarget, records } = checkInConfig;
     const totalTarget = totalCycles * perCycleTarget;
     const totalCheckIns = records?.filter(record => record.checked).length || 0;
     
@@ -292,6 +303,9 @@ export default function MainlineTaskCard({ task, onClick }: MainlineTaskCardProp
       const recordDate = new Date(record.date);
       return record.checked && recordDate >= currentCycleStartDate && recordDate < currentCycleEndDate;
     }).length || 0;
+    
+    // 判断总目标是否已完成
+    const isTotalCompleted = totalProgress >= 100;
 
     return (
       <>
@@ -315,15 +329,12 @@ export default function MainlineTaskCard({ task, onClick }: MainlineTaskCardProp
           <div className={styles.progressBar}>
             <div className={styles.progressFill} style={{ width: `${cycleProgress}%` }} />
           </div>
-
-          <div className={styles.streakSection} style={{ marginTop: '12px' }}>
-            <span className={styles.streakLabel}>连续打卡</span>
-            <span className={styles.streakValue}>{currentStreak} 天</span>
-          </div>
         </div>
 
         <div className={styles.footer}>
-          <span className={styles.footerLabel}>总打卡 · {totalCheckIns}/{totalTarget} 次</span>
+          <span className={styles.footerLabel}>
+            {isTotalCompleted ? '🎉 总目标已达成' : `总打卡 · ${totalCheckIns}/${totalTarget} 次`}
+          </span>
           <div className={styles.footerProgress}>
             <div className={styles.footerProgressBar}>
               <div className={styles.footerProgressFill} style={{ width: `${totalProgress}%` }} />
@@ -396,8 +407,3 @@ export default function MainlineTaskCard({ task, onClick }: MainlineTaskCardProp
     </div>
   );
 }
-
-
-
-
-

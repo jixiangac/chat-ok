@@ -178,7 +178,7 @@ const DailyViewPopup: React.FC<DailyViewPopupProps> = ({
       // 使用绝对值处理减少型任务（NUMERIC 类型的 todayValue 可能为负数）
       const dailyProgress = dailyTarget > 0 ? Math.min(100, Math.max(0, (Math.abs(todayValue) / dailyTarget) * 100)) : 0;
       // 只有有每日目标且未完成时才显示进度图标
-      const hasProgress = dailyTarget > 0 && !isCompleted;
+      const hasProgress = todayValue > 0 && dailyTarget > 0 && !isCompleted;
 
       return {
         ...task,

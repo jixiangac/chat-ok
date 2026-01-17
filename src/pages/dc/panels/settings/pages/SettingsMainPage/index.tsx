@@ -5,10 +5,10 @@
  */
 
 import React from 'react';
-import { Target, Palette, Tag, Sun, Umbrella, Heart, Flag, Database, CheckCircle2, Circle } from 'lucide-react';
+import { Target, Palette, Tag, Sun, Umbrella, Heart, Flag, Database, CheckCircle2, Circle, Calendar } from 'lucide-react';
 import { SettingsSection, SettingsListItem } from '../../components';
-import { useUser } from '@/pages/dc/contexts';
-import dayjs from 'dayjs';
+import { useUser, useApp } from '@/pages/dc/contexts';
+import { getCurrentDate } from '@/pages/dc/utils';
 import styles from './styles.module.css';
 
 export interface SettingsMainPageProps {
@@ -25,7 +25,7 @@ const SettingsMainPage: React.FC<SettingsMainPageProps> = ({
   const { todayMustComplete } = useUser();
   
   // 判断是否是今天的数据
-  const today = dayjs().format('YYYY-MM-DD');
+  const today = getCurrentDate();
   const isToday = todayMustComplete.date === today;
   
   const taskIds = todayMustComplete.taskIds;
@@ -169,10 +169,18 @@ const SettingsMainPage: React.FC<SettingsMainPageProps> = ({
           animationIndex={animationIndex++}
           onClick={() => onNavigate('data', '数据管理')}
         />
+        
+        <SettingsListItem
+          icon={<Calendar size={18} />}
+          title="日期测试"
+          description="测试日期变更逻辑"
+          animated
+          animationIndex={animationIndex++}
+          onClick={() => onNavigate('dateTest', '日期测试')}
+        />
       </SettingsSection>
     </div>
   );
 };
 
 export default SettingsMainPage;
-

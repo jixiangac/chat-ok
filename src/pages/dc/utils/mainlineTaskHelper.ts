@@ -1,4 +1,5 @@
 import { Task, NumericConfig, ChecklistConfig, CheckInConfig, CycleConfig } from '../types';
+import { getCurrentDate } from './dateTracker';
 
 // 兼容旧版 MainlineTask 类型
 interface MainlineTask {
@@ -251,6 +252,7 @@ export function calculateCheckInProgress(mainlineTask: MainlineTask): {
 /**
  * 计算剩余天数（基于当前周期结束日期和模拟日期）
  * 与详情页的getCurrentCycle逻辑保持一致
+ * 优先使用全局测试日期，其次使用任务级别的debugDayOffset
  */
 export function calculateRemainingDays(task: Task): number {
   const startDateStr = task.time.startDate;
@@ -260,27 +262,31 @@ export function calculateRemainingDays(task: Task): number {
   if (!startDateStr || !cycleDays || !totalCycles) return 0;
   
   const startDate = new Date(startDateStr);
-  const now = new Date();
   
-  // 考虑debugDayOffset偏移，获取模拟的"今天"
+  // 优先使用全局测试日期，其次使用任务级别的debugDayOffset
+  const currentDate = getCurrentDate();
   const debugOffset = (task as any).debugDayOffset || 0;
-  const simulatedToday = new Date(now);
-  simulatedToday.setDate(simulatedToday.getDate() + debugOffset);
+  const simulatedToday = new Date(currentDate);
+  if (debugOffset !== 0) {
+    simulatedToday.setDate(simulatedToday.getDate() + debugOffset);
+  }
   simulatedToday.setHours(0, 0, 0, 0);
   
-  // 基于真实日期计算周期编号
-  const realElapsedDays = Math.floor(
-    (now.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
+  // 基于模拟日期计算周期编号
+  const elapsedDays = Math.floor(
+    (simulatedToday.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
   );
   
   // 考虑cycleSnapshots数量
   const snapshotCount = (task as any).cycleSnapshots?.length || 0;
   
-  // 计算基于真实时间的周期编号
-  const realCycleNumber = Math.floor(realElapsedDays / cycleDays) + 1;
+  // 计算基于模拟时间的周期编号
+  const calculatedCycleNumber = Math.floor(elapsedDays / cycleDays) + 1;
   
-  // 当前周期编号 = max(基于真实时间的周期, 快照数+1)，但不超过总周期数
-  const currentCycleNumber = Math.min(Math.max(realCycleNumber, snapshotCount + 1), totalCycles);
+  // 当前周期编号 = max(基于模拟时间的周期, 快照数+1)，但不超过总周期数
+  // 如果任务有 cycle.currentCycle，优先使用它
+  const currentCycleNumber = task.cycle?.currentCycle || 
+    Math.min(Math.max(calculatedCycleNumber, snapshotCount + 1), totalCycles);
   
   // 计算当前周期的结束日期
   const cycleEndDay = currentCycleNumber * cycleDays - 1;
@@ -347,43 +353,41 @@ export function updateMainlineTaskProgress(mainlineTask: MainlineTask): Mainline
 /**
  * 计算当前周期编号（基于cycleSnapshots）
  * 这个函数与详情页的getCurrentCycle逻辑保持一致
+ * 优先使用全局测试日期，其次使用任务级别的debugDayOffset
  */
 export function calculateCurrentCycleNumber(task: Task): number {
+  // 如果任务有 cycle.currentCycle，优先使用它
+  if (task.cycle?.currentCycle) return task.cycle.currentCycle;
+  
   const startDateStr = task.time.startDate;
   const cycleDays = task.cycle.cycleDays;
   const totalCycles = task.cycle.totalCycles;
   
   if (!startDateStr || !cycleDays || !totalCycles) {
-    // 如果有 cycle.currentCycle，直接返回
-    if (task.cycle?.currentCycle) return task.cycle.currentCycle;
     return 1;
   }
   
   const startDate = new Date(startDateStr);
-  const now = new Date();
   
-  // 考虑debugDayOffset偏移
+  // 优先使用全局测试日期，其次使用任务级别的debugDayOffset
+  const currentDate = getCurrentDate();
   const debugOffset = (task as any).debugDayOffset || 0;
-  const simulatedToday = new Date(now);
-  simulatedToday.setDate(simulatedToday.getDate() + debugOffset);
+  const simulatedToday = new Date(currentDate);
+  if (debugOffset !== 0) {
+    simulatedToday.setDate(simulatedToday.getDate() + debugOffset);
+  }
   
-  // 基于真实日期计算周期编号
-  const realElapsedDays = Math.floor(
-    (now.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
+  // 基于模拟日期计算周期编号
+  const elapsedDays = Math.floor(
+    (simulatedToday.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
   );
   
   // 考虑cycleSnapshots数量
   const snapshotCount = (task as any).cycleSnapshots?.length || 0;
   
-  // 计算基于真实时间的周期编号
-  const realCycleNumber = Math.floor(realElapsedDays / cycleDays) + 1;
+  // 计算基于模拟时间的周期编号
+  const calculatedCycleNumber = Math.floor(elapsedDays / cycleDays) + 1;
   
-  // 当前周期编号 = max(基于真实时间的周期, 快照数+1)，但不超过总周期数
-  return Math.min(Math.max(realCycleNumber, snapshotCount + 1), totalCycles);
+  // 当前周期编号 = max(基于模拟时间的周期, 快照数+1)，但不超过总周期数
+  return Math.min(Math.max(calculatedCycleNumber, snapshotCount + 1), totalCycles);
 }
-
-
-
-
-
-

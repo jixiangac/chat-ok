@@ -5,6 +5,7 @@ import dayjs from 'dayjs';
 import { Popup, SafeArea } from 'antd-mobile';
 import type { MainlineTaskType, NumericDirection, CheckInUnit } from '../../types';
 import { useTheme, useScene } from '../../contexts';
+import { getCurrentDate } from '../../utils';
 import type { Step, TaskCategory, CycleInfo, CreateMainlineTaskModalProps } from './types';
 import { CycleStep, TypeStep, ConfigStep } from './steps';
 import { stepVariants, smoothTransition } from '../../constants/animations';
@@ -35,7 +36,7 @@ export default function CreateMainlineTaskModal({
   const [isCustom, setIsCustom] = useState(false);
   const [customCycleDays, setCustomCycleDays] = useState('');
   const [isCustomCycle, setIsCustomCycle] = useState(false);
-  const [startDate, setStartDate] = useState(dayjs().format('YYYY-MM-DD'));
+  const [startDate, setStartDate] = useState(getCurrentDate());
   
   // 步骤2：类型选择
   const [selectedType, setSelectedType] = useState<MainlineTaskType | null>(null);
@@ -88,7 +89,7 @@ export default function CreateMainlineTaskModal({
     setIsCustom(false);
     setCustomCycleDays('');
     setIsCustomCycle(false);
-    setStartDate(dayjs().format('YYYY-MM-DD'));
+    setStartDate(getCurrentDate());
     setSelectedType(null);
     setTaskTitle('');
     setNumericDirection('DECREASE');
@@ -525,7 +526,3 @@ export default function CreateMainlineTaskModal({
     </Popup>
   );
 }
-
-
-
-

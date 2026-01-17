@@ -735,6 +735,17 @@
     "exports": []
   },
   {
+    "path": "dc/panels/settings/pages/DateTestPage",
+    "index": true,
+    "id": "dc/panels/settings/pages/DateTestPage",
+    "file": "dc/panels/settings/pages/DateTestPage/index.tsx",
+    "componentName": "dc-panels-settings-pages-datetestpage-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
     "path": "dc/viewmodel/CreateTaskModal/steps/TypeStep",
     "id": "dc/viewmodel/CreateTaskModal/steps/TypeStep",
     "file": "dc/viewmodel/CreateTaskModal/steps/TypeStep.tsx",
@@ -1509,8 +1520,6 @@
     "exports": [
       "applyThemeCSSVariables",
       "clearAppConfig",
-      "getCurrentSystemTime",
-      "isDateChanged",
       "loadAppConfig",
       "saveAppConfig"
     ]
@@ -1679,6 +1688,7 @@
     "layout": false,
     "exports": [
       "DataManagementPage",
+      "DateTestPage",
       "SettingsMainPage",
       "TagSettingsPage",
       "ThemeSettingsPage",
@@ -1694,6 +1704,7 @@
     "layout": false,
     "exports": [
       "AppProvider",
+      "DATE_CHANGE_EVENT",
       "themePresets",
       "useApp",
       "useTheme"
@@ -1913,17 +1924,6 @@
     ]
   },
   {
-    "path": "dc/utils/dateChangeHandler",
-    "id": "dc/utils/dateChangeHandler",
-    "file": "dc/utils/dateChangeHandler.ts",
-    "componentName": "dc-utils-datechangehandler",
-    "layout": false,
-    "exports": [
-      "__test__",
-      "handleDateChange"
-    ]
-  },
-  {
     "path": "dc/utils/dataExportImport",
     "id": "dc/utils/dataExportImport",
     "file": "dc/utils/dataExportImport.ts",
@@ -2006,7 +2006,12 @@
     "componentName": "dc-utils-dailyviewfilter",
     "layout": false,
     "exports": [
-      "filterDailyViewTasks"
+      "calculateFlexibleTaskLimit",
+      "filterDailyViewTasks",
+      "filterDailyViewTasksEnhanced",
+      "hasDailyTargetTask",
+      "isNearDeadline",
+      "selectFlexibleTasks"
     ]
   },
   {
@@ -2093,6 +2098,21 @@
       "migrateOldArchivedTasks",
       "restoreFromArchive",
       "saveArchivedTasks"
+    ]
+  },
+  {
+    "path": "dc/utils/dailyDataReset",
+    "id": "dc/utils/dailyDataReset",
+    "file": "dc/utils/dailyDataReset.ts",
+    "componentName": "dc-utils-dailydatareset",
+    "layout": false,
+    "exports": [
+      "advanceTaskCycle",
+      "calculateNewCycle",
+      "needsProgressReset",
+      "performDailyReset",
+      "resetTodayProgress",
+      "shouldAdvanceCycle"
     ]
   },
   {
@@ -2211,6 +2231,25 @@
     "layout": false,
     "exports": [
       "useTaskSort"
+    ]
+  },
+  {
+    "path": "dc/utils/dateTracker",
+    "id": "dc/utils/dateTracker",
+    "file": "dc/utils/dateTracker.ts",
+    "componentName": "dc-utils-datetracker",
+    "layout": false,
+    "exports": [
+      "checkDateChange",
+      "clearTestDate",
+      "forceCheckDateChange",
+      "getCurrentDate",
+      "getLastVisitedDate",
+      "getRealSystemDate",
+      "getTestDate",
+      "hasTestDate",
+      "setLastVisitedDate",
+      "setTestDate"
     ]
   },
   {
@@ -2461,23 +2500,28 @@
       "ProgressCalculator",
       "TAG_COLORS",
       "TaskMigration",
+      "advanceTaskCycle",
       "archiveTask",
       "calculateCheckInProgress",
       "calculateCheckInProgressV2",
       "calculateChecklistProgress",
       "calculateChecklistProgressV2",
       "calculateCurrentCycleNumber",
+      "calculateFlexibleTaskLimit",
       "calculateGridColumns",
       "calculateModalMaxHeight",
+      "calculateNewCycle",
       "calculateNumericProgress",
       "calculateNumericProgressV2",
       "calculateRemainingDays",
       "calculateVisibleSidelineTasks",
       "canOpenModalForEdit",
       "canOpenModalForView",
+      "checkDateChange",
       "clearAllArchivedTasks",
       "clearDailyViewCache",
       "clearData",
+      "clearTestDate",
       "copyToClipboard",
       "createTag",
       "createTask",
@@ -2489,29 +2533,38 @@
       "exportSingleTask",
       "exportToClipboard",
       "filterDailyViewTasks",
+      "filterDailyViewTasksEnhanced",
+      "forceCheckDateChange",
       "formatLargeNumber",
       "formatNumber",
       "getAllTags",
       "getArchiveStats",
       "getArchivedTasks",
       "getCachedDailyTaskIds",
+      "getCurrentDate",
       "getDataStats",
       "getDeveloperMode",
       "getEffectiveCategory",
       "getEffectiveMainlineType",
+      "getLastVisitedDate",
       "getNextTagColor",
+      "getRealSystemDate",
       "getSafeAreaInsets",
       "getSavedLocationFilter",
       "getScreenSize",
       "getTagById",
+      "getTestDate",
       "getTodayDateString",
       "getTodayMustCompleteTaskIds",
+      "hasDailyTargetTask",
+      "hasTestDate",
       "hasTodayBeenSet",
       "hasTodaySetTasks",
       "importAllTasks",
       "importData",
       "importSingleTask",
       "isMobileDevice",
+      "isNearDeadline",
       "isSmallScreen",
       "isTaskTodayMustComplete",
       "isTodayCheckedIn",
@@ -2520,17 +2573,24 @@
       "markModalShown",
       "migrateOldArchivedTasks",
       "migrateToNewFormat",
+      "needsProgressReset",
+      "performDailyReset",
       "prefersReducedMotion",
       "removeFromTodayMustComplete",
       "repairTaskProgressData",
+      "resetTodayProgress",
       "restoreFromArchive",
       "saveArchivedTasks",
       "saveDailyTaskIdsCache",
       "saveLocationFilter",
       "saveTagsToStorage",
       "saveTodayMustCompleteState",
+      "selectFlexibleTasks",
       "setDeveloperMode",
+      "setLastVisitedDate",
+      "setTestDate",
       "setTodayMustCompleteTasks",
+      "shouldAdvanceCycle",
       "shouldShowTodayMustCompleteModal",
       "skipTodayMustComplete",
       "updateMainlineTaskProgress",

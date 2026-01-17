@@ -99,6 +99,13 @@ export const defaultAppConfig: AppConfig = {
   },
 };
 
+// 日期变更信息
+export interface DateChangeInfo {
+  oldDate: string;
+  newDate: string;
+  daysDiff: number;
+}
+
 // Context 值类型
 export interface AppContextValue {
   // 配置数据
@@ -118,5 +125,12 @@ export interface AppContextValue {
   // 完整配置更新
   updateConfig: (config: Partial<AppConfig>) => void;
   resetConfig: () => void;
+  
+  // 日期相关
+  systemDate: string;  // 当前系统日期 YYYY-MM-DD
+  testDate: string | null;  // 测试日期（如果设置）
+  setTestDate: (date: string) => boolean;  // 设置测试日期
+  clearTestDate: () => void;  // 清除测试日期
+  checkDate: () => DateChangeInfo | null;  // 检查日期变更
+  triggerDateChange: () => void;  // 手动触发日期变更事件
 }
-

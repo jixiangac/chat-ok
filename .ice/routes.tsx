@@ -67,6 +67,7 @@ import * as dc_panels_happy_components_TripList_TripCard from '@/pages/dc/panels
 import * as dc_viewmodel_CreateTaskModal_steps_CycleStep from '@/pages/dc/viewmodel/CreateTaskModal/steps/CycleStep';
 import * as dc_components_CreateMainlineTaskModal from '@/pages/dc/components/CreateMainlineTaskModal/index';
 import * as dc_components_CreateMainlineTaskModal_types from '@/pages/dc/components/CreateMainlineTaskModal/types';
+import * as dc_panels_settings_pages_DateTestPage from '@/pages/dc/panels/settings/pages/DateTestPage/index';
 import * as dc_viewmodel_CreateTaskModal_steps_TypeStep from '@/pages/dc/viewmodel/CreateTaskModal/steps/TypeStep';
 import * as dc_components_SidelineTaskEditModal from '@/pages/dc/components/SidelineTaskEditModal/index';
 import * as dc_components_shared_CircleProgress from '@/pages/dc/components/shared/CircleProgress/index';
@@ -161,7 +162,6 @@ import * as dc_utils_mainlineTaskHelper from '@/pages/dc/utils/mainlineTaskHelpe
 import * as dc_utils_progressCalculator from '@/pages/dc/utils/progressCalculator';
 import * as dc_components_shared from '@/pages/dc/components/shared/index';
 import * as dc_panels_memorial_storage from '@/pages/dc/panels/memorial/storage';
-import * as dc_utils_dateChangeHandler from '@/pages/dc/utils/dateChangeHandler';
 import * as dc_utils_dataExportImport from '@/pages/dc/utils/dataExportImport';
 import * as dc_utils_developerStorage from '@/pages/dc/utils/developerStorage';
 import * as dc_components_card from '@/pages/dc/components/card/index';
@@ -174,6 +174,7 @@ import * as dc_hooks_useSpriteImage from '@/pages/dc/hooks/useSpriteImage';
 import * as dc_panels_archive from '@/pages/dc/panels/archive/index';
 import * as dc_panels_happy_storage from '@/pages/dc/panels/happy/storage';
 import * as dc_utils_archiveStorage from '@/pages/dc/utils/archiveStorage';
+import * as dc_utils_dailyDataReset from '@/pages/dc/utils/dailyDataReset';
 import * as dc_utils_dailyViewCache from '@/pages/dc/utils/dailyViewCache';
 import * as dc_panels_detail from '@/pages/dc/panels/detail/index';
 import * as dc_panels_detail_types from '@/pages/dc/panels/detail/types';
@@ -184,6 +185,7 @@ import * as dc_constants_sprites from '@/pages/dc/constants/sprites';
 import * as dc_hooks_useConfetti from '@/pages/dc/hooks/useConfetti';
 import * as dc_hooks_useProgress from '@/pages/dc/hooks/useProgress';
 import * as dc_hooks_useTaskSort from '@/pages/dc/hooks/useTaskSort';
+import * as dc_utils_dateTracker from '@/pages/dc/utils/dateTracker';
 import * as dc_components from '@/pages/dc/components/index';
 import * as dc_constants_colors from '@/pages/dc/constants/colors';
 import * as dc_utils_responsive from '@/pages/dc/utils/responsive';
@@ -1890,6 +1892,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: [],
   },{
+    path: 'dc/panels/settings/pages/DateTestPage',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_settings_pages_DateTestPage,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/settings/pages/DateTestPage',
+          isLayout: false,
+          routeExports: dc_panels_settings_pages_DateTestPage,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/settings/pages/DateTestPage',
+          requestContext,
+          renderMode,
+          module: dc_panels_settings_pages_DateTestPage,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-settings-pages-datetestpage-index',
+    index: true,
+    id: 'dc/panels/settings/pages/DateTestPage',
+    exact: true,
+    exports: ["default"],
+  },{
     path: 'dc/viewmodel/CreateTaskModal/steps/TypeStep',
     async lazy() {
       ;
@@ -3438,7 +3465,7 @@ const createRoutes: CreateRoutes = ({
     index: undefined,
     id: 'dc/contexts/AppProvider/storage',
     exact: true,
-    exports: ["applyThemeCSSVariables","clearAppConfig","getCurrentSystemTime","isDateChanged","loadAppConfig","saveAppConfig"],
+    exports: ["applyThemeCSSVariables","clearAppConfig","loadAppConfig","saveAppConfig"],
   },{
     path: 'dc/contexts/SceneProvider',
     async lazy() {
@@ -3813,7 +3840,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/panels/settings/pages',
     exact: true,
-    exports: ["DataManagementPage","SettingsMainPage","TagSettingsPage","ThemeSettingsPage","TodayMustCompletePage"],
+    exports: ["DataManagementPage","DateTestPage","SettingsMainPage","TagSettingsPage","ThemeSettingsPage","TodayMustCompletePage"],
   },{
     path: 'dc/contexts/AppProvider',
     async lazy() {
@@ -3838,7 +3865,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/contexts/AppProvider',
     exact: true,
-    exports: ["AppProvider","themePresets","useApp","useTheme"],
+    exports: ["AppProvider","DATE_CHANGE_EVENT","themePresets","useApp","useTheme"],
   },{
     path: 'dc/contexts/AppProvider/types',
     async lazy() {
@@ -4240,31 +4267,6 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["generateId","loadDateFormat","loadMemorials","saveDateFormat","saveMemorials"],
   },{
-    path: 'dc/utils/dateChangeHandler',
-    async lazy() {
-      ;
-      return {
-        ...dc_utils_dateChangeHandler,
-        Component: () => WrapRouteComponent({
-          routeId: 'dc/utils/dateChangeHandler',
-          isLayout: false,
-          routeExports: dc_utils_dateChangeHandler,
-        }),
-        loader: createRouteLoader({
-          routeId: 'dc/utils/dateChangeHandler',
-          requestContext,
-          renderMode,
-          module: dc_utils_dateChangeHandler,
-        }),
-      };
-    },
-    errorElement: <RouteErrorComponent />,
-    componentName: 'dc-utils-datechangehandler',
-    index: undefined,
-    id: 'dc/utils/dateChangeHandler',
-    exact: true,
-    exports: ["__test__","handleDateChange"],
-  },{
     path: 'dc/utils/dataExportImport',
     async lazy() {
       ;
@@ -4438,7 +4440,7 @@ const createRoutes: CreateRoutes = ({
     index: undefined,
     id: 'dc/utils/dailyViewFilter',
     exact: true,
-    exports: ["filterDailyViewTasks"],
+    exports: ["calculateFlexibleTaskLimit","filterDailyViewTasks","filterDailyViewTasksEnhanced","hasDailyTargetTask","isNearDeadline","selectFlexibleTasks"],
   },{
     path: 'dc/constants/animations',
     async lazy() {
@@ -4564,6 +4566,31 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/utils/archiveStorage',
     exact: true,
     exports: ["archiveTask","clearAllArchivedTasks","deleteArchivedTask","getArchiveStats","getArchivedTasks","migrateOldArchivedTasks","restoreFromArchive","saveArchivedTasks"],
+  },{
+    path: 'dc/utils/dailyDataReset',
+    async lazy() {
+      ;
+      return {
+        ...dc_utils_dailyDataReset,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/utils/dailyDataReset',
+          isLayout: false,
+          routeExports: dc_utils_dailyDataReset,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/utils/dailyDataReset',
+          requestContext,
+          renderMode,
+          module: dc_utils_dailyDataReset,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-utils-dailydatareset',
+    index: undefined,
+    id: 'dc/utils/dailyDataReset',
+    exact: true,
+    exports: ["advanceTaskCycle","calculateNewCycle","needsProgressReset","performDailyReset","resetTodayProgress","shouldAdvanceCycle"],
   },{
     path: 'dc/utils/dailyViewCache',
     async lazy() {
@@ -4814,6 +4841,31 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/hooks/useTaskSort',
     exact: true,
     exports: ["useTaskSort"],
+  },{
+    path: 'dc/utils/dateTracker',
+    async lazy() {
+      ;
+      return {
+        ...dc_utils_dateTracker,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/utils/dateTracker',
+          isLayout: false,
+          routeExports: dc_utils_dateTracker,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/utils/dateTracker',
+          requestContext,
+          renderMode,
+          module: dc_utils_dateTracker,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-utils-datetracker',
+    index: undefined,
+    id: 'dc/utils/dateTracker',
+    exact: true,
+    exports: ["checkDateChange","clearTestDate","forceCheckDateChange","getCurrentDate","getLastVisitedDate","getRealSystemDate","getTestDate","hasTestDate","setLastVisitedDate","setTestDate"],
   },{
     path: 'dc/components',
     async lazy() {
@@ -5088,7 +5140,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/utils',
     exact: true,
-    exports: ["CycleCalculator","DATA_TYPE_CONFIG","LAYOUT_CONSTANTS","MigrationTool","ProgressCalculator","TAG_COLORS","TaskMigration","archiveTask","calculateCheckInProgress","calculateCheckInProgressV2","calculateChecklistProgress","calculateChecklistProgressV2","calculateCurrentCycleNumber","calculateGridColumns","calculateModalMaxHeight","calculateNumericProgress","calculateNumericProgressV2","calculateRemainingDays","calculateVisibleSidelineTasks","canOpenModalForEdit","canOpenModalForView","clearAllArchivedTasks","clearDailyViewCache","clearData","copyToClipboard","createTag","createTask","createTodayState","deleteArchivedTask","deleteTag","exportAllTasks","exportData","exportSingleTask","exportToClipboard","filterDailyViewTasks","formatLargeNumber","formatNumber","getAllTags","getArchiveStats","getArchivedTasks","getCachedDailyTaskIds","getDataStats","getDeveloperMode","getEffectiveCategory","getEffectiveMainlineType","getNextTagColor","getSafeAreaInsets","getSavedLocationFilter","getScreenSize","getTagById","getTodayDateString","getTodayMustCompleteTaskIds","hasTodayBeenSet","hasTodaySetTasks","importAllTasks","importData","importSingleTask","isMobileDevice","isSmallScreen","isTaskTodayMustComplete","isTodayCheckedIn","loadTagsFromStorage","loadTodayMustCompleteState","markModalShown","migrateOldArchivedTasks","migrateToNewFormat","prefersReducedMotion","removeFromTodayMustComplete","repairTaskProgressData","restoreFromArchive","saveArchivedTasks","saveDailyTaskIdsCache","saveLocationFilter","saveTagsToStorage","saveTodayMustCompleteState","setDeveloperMode","setTodayMustCompleteTasks","shouldShowTodayMustCompleteModal","skipTodayMustComplete","updateMainlineTaskProgress","updateTag"],
+    exports: ["CycleCalculator","DATA_TYPE_CONFIG","LAYOUT_CONSTANTS","MigrationTool","ProgressCalculator","TAG_COLORS","TaskMigration","advanceTaskCycle","archiveTask","calculateCheckInProgress","calculateCheckInProgressV2","calculateChecklistProgress","calculateChecklistProgressV2","calculateCurrentCycleNumber","calculateFlexibleTaskLimit","calculateGridColumns","calculateModalMaxHeight","calculateNewCycle","calculateNumericProgress","calculateNumericProgressV2","calculateRemainingDays","calculateVisibleSidelineTasks","canOpenModalForEdit","canOpenModalForView","checkDateChange","clearAllArchivedTasks","clearDailyViewCache","clearData","clearTestDate","copyToClipboard","createTag","createTask","createTodayState","deleteArchivedTask","deleteTag","exportAllTasks","exportData","exportSingleTask","exportToClipboard","filterDailyViewTasks","filterDailyViewTasksEnhanced","forceCheckDateChange","formatLargeNumber","formatNumber","getAllTags","getArchiveStats","getArchivedTasks","getCachedDailyTaskIds","getCurrentDate","getDataStats","getDeveloperMode","getEffectiveCategory","getEffectiveMainlineType","getLastVisitedDate","getNextTagColor","getRealSystemDate","getSafeAreaInsets","getSavedLocationFilter","getScreenSize","getTagById","getTestDate","getTodayDateString","getTodayMustCompleteTaskIds","hasDailyTargetTask","hasTestDate","hasTodayBeenSet","hasTodaySetTasks","importAllTasks","importData","importSingleTask","isMobileDevice","isNearDeadline","isSmallScreen","isTaskTodayMustComplete","isTodayCheckedIn","loadTagsFromStorage","loadTodayMustCompleteState","markModalShown","migrateOldArchivedTasks","migrateToNewFormat","needsProgressReset","performDailyReset","prefersReducedMotion","removeFromTodayMustComplete","repairTaskProgressData","resetTodayProgress","restoreFromArchive","saveArchivedTasks","saveDailyTaskIdsCache","saveLocationFilter","saveTagsToStorage","saveTodayMustCompleteState","selectFlexibleTasks","setDeveloperMode","setLastVisitedDate","setTestDate","setTodayMustCompleteTasks","shouldAdvanceCycle","shouldShowTodayMustCompleteModal","skipTodayMustComplete","updateMainlineTaskProgress","updateTag"],
   },{
     path: 'stock_self',
     async lazy() {

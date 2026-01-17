@@ -1,5 +1,6 @@
 import type { Task } from '../../../types';
 import type { CurrentCycleInfo } from '../types';
+import { getCurrentDate } from '../../../utils/dateTracker';
 
 // 将 Date 对象格式化为本地时区的 YYYY-MM-DD 字符串
 export function formatLocalDate(date: Date): string {
@@ -9,21 +10,34 @@ export function formatLocalDate(date: Date): string {
   return `${year}-${month}-${day}`;
 }
 
-// 获取模拟的"今天"日期（考虑debugDayOffset偏移，使用本地时区）
-// 支持新旧格式
-export function getSimulatedToday(task: Task | any): string {
-  const realToday = new Date();
-  const offset = (task as any).debugDayOffset || 0;
-  realToday.setDate(realToday.getDate() + offset);
-  return formatLocalDate(realToday);
+// 获取模拟的"今天"日期（考虑测试日期和debugDayOffset偏移，使用本地时区）
+// 优先使用全局测试日期，其次使用任务级别的debugDayOffset
+export function getSimulatedToday(task?: Task | any): string {
+  // 优先使用全局测试日期
+  const currentDate = getCurrentDate();
+  const offset = task ? ((task as any).debugDayOffset || 0) : 0;
+  
+  if (offset === 0) {
+    return currentDate;
+  }
+  
+  // 如果有偏移量，在当前日期基础上计算
+  const date = new Date(currentDate);
+  date.setDate(date.getDate() + offset);
+  return formatLocalDate(date);
 }
 
 // 获取模拟的"今天"Date对象
-export function getSimulatedTodayDate(task: Task | any): Date {
-  const realToday = new Date();
-  const offset = (task as any).debugDayOffset || 0;
-  realToday.setDate(realToday.getDate() + offset);
-  return realToday;
+export function getSimulatedTodayDate(task?: Task | any): Date {
+  // 优先使用全局测试日期
+  const currentDate = getCurrentDate();
+  const offset = task ? ((task as any).debugDayOffset || 0) : 0;
+  
+  const date = new Date(currentDate);
+  if (offset !== 0) {
+    date.setDate(date.getDate() + offset);
+  }
+  return date;
 }
 
 // 获取当前周期信息
@@ -61,18 +75,17 @@ export function getCurrentCycle(task: Task | any): CurrentCycleInfo {
   let currentCycleNumber = currentCycleFromTask;
   
   if (!currentCycleNumber) {
-    // 兼容旧格式：基于时间计算
-    const realToday = new Date();
-    const realElapsedDays = Math.floor(
-      (realToday.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
+    // 兼容旧格式：基于时间计算（使用系统日期，支持测试日期）
+    const elapsedDays = Math.floor(
+      (simulatedToday.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
     );
     
     // 考虑debug模拟跳过的周期数（从 activities 中提取）
     const snapshotCount = task.activities?.filter((a: any) => a.type === 'CYCLE_ADVANCE').length || 
                           task.cycleSnapshots?.length || 0;
     
-    const realCycleNumber = Math.floor(realElapsedDays / cycleDays) + 1;
-    currentCycleNumber = Math.min(Math.max(realCycleNumber, snapshotCount + 1), totalCycles);
+    const calculatedCycleNumber = Math.floor(elapsedDays / cycleDays) + 1;
+    currentCycleNumber = Math.min(Math.max(calculatedCycleNumber, snapshotCount + 1), totalCycles);
   }
   
   // 计算当前周期的起始天数

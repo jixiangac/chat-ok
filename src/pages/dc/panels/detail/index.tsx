@@ -24,6 +24,7 @@ import type { Category, Task } from '../../types';
 import SidelineTaskEditModal from '../../components/SidelineTaskEditModal';
 import styles from './GoalDetailModal.module.css';
 import dayjs from 'dayjs';
+import { getCurrentDate } from '../../utils';
 
 // 从 Task 构建 CurrentCycleInfo
 function buildCurrentCycleInfo(task: Task): CurrentCycleInfo {
@@ -37,8 +38,8 @@ function buildCurrentCycleInfo(task: Task): CurrentCycleInfo {
   const cycleStartDate = startDate.add(cycleStartDay, 'day').format('YYYY-MM-DD');
   const cycleEndDate = startDate.add(cycleEndDay, 'day').format('YYYY-MM-DD');
   
-  // 计算剩余天数
-  const today = dayjs();
+  // 计算剩余天数（使用全局日期）
+  const today = dayjs(getCurrentDate());
   const cycleEnd = dayjs(cycleEndDate);
   const remainingDays = Math.max(0, cycleEnd.diff(today, 'day'));
   
@@ -330,6 +331,9 @@ export default function GoalDetailModal({
   const isCheckInButtonDisabled = useMemo(() => {
     if (isPlanEnded) return false;
     if (taskCategory !== 'CHECK_IN') return false;
+    if ( taskCategory === 'CHECK_IN' && task?.checkInConfig?.unit === "DURATION" ) {
+      return false;
+    }
     return todayCheckInStatus.isCompleted;
   }, [isPlanEnded, taskCategory, todayCheckInStatus.isCompleted]);
   

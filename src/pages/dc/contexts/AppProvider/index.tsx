@@ -1,12 +1,20 @@
 /**
  * AppProvider - 系统基础配置管理
- * 管理主题配色、消息推送、系统偏好等
+ * 管理主题配色、消息推送、系统偏好、日期检测等
  */
 
-import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import type { AppConfig, AppContextValue, ThemeKey, NotificationConfig, PreferencesConfig } from './types';
+import { createContext, useContext, useState, useEffect, useCallback, useRef, ReactNode } from 'react';
+import type { AppConfig, AppContextValue, ThemeKey, NotificationConfig, PreferencesConfig, DateChangeInfo } from './types';
 import { themePresets, defaultAppConfig } from './types';
 import { loadAppConfig, saveAppConfig, applyThemeCSSVariables, clearAppConfig } from './storage';
+import {
+  getCurrentDate,
+  getTestDate,
+  setTestDate as setTestDateStorage,
+  clearTestDate as clearTestDateStorage,
+  checkDateChange,
+  setLastVisitedDate,
+} from '../../utils/dateTracker';
 
 // 创建 Context
 const AppContext = createContext<AppContextValue | null>(null);
@@ -15,14 +23,75 @@ interface AppProviderProps {
   children: ReactNode;
 }
 
+// 日期变更事件名称
+export const DATE_CHANGE_EVENT = 'system-date-changed';
+
 export function AppProvider({ children }: AppProviderProps) {
   const [config, setConfig] = useState<AppConfig>(defaultAppConfig);
+  const [systemDate, setSystemDate] = useState<string>(getCurrentDate());
+  const [testDate, setTestDateState] = useState<string | null>(getTestDate());
+  
+  // 用于防抖的 ref
+  const checkDateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // 初始化时从 localStorage 加载配置
   useEffect(() => {
     const loadedConfig = loadAppConfig();
     setConfig(loadedConfig);
     applyThemeCSSVariables(loadedConfig.theme.currentTheme);
+    
+    // 初始化时检查日期变更
+    const dateChange = checkDateChange();
+    if (dateChange) {
+      console.log('[AppProvider] 检测到日期变更:', dateChange);
+      // 触发日期变更事件
+      window.dispatchEvent(new CustomEvent(DATE_CHANGE_EVENT, { detail: dateChange }));
+    }
+  }, []);
+
+  // 监听 visibilitychange 事件
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        // 使用防抖避免频繁检测
+        if (checkDateTimeoutRef.current) {
+          clearTimeout(checkDateTimeoutRef.current);
+        }
+        checkDateTimeoutRef.current = setTimeout(() => {
+          const dateChange = checkDateChange();
+          if (dateChange) {
+            console.log('[AppProvider] visibilitychange 检测到日期变更:', dateChange);
+            setSystemDate(dateChange.newDate);
+            window.dispatchEvent(new CustomEvent(DATE_CHANGE_EVENT, { detail: dateChange }));
+          }
+        }, 100);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      if (checkDateTimeoutRef.current) {
+        clearTimeout(checkDateTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // 监听 online 事件
+  useEffect(() => {
+    const handleOnline = () => {
+      const dateChange = checkDateChange();
+      if (dateChange) {
+        console.log('[AppProvider] online 检测到日期变更:', dateChange);
+        setSystemDate(dateChange.newDate);
+        window.dispatchEvent(new CustomEvent(DATE_CHANGE_EVENT, { detail: dateChange }));
+      }
+    };
+
+    window.addEventListener('online', handleOnline);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+    };
   }, []);
 
   // 设置主题
@@ -87,6 +156,57 @@ export function AppProvider({ children }: AppProviderProps) {
     applyThemeCSSVariables(defaultAppConfig.theme.currentTheme);
   }, []);
 
+  // 设置测试日期
+  const setTestDate = useCallback((date: string): boolean => {
+    const success = setTestDateStorage(date);
+    if (success) {
+      setTestDateState(date);
+      setSystemDate(date);
+    }
+    return success;
+  }, []);
+
+  // 清除测试日期
+  const clearTestDate = useCallback(() => {
+    clearTestDateStorage();
+    setTestDateState(null);
+    setSystemDate(getCurrentDate());
+  }, []);
+
+  // 检查日期变更
+  const checkDate = useCallback((): DateChangeInfo | null => {
+    const dateChange = checkDateChange();
+    if (dateChange) {
+      setSystemDate(dateChange.newDate);
+    }
+    return dateChange;
+  }, []);
+
+  // 手动触发日期变更事件
+  const triggerDateChange = useCallback(() => {
+    const currentDate = getCurrentDate();
+    const lastDate = systemDate;
+    
+    if (currentDate !== lastDate) {
+      const dateChange: DateChangeInfo = {
+        oldDate: lastDate,
+        newDate: currentDate,
+        daysDiff: 1, // 简化处理
+      };
+      setSystemDate(currentDate);
+      setLastVisitedDate(currentDate);
+      window.dispatchEvent(new CustomEvent(DATE_CHANGE_EVENT, { detail: dateChange }));
+    } else {
+      // 即使日期相同，也触发事件（用于测试）
+      const dateChange: DateChangeInfo = {
+        oldDate: lastDate,
+        newDate: currentDate,
+        daysDiff: 0,
+      };
+      window.dispatchEvent(new CustomEvent(DATE_CHANGE_EVENT, { detail: dateChange }));
+    }
+  }, [systemDate]);
+
   const value: AppContextValue = {
     config,
     currentTheme: config.theme.currentTheme,
@@ -96,6 +216,13 @@ export function AppProvider({ children }: AppProviderProps) {
     updatePreferences,
     updateConfig,
     resetConfig,
+    // 日期相关
+    systemDate,
+    testDate,
+    setTestDate,
+    clearTestDate,
+    checkDate,
+    triggerDateChange,
   };
 
   return (

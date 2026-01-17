@@ -18,6 +18,12 @@ import type {
   CheckInConfig,
   DailyCheckInRecord,
 } from '../types';
+import {
+  calculateNumericProgress,
+  calculateChecklistProgress,
+  calculateCheckInProgress,
+  calculateCurrentCycleNumber,
+} from './mainlineTaskHelper';
 
 // 存储键
 const STORAGE_KEY = 'dc_tasks';
@@ -58,9 +64,9 @@ export class TaskMigration {
   }
 
   /**
-   * 判断是否是旧格式任务
+   * 判断是否是旧格式任务（公开方法，供导入时使用）
    */
-  private static isLegacyTask(task: any): boolean {
+  static isLegacyTask(task: any): boolean {
     // 新格式必须有 time、cycle、progress 对象，且 progress 有 lastUpdatedAt
     if (
       task.time &&
@@ -177,7 +183,9 @@ export class TaskMigration {
   /**
    * 迁移单个任务
    */
-  private static migrateTask(legacy: LegacyTask): Task {
+  static migrateTask(legacy: LegacyTask): Task {
+    // 扩展 legacy 类型以包含所有可能的老格式字段
+    const legacyAny = legacy as any;
     const now = dayjs().format('YYYY-MM-DD HH:mm:ss');
     const startDate = legacy.startDate || dayjs().format('YYYY-MM-DD');
     const totalDays = legacy.totalDays || 365;
@@ -187,7 +195,7 @@ export class TaskMigration {
     // 确定任务分类
     const category = this.determineCategory(legacy);
 
-    // 确定当前周期
+    // 确定当前周期（先使用老数据中的值，后面会重新计算）
     const currentCycle = this.getCurrentCycle(legacy);
 
     // 构建时间信息
@@ -195,7 +203,8 @@ export class TaskMigration {
       createdAt: legacy.createdAt || now,
       startDate,
       endDate: dayjs(startDate).add(totalDays, 'day').format('YYYY-MM-DD'),
-      completedAt: legacy.completed ? now : undefined,
+      completedAt: legacyAny.completedAt || (legacy.completed ? now : undefined),
+      archivedAt: legacyAny.archivedAt,
     };
 
     // 构建周期配置
@@ -206,8 +215,8 @@ export class TaskMigration {
       currentCycle,
     };
 
-    // 构建进度信息
-    const progress = this.migrateProgress(legacy, category, cycle);
+    // 先构建基础进度信息（后面会重新计算）
+    const baseProgress = this.migrateProgress(legacy, category, cycle);
 
     // 构建新任务
     const newTask: Task = {
@@ -220,7 +229,7 @@ export class TaskMigration {
 
       time,
       cycle,
-      progress,
+      progress: baseProgress,
 
       icon: legacy.icon,
       encouragement: legacy.encouragement,
@@ -242,6 +251,9 @@ export class TaskMigration {
     if (category === 'CHECK_IN') {
       newTask.checkInConfig = this.migrateCheckInConfig(legacy);
     }
+
+    // 重新计算周期和进度信息
+    this.recalculateCycleAndProgress(newTask);
 
     return newTask;
   }
@@ -288,15 +300,28 @@ export class TaskMigration {
    * 迁移状态
    */
   private static migrateStatus(legacy: LegacyTask): TaskStatus {
+    // 优先从 mainlineTask.status 获取（更准确）
+    if (legacy.mainlineTask?.status) {
+      const mainlineStatus = legacy.mainlineTask.status.toUpperCase();
+      if (mainlineStatus === 'COMPLETED' || mainlineStatus === 'ARCHIVED' || mainlineStatus === 'ACTIVE') {
+        return mainlineStatus as TaskStatus;
+      }
+    }
+    
+    // 从任务根级别的 status 获取
     if (legacy.status) {
       const status = legacy.status.toUpperCase();
-      if (status === 'COMPLETED' || status === 'ARCHIVED') {
+      if (status === 'COMPLETED' || status === 'ARCHIVED' || status === 'ACTIVE') {
         return status as TaskStatus;
       }
     }
+    
+    // 根据 completed 字段判断
     if (legacy.completed) {
       return 'COMPLETED';
     }
+    
+    // 默认为 ACTIVE
     return 'ACTIVE';
   }
 
@@ -311,6 +336,7 @@ export class TaskMigration {
     const now = dayjs().format('YYYY-MM-DD HH:mm:ss');
 
     // 如果已经是新格式的 ProgressInfo
+    const legacyAny = legacy as any;
     if (
       legacy.progress &&
       typeof legacy.progress === 'object' &&
@@ -320,6 +346,24 @@ export class TaskMigration {
     }
 
     // 从 mainlineTask.progress 获取
+    // 老格式中 progress 可能是对象但没有 lastUpdatedAt
+    if (
+      legacy.progress &&
+      typeof legacy.progress === 'object' &&
+      'totalPercentage' in legacy.progress
+    ) {
+      const progressObj = legacy.progress as any;
+      return {
+        totalPercentage: progressObj.totalPercentage || 0,
+        cyclePercentage: progressObj.currentCyclePercentage || 0,
+        cycleStartValue: progressObj.currentCycleStart || 0,
+        cycleTargetValue: progressObj.currentCycleTarget || 0,
+        cycleAchieved: progressObj.currentCycleAchieved || 0,
+        cycleRemaining: progressObj.currentCycleRemaining || 0,
+        lastUpdatedAt: now,
+      };
+    }
+
     const mainlineProgress = legacy.mainlineTask?.progress;
     if (mainlineProgress && typeof mainlineProgress === 'object') {
       return {
@@ -348,10 +392,137 @@ export class TaskMigration {
   }
 
   /**
+   * 重新计算周期和进度信息
+   */
+  private static recalculateCycleAndProgress(task: Task): void {
+    const now = dayjs().format('YYYY-MM-DD HH:mm:ss');
+    const today = dayjs().format('YYYY-MM-DD');
+    
+    // 检查任务是否已超过结束日期
+    this.checkAndUpdateStatus(task, today);
+    
+    // 计算当前周期编号
+    const currentCycleNumber = calculateCurrentCycleNumber(task);
+    task.cycle.currentCycle = currentCycleNumber;
+    
+    // 根据任务类型计算进度
+    switch (task.category) {
+      case 'NUMERIC': {
+        if (task.numericConfig) {
+          const progressData = calculateNumericProgress(
+            { numericConfig: task.numericConfig, cycle: task.cycle } as any,
+            { currentCycleNumber }
+          );
+          task.progress = {
+            totalPercentage: progressData.totalProgress,
+            cyclePercentage: progressData.cycleProgress,
+            cycleStartValue: progressData.currentCycleStart,
+            cycleTargetValue: progressData.currentCycleTarget,
+            cycleAchieved: 0,
+            cycleRemaining: Math.abs(progressData.currentCycleTarget - task.numericConfig.currentValue),
+            lastUpdatedAt: now,
+          };
+        }
+        break;
+      }
+      case 'CHECKLIST': {
+        if (task.checklistConfig) {
+          const progressData = calculateChecklistProgress(
+            { checklistConfig: task.checklistConfig, cycle: task.cycle } as any
+          );
+          task.progress = {
+            totalPercentage: progressData.totalProgress,
+            cyclePercentage: progressData.cycleProgress,
+            cycleStartValue: 0,
+            cycleTargetValue: progressData.currentCycleTarget,
+            cycleAchieved: progressData.currentCycleCompleted,
+            cycleRemaining: Math.max(0, progressData.currentCycleTarget - progressData.currentCycleCompleted),
+            lastUpdatedAt: now,
+          };
+        }
+        break;
+      }
+      case 'CHECK_IN': {
+        if (task.checkInConfig) {
+          const progressData = calculateCheckInProgress(
+            { 
+              checkInConfig: task.checkInConfig, 
+              cycle: task.cycle, 
+              time: task.time,
+              createdAt: task.time.createdAt 
+            } as any
+          );
+          task.progress = {
+            totalPercentage: progressData.totalProgress,
+            cyclePercentage: progressData.cycleProgress,
+            cycleStartValue: 0,
+            cycleTargetValue: task.checkInConfig.perCycleTarget,
+            cycleAchieved: progressData.currentCycleCheckIns,
+            cycleRemaining: Math.max(0, task.checkInConfig.perCycleTarget - progressData.currentCycleCheckIns),
+            lastUpdatedAt: now,
+          };
+          
+          // 计算今日进度
+          task.todayProgress = this.calculateTodayProgress(task, today);
+        }
+        break;
+      }
+    }
+  }
+
+  /**
+   * 检查并更新任务状态（处理超过结束日期的情况）
+   */
+  private static checkAndUpdateStatus(task: Task, today: string): void {
+    // 如果任务已经是 COMPLETED 或 ARCHIVED，不需要处理
+    if (task.status === 'COMPLETED' || task.status === 'ARCHIVED') {
+      // 设置 isPlanEnded 标记
+      task.isPlanEnded = true;
+      return;
+    }
+    
+    // 检查是否超过结束日期
+    const endDate = task.time.endDate;
+    if (endDate && dayjs(today).isAfter(dayjs(endDate))) {
+      // 超过结束日期，标记为计划已结束
+      task.isPlanEnded = true;
+      // 如果任务还是 ACTIVE 状态，可以考虑自动归档
+      // 但这里保持原状态，只设置 isPlanEnded 标记
+      // 让用户自己决定是否归档
+    }
+  }
+
+  /**
+   * 计算今日进度
+   */
+  private static calculateTodayProgress(task: Task, today: string): Task['todayProgress'] {
+    if (!task.checkInConfig) return undefined;
+    
+    const todayRecord = task.checkInConfig.records.find(r => r.date === today);
+    const todayCount = todayRecord?.entries?.length || 0;
+    const todayValue = todayRecord?.totalValue || 0;
+    
+    const dailyTarget = task.checkInConfig.dailyTargetMinutes || 
+                        task.checkInConfig.dailyMaxTimes || 
+                        task.checkInConfig.dailyTargetValue || 1;
+    
+    return {
+      canCheckIn: task.checkInConfig.allowMultiplePerDay || todayCount === 0,
+      todayCount,
+      todayValue,
+      isCompleted: todayValue >= dailyTarget || todayCount >= (task.checkInConfig.dailyMaxTimes || 1),
+      dailyTarget,
+      lastUpdatedAt: dayjs().format('YYYY-MM-DD HH:mm:ss'),
+    };
+  }
+
+  /**
    * 迁移数值型配置
    */
   private static migrateNumericConfig(legacy: LegacyTask): Task['numericConfig'] {
-    const config = legacy.mainlineTask?.numericConfig;
+    // 老格式中 numericConfig 可能直接在任务上，也可能在 mainlineTask 下
+    const legacyAny = legacy as any;
+    const config = legacyAny.numericConfig || legacy.mainlineTask?.numericConfig;
     if (!config) {
       return undefined;
     }
@@ -372,7 +543,9 @@ export class TaskMigration {
    * 迁移清单型配置
    */
   private static migrateChecklistConfig(legacy: LegacyTask): Task['checklistConfig'] {
-    const config = legacy.mainlineTask?.checklistConfig;
+    // 老格式中 checklistConfig 可能直接在任务上，也可能在 mainlineTask 下
+    const legacyAny = legacy as any;
+    const config = legacyAny.checklistConfig || legacy.mainlineTask?.checklistConfig;
     if (!config) {
       return undefined;
     }
@@ -388,7 +561,9 @@ export class TaskMigration {
    * 迁移打卡配置
    */
   private static migrateCheckInConfig(legacy: LegacyTask): CheckInConfig | undefined {
-    const config = legacy.mainlineTask?.checkInConfig || {};
+    // 老格式中 checkInConfig 可能直接在任务上，也可能在 mainlineTask 下
+    const legacyAny = legacy as any;
+    const config = legacyAny.checkInConfig || legacy.mainlineTask?.checkInConfig || {};
     const checkIns = legacy.checkIns || [];
 
     // 转换打卡记录为新格式
@@ -444,7 +619,9 @@ export class TaskMigration {
    */
   private static migrateHistory(legacy: LegacyTask): ActivityLog[] {
     const activities: ActivityLog[] = [];
-    const history = legacy.mainlineTask?.history || [];
+    // 老格式中 history 可能直接在任务上，也可能在 mainlineTask 下
+    const legacyAny = legacy as any;
+    const history = legacyAny.history || legacy.mainlineTask?.history || [];
     const createdAt = legacy.createdAt || dayjs().format('YYYY-MM-DD HH:mm:ss');
 
     // 添加创建日志
@@ -460,15 +637,15 @@ export class TaskMigration {
       const date = record.date || dayjs().format('YYYY-MM-DD');
       const timestamp = dayjs(date).valueOf();
 
-      if (record.type === 'value_update' || record.type === 'UPDATE_VALUE') {
+      if (record.type === 'value_update' || record.type === 'UPDATE_VALUE' || record.type === 'NUMERIC_UPDATE') {
         activities.push({
           id: `value-${timestamp}-${Math.random().toString(36).substr(2, 9)}`,
           date,
           timestamp,
           type: 'UPDATE_VALUE',
-          oldValue: record.oldValue || 0,
+          oldValue: record.oldValue ?? (record.value - (record.change || 0)),
           newValue: record.value || 0,
-          delta: (record.value || 0) - (record.oldValue || 0),
+          delta: record.change || ((record.value || 0) - (record.oldValue || 0)),
           note: record.note,
         });
       } else if (record.type === 'check_in' || record.type === 'CHECK_IN') {
@@ -707,4 +884,10 @@ export function createTask(data: {
 }
 
 export default TaskMigration;
+
+
+
+
+
+
 

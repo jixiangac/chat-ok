@@ -745,17 +745,6 @@
     ]
   },
   {
-    "path": "dc/panels/settings/DeveloperSettings",
-    "index": true,
-    "id": "dc/panels/settings/DeveloperSettings",
-    "file": "dc/panels/settings/DeveloperSettings/index.tsx",
-    "componentName": "dc-panels-settings-developersettings-index",
-    "layout": false,
-    "exports": [
-      "default"
-    ]
-  },
-  {
     "path": "dc/components/SidelineTaskEditModal",
     "index": true,
     "id": "dc/components/SidelineTaskEditModal",
@@ -1520,6 +1509,8 @@
     "exports": [
       "applyThemeCSSVariables",
       "clearAppConfig",
+      "getCurrentSystemTime",
+      "isDateChanged",
       "loadAppConfig",
       "saveAppConfig"
     ]
@@ -1692,19 +1683,6 @@
       "TagSettingsPage",
       "ThemeSettingsPage",
       "TodayMustCompletePage"
-    ]
-  },
-  {
-    "path": "dc/panels/settings/theme",
-    "index": true,
-    "id": "dc/panels/settings/theme",
-    "file": "dc/panels/settings/theme/index.ts",
-    "componentName": "dc-panels-settings-theme-index",
-    "layout": false,
-    "exports": [
-      "ThemeProvider",
-      "themePresets",
-      "useTheme"
     ]
   },
   {
@@ -1935,6 +1913,17 @@
     ]
   },
   {
+    "path": "dc/utils/dateChangeHandler",
+    "id": "dc/utils/dateChangeHandler",
+    "file": "dc/utils/dateChangeHandler.ts",
+    "componentName": "dc-utils-datechangehandler",
+    "layout": false,
+    "exports": [
+      "__test__",
+      "handleDateChange"
+    ]
+  },
+  {
     "path": "dc/utils/dataExportImport",
     "id": "dc/utils/dataExportImport",
     "file": "dc/utils/dataExportImport.ts",
@@ -1999,17 +1988,6 @@
     "componentName": "dc-panels-memorial-types",
     "layout": false,
     "exports": []
-  },
-  {
-    "path": "dc/panels/settings",
-    "index": true,
-    "id": "dc/panels/settings",
-    "file": "dc/panels/settings/index.tsx",
-    "componentName": "dc-panels-settings-index",
-    "layout": false,
-    "exports": [
-      "default"
-    ]
   },
   {
     "path": "dc/utils/cycleCalculator",
@@ -2443,7 +2421,6 @@
       "HappyPanel",
       "MemorialPanel",
       "NormalPanel",
-      "Settings",
       "UnifiedSettingsPanel"
     ]
   },

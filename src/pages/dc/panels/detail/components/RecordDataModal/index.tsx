@@ -92,7 +92,7 @@ export default function RecordDataModal({
     >
       <div className={styles.container}>
         <div className={styles.header}>
-          <span className={styles.title}>记录{direction === 'DECREASE' ? '体重' : ''}数据</span>
+          <span className={styles.title}>记录{direction === 'DECREASE' ? '' : ''}数据</span>
           <button className={styles.closeBtn} onClick={handleClose}>✕</button>
         </div>
         
@@ -114,7 +114,7 @@ export default function RecordDataModal({
         
         {inputMode === 'direct' ? (
           <div className={styles.inputGroup}>
-            <label className={styles.label}>最新{direction === 'DECREASE' ? '体重' : '数值'}</label>
+            <label className={styles.label}>最新{direction === 'DECREASE' ? '数值' : '数值'}</label>
             <div className={styles.inputWrapper}>
               <input
                 type="number"

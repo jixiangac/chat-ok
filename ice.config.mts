@@ -9,7 +9,7 @@ export default defineConfig(() => ({
   ssr: false,
   minify,
   codeSplitting: false,
-  sourceMap: true,
+  sourceMap: 'source-map',
   server: {
     onDemand: true,
     format: 'esm',
@@ -23,3 +23,4 @@ export default defineConfig(() => ({
   }
   // plugins: [def()],
 }));
+

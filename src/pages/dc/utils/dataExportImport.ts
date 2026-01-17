@@ -12,10 +12,16 @@ import {
 } from './mainlineTaskHelper';
 import type { Task, ProgressInfo } from '../types';
 import { TaskMigration } from './migration';
+import { 
+  loadSceneData, 
+  saveSceneData,
+  clearSceneData,
+} from '../contexts/SceneProvider/storage';
+import type { SceneType } from '../contexts/SceneProvider/types';
+import { buildIndex } from '../contexts/SceneProvider/indexBuilder';
 
-// 存储键常量
+// 其他存储键常量（非场景化数据）
 const STORAGE_KEYS = {
-  TASKS: 'dc_tasks',
   TAGS: 'dc_task_tags',
   VACATION_TRIPS: 'vacation_trips',
   VACATION_STATE: 'vacation_mode_state',
@@ -34,11 +40,14 @@ export const DATA_TYPE_CONFIG: Record<DataType, {
   label: string;
   description: string;
   keys: string[];
+  scene?: SceneType; // 场景类型（用于场景化存储）
+  exportKey?: string; // 导出时使用的字段名（用于偏好设置等）
 }> = {
   tasks: {
     label: '任务数据',
     description: '所有任务及其打卡记录',
-    keys: [STORAGE_KEYS.TASKS],
+    keys: [], // 使用 SceneProvider 存储
+    scene: 'normal',
   },
   tags: {
     label: '标签数据',
@@ -58,7 +67,7 @@ export const DATA_TYPE_CONFIG: Record<DataType, {
   preferences: {
     label: '偏好设置',
     description: '今日必须完成、开发者模式等',
-    keys: [STORAGE_KEYS.TODAY_MUST_COMPLETE, STORAGE_KEYS.DEVELOPER_MODE, STORAGE_KEYS.LOCATION_FILTER],
+    keys: ["dc_user_data"]
   },
 };
 
@@ -68,28 +77,93 @@ export const DATA_TYPE_CONFIG: Record<DataType, {
 export const exportData = (dataType: DataType): string => {
   try {
     const config = DATA_TYPE_CONFIG[dataType];
-    const data: Record<string, unknown> = {
+    const exportedData: Record<string, unknown> = {
       type: dataType,
       exportTime: new Date().toISOString(),
-      version: '1.0',
+      version: '2.0', // 更新版本号
     };
 
-    for (const key of config.keys) {
-      const stored = localStorage.getItem(key);
-      if (stored) {
-        try {
-          data[key] = JSON.parse(stored);
-        } catch {
-          data[key] = stored;
+    // 如果是场景化数据，使用 SceneProvider 存储
+    if (config.scene) {
+      const sceneData = loadSceneData(config.scene);
+      exportedData.tasks = sceneData.tasks;
+      exportedData.meta = sceneData.meta;
+    }
+
+    // 处理其他存储键（偏好设置使用 userdata 字段）
+    if (config.exportKey) {
+      // 使用统一的导出字段名
+      const userData: Record<string, unknown> = {};
+      for (const key of config.keys) {
+        const stored = localStorage.getItem(key);
+        if (stored) {
+          try {
+            userData[key] = JSON.parse(stored);
+          } catch {
+            userData[key] = stored;
+          }
+        }
+      }
+      exportedData[config.exportKey] = userData;
+    } else {
+      // 直接使用存储键名
+      for (const key of config.keys) {
+        const stored = localStorage.getItem(key);
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            exportedData[key] = parsed;
+          } catch {
+            exportedData[key] = stored;
+          }
         }
       }
     }
 
-    return JSON.stringify(data, null, 2);
+    return JSON.stringify(exportedData, null, 2);
   } catch (error) {
     console.error(`Failed to export ${dataType}:`, error);
     return JSON.stringify({ error: 'Export failed', type: dataType });
   }
+};
+
+/**
+ * 检测任务数组中是否包含老格式数据
+ */
+const hasLegacyTasks = (tasks: any[]): boolean => {
+  return tasks.some((task: any) => TaskMigration.isLegacyTask(task));
+};
+
+/**
+ * 转换老格式任务数组为新格式
+ */
+const migrateLegacyTasks = (tasks: any[]): { tasks: Task[]; migratedCount: number; errors: string[] } => {
+  const result: { tasks: Task[]; migratedCount: number; errors: string[] } = {
+    tasks: [],
+    migratedCount: 0,
+    errors: [],
+  };
+
+  for (const task of tasks) {
+    try {
+      if (TaskMigration.isLegacyTask(task)) {
+        // 老格式任务，需要迁移
+        const migratedTask = TaskMigration.migrateTask(task);
+        result.tasks.push(migratedTask);
+        result.migratedCount++;
+        console.log(`[Import] 已转换老格式任务: ${task.id} - ${task.title}`);
+      } else {
+        // 新格式任务，直接使用
+        result.tasks.push(task as Task);
+      }
+    } catch (error) {
+      const errorMsg = `任务 ${task.id || '未知'} 转换失败: ${error instanceof Error ? error.message : '未知错误'}`;
+      result.errors.push(errorMsg);
+      console.error(`[Import] ${errorMsg}`);
+    }
+  }
+
+  return result;
 };
 
 /**
@@ -111,13 +185,79 @@ export const importData = (
       };
     }
 
-    // 导入每个存储键的数据
+    // 如果是场景化数据，使用 SceneProvider 存储
+    if (config.scene) {
+      // 兼容老格式：老数据存储在 dc_tasks 字段中
+      let tasks: any[] = [];
+      let isLegacyFormat = false;
+      
+      if (Array.isArray(data.dc_tasks)) {
+        // 老格式数据（version 1.0）
+        tasks = data.dc_tasks;
+        isLegacyFormat = true;
+        console.log('[Import] 检测到老格式数据结构（dc_tasks 字段）');
+      } else if (Array.isArray(data.tasks)) {
+        // 新格式数据（version 2.0）
+        tasks = data.tasks;
+      }
+      
+      const meta = data.meta || { lastUpdate: Date.now(), version: 1 };
+      
+      // 检测并转换老格式数据
+      if (tasks.length > 0 && (isLegacyFormat || hasLegacyTasks(tasks))) {
+        console.log('[Import] 检测到老格式任务数据，开始转换...');
+        const migrationResult = migrateLegacyTasks(tasks);
+        tasks = migrationResult.tasks;
+        
+        if (migrationResult.errors.length > 0) {
+          console.warn('[Import] 部分任务转换失败:', migrationResult.errors);
+        }
+        
+        console.log(`[Import] 转换完成，共转换 ${migrationResult.migratedCount} 个老格式任务`);
+        
+        // 如果所有任务都转换失败
+        if (tasks.length === 0 && migrationResult.errors.length > 0) {
+          return {
+            success: false,
+            message: `数据转换失败：${migrationResult.errors.join('; ')}`,
+          };
+        }
+      }
+      
+      saveSceneData(config.scene, {
+        tasks,
+        index: buildIndex(tasks),
+        meta,
+      });
+      return {
+        success: true,
+        message: isLegacyFormat || (data.tasks && hasLegacyTasks(data.tasks))
+          ? `成功导入 ${config.label}（已自动转换 ${tasks.length} 条老格式数据）`
+          : `成功导入 ${config.label}`,
+      };
+    }
+
+    // 导入每个存储键的数据（偏好设置使用 userdata 字段）
     let importedCount = 0;
-    for (const key of config.keys) {
-      if (data[key] !== undefined) {
-        const value = typeof data[key] === 'string' ? data[key] : JSON.stringify(data[key]);
-        localStorage.setItem(key, value);
-        importedCount++;
+    
+    if (config.exportKey && data[config.exportKey]) {
+      // 从统一的导出字段中读取
+      const userData = data[config.exportKey];
+      for (const key of config.keys) {
+        if (userData[key] !== undefined) {
+          const value = typeof userData[key] === 'string' ? userData[key] : JSON.stringify(userData[key]);
+          localStorage.setItem(key, value);
+          importedCount++;
+        }
+      }
+    } else {
+      // 直接从存储键名读取（兼容老格式）
+      for (const key of config.keys) {
+        if (data[key] !== undefined) {
+          const value = typeof data[key] === 'string' ? data[key] : JSON.stringify(data[key]);
+          localStorage.setItem(key, value);
+          importedCount++;
+        }
       }
     }
 
@@ -152,19 +292,11 @@ export const migrateToNewFormat = async (): Promise<{ success: boolean; message:
     
     console.log('[Migration] 开始迁移...');
     
-    // 检查是否有任何任务数据
-    const tasksJson = localStorage.getItem(STORAGE_KEYS.TASKS);
-    if (!tasksJson) {
-      return {
-        success: true,
-        message: '没有找到任务数据',
-        migratedCount: 0
-      };
-    }
+    // 检查是否有任何任务数据（使用 SceneProvider）
+    const sceneData = loadSceneData('normal');
+    const tasks = sceneData.tasks;
     
-    const tasks = JSON.parse(tasksJson);
-    if (!Array.isArray(tasks) || tasks.length === 0) {
-      console.log('[Migration] 没有找到任务数据');
+    if (!tasks || tasks.length === 0) {
       return {
         success: true,
         message: '没有找到任务数据',
@@ -210,11 +342,10 @@ export const migrateToNewFormat = async (): Promise<{ success: boolean; message:
     
     console.log('[Migration] 迁移结果:', result);
     
-    // 验证迁移后的数据
-    const migratedTasksJson = localStorage.getItem(STORAGE_KEYS.TASKS);
-    if (migratedTasksJson) {
-      const migratedTasks = JSON.parse(migratedTasksJson);
-      console.log('[Migration] 迁移后的第一个任务:', migratedTasks[0]);
+    // 验证迁移后的数据（使用 SceneProvider）
+    const migratedSceneData = loadSceneData('normal');
+    if (migratedSceneData.tasks.length > 0) {
+      console.log('[Migration] 迁移后的第一个任务:', migratedSceneData.tasks[0]);
     }
     
     // 强制刷新页面以加载新数据
@@ -253,6 +384,15 @@ export const getDataStats = (dataType: DataType): { count: number; size: string 
     let totalSize = 0;
     let count = 0;
 
+    // 如果是场景化数据，使用 SceneProvider
+    if (config.scene) {
+      const sceneData = loadSceneData(config.scene);
+      count = sceneData.tasks.length;
+      // 估算大小
+      totalSize = JSON.stringify(sceneData.tasks).length;
+    }
+
+    // 处理其他存储键
     for (const key of config.keys) {
       const stored = localStorage.getItem(key);
       if (stored) {
@@ -287,6 +427,12 @@ export const getDataStats = (dataType: DataType): { count: number; size: string 
 export const clearData = (dataType: DataType): boolean => {
   try {
     const config = DATA_TYPE_CONFIG[dataType];
+    
+    // 如果是场景化数据，使用 SceneProvider
+    if (config.scene) {
+      clearSceneData(config.scene);
+    }
+    
     for (const key of config.keys) {
       localStorage.removeItem(key);
     }
@@ -303,16 +449,18 @@ export const clearData = (dataType: DataType): boolean => {
  */
 export const repairTaskProgressData = (): { success: boolean; message: string; repairedCount: number } => {
   try {
-    const tasksJson = localStorage.getItem(STORAGE_KEYS.TASKS);
-    if (!tasksJson) {
+    // 使用 SceneProvider 加载数据
+    const sceneData = loadSceneData('normal');
+    const tasks = sceneData.tasks;
+    
+    if (!tasks || tasks.length === 0) {
       return {
         success: true,
         message: '没有找到任务数据',
         repairedCount: 0
       };
     }
-
-    const tasks: Task[] = JSON.parse(tasksJson);
+    
     let repairedCount = 0;
 
     const repairedTasks = tasks.map(task => {
@@ -391,8 +539,12 @@ export const repairTaskProgressData = (): { success: boolean; message: string; r
       };
     });
 
-    // 保存修复后的数据
-    localStorage.setItem(STORAGE_KEYS.TASKS, JSON.stringify(repairedTasks));
+    // 使用 SceneProvider 保存修复后的数据
+    saveSceneData('normal', {
+      tasks: repairedTasks,
+      index: buildIndex(repairedTasks),
+      meta: { ...sceneData.meta, lastUpdate: Date.now() },
+    });
 
     return {
       success: true,
@@ -408,6 +560,15 @@ export const repairTaskProgressData = (): { success: boolean; message: string; r
     };
   }
 };
+
+
+
+
+
+
+
+
+
 
 
 

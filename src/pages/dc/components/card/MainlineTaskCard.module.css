@@ -111,6 +111,20 @@
   font-weight: 500;
 }
 
+.compensationDiff {
+  margin-left: 2px;
+  color: rgba(55, 53, 47, 0.5);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.originalTarget {
+  margin-left: 4px;
+  color: rgba(55, 53, 47, 0.45);
+  font-size: 11px;
+  font-weight: 400;
+}
+
 .progressValue {
   font-size: 13px;
   font-weight: 500;

@@ -68,7 +68,6 @@ import * as dc_viewmodel_CreateTaskModal_steps_CycleStep from '@/pages/dc/viewmo
 import * as dc_components_CreateMainlineTaskModal from '@/pages/dc/components/CreateMainlineTaskModal/index';
 import * as dc_components_CreateMainlineTaskModal_types from '@/pages/dc/components/CreateMainlineTaskModal/types';
 import * as dc_viewmodel_CreateTaskModal_steps_TypeStep from '@/pages/dc/viewmodel/CreateTaskModal/steps/TypeStep';
-import * as dc_panels_settings_DeveloperSettings from '@/pages/dc/panels/settings/DeveloperSettings/index';
 import * as dc_components_SidelineTaskEditModal from '@/pages/dc/components/SidelineTaskEditModal/index';
 import * as dc_components_shared_CircleProgress from '@/pages/dc/components/shared/CircleProgress/index';
 import * as dc_panels_happy_components_GoalCard from '@/pages/dc/panels/happy/components/GoalCard/index';
@@ -145,7 +144,6 @@ import * as dc_panels_memorial_hooks from '@/pages/dc/panels/memorial/hooks/inde
 import * as dc_panels_memorial_utils from '@/pages/dc/panels/memorial/utils/index';
 import * as dc_panels_settings_hooks from '@/pages/dc/panels/settings/hooks/index';
 import * as dc_panels_settings_pages from '@/pages/dc/panels/settings/pages/index';
-import * as dc_panels_settings_theme from '@/pages/dc/panels/settings/theme/index';
 import * as dc_contexts_AppProvider from '@/pages/dc/contexts/AppProvider/index';
 import * as dc_contexts_AppProvider_types from '@/pages/dc/contexts/AppProvider/types';
 import * as dc_hooks_useTodayMustComplete from '@/pages/dc/hooks/useTodayMustComplete';
@@ -163,12 +161,12 @@ import * as dc_utils_mainlineTaskHelper from '@/pages/dc/utils/mainlineTaskHelpe
 import * as dc_utils_progressCalculator from '@/pages/dc/utils/progressCalculator';
 import * as dc_components_shared from '@/pages/dc/components/shared/index';
 import * as dc_panels_memorial_storage from '@/pages/dc/panels/memorial/storage';
+import * as dc_utils_dateChangeHandler from '@/pages/dc/utils/dateChangeHandler';
 import * as dc_utils_dataExportImport from '@/pages/dc/utils/dataExportImport';
 import * as dc_utils_developerStorage from '@/pages/dc/utils/developerStorage';
 import * as dc_components_card from '@/pages/dc/components/card/index';
 import * as dc_panels_memorial from '@/pages/dc/panels/memorial/index';
 import * as dc_panels_memorial_types from '@/pages/dc/panels/memorial/types';
-import * as dc_panels_settings from '@/pages/dc/panels/settings/index';
 import * as dc_utils_cycleCalculator from '@/pages/dc/utils/cycleCalculator';
 import * as dc_utils_dailyViewFilter from '@/pages/dc/utils/dailyViewFilter';
 import * as dc_constants_animations from '@/pages/dc/constants/animations';
@@ -1917,31 +1915,6 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["default"],
   },{
-    path: 'dc/panels/settings/DeveloperSettings',
-    async lazy() {
-      ;
-      return {
-        ...dc_panels_settings_DeveloperSettings,
-        Component: () => WrapRouteComponent({
-          routeId: 'dc/panels/settings/DeveloperSettings',
-          isLayout: false,
-          routeExports: dc_panels_settings_DeveloperSettings,
-        }),
-        loader: createRouteLoader({
-          routeId: 'dc/panels/settings/DeveloperSettings',
-          requestContext,
-          renderMode,
-          module: dc_panels_settings_DeveloperSettings,
-        }),
-      };
-    },
-    errorElement: <RouteErrorComponent />,
-    componentName: 'dc-panels-settings-developersettings-index',
-    index: true,
-    id: 'dc/panels/settings/DeveloperSettings',
-    exact: true,
-    exports: ["default"],
-  },{
     path: 'dc/components/SidelineTaskEditModal',
     async lazy() {
       ;
@@ -3465,7 +3438,7 @@ const createRoutes: CreateRoutes = ({
     index: undefined,
     id: 'dc/contexts/AppProvider/storage',
     exact: true,
-    exports: ["applyThemeCSSVariables","clearAppConfig","loadAppConfig","saveAppConfig"],
+    exports: ["applyThemeCSSVariables","clearAppConfig","getCurrentSystemTime","isDateChanged","loadAppConfig","saveAppConfig"],
   },{
     path: 'dc/contexts/SceneProvider',
     async lazy() {
@@ -3841,31 +3814,6 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/panels/settings/pages',
     exact: true,
     exports: ["DataManagementPage","SettingsMainPage","TagSettingsPage","ThemeSettingsPage","TodayMustCompletePage"],
-  },{
-    path: 'dc/panels/settings/theme',
-    async lazy() {
-      ;
-      return {
-        ...dc_panels_settings_theme,
-        Component: () => WrapRouteComponent({
-          routeId: 'dc/panels/settings/theme',
-          isLayout: false,
-          routeExports: dc_panels_settings_theme,
-        }),
-        loader: createRouteLoader({
-          routeId: 'dc/panels/settings/theme',
-          requestContext,
-          renderMode,
-          module: dc_panels_settings_theme,
-        }),
-      };
-    },
-    errorElement: <RouteErrorComponent />,
-    componentName: 'dc-panels-settings-theme-index',
-    index: true,
-    id: 'dc/panels/settings/theme',
-    exact: true,
-    exports: ["ThemeProvider","themePresets","useTheme"],
   },{
     path: 'dc/contexts/AppProvider',
     async lazy() {
@@ -4292,6 +4240,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["generateId","loadDateFormat","loadMemorials","saveDateFormat","saveMemorials"],
   },{
+    path: 'dc/utils/dateChangeHandler',
+    async lazy() {
+      ;
+      return {
+        ...dc_utils_dateChangeHandler,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/utils/dateChangeHandler',
+          isLayout: false,
+          routeExports: dc_utils_dateChangeHandler,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/utils/dateChangeHandler',
+          requestContext,
+          renderMode,
+          module: dc_utils_dateChangeHandler,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-utils-datechangehandler',
+    index: undefined,
+    id: 'dc/utils/dateChangeHandler',
+    exact: true,
+    exports: ["__test__","handleDateChange"],
+  },{
     path: 'dc/utils/dataExportImport',
     async lazy() {
       ;
@@ -4416,31 +4389,6 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/panels/memorial/types',
     exact: true,
     exports: [],
-  },{
-    path: 'dc/panels/settings',
-    async lazy() {
-      ;
-      return {
-        ...dc_panels_settings,
-        Component: () => WrapRouteComponent({
-          routeId: 'dc/panels/settings',
-          isLayout: false,
-          routeExports: dc_panels_settings,
-        }),
-        loader: createRouteLoader({
-          routeId: 'dc/panels/settings',
-          requestContext,
-          renderMode,
-          module: dc_panels_settings,
-        }),
-      };
-    },
-    errorElement: <RouteErrorComponent />,
-    componentName: 'dc-panels-settings-index',
-    index: true,
-    id: 'dc/panels/settings',
-    exact: true,
-    exports: ["default"],
   },{
     path: 'dc/utils/cycleCalculator',
     async lazy() {
@@ -5090,7 +5038,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/panels',
     exact: true,
-    exports: ["ArchiveList","GoalDetailModal","HappyPanel","MemorialPanel","NormalPanel","Settings","UnifiedSettingsPanel"],
+    exports: ["ArchiveList","GoalDetailModal","HappyPanel","MemorialPanel","NormalPanel","UnifiedSettingsPanel"],
   },{
     path: 'dc/hooks',
     async lazy() {

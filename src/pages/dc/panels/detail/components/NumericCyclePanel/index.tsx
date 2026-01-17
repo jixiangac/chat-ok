@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import dayjs from 'dayjs';
-import { BarChart3, ArrowRight, Calendar, PartyPopper, ChartNoAxesCombined } from 'lucide-react';
+import { BarChart3, ArrowRight, Calendar, PartyPopper, ChartNoAxesCombined, Check } from 'lucide-react';
 import type { Task } from '../../../../types';
 import type { CurrentCycleInfo } from '../../types';
 import { getSimulatedToday } from '../../hooks';
@@ -41,14 +41,22 @@ function NumericCyclePanelComponent({
   const cycleStartValue = typeof progress.cycleStartValue === 'number' 
     ? progress.cycleStartValue 
     : parseFloat(progress.cycleStartValue as string) || config.startValue;
-  const cycleTargetValue = typeof progress.cycleTargetValue === 'number' 
+  // cycleTargetValue 可能已经是补偿后的值，需要区分
+  const displayTargetValue = typeof progress.cycleTargetValue === 'number' 
     ? progress.cycleTargetValue 
     : parseFloat(progress.cycleTargetValue as string) || config.targetValue;
+  const compensationTargetValue = progress.compensationTargetValue;
   const cycleAchieved = progress.cycleAchieved;
   const cycleRemaining = progress.cycleRemaining;
   const cycleProgress = progress.cyclePercentage;
   const totalProgress = progress.totalPercentage;
   
+  // 判断是否有补偿目标
+  const hasCompensation = compensationTargetValue !== undefined;
+  // 如果有补偿目标，cycleTargetValue 是原始值，compensationTargetValue 是实际目标
+  // 如果没有补偿目标，cycleTargetValue 就是实际目标
+  const originalCycleTarget = displayTargetValue;
+  const actualTargetValue = hasCompensation ? compensationTargetValue : displayTargetValue;
   // 使用预计算的欠账显示信息
   const showDebt = debtDisplay?.showDebt ?? false;
   const debtTarget = debtDisplay?.debtTarget;
@@ -56,11 +64,11 @@ function NumericCyclePanelComponent({
   const debtBgColor = debtDisplay?.bgColor ?? 'rgba(246, 239, 239, 0.6)';
   const debtProgressColor = debtDisplay?.progressColor ?? 'linear-gradient(90deg, #F6EFEF 0%, #E0CEC6 100%)';
   
-  // 欠账模式下的"还需"值
-  const displayCycleRemaining = showDebt && debtTarget !== undefined
+  // 计算"还需"值：如果有补偿目标，用补偿目标计算；否则用原始周期目标
+  const displayCycleRemaining = hasCompensation
     ? (isDecrease 
-        ? Math.max(0, Math.round((config.currentValue - debtTarget) * 10) / 10)
-        : Math.max(0, Math.round((debtTarget - config.currentValue) * 10) / 10))
+        ? Math.max(0, Math.round((config.currentValue - actualTargetValue) * 10) / 10)
+        : Math.max(0, Math.round((actualTargetValue - config.currentValue) * 10) / 10))
     : cycleRemaining;
   
   // 如果计划已结束，显示总结视图
@@ -135,10 +143,10 @@ function NumericCyclePanelComponent({
           <span className={styles.targetValue}>{formatNumber(cycleStartValue)}{config.unit}</span>
           <ArrowRight size={16} className={styles.targetArrow} />
           <span className={styles.targetValue}>
-            {formatNumber(cycleTargetValue)}{config.unit}
-            {showDebt && debtTarget !== undefined && (
-              <span style={{ marginLeft: '8px', fontSize: '0.85em', fontWeight: '500' }}>
-                ({formatNumber(debtTarget)}{config.unit})
+            {formatNumber(actualTargetValue)}{config.unit}
+            {hasCompensation && (
+              <span style={{ marginLeft: '8px', fontSize: '0.85em', fontWeight: '400', color: '#999' }}>
+                (原目标: {formatNumber(originalCycleTarget)}{config.unit})
               </span>
             )}
           </span>
@@ -169,13 +177,20 @@ function NumericCyclePanelComponent({
             <span className={styles.statLabel}>已{isDecrease ? '减' : '增'}</span>
             <span className={styles.statValue}>{formatNumber(cycleAchieved)}{config.unit}</span>
           </div>
+          {/* 今日进度 */}
+          <div className={styles.todayProgress}>
+            <span className={styles.todayLabel}>今日</span>
+            <span className={styles.todayValue}>
+              {formatNumber(goal.todayProgress?.todayValue ?? 0)}/{formatNumber(config.perDayAverage || 0)}{config.unit}
+            </span>
+            {goal.todayProgress?.isCompleted && (
+              <Check size={14} className={styles.todayCheck} />
+            )}
+          </div>
           <div className={styles.statItem}>
             <span className={styles.statLabel}>还需</span>
             <span className={styles.statValue}>
-              {formatNumber(cycleRemaining)}{config.unit}
-              {showDebt && displayCycleRemaining !== cycleRemaining && (
-                <span style={{ fontSize: '0.85em', fontWeight: '400', marginLeft: '4px' }}>({formatNumber(displayCycleRemaining)}{config.unit})</span>
-              )}
+              {formatNumber(displayCycleRemaining)}{config.unit}
             </span>
           </div>
         </div>

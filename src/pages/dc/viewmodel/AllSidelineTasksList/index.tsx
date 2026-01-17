@@ -123,7 +123,7 @@ const FilterButton: React.FC<FilterButtonProps> = ({
     const usedTagIds = new Set<string>();
     tasks.forEach(task => {
       const tagId = type === 'normal' 
-        ? (task.tags?.normalTagId || task.tagId)
+        ? (task.tags?.normalTagId)
         : type === 'location'
         ? task.tags?.locationTagId
         : task.tags?.moodTagId;
@@ -246,7 +246,7 @@ export const AllSidelineTasksList: React.FC<AllSidelineTasksListProps> = ({
     return tasks.filter(task => {
       // 普通标签筛选
       if (normalTagId) {
-        const taskNormalTagId = task.tags?.normalTagId || task.tagId;
+        const taskNormalTagId = task.tags?.normalTagId;
         if (taskNormalTagId !== normalTagId) return false;
       }
       // 地点标签筛选

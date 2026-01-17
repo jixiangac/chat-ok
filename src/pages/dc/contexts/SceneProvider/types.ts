@@ -4,7 +4,6 @@
  */
 
 import type { Task, TaskType } from '../../types';
-
 // 场景类型
 export type SceneType = 'normal' | 'vacation' | 'memorial' | 'okr';
 
@@ -234,7 +233,6 @@ export const createEmptySceneData = (): SceneData => ({
     version: 1,
   },
 });
-
 
 
 

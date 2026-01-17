@@ -22,7 +22,7 @@ const COMPLETION_IMAGES = {
 export default function MainlineTaskCard({ task, onClick }: MainlineTaskCardProps) {
   // ========== 直接从 task 获取已计算好的数据 ==========
   const { progress, cycle, category, numericConfig, checklistConfig, checkInConfig } = task;
-  console.log(task,'tasks')
+ 
   // 周期信息 - 直接使用
   const currentCycle = cycle?.currentCycle || 1;
   const totalCycles = cycle?.totalCycles || 1;
@@ -33,6 +33,7 @@ export default function MainlineTaskCard({ task, onClick }: MainlineTaskCardProp
   const totalProgress = progress?.totalPercentage || 0;
   const cycleStartValue = progress?.cycleStartValue;
   const cycleTargetValue = progress?.cycleTargetValue;
+  const compensationTargetValue = progress?.compensationTargetValue;
   
   // 剩余天数 - 需要实时计算
   const remainingDays = calculateRemainingDays(task);
@@ -139,10 +140,17 @@ export default function MainlineTaskCard({ task, onClick }: MainlineTaskCardProp
   // 数值型任务卡片
   const renderNumericContent = () => {
     if (!numericConfig) return renderLegacyContent();
-    const { unit, originalStartValue, startValue, targetValue } = numericConfig;
+    const { unit, originalStartValue, startValue, targetValue, perCycleTarget } = numericConfig;
     
     // 欠账模式下的进度 - 直接使用已计算好的值
     const displayProgress = showPreviousCycleDebt && debtProgress !== undefined ? debtProgress : cycleProgress;
+    
+    // 检查是否有补偿目标值（替代当前周期目标进行计算）
+    const hasCompensation = compensationTargetValue !== undefined;
+    
+    // 如果有补偿目标，显示补偿目标值；否则显示原周期目标值
+    // cycleTargetValue 保持原值不变，compensationTargetValue 是实际计算用的目标
+    const displayTargetValue = hasCompensation ? compensationTargetValue : cycleTargetValue;
     
     return (
       <>
@@ -160,10 +168,10 @@ export default function MainlineTaskCard({ task, onClick }: MainlineTaskCardProp
         <div className={styles.progressSection}>
           <div className={styles.progressHeader}>
             <span className={styles.progressLabel}>
-              本周期 · {formatNumber(cycleStartValue)}{unit} → {formatNumber(cycleTargetValue)}{unit}
-              {showPreviousCycleDebt && displayDebtTarget !== undefined && (
-                <span className={styles.progressDebtTarget}>
-                  ({formatNumber(displayDebtTarget)}{unit})
+              本周期 · {formatNumber(cycleStartValue)}{unit} → {formatNumber(displayTargetValue)}{unit}
+              {hasCompensation && (
+                <span className={styles.originalTarget}>
+                  (原{formatNumber(cycleTargetValue)}{unit})
                 </span>
               )}
             </span>
@@ -174,13 +182,13 @@ export default function MainlineTaskCard({ task, onClick }: MainlineTaskCardProp
           
           <div 
             className={styles.progressBar}
-            style={showPreviousCycleDebt ? { backgroundColor: debtColors.bgColor } : undefined}
+            style={showPreviousCycleDebt || hasCompensation ? { backgroundColor: debtColors.bgColor } : undefined}
           >
             <div 
               className={styles.progressFill}
               style={{ 
                 width: `${showPreviousCycleDebt ? displayProgress : cycleProgress}%`,
-                background: showPreviousCycleDebt ? debtColors.progressColor : undefined
+                background: showPreviousCycleDebt || hasCompensation ? debtColors.progressColor : undefined
               }}
             />
           </div>

@@ -21,6 +21,14 @@ const DEFAULT_THEME_COLORS = [
   '#D4D1E0', '#E0DDD5', '#D1D8E0', '#D5E0E0'
 ];
 
+// 格式化数值：大于等于1000时不显示小数点
+const formatValue = (num: number): string => {
+  if (Math.abs(num) >= 1000) {
+    return Math.round(num).toLocaleString('zh-CN');
+  }
+  return num.toLocaleString('zh-CN');
+};
+
 // 根据ID生成固定颜色索引（兼容旧数据）
 const getColorFromId = (id: string): string => {
   let hash = 0;
@@ -113,6 +121,21 @@ const CircleProgress: React.FC<CircleProgressProps> = ({
 
 // 计算当日打卡任务完成状态和进度
 const calculateDailyProgress = (task: Task): { isCompleted: boolean; progress: number } => {
+  // 优先使用 task.todayProgress（支持 CHECK_IN 和 NUMERIC 类型）
+  const tp = task.todayProgress;
+  if (tp) {
+    if (tp.isCompleted) {
+      return { isCompleted: true, progress: 100 };
+    }
+    const dailyTarget = tp.dailyTarget ?? 0;
+    if (dailyTarget > 0) {
+      // 使用绝对值处理减少型任务（NUMERIC 类型的 todayValue 可能为负数）
+      const progress = Math.min(100, Math.max(0, Math.round((Math.abs(tp.todayValue ?? 0) / dailyTarget) * 100)));
+      return { isCompleted: false, progress };
+    }
+  }
+  
+  // 兼容旧逻辑
   const status = getTodayCheckInStatusForTask(task);
   
   if (status.isCompleted) {
@@ -121,7 +144,7 @@ const calculateDailyProgress = (task: Task): { isCompleted: boolean; progress: n
   
   let progress = 0;
   if (status.dailyTarget && status.dailyTarget > 0) {
-    progress = Math.min(100, Math.round((status.todayValue / status.dailyTarget) * 100));
+    progress = Math.min(100, Math.round((Math.abs(status.todayValue) / status.dailyTarget) * 100));
   }
   
   return { isCompleted: false, progress };
@@ -224,7 +247,7 @@ export default function SidelineTaskCard({ task, onClick, isTodayCompleted, isCy
       return {
         totalProgress: progress.totalPercentage || 0,
         cycleProgress: progress.cyclePercentage || 0,
-        cycleInfo: `${progress.cycleAchieved || 0}/${progress.cycleTargetValue || 0}`
+        cycleInfo: `${formatValue(Number(progress.cycleAchieved) || 0)}/${formatValue(Number(progress.cycleTargetValue) || 0)}`
       };
     }
     
@@ -240,7 +263,7 @@ export default function SidelineTaskCard({ task, onClick, isTodayCompleted, isCy
           currentCycleNumber,
           cycleStartValue
         });
-        const cycleInfo = numericConfig ? `${numericConfig.currentValue}/${progressData.currentCycleTarget}${numericConfig.unit}` : '';
+        const cycleInfo = numericConfig ? `${formatValue(numericConfig.currentValue)}/${formatValue(progressData.currentCycleTarget)}${numericConfig.unit}` : '';
         return { 
           totalProgress: progressData.totalProgress, 
           cycleProgress: progressData.cycleProgress,

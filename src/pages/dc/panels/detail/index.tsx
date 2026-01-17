@@ -104,6 +104,8 @@ export default function GoalDetailModal({
     if (!taskId) return null;
     return getTaskById(taskId);
   }, [taskId, getTaskById]);
+
+  console.log(task,'curtask')
   
   const [activeTab, setActiveTab] = useState<string>(TAB_KEYS.TARGETS);
   const [showRecordModal, setShowRecordModal] = useState(false);

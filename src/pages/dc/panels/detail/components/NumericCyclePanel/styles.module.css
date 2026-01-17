@@ -114,6 +114,32 @@
   color: #000;
 }
 
+/* 今日进度 */
+.todayProgress {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: #f9f9f9;
+  border-radius: 20px;
+}
+
+.todayLabel {
+  font-size: 13px;
+  color: #666;
+}
+
+.todayValue {
+  font-size: 14px;
+  font-weight: 600;
+  color: #000;
+}
+
+.todayCheck {
+  color: #52c41a;
+  flex-shrink: 0;
+}
+
 /* 数据网格 */
 .statsGrid {
   display: grid;

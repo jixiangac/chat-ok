@@ -16,6 +16,7 @@ import {
   DataManagementPage,
   TodayMustCompletePage,
 } from '../pages';
+import { useUser } from '@/pages/dc/contexts';
 import styles from './styles.module.css';
 import '../animations/index.css';
 
@@ -37,6 +38,7 @@ const UnifiedSettingsPanel: React.FC<UnifiedSettingsPanelProps> = ({
   onDataChanged,
 }) => {
   const { currentPage, stack, push, pop, canGoBack, reset } = usePageStack();
+  const { setTodayMustCompleteReadOnly } = useUser();
   const containerRef = useRef<HTMLDivElement>(null);
   
   // 面板动画状态
@@ -109,8 +111,9 @@ const UnifiedSettingsPanel: React.FC<UnifiedSettingsPanelProps> = ({
 
   // 处理今日毕任务点击
   const handleOpenTodayMustComplete = useCallback((readOnly?: boolean) => {
+    setTodayMustCompleteReadOnly(readOnly ?? false);
     handleNavigate('todayMustComplete', '今日毕任务');
-  }, [handleNavigate]);
+  }, [handleNavigate, setTodayMustCompleteReadOnly]);
 
   // 渲染页面内容
   const renderPageContent = (pageId: string) => {
@@ -127,7 +130,7 @@ const UnifiedSettingsPanel: React.FC<UnifiedSettingsPanelProps> = ({
             onBack={handleBack}
           />
         );
-      case 'main':
+      case 'main':  
       default:
         return (
           <SettingsMainPage
@@ -171,6 +174,7 @@ const UnifiedSettingsPanel: React.FC<UnifiedSettingsPanelProps> = ({
   };
 
   if (!isVisible) return null;
+  console.log(stack,'stack.')
 
   return createPortal(
     <div 

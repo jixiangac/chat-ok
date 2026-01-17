@@ -118,6 +118,15 @@ export interface ProgressInfo {
   cycleRemaining: number;
   /** 最后更新时间 YYYY-MM-DD HH:mm:ss */
   lastUpdatedAt: string;
+  
+  /** 上一周期欠款值（未完成目标时的差值） */
+  previousCycleDebt?: number;
+  /** 上一周期是否完成目标 */
+  previousCycleCompleted?: boolean;
+  /** 补偿目标值（用于有欠款且在50%时间内完成当前目标时） */
+  compensationTargetValue?: number;
+  /** 欠款来源周期编号 */
+  debtFromCycle?: number;
 }
 
 /** 今日进度信息 */
@@ -318,6 +327,14 @@ export interface CycleAdvanceLog extends BaseActivityLog {
   cycleNumber: number;
   /** 周期完成率 */
   completionRate: number;
+  /** 周期结算值（数值型任务） */
+  settlementValue?: number;
+  /** 周期计划目标值 */
+  planTargetValue?: number;
+  /** 是否有欠款（实际未完成目标） */
+  hasDebt?: boolean;
+  /** 是否通过补偿完成（实际周期未完成，但通过补偿机制标记为完成） */
+  completedByCompensation?: boolean;
 }
 
 /** 状态变更日志 */

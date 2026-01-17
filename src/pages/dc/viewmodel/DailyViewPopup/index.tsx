@@ -12,7 +12,6 @@ import dayjs from 'dayjs';
 import type { Task, TagType } from '../../types';
 import { getUsedLocationTags } from '../../utils/tagStorage';
 import { useTaskContext, useScene } from '../../contexts';
-import { getTodayCheckInStatusForTask } from '../../panels/detail/hooks';
 import { LocationFilter } from '../../components';
 import styles from './styles.module.css';
 
@@ -137,13 +136,16 @@ const DailyViewPopup: React.FC<DailyViewPopupProps> = ({
   const filteredTasks = useMemo(() => {
     // 从 SceneProvider 获取缓存的一日清单任务ID
     const dailyViewTaskIds = normal.dailyViewTaskIds;
+    console.log(dailyViewTaskIds,'dailyViewTaskIds')
     
-    // 根据缓存的ID列表筛选任务
-    const dailyTasks = tasks.filter(task => 
-      // 支持新旧格式
-      (task.category === 'CHECK_IN' || (task as any).mainlineType === 'CHECK_IN') && 
-      dailyViewTaskIds.includes(task.id)
-    );
+    // 按照缓存的ID顺序获取任务（保持顺序不变）
+    // 支持 CHECK_IN 和 NUMERIC 类型任务
+    const dailyTasks = dailyViewTaskIds
+      .map(id => normal.getById(id))
+      .filter((task): task is Task => 
+        task !== undefined && 
+        (task.category === 'CHECK_IN' || task.category === 'NUMERIC')
+      );
     
     // 应用地点筛选
     if (!selectedLocationTagId) {
@@ -153,7 +155,7 @@ const DailyViewPopup: React.FC<DailyViewPopupProps> = ({
     return dailyTasks.filter(task => 
       task.tags?.locationTagId === selectedLocationTagId
     );
-  }, [tasks, selectedLocationTagId, normal.dailyViewTaskIds]);
+  }, [normal.dailyViewTaskIds, normal.getById, selectedLocationTagId]);
 
   // 将任务分配到时段
   const tasksWithPeriods = useMemo((): TaskWithPeriod[] => {
@@ -169,28 +171,25 @@ const DailyViewPopup: React.FC<DailyViewPopupProps> = ({
       const baseHour = TIME_PERIODS[period].start;
       const hoursInPeriod = TIME_PERIODS[period].end - TIME_PERIODS[period].start;
       const hour = baseHour + Math.min(positionInPeriod * 2, hoursInPeriod - 1);
-      
-      // 检查今日完成状态
-      const status = getTodayCheckInStatusForTask(task);
-      
-      // 计算当日进度
-      let dailyProgress = 0;
-      const hasProgress = !status.isCompleted && status.todayValue > 0;
-      
-      if (hasProgress && status.dailyTarget && status.dailyTarget > 0) {
-        dailyProgress = Math.min(100, Math.round((status.todayValue / status.dailyTarget) * 100));
-      }
+      // 计算今日进度百分比
+      const todayValue = task.todayProgress?.todayValue ?? 0;
+      const dailyTarget = task.todayProgress?.dailyTarget ?? 0;
+      const isCompleted = task.todayProgress?.isCompleted ?? false;
+      // 使用绝对值处理减少型任务（NUMERIC 类型的 todayValue 可能为负数）
+      const dailyProgress = dailyTarget > 0 ? Math.min(100, Math.max(0, (Math.abs(todayValue) / dailyTarget) * 100)) : 0;
+      // 只有有每日目标且未完成时才显示进度图标
+      const hasProgress = dailyTarget > 0 && !isCompleted;
 
       return {
         ...task,
         period,
         displayTime: `${hour.toString().padStart(2, '0')}:00`,
-        isCompleted: status.isCompleted,
+        isCompleted: task.todayProgress?.isCompleted ?? false,
         hasProgress,
         dailyProgress,
       };
     });
-  }, [filteredTasks]);
+  }, [filteredTasks, normal.isTodayCompleted]);
 
   // 按时段分组
   const tasksByPeriod = useMemo(() => {
@@ -381,6 +380,10 @@ const DailyViewPopup: React.FC<DailyViewPopupProps> = ({
 };
 
 export default DailyViewPopup;
+
+
+
+
 
 
 

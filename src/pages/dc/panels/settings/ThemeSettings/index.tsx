@@ -7,7 +7,7 @@
 import { useState, useEffect } from 'react';
 import { Check } from 'lucide-react';
 import { SafeArea } from 'antd-mobile';
-import { useTheme, themePresets, ThemeKey } from '../theme';
+import { useTheme, themePresets, type ThemeKey } from '@/pages/dc/contexts';
 import './index.css';
 
 interface ThemeSettingsProps {
@@ -100,12 +100,15 @@ export default function ThemeSettings({ onBack }: ThemeSettingsProps) {
         )}
       </div>
 
-      {/* 底部固定保存按钮 - 使用固定颜色，不随主题变化 */}
+      {/* 底部固定保存按钮 - 使用当前已保存的主题颜色 */}
       <div className="theme-settings-bottom-fixed">
         <button 
           className={`theme-settings-save-btn ${hasChanges ? 'active' : ''}`}
           onClick={handleSave}
           disabled={!hasChanges}
+          style={hasChanges ? { 
+            backgroundColor: themePresets[currentTheme].primary 
+          } : undefined}
         >
           {hasChanges ? '保存更改' : '未修改'}
         </button>
@@ -114,3 +117,6 @@ export default function ThemeSettings({ onBack }: ThemeSettingsProps) {
     </div>
   );
 }
+
+
+

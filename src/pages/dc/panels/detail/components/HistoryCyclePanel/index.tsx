@@ -16,6 +16,12 @@ interface CycleSummary {
   completedValue: number | string;
   targetValue: number | string;
   actualValue?: number | string;
+  /** 周期结算值（已结束周期） */
+  settlementValue?: number;
+  /** 是否有欠款（实际未完成目标） */
+  hasDebt?: boolean;
+  /** 是否通过补偿完成 */
+  completedByCompensation?: boolean;
   unit: string;
   isCurrent: boolean;
   isFuture: boolean;
@@ -40,7 +46,11 @@ export default function HistoryCyclePanel({ goal }: HistoryCyclePanelProps) {
       .filter((a): a is CycleAdvanceLog => a.type === 'CYCLE_ADVANCE')
       .map((a, index) => ({
         cycleNumber: a.cycleNumber || index + 1,
-        completionRate: a.completionRate || 0
+        completionRate: a.completionRate || 0,
+        settlementValue: a.settlementValue,
+        planTargetValue: a.planTargetValue,
+        hasDebt: a.hasDebt,
+        completedByCompensation: a.completedByCompensation
       }));
     
     const snapshotCount = cycleSnapshots.length;
@@ -57,6 +67,9 @@ export default function HistoryCyclePanel({ goal }: HistoryCyclePanelProps) {
       let completedValue: number | string = 0;
       let targetValue: number | string = 0;
       let actualValue: number | string | undefined = undefined;
+      let settlementValue: number | undefined = undefined;
+      let hasDebt: boolean | undefined = undefined;
+      let completedByCompensation: boolean | undefined = undefined;
       let unit = '';
       
       // 查找该周期的快照
@@ -79,7 +92,19 @@ export default function HistoryCyclePanel({ goal }: HistoryCyclePanelProps) {
         if (snapshot) {
           // 使用快照数据
           completionRate = snapshot.completionRate;
-          actualValue = currentValue; // 可以从快照中获取更准确的值
+          settlementValue = snapshot.settlementValue;
+          completedByCompensation = snapshot.completedByCompensation;
+          actualValue = snapshot.settlementValue ?? currentValue;
+          
+          // 重新计算 hasDebt：结算值达到周期目标就算完成
+          if (settlementValue !== undefined) {
+            const reachedCycleTarget = direction === 'DECREASE'
+              ? settlementValue <= cycleTargetValue
+              : settlementValue >= cycleTargetValue;
+            hasDebt = !reachedCycleTarget;
+          } else {
+            hasDebt = snapshot.hasDebt;
+          }
         } else if (i > simulatedCurrentCycleNumber) {
           // 未来周期
           completionRate = 0;
@@ -136,6 +161,9 @@ export default function HistoryCyclePanel({ goal }: HistoryCyclePanelProps) {
         completedValue,
         targetValue,
         actualValue,
+        settlementValue,
+        hasDebt,
+        completedByCompensation,
         unit,
         isCurrent: isCurrentCycle,
         isFuture: !isPlanEnded && i > simulatedCurrentCycleNumber,
@@ -192,7 +220,7 @@ export default function HistoryCyclePanel({ goal }: HistoryCyclePanelProps) {
         {displayCycles.map((cycle) => (
           <div 
             key={cycle.cycleNumber} 
-            className={`${styles.cycleItem} ${cycle.isCurrent ? styles.currentCycle : styles.pastCycle} ${cycle.isFuture ? styles.futureCycle : ''}`}
+            className={`${styles.cycleItem} ${cycle.isCurrent ? styles.currentCycle : styles.pastCycle} ${cycle.isFuture ? styles.futureCycle : ''} ${cycle.hasDebt ? styles.hasDebt : ''}`}
           >
             <div 
               className={styles.progressOverlay}
@@ -204,6 +232,8 @@ export default function HistoryCyclePanel({ goal }: HistoryCyclePanelProps) {
                 <div className={styles.cycleTitle}>
                   <span>第{cycle.cycleNumber}周期</span>
                   {cycle.showInProgressBadge && <span className={styles.currentBadge}>进行中</span>}
+                  {!cycle.completedByCompensation && cycle.hasDebt && !cycle.isCurrent && cycle.completionRate < 100 && <span className={styles.debtBadge}>未达成</span>}
+                  {cycle.completedByCompensation && <span className={styles.compensationBadge}>二次完成</span>}
                 </div>
                 <div className={styles.cycleDate}>
                   <Calendar size={12} />
@@ -212,9 +242,11 @@ export default function HistoryCyclePanel({ goal }: HistoryCyclePanelProps) {
               </div>
               <div className={styles.cycleRight}>
                 <div className={styles.cycleData}>
-                  {cycle.actualValue !== undefined 
-                    ? `${cycle.actualValue}${cycle.unit} / ${cycle.targetValue}${cycle.unit}`
-                    : `目标: ${cycle.targetValue}${cycle.unit}`
+                  {cycle.settlementValue !== undefined 
+                    ? `结算: ${cycle.settlementValue}${cycle.unit} / 目标: ${cycle.targetValue}${cycle.unit}`
+                    : cycle.actualValue !== undefined 
+                      ? `${cycle.actualValue}${cycle.unit} / ${cycle.targetValue}${cycle.unit}`
+                      : `目标: ${cycle.targetValue}${cycle.unit}`
                   }
                 </div>
                 <div className={styles.cycleRate}>

@@ -9,7 +9,6 @@ import { SafeArea } from 'antd-mobile';
 import { SubPageLayout } from '../../components';
 import type { Task } from '@/pages/dc/types';
 import { SidelineTaskCard } from '@/pages/dc/components/card';
-import { getTodayCheckInStatusForTask } from '@/pages/dc/panels/detail/hooks';
 import { useScene, useUser } from '@/pages/dc/contexts';
 import styles from './styles.module.css';
 
@@ -24,15 +23,15 @@ const TodayMustCompletePage: React.FC<TodayMustCompletePageProps> = ({
   onBack,
 }) => {
   // 从 Provider 获取数据
-  const { sidelineTasks } = useScene();
+  const { normal } = useScene();
   const { 
     todayMustComplete, 
     setTodayMustCompleteTasks, 
     skipTodayMustComplete 
   } = useUser();
-  
+
   const readOnly = todayMustComplete.readOnly;
-  const tasks = sidelineTasks;
+  const tasks = normal.sidelineTasks;
   
   const [selectedTaskIds, setSelectedTaskIds] = useState<string[]>([]);
 
@@ -48,10 +47,9 @@ const TodayMustCompletePage: React.FC<TodayMustCompletePageProps> = ({
   // 过滤掉今日已完成打卡的任务（仅编辑模式）
   const availableTasks = useMemo(() => {
     if (readOnly) return tasks;
-    return tasks.filter(task => {
-      const status = getTodayCheckInStatusForTask(task);
-      return !status.isCompleted;
-    });
+    return tasks.filter(task => 
+      !task.todayProgress?.isCompleted
+    );
   }, [tasks, readOnly]);
 
   // 处理任务选择（仅编辑模式）
@@ -170,3 +168,5 @@ const TodayMustCompletePage: React.FC<TodayMustCompletePageProps> = ({
 };
 
 export default TodayMustCompletePage;
+
+

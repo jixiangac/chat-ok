@@ -62,6 +62,31 @@ const calculateTodayProgress = (task: Task): TodayProgress => {
   const checkInConfig = task.checkInConfig;
   const todayCheckIns = getTodayCheckInsFromRecords(task, effectiveToday);
 
+  // NUMERIC 类型任务：使用 numericConfig.perDayAverage 作为每日目标
+  if (task.category === 'NUMERIC' && task.numericConfig) {
+    const dailyTarget = Math.abs(task.numericConfig.perDayAverage || 0);
+    // 计算今日记录的数值变化
+    const todayActivities = task.activities?.filter(a => 
+      dayjs(a.date).format('YYYY-MM-DD') === effectiveToday && a.type === 'UPDATE_VALUE'
+    ) || [];
+    // 计算今日数值变化总和（newValue - oldValue）
+    const todayValue = todayActivities.reduce((sum, a) => {
+      const activity = a as { newValue?: number; oldValue?: number };
+      return sum + ((activity.newValue || 0) - (activity.oldValue || 0));
+    }, 0);
+    // 使用绝对值判断是否完成（减少型任务 todayValue 为负数）
+    const isCompleted = dailyTarget > 0 && Math.abs(todayValue) >= dailyTarget;
+    
+    return {
+      canCheckIn: true,
+      todayCount: todayActivities.length,
+      todayValue,
+      isCompleted,
+      dailyTarget,
+      lastUpdatedAt: dayjs().toISOString()
+    };
+  }
+
   if (!checkInConfig) {
     return {
       canCheckIn: todayCheckIns.length === 0,
@@ -395,52 +420,15 @@ export function TaskProvider({ children }: TaskProviderProps) {
     const task = scene.getTaskById(taskId, targetScene);
     if (!task) return { canCheckIn: false, todayCount: 0, todayValue: 0, isCompleted: false };
 
-    const effectiveToday = getSimulatedToday(task);
-    const checkInConfig = task.checkInConfig;
-    const todayCheckIns = getTodayCheckInsFromRecords(task, effectiveToday);
-
-    if (!checkInConfig) {
-      return {
-        canCheckIn: todayCheckIns.length === 0,
-        todayCount: todayCheckIns.length,
-        todayValue: 0,
-        isCompleted: todayCheckIns.length > 0
-      };
-    }
-
-    const unit = checkInConfig.unit;
-    const todayValue = todayCheckIns.reduce((sum, c) => sum + (c.value || 1), 0);
-
-    if (unit === 'TIMES') {
-      const dailyMax = checkInConfig.dailyMaxTimes || 1;
-      return {
-        canCheckIn: todayCheckIns.length < dailyMax,
-        todayCount: todayCheckIns.length,
-        todayValue: todayCheckIns.length,
-        isCompleted: todayCheckIns.length >= dailyMax,
-        dailyTarget: dailyMax
-      };
-    } else if (unit === 'DURATION') {
-      const dailyTarget = checkInConfig.dailyTargetMinutes || 15;
-      return {
-        canCheckIn: todayValue < dailyTarget,
-        todayCount: todayCheckIns.length,
-        todayValue,
-        isCompleted: todayValue >= dailyTarget,
-        dailyTarget
-      };
-    } else if (unit === 'QUANTITY') {
-      const dailyTarget = checkInConfig.dailyTargetValue || 0;
-      return {
-        canCheckIn: dailyTarget === 0 || todayValue < dailyTarget,
-        todayCount: todayCheckIns.length,
-        todayValue,
-        isCompleted: dailyTarget > 0 && todayValue >= dailyTarget,
-        dailyTarget
-      };
-    }
-
-    return { canCheckIn: true, todayCount: 0, todayValue: 0, isCompleted: false };
+    // 直接使用 task.todayProgress，如果不存在则计算
+    const todayProgress = task.todayProgress || calculateTodayProgress(task);
+    return {
+      canCheckIn: todayProgress.canCheckIn,
+      todayCount: todayProgress.todayCount,
+      todayValue: todayProgress.todayValue,
+      isCompleted: todayProgress.isCompleted,
+      dailyTarget: todayProgress.dailyTarget
+    };
   }, [scene, detectScene]);
 
   // 打卡功能
@@ -534,46 +522,51 @@ export function TaskProvider({ children }: TaskProviderProps) {
       // 计算并更新打卡型任务的进度
       let progressUpdate: Partial<Task> = {};
       if (task.category === 'CHECK_IN') {
-        const cycleInfo = calculateCycle(taskId, targetScene);
-        const totalCycles = task.cycle.totalCycles;
+        // 直接使用 task.cycle 中的周期信息
+        const { currentCycle, totalCycles, cycleDays } = task.cycle;
+        const startDate = dayjs(task.time.startDate);
         const perCycleTarget = config?.perCycleTarget || 1;
         const unit = config?.unit || 'TIMES';
 
-        if (cycleInfo) {
-          const cycleRecords = records.filter(r =>
-            r.date >= cycleInfo.cycleStartDate && r.date <= cycleInfo.cycleEndDate && r.checked
-          );
+        // 计算当前周期的开始和结束日期
+        const cycleStartDay = (currentCycle - 1) * cycleDays;
+        const cycleEndDay = cycleStartDay + cycleDays - 1;
+        const cycleStartDate = startDate.add(cycleStartDay, 'day').format('YYYY-MM-DD');
+        const cycleEndDate = startDate.add(cycleEndDay, 'day').format('YYYY-MM-DD');
 
-          let currentCycleValue: number;
-          let totalValue: number;
+        const cycleRecords = records.filter(r =>
+          r.date >= cycleStartDate && r.date <= cycleEndDate && r.checked
+        );
 
-          if (unit === 'TIMES') {
-            currentCycleValue = cycleRecords.reduce((sum, r) => sum + r.entries.length, 0);
-            totalValue = records.filter(r => r.checked).reduce((sum, r) => sum + r.entries.length, 0);
-          } else {
-            currentCycleValue = cycleRecords.reduce((sum, r) => sum + (r.totalValue || 0), 0);
-            totalValue = records.filter(r => r.checked).reduce((sum, r) => sum + (r.totalValue || 0), 0);
-          }
+        let currentCycleValue: number;
+        let totalValue: number;
 
-          const cyclePercentage = Math.min(100, Math.round((currentCycleValue / perCycleTarget) * 100));
-          const totalTarget = totalCycles * perCycleTarget;
-          const totalPercentage = Math.min(100, Math.round((totalValue / totalTarget) * 100));
-
-          // 计算 cycleAchieved 和 cycleRemaining
-          const cycleAchieved = currentCycleValue;
-          const cycleRemaining = Math.max(0, perCycleTarget - currentCycleValue);
-
-          progressUpdate = {
-            progress: {
-              ...task.progress,
-              cyclePercentage,
-              totalPercentage,
-              cycleAchieved,
-              cycleRemaining,
-              lastUpdatedAt: dayjs().toISOString()
-            }
-          };
+        if (unit === 'TIMES') {
+          currentCycleValue = cycleRecords.reduce((sum, r) => sum + r.entries.length, 0);
+          totalValue = records.filter(r => r.checked).reduce((sum, r) => sum + r.entries.length, 0);
+        } else {
+          currentCycleValue = cycleRecords.reduce((sum, r) => sum + (r.totalValue || 0), 0);
+          totalValue = records.filter(r => r.checked).reduce((sum, r) => sum + (r.totalValue || 0), 0);
         }
+
+        const cyclePercentage = Math.min(100, Math.round((currentCycleValue / perCycleTarget) * 100));
+        const totalTarget = totalCycles * perCycleTarget;
+        const totalPercentage = Math.min(100, Math.round((totalValue / totalTarget) * 100));
+
+        // 计算 cycleAchieved 和 cycleRemaining
+        const cycleAchieved = currentCycleValue;
+        const cycleRemaining = Math.max(0, perCycleTarget - currentCycleValue);
+
+        progressUpdate = {
+          progress: {
+            ...task.progress,
+            cyclePercentage,
+            totalPercentage,
+            cycleAchieved,
+            cycleRemaining,
+            lastUpdatedAt: dayjs().toISOString()
+          }
+        };
       }
 
       // 添加活动日志（使用模拟日期）
@@ -608,7 +601,7 @@ export function TaskProvider({ children }: TaskProviderProps) {
       console.error('打卡失败:', error);
       return false;
     }
-  }, [scene, detectScene, calculateCycle]);
+  }, [scene, detectScene]);
 
   // 记录数值型数据
   const recordNumericData = useCallback(async (taskId: string, value: number, note?: string, sceneType?: SceneType): Promise<boolean> => {
@@ -617,14 +610,14 @@ export function TaskProvider({ children }: TaskProviderProps) {
 
     const task = scene.getTaskById(taskId, targetScene);
     if (!task) return false;
-
+console.log(value,'value')
     try {
       const config = task.numericConfig;
       if (!config) return false;
 
       const previousValue = config.currentValue;
       const change = value - previousValue;
-
+      const progress = task.progress;
       const isDecrease = config.direction === 'DECREASE';
       const originalStart = config.originalStartValue ?? config.startValue;
       const totalChange = Math.abs(config.targetValue - originalStart);
@@ -634,21 +627,34 @@ export function TaskProvider({ children }: TaskProviderProps) {
 
       const perCycleTarget = config.perCycleTarget || (totalChange / task.cycle.totalCycles);
 
-      const cycleInfo = calculateCycle(taskId, targetScene);
-      
-      // 计算周期起始值
-      let cycleStartValue = config.startValue;
-      const cycleSnapshots = (task as any).cycleSnapshots || [];
-      if (cycleSnapshots.length > 0) {
-        const lastSnapshot = cycleSnapshots[cycleSnapshots.length - 1];
-        if (lastSnapshot.actualValue !== undefined) {
-          cycleStartValue = lastSnapshot.actualValue;
-        }
-      }
+      // 从 progress 中获取周期起始值
+      const cycleStartValueRaw = progress.cycleStartValue ?? config.startValue;
+      const cycleStartValue = typeof cycleStartValueRaw === 'number' ? cycleStartValueRaw : config.startValue;
 
-      const rawCycleChange = value - cycleStartValue;
-      const effectiveCycleChange = isDecrease ? Math.max(0, -rawCycleChange) : Math.max(0, rawCycleChange);
-      const cyclePercentage = perCycleTarget > 0 ? Math.min(100, Math.round((effectiveCycleChange / perCycleTarget) * 100)) : 0;
+      // 检查是否已有补偿目标值，如果有则用它来计算进度
+      const existingCompensationTarget = progress.compensationTargetValue;
+      
+      let cyclePercentage: number;
+      let effectiveCycleChange: number;
+      
+      if (existingCompensationTarget !== undefined) {
+        // 使用补偿目标值计算进度
+        const compensationTotal = isDecrease 
+          ? cycleStartValue - existingCompensationTarget 
+          : existingCompensationTarget - cycleStartValue;
+        const compensationChange = isDecrease 
+          ? cycleStartValue - value 
+          : value - cycleStartValue;
+        effectiveCycleChange = Math.max(0, compensationChange);
+        cyclePercentage = compensationTotal > 0 
+          ? Math.max(0, Math.min(100, Math.round((compensationChange / compensationTotal) * 100)))
+          : 0;
+      } else {
+        // 使用原周期目标计算进度
+        const rawCycleChange = value - cycleStartValue;
+        effectiveCycleChange = isDecrease ? Math.max(0, -rawCycleChange) : Math.max(0, rawCycleChange);
+        cyclePercentage = perCycleTarget > 0 ? Math.min(100, Math.round((effectiveCycleChange / perCycleTarget) * 100)) : 0;
+      }
 
       const updatedNumericConfig = {
         ...config,
@@ -668,9 +674,31 @@ export function TaskProvider({ children }: TaskProviderProps) {
         note: note || undefined
       };
 
+      // 检查是否已达成最终目标
+      const alreadyReachedFinalTarget = isDecrease 
+        ? value <= config.targetValue
+        : value >= config.targetValue;
+      
       // 计算 cycleAchieved 和 cycleRemaining（数值型任务）
-      const cycleAchieved = effectiveCycleChange;
-      const cycleRemaining = Math.max(0, perCycleTarget - effectiveCycleChange);
+      let cycleAchieved = effectiveCycleChange;
+      let cycleRemainingCalc = Math.max(0, perCycleTarget - effectiveCycleChange);
+      
+      // 如果已达成最终目标，进度100%，还需0
+      if (alreadyReachedFinalTarget) {
+        cyclePercentage = 100;
+        cycleRemainingCalc = 0;
+      }
+      
+      const cycleRemaining = cycleRemainingCalc;
+
+      // 计算当前周期目标值（保持原值不变，不用 compensationTargetValue 覆盖）
+      let originalCycleTargetValue = cycleStartValue + perCycleTarget * (isDecrease ? -1 : 1);
+      // 确保周期目标值不超过最终目标值
+      if (isDecrease) {
+        originalCycleTargetValue = Math.max(originalCycleTargetValue, config.targetValue);
+      } else {
+        originalCycleTargetValue = Math.min(originalCycleTargetValue, config.targetValue);
+      }
 
       const updates: Partial<Task> = {
         numericConfig: updatedNumericConfig,
@@ -683,12 +711,114 @@ export function TaskProvider({ children }: TaskProviderProps) {
           cycleAchieved,
           cycleRemaining,
           lastUpdatedAt: dayjs().toISOString(),
-          cycleTargetValue: cycleStartValue + perCycleTarget * (isDecrease ? -1 : 1),
+          cycleTargetValue: originalCycleTargetValue,
+          // 保留已有的补偿目标值（只用于计算，不覆盖 cycleTargetValue）
+          compensationTargetValue: existingCompensationTarget,
         }
       };
 
-      // 处理欠账快照逻辑
-      if (cycleSnapshots.length > 0 && cyclePercentage >= 100 && cycleInfo) {
+      // 处理欠款和补偿目标值逻辑
+      const currentCycle = task.cycle.currentCycle;
+      const cycleDays = task.cycle.cycleDays;
+      const startDate = dayjs(task.time.startDate);
+      const debugOffset = (task as any).debugDayOffset || 0;
+      const simulatedTodayDate = dayjs().add(debugOffset, 'day');
+      
+      // 计算当前周期的开始日期和已过天数
+      const cycleStartDay = (currentCycle - 1) * cycleDays;
+      const currentCycleStart = startDate.add(cycleStartDay, 'day');
+      const daysInCurrentCycle = simulatedTodayDate.diff(currentCycleStart, 'day');
+      const isInFirstHalf = daysInCurrentCycle < cycleDays / 2;
+
+      // 如果当前周期进度达到100%且在前50%时间内，且没有已设置的补偿目标，检查是否需要设置补偿目标
+      // 不依赖 previousCycleDebt，直接检查当前值是否达到各周期计划目标
+      if (cyclePercentage >= 100 && isInFirstHalf && existingCompensationTarget === undefined) {
+        // 从周期计划取最多3个周期的目标值，找第一个当前值未达标的作为补偿目标
+        const originalStart = config.originalStartValue ?? config.startValue;
+        let compensationTarget: number | undefined;
+        let compensationFromCycle: number | undefined;
+        
+        // 从当前周期开始往前检查，最多检查3个周期
+        const startCycle = currentCycle;
+        const endCycle = Math.max(1, currentCycle - 2); // 往前最多2个，总共3个周期
+        
+        for (let i = startCycle; i >= endCycle; i--) {
+          // 计算第i个周期的计划目标值
+          const cycleTargetForI = isDecrease 
+            ? originalStart - (perCycleTarget * i)
+            : originalStart + (perCycleTarget * i);
+          
+          // 检查当前值是否达到这个周期的目标
+          let hasReached = false;
+          if (isDecrease) {
+            hasReached = value <= cycleTargetForI;
+          } else {
+            hasReached = value >= cycleTargetForI;
+          }
+          
+          if (!hasReached) {
+            // 找到未达标的周期目标（从当前往前找，取最早未达标的）
+            compensationTarget = cycleTargetForI;
+            compensationFromCycle = i;
+            // 继续往前找，取最早未达标的
+          }
+        }
+        
+        if (compensationTarget !== undefined) {
+          // 补偿目标不能超过最终目标值（减少方向不能小于targetValue，增加方向不能大于targetValue）
+          if (isDecrease) {
+            compensationTarget = Math.max(compensationTarget, config.targetValue);
+          } else {
+            compensationTarget = Math.min(compensationTarget, config.targetValue);
+          }
+          
+          // 设置补偿目标值，替代当前周期目标
+          (updates.progress as any).compensationTargetValue = compensationTarget;
+          (updates.progress as any).debtFromCycle = compensationFromCycle;
+          
+          // 重新计算基于补偿目标的进度（从当前周期起始值到补偿目标）
+          const cycleStartNum = typeof cycleStartValue === 'number' ? cycleStartValue : 0;
+          const compensationChange = isDecrease 
+            ? cycleStartNum - value 
+            : value - cycleStartNum;
+          const compensationTotal = isDecrease 
+            ? cycleStartNum - compensationTarget 
+            : compensationTarget - cycleStartNum;
+          // 确保进度不为负数
+          const compensationPercentage = compensationTotal > 0 
+            ? Math.max(0, Math.min(100, Math.round((compensationChange / compensationTotal) * 100)))
+            : 0;
+          
+          (updates.progress as any).cyclePercentage = compensationPercentage;
+          // 不覆盖 cycleTargetValue，保持原值，只用 compensationTargetValue 进行计算
+          
+          // 设置欠账快照用于卡片显示
+          const colorScheme = getRandomColorScheme();
+          updates.previousCycleDebtSnapshot = {
+            currentCycleNumber: currentCycle,
+            targetValue: compensationTarget,
+            bgColor: colorScheme.bgColor,
+            progressColor: colorScheme.progressColor,
+            borderColor: colorScheme.borderColor,
+            debtCycleSnapshot: {
+              cycleNumber: compensationFromCycle || 1,
+              startValue: originalStart,
+              targetValue: compensationTarget,
+              actualValue: value,
+              completionRate: compensationPercentage,
+            }
+          };
+        } else {
+          // 所有周期目标都已达到，清除补偿目标
+          (updates.progress as any).compensationTargetValue = undefined;
+          (updates.progress as any).debtFromCycle = undefined;
+          updates.previousCycleDebtSnapshot = undefined;
+        }
+      }
+
+      // 兼容旧的欠账快照逻辑
+      const cycleSnapshots = (task as any).cycleSnapshots || [];
+      if (cycleSnapshots.length > 0 && cyclePercentage >= 100 && !updates.previousCycleDebtSnapshot) {
         const lastSnapshot = cycleSnapshots[cycleSnapshots.length - 1];
         if (lastSnapshot.completionRate !== undefined && lastSnapshot.completionRate < 100) {
           const previousCycleTarget = lastSnapshot.targetValue;
@@ -700,13 +830,12 @@ export function TaskProvider({ children }: TaskProviderProps) {
           }
 
           if (!reachedLastTarget) {
-            const remainingDays = cycleInfo.daysRemainingInCycle;
-            const cycleDays = task.cycle.cycleDays;
+            const remainingDays = Math.max(0, cycleDays - daysInCurrentCycle);
 
             if (remainingDays > cycleDays / 2 && !task.previousCycleDebtSnapshot) {
               const colorScheme = getRandomColorScheme();
               updates.previousCycleDebtSnapshot = {
-                currentCycleNumber: cycleInfo.currentCycle,
+                currentCycleNumber: currentCycle,
                 targetValue: previousCycleTarget,
                 bgColor: colorScheme.bgColor,
                 progressColor: colorScheme.progressColor,
@@ -736,7 +865,7 @@ export function TaskProvider({ children }: TaskProviderProps) {
       console.error('记录数据失败:', error);
       return false;
     }
-  }, [scene, detectScene, calculateCycle]);
+  }, [scene, detectScene]);
 
   // 更新清单项
   const updateChecklistItem = useCallback(async (
@@ -941,71 +1070,193 @@ export function TaskProvider({ children }: TaskProviderProps) {
       const newOffset = currentOffset + 1;
       const cycleDays = task.cycle.cycleDays;
       const currentCycle = task.cycle.currentCycle;
+      const startDate = dayjs(task.time.startDate);
 
-      // 计算当前周期内已过的天数（基于 debugDayOffset）
-      // 每个周期有 cycleDays 天，当 offset 超过当前周期的天数时，需要进入下一周期
-      const daysInCurrentCycle = currentOffset % cycleDays;
-      const newDaysInCycle = (currentOffset + 1) % cycleDays;
+      // 计算新的模拟日期
+      const newSimulatedDate = dayjs().add(newOffset, 'day');
+      
+      // 计算当前周期的结束日期
+      // 当前周期开始日期 = startDate + (currentCycle - 1) * cycleDays
+      // 当前周期结束日期 = 开始日期 + cycleDays - 1
+      const currentCycleStartDate = startDate.add((currentCycle - 1) * cycleDays, 'day');
+      const currentCycleEndDate = currentCycleStartDate.add(cycleDays - 1, 'day');
 
-      // 如果新的天数回到 0，说明超过了周期天数，需要进入下一周期
-      const shouldEnterNextCycle = newDaysInCycle === 0 && currentOffset > 0;
+      // 如果新的模拟日期超过了当前周期的结束日期，需要进入下一周期
+      const shouldEnterNextCycle = newSimulatedDate.isAfter(currentCycleEndDate, 'day');
 
-      // 更新 debugDayOffset
-      scene.updateTask(targetScene, taskId, { debugDayOffset: newOffset } as any);
+      // 构建更新对象
+      let updates: Partial<Task> & { debugDayOffset?: number } = {
+        debugDayOffset: newOffset
+      };
 
       if (shouldEnterNextCycle) {
-        // 调用 debugNextCycle 的逻辑
-        const updatedTask = scene.getTaskById(taskId, targetScene);
-        if (updatedTask) {
-          const totalCycles = updatedTask.cycle.totalCycles;
-          const currentCycleNum = updatedTask.cycle.currentCycle;
+        const totalCycles = task.cycle.totalCycles;
 
-          if (currentCycleNum >= totalCycles) {
-            // 已经是最后一个周期，结束计划
-            scene.updateTask(targetScene, taskId, {
-              status: 'COMPLETED',
-              isPlanEnded: true,
-              time: {
-                ...updatedTask.time,
-                completedAt: dayjs().toISOString()
-              }
-            });
+        if (currentCycle >= totalCycles) {
+          // 已经是最后一个周期，结束计划
+          updates = {
+            ...updates,
+            status: 'COMPLETED',
+            isPlanEnded: true,
+            time: {
+              ...task.time,
+              completedAt: dayjs().toISOString()
+            }
+          };
+        } else {
+          // 进入下一周期 - 使用与 debugNextCycle 相同的逻辑
+          const newCycleNumber = currentCycle + 1;
+          const perCycleTarget = task.checkInConfig?.perCycleTarget || task.numericConfig?.perCycleTarget || task.checklistConfig?.perCycleTarget || 0;
+
+          // 计算上一周期的完成情况和欠款
+          let previousCycleDebt: number | undefined;
+          let previousCycleCompleted = true;
+          let newCycleStartValue: number;
+          let newCycleTargetValue: number;
+          let debtFromCycle: number | undefined;
+
+          if (task.category === 'NUMERIC' && task.numericConfig) {
+            const config = task.numericConfig;
+            const isDecrease = config.direction === 'DECREASE';
+            const currentValue = config.currentValue;
+            
+            const previousCycleTargetValue = typeof task.progress.cycleTargetValue === 'number' 
+              ? task.progress.cycleTargetValue 
+              : parseFloat(task.progress.cycleTargetValue as string) || config.targetValue;
+
+            // 判断是否完成：达到周期目标 或 已达成最终目标
+            const reachedCycleTarget = isDecrease 
+              ? currentValue <= previousCycleTargetValue
+              : currentValue >= previousCycleTargetValue;
+            const reachedFinalTarget = isDecrease
+              ? currentValue <= config.targetValue
+              : currentValue >= config.targetValue;
+            previousCycleCompleted = reachedCycleTarget || reachedFinalTarget;
+
+            newCycleStartValue = currentValue;
+
+            if (previousCycleCompleted) {
+              newCycleTargetValue = isDecrease 
+                ? newCycleStartValue - perCycleTarget
+                : newCycleStartValue + perCycleTarget;
+            } else {
+              previousCycleDebt = isDecrease 
+                ? currentValue - previousCycleTargetValue
+                : previousCycleTargetValue - currentValue;
+              debtFromCycle = currentCycle;
+              
+              newCycleTargetValue = isDecrease 
+                ? newCycleStartValue - perCycleTarget
+                : newCycleStartValue + perCycleTarget;
+            }
+
+            if (isDecrease) {
+              newCycleTargetValue = Math.max(newCycleTargetValue, config.targetValue);
+            } else {
+              newCycleTargetValue = Math.min(newCycleTargetValue, config.targetValue);
+            }
           } else {
-            // 进入下一周期
-            const newCycleNumber = currentCycleNum + 1;
-            const perCycleTarget = updatedTask.checkInConfig?.perCycleTarget || updatedTask.numericConfig?.perCycleTarget || updatedTask.checklistConfig?.perCycleTarget || 0;
-
-            scene.updateTask(targetScene, taskId, {
-              cycle: {
-                ...updatedTask.cycle,
-                currentCycle: newCycleNumber
-              },
-              progress: {
-                ...updatedTask.progress,
-                cyclePercentage: 0,
-                cycleAchieved: 0,
-                cycleRemaining: perCycleTarget,
-                lastUpdatedAt: dayjs().toISOString()
-              }
-            });
+            newCycleStartValue = 0;
+            newCycleTargetValue = perCycleTarget;
+            
+            const cyclePercentage = task.progress.cyclePercentage || 0;
+            previousCycleCompleted = cyclePercentage >= 100;
+            if (!previousCycleCompleted) {
+              previousCycleDebt = perCycleTarget - (task.progress.cycleAchieved || 0);
+              debtFromCycle = currentCycle;
+            }
           }
+
+          // 获取上一周期的结算值和计划目标值（用于记录到活动日志）
+          let settlementValue: number | undefined;
+          let planTargetValue: number | undefined;
+          let hasDebt = !previousCycleCompleted;
+          let completedByCompensation = false;
+          
+          if (task.category === 'NUMERIC' && task.numericConfig) {
+            settlementValue = task.numericConfig.currentValue;
+            planTargetValue = typeof task.progress.cycleTargetValue === 'number' 
+              ? task.progress.cycleTargetValue 
+              : parseFloat(task.progress.cycleTargetValue as string);
+            if (task.progress.compensationTargetValue !== undefined && task.progress.cyclePercentage >= 100) {
+              completedByCompensation = true;
+            }
+          }
+
+          // 创建周期推进日志
+          const cycleAdvanceLog = {
+            id: generateId(),
+            type: 'CYCLE_ADVANCE' as const,
+            date: getSimulatedToday(task),
+            timestamp: getSimulatedTimestamp(task),
+            cycleNumber: currentCycle,
+            completionRate: task.progress.cyclePercentage,
+            settlementValue,
+            planTargetValue,
+            hasDebt,
+            completedByCompensation
+          };
+
+          // 检查新周期开始时是否已达成最终目标
+          let newCyclePercentage = 0;
+          let newCycleAchieved = 0;
+          let newCycleRemaining = perCycleTarget;
+          
+          if (task.category === 'NUMERIC' && task.numericConfig) {
+            const config = task.numericConfig;
+            const isDecrease = config.direction === 'DECREASE';
+            const alreadyReachedFinalTarget = isDecrease 
+              ? config.currentValue <= config.targetValue
+              : config.currentValue >= config.targetValue;
+            
+            if (alreadyReachedFinalTarget) {
+              // 已达成最终目标，周期目标量就是已完成量
+              const cycleTargetAmount = isDecrease
+                ? newCycleStartValue - newCycleTargetValue
+                : newCycleTargetValue - newCycleStartValue;
+              newCyclePercentage = 100;
+              newCycleAchieved = Math.max(0, cycleTargetAmount);
+              newCycleRemaining = 0;
+            }
+          }
+
+          updates = {
+            ...updates,
+            cycle: {
+              ...task.cycle,
+              currentCycle: newCycleNumber
+            },
+            progress: {
+              ...task.progress,
+              cyclePercentage: newCyclePercentage,
+              cycleAchieved: newCycleAchieved,
+              cycleRemaining: newCycleRemaining,
+              cycleStartValue: newCycleStartValue,
+              cycleTargetValue: newCycleTargetValue,
+              previousCycleDebt,
+              previousCycleCompleted,
+              debtFromCycle,
+              compensationTargetValue: undefined,
+              lastUpdatedAt: dayjs().toISOString()
+            },
+            activities: [...task.activities, cycleAdvanceLog]
+          };
         }
       }
 
-      // 重新计算新一天的 todayProgress
-      const finalTask = scene.getTaskById(taskId, targetScene);
-      if (finalTask) {
-        scene.updateTask(targetScene, taskId, {
-          todayProgress: calculateTodayProgress(finalTask)
-        });
-      }
+      // 计算新一天的 todayProgress（使用更新后的数据）
+      const updatedTaskForProgress = { ...task, ...updates } as Task;
+      updates.todayProgress = calculateTodayProgress(updatedTaskForProgress);
+
+      // 一次性更新所有数据
+      scene.updateTask(targetScene, taskId, updates as Partial<Task>);
 
       return { success: true, enteredNextCycle: shouldEnterNextCycle };
     } catch (error) {
       console.error('Debug进入下一天失败:', error);
       return { success: false, enteredNextCycle: false };
     }
-  }, [scene, detectScene, calculateCycle]);
+  }, [scene, detectScene]);
 
   // Debug: 进入下一周期
   const debugNextCycle = useCallback(async (taskId: string, sceneType?: SceneType): Promise<boolean> => {
@@ -1022,7 +1273,6 @@ export function TaskProvider({ children }: TaskProviderProps) {
 
       // 检查是否已经是最后一个周期，如果是则结束计划
       if (currentCycle >= totalCycles) {
-        // 和 endPlanEarly 一样结束计划
         scene.updateTask(targetScene, taskId, {
           status: 'COMPLETED',
           isPlanEnded: true,
@@ -1037,39 +1287,174 @@ export function TaskProvider({ children }: TaskProviderProps) {
       // 新周期编号
       const newCycleNumber = currentCycle + 1;
 
-      // 根据 startDate 重新计算 debugDayOffset，使模拟日期为新周期的第一天
+      // 根据 startDate 计算新周期第一天对应的 debugDayOffset
       const startDate = dayjs(task.time.startDate);
-      // const realToday = dayjs();
-      // 新周期的开始日期 = startDate + (newCycleNumber - 1) * cycleDays
+      const realToday = dayjs();
+      
+      // 新周期的开始日期
       const newCycleStartDate = startDate.add((newCycleNumber - 1) * cycleDays, 'day');
-      const newDebugDayOffset = newCycleStartDate.diff(startDate, 'day');
+      const newDebugDayOffset = newCycleStartDate.diff(realToday, 'day');
 
-      // 获取新周期的目标值用于重置 cycleRemaining
+      // 获取周期目标值
       const perCycleTarget = task.checkInConfig?.perCycleTarget || task.numericConfig?.perCycleTarget || task.checklistConfig?.perCycleTarget || 0;
 
-      // 更新 cycle.currentCycle 和重置周期相关的 progress 数据
-      scene.updateTask(targetScene, taskId, ({
+      // 计算上一周期的完成情况和欠款
+      let previousCycleDebt: number | undefined;
+      let previousCycleCompleted = true;
+      let newCycleStartValue: number;
+      let newCycleTargetValue: number;
+      let debtFromCycle: number | undefined;
+
+      if (task.category === 'NUMERIC' && task.numericConfig) {
+        const config = task.numericConfig;
+        const isDecrease = config.direction === 'DECREASE';
+        const currentValue = config.currentValue;
+        
+        // 上一周期的目标值
+        const previousCycleTargetValue = typeof task.progress.cycleTargetValue === 'number' 
+          ? task.progress.cycleTargetValue 
+          : parseFloat(task.progress.cycleTargetValue as string) || config.targetValue;
+
+        // 判断是否完成：达到周期目标 或 已达成最终目标
+        const reachedCycleTarget = isDecrease 
+          ? currentValue <= previousCycleTargetValue
+          : currentValue >= previousCycleTargetValue;
+        const reachedFinalTarget = isDecrease
+          ? currentValue <= config.targetValue
+          : currentValue >= config.targetValue;
+        previousCycleCompleted = reachedCycleTarget || reachedFinalTarget;
+
+        // 新周期的起始值 = 上一周期的结算值（当前值）
+        newCycleStartValue = currentValue;
+
+        if (previousCycleCompleted) {
+          // 上一周期完成：目标值 = 新周期计划的目标值
+          newCycleTargetValue = isDecrease 
+            ? newCycleStartValue - perCycleTarget
+            : newCycleStartValue + perCycleTarget;
+        } else {
+          // 上一周期未完成：记录欠款值
+          previousCycleDebt = isDecrease 
+            ? currentValue - previousCycleTargetValue  // 减少型：当前值 - 目标值 = 欠款
+            : previousCycleTargetValue - currentValue; // 增加型：目标值 - 当前值 = 欠款
+          debtFromCycle = currentCycle;
+          
+          // 目标值 = 结算值 + 周期平均计划值
+          newCycleTargetValue = isDecrease 
+            ? newCycleStartValue - perCycleTarget
+            : newCycleStartValue + perCycleTarget;
+        }
+
+        // 确保目标值不超过最终目标
+        if (isDecrease) {
+          newCycleTargetValue = Math.max(newCycleTargetValue, config.targetValue);
+        } else {
+          newCycleTargetValue = Math.min(newCycleTargetValue, config.targetValue);
+        }
+      } else {
+        // 非数值型任务：简单重置
+        newCycleStartValue = 0;
+        newCycleTargetValue = perCycleTarget;
+        
+        // 检查打卡型或清单型任务的完成情况
+        const cyclePercentage = task.progress.cyclePercentage || 0;
+        previousCycleCompleted = cyclePercentage >= 100;
+        if (!previousCycleCompleted) {
+          previousCycleDebt = perCycleTarget - (task.progress.cycleAchieved || 0);
+          debtFromCycle = currentCycle;
+        }
+      }
+
+      // 获取上一周期的结算值和计划目标值（用于记录到活动日志）
+      let settlementValue: number | undefined;
+      let planTargetValue: number | undefined;
+      let hasDebt = !previousCycleCompleted;
+      let completedByCompensation = false;
+      
+      if (task.category === 'NUMERIC' && task.numericConfig) {
+        settlementValue = task.numericConfig.currentValue;
+        planTargetValue = typeof task.progress.cycleTargetValue === 'number' 
+          ? task.progress.cycleTargetValue 
+          : parseFloat(task.progress.cycleTargetValue as string);
+        // 检查是否通过补偿完成（有补偿目标值且进度>=100）
+        if (task.progress.compensationTargetValue !== undefined && task.progress.cyclePercentage >= 100) {
+          completedByCompensation = true;
+        }
+      }
+
+      // 创建周期推进日志
+      const cycleAdvanceLog = {
+        id: generateId(),
+        type: 'CYCLE_ADVANCE' as const,
+        date: getSimulatedToday(task),
+        timestamp: getSimulatedTimestamp(task),
+        cycleNumber: currentCycle,
+        completionRate: task.progress.cyclePercentage,
+        settlementValue,
+        planTargetValue,
+        hasDebt,
+        completedByCompensation
+      };
+
+      // 检查新周期开始时是否已达成最终目标
+      let newCyclePercentage = 0;
+      let newCycleAchieved = 0;
+      let newCycleRemaining = perCycleTarget;
+      
+      if (task.category === 'NUMERIC' && task.numericConfig) {
+        const config = task.numericConfig;
+        const isDecrease = config.direction === 'DECREASE';
+        const alreadyReachedFinalTarget = isDecrease 
+          ? config.currentValue <= config.targetValue
+          : config.currentValue >= config.targetValue;
+        
+        if (alreadyReachedFinalTarget) {
+          // 已达成最终目标，周期目标量就是已完成量
+          const cycleTargetAmount = isDecrease
+            ? newCycleStartValue - newCycleTargetValue
+            : newCycleTargetValue - newCycleStartValue;
+          newCyclePercentage = 100;
+          newCycleAchieved = Math.max(0, cycleTargetAmount);
+          newCycleRemaining = 0;
+        }
+      }
+
+      // 构建更新对象
+      const updates: Partial<Task> & { debugDayOffset?: number } = {
         cycle: {
           ...task.cycle,
           currentCycle: newCycleNumber
         },
         progress: {
           ...task.progress,
-          cyclePercentage: 0,
-          cycleAchieved: 0,
-          cycleRemaining: perCycleTarget,
+          cyclePercentage: newCyclePercentage,
+          cycleAchieved: newCycleAchieved,
+          cycleRemaining: newCycleRemaining,
+          cycleStartValue: newCycleStartValue,
+          cycleTargetValue: newCycleTargetValue,
+          previousCycleDebt,
+          previousCycleCompleted,
+          debtFromCycle,
+          compensationTargetValue: undefined, // 新周期开始时清除补偿目标
           lastUpdatedAt: dayjs().toISOString()
         },
-        todayProgress: calculateTodayProgress({ ...task, cycle: { ...task.cycle, currentCycle: newCycleNumber }, debugDayOffset: newDebugDayOffset } as Task),
-        debugDayOffset: newDebugDayOffset
-      }) as Partial<Task>);
+        activities: [...task.activities, cycleAdvanceLog],
+        todayProgress: calculateTodayProgress({ 
+          ...task, 
+          cycle: { ...task.cycle, currentCycle: newCycleNumber }, 
+          debugDayOffset: newDebugDayOffset 
+        } as Task),
+        debugDayOffset: newDebugDayOffset + 1
+      };
+
+      scene.updateTask(targetScene, taskId, updates as Partial<Task>);
 
       return true;
     } catch (error) {
       console.error('Debug进入下一周期失败:', error);
       return false;
     }
-  }, [scene, detectScene, calculateCycle]);
+  }, [scene, detectScene]);
 
   // ========== 历史记录 ==========
 
@@ -1178,30 +1563,3 @@ export function useTaskContext(): TaskContextValue {
 }
 
 export type { TaskContextValue, HistoryRecord, CycleInfo, TodayCheckInStatus, GoalDetailData } from './types';
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

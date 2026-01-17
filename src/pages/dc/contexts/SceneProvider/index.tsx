@@ -24,6 +24,7 @@ import { useSpriteImage } from '../../hooks';
 import { filterDailyViewTasks, getCachedDailyTaskIds, saveDailyTaskIdsCache } from '../../utils';
 import { calculateRemainingDays } from '../../utils/mainlineTaskHelper';
 import { getTodayMustCompleteTaskIds } from '../../utils/todayMustCompleteStorage';
+import { getArchivedTasks } from '../../utils/archiveStorage';
 
 // 创建 Context
 const SceneContext = createContext<SceneContextValue | null>(null);
@@ -439,113 +440,57 @@ export function SceneProvider({ children }: SceneProviderProps) {
   }, [normalActiveTasks]);
 
   // 常规场景的支线任务（已排序）
+  // 排序规则：
+  // 1. 今日必须完成的在最前面
+  // 2. 今日已完成的排序靠后
+  // 3. 周期完成率100%的最后
+  // 4. 周期完成100%并且今日完成的最最后
   const normalSidelineTasks = useMemo(() => {
     return normalActiveTasks
       .filter(t => t.type === 'sidelineA' || t.type === 'sidelineB')
       .sort((a, b) => {
-        const aTodayCompleted = isTodayCompleted(a);
-        const bTodayCompleted = isTodayCompleted(b);
-        const aCycleCompleted = isCycleCompleted(a);
-        const bCycleCompleted = isCycleCompleted(b);
         const aIsMustComplete = mustCompleteIds.includes(a.id);
         const bIsMustComplete = mustCompleteIds.includes(b.id);
+        const aTodayCompleted = a.todayProgress?.isCompleted ?? false;
+        const bTodayCompleted = b.todayProgress?.isCompleted ?? false;
+        const aCycleCompleted = (a.progress?.cyclePercentage ?? 0) >= 100;
+        const bCycleCompleted = (b.progress?.cyclePercentage ?? 0) >= 100;
         
-        // 0. 今日必须完成的任务置顶
+        // 1. 今日必须完成的在最前面
         if (aIsMustComplete && !bIsMustComplete) return -1;
         if (!aIsMustComplete && bIsMustComplete) return 1;
         
-        // 如果都是今日必须完成，按完成状态排序（未完成的在前）
-        if (aIsMustComplete && bIsMustComplete) {
-          if (!aTodayCompleted && bTodayCompleted) return -1;
-          if (aTodayCompleted && !bTodayCompleted) return 1;
-          return 0;
-        }
-        
-        // 1. 今日未完成 vs 今日已完成
+        // 2. 今日已完成的排序靠后
         if (!aTodayCompleted && bTodayCompleted) return -1;
         if (aTodayCompleted && !bTodayCompleted) return 1;
         
-        // 2. 如果都是今日未完成
-        if (!aTodayCompleted && !bTodayCompleted) {
-          if (!aCycleCompleted && bCycleCompleted) return -1;
-          if (aCycleCompleted && !bCycleCompleted) return 1;
-          
-          if (!aCycleCompleted && !bCycleCompleted) {
-            const aRemainingDays = calculateRemainingDays(a);
-            const bRemainingDays = calculateRemainingDays(b);
-            if (aRemainingDays !== bRemainingDays) {
-              return aRemainingDays - bRemainingDays;
-            }
-            return getCycleProgress(a) - getCycleProgress(b);
-          }
-        }
-        
-        // 3. 如果都是今日已完成
-        if (aTodayCompleted && bTodayCompleted) {
-          if (!aCycleCompleted && bCycleCompleted) return -1;
-          if (aCycleCompleted && !bCycleCompleted) return 1;
-          
-          if (!aCycleCompleted && !bCycleCompleted) {
-            const aRemainingDays = calculateRemainingDays(a);
-            const bRemainingDays = calculateRemainingDays(b);
-            return aRemainingDays - bRemainingDays;
-          }
-        }
+        // 3. 周期完成率100%的最后
+        if (!aCycleCompleted && bCycleCompleted) return -1;
+        if (aCycleCompleted && !bCycleCompleted) return 1;
         
         return 0;
       });
-  }, [normalActiveTasks, mustCompleteIds, isTodayCompleted, isCycleCompleted, getCycleProgress]);
-
-  // 计算今日完成率
-  const todayProgress = useMemo(() => {
-    const today = dayjs().format('YYYY-MM-DD');
-
-    if (normalActiveTasks.length === 0) {
-      return { completed: 0, total: 0, percentage: 0 };
-    }
-
-    let completedCount = 0;
-    const totalCount = normalActiveTasks.length;
-
-    normalActiveTasks.forEach(task => {
-      const checkInConfig = task.checkInConfig;
-      
-      // 检查打卡类型任务的今日完成状态
-      if (checkInConfig?.records) {
-        const todayRecord = checkInConfig.records.find(r => r.date === today);
-        if (todayRecord?.checked || (todayRecord?.entries && todayRecord.entries.length > 0)) {
-          completedCount++;
-          return;
-        }
-      }
-      
-      // 检查 activities
-      if (task.activities?.some(a => 
-        a.type === 'CHECK_IN' && dayjs(a.date).format('YYYY-MM-DD') === today
-      )) {
-        completedCount++;
-        return;
-      }
-    });
-
-    const percentage = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
-    
-    return { completed: completedCount, total: totalCount, percentage };
-  }, [normalActiveTasks]);
+  }, [normalActiveTasks, mustCompleteIds]);
 
   // ========== 一日清单任务ID ==========
   
   const dailyViewTaskIds = useMemo(() => {
     // 1. 尝试从缓存获取今日任务ID列表
     const cachedTaskIds = getCachedDailyTaskIds();
-    
-    if (cachedTaskIds) {
+
+    if (cachedTaskIds&&cachedTaskIds.length) {
       return cachedTaskIds;
     }
     
     // 2. 执行智能筛选逻辑
     const allTasks = [...normalMainlineTasks, ...normalSidelineTasks];
+
+    if (!allTasks.length) {
+      return []
+    }
+
     const dailyTasks = filterDailyViewTasks(allTasks);
+
     const taskIds = dailyTasks.map(t => t.id);
     
     // 3. 保存到缓存，确保全天结果一致
@@ -554,6 +499,50 @@ export function SceneProvider({ children }: SceneProviderProps) {
     return taskIds;
   }, [normalMainlineTasks, normalSidelineTasks, scenes.normal.meta.version]);
 
+  // 计算今日完成率（基于一日清单）
+  // 每个任务按 todayProgress 计算进度比例：完成=100%，否则按 todayValue/dailyTarget 计算
+  // 最终完成率 = 所有任务进度比例之和 / 任务数量
+  const todayProgress = useMemo(() => {
+    // 基于一日清单的任务ID来计算
+    if (dailyViewTaskIds.length === 0) {
+      return { completed: 0, total: 0, percentage: 0 };
+    }
+
+    // 获取一日清单中的任务
+    const dailyTasks = dailyViewTaskIds
+      .map(id => scenes.normal.index.byId.get(id))
+      .filter((task): task is Task => task !== undefined);
+
+    const totalCount = dailyTasks.length;
+    let completedCount = 0;
+    let totalProgressRatio = 0;
+
+    dailyTasks.forEach(task => {
+      const tp = task.todayProgress;
+      
+      if (tp?.isCompleted) {
+        // 已完成的任务算 100%
+        completedCount++;
+        totalProgressRatio += 1;
+      } else if (tp && (tp.dailyTarget ?? 0) > 0) {
+        // 未完成但有进度的任务，按比例计算
+        // 使用绝对值处理减少型任务（todayValue 可能为负数）
+        const ratio = Math.min(1, Math.max(0, Math.abs(tp.todayValue ?? 0) / (tp.dailyTarget ?? 1)));
+        totalProgressRatio += ratio;
+      }
+      // 没有 todayProgress 或 dailyTarget 为 0 的任务，进度算 0
+    });
+
+    const percentage = totalCount > 0 ? Math.round((totalProgressRatio / totalCount) * 100) : 0;
+    
+    return { completed: completedCount, total: totalCount, percentage };
+  }, [dailyViewTaskIds, scenes.normal.index.byId]);
+
+  // 归档任务（从独立存储获取）
+  const archivedTasks = useMemo(() => {
+    return getArchivedTasks();
+  }, [scenes.normal.meta.version]);
+
   // 常规场景快捷访问
   const normal: NormalSceneAccess = useMemo(() => ({
     mainlineTasks: normalMainlineTasks,
@@ -561,7 +550,7 @@ export function SceneProvider({ children }: SceneProviderProps) {
     displayedSidelineTasks: normalSidelineTasks.slice(0, 3),
     activeTasks: getTasksByStatus('active', 'normal'),
     completedTasks: getTasksByStatus('completed', 'normal'),
-    archivedTasks: getTasksByStatus('archived', 'normal'),
+    archivedTasks,
     todayTasks: Array.from(scenes.normal.index.byDate.today)
       .map(id => scenes.normal.index.byId.get(id))
       .filter((task): task is Task => task !== undefined),
@@ -571,7 +560,7 @@ export function SceneProvider({ children }: SceneProviderProps) {
     isTodayCompleted,
     isCycleCompleted,
     getById: (id: string) => getTaskById(id, 'normal'),
-  }), [scenes.normal, normalMainlineTasks, normalSidelineTasks, getTasksByStatus, getTaskById, todayProgress, dailyViewTaskIds, isTodayCompleted, isCycleCompleted]);
+  }), [scenes.normal, normalMainlineTasks, normalSidelineTasks, archivedTasks, getTasksByStatus, getTaskById, todayProgress, dailyViewTaskIds, isTodayCompleted, isCycleCompleted]);
 
   // 度假场景（待实现）
   const vacation: VacationSceneData = useMemo(() => ({
@@ -653,3 +642,6 @@ export function useScene(): SceneContextValue {
 
 // 导出类型
 export type { SceneType, SceneData, NormalSceneAccess } from './types';
+
+
+

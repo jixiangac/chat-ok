@@ -117,7 +117,7 @@ export function UserProvider({ children }: UserProviderProps) {
           taskIds: taskIds.slice(0, 3), // 最多3个
           skipped: false,
           hasShownModal: true,
-          readOnly: prev.todayMustComplete.readOnly,
+          readOnly: true, // 设置任务后进入只读模式
         },
       };
       saveUserData(newData);
@@ -136,7 +136,7 @@ export function UserProvider({ children }: UserProviderProps) {
           taskIds: [],
           skipped: true,
           hasShownModal: true,
-          readOnly: prev.todayMustComplete.readOnly,
+          readOnly: false, // 跳过不设置只读模式
         },
       };
       saveUserData(newData);
@@ -376,5 +376,8 @@ export type {
   DailyChecklist, 
   UserStats 
 } from './types';
+
+
+
 
 

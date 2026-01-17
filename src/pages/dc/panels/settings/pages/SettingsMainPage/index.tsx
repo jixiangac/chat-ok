@@ -7,7 +7,8 @@
 import React from 'react';
 import { Target, Palette, Tag, Sun, Umbrella, Heart, Flag, Database, CheckCircle2, Circle } from 'lucide-react';
 import { SettingsSection, SettingsListItem } from '../../components';
-import { canOpenModalForEdit, canOpenModalForView, getTodayMustCompleteTaskIds } from '@/pages/dc/utils/todayMustCompleteStorage';
+import { useUser } from '@/pages/dc/contexts';
+import dayjs from 'dayjs';
 import styles from './styles.module.css';
 
 export interface SettingsMainPageProps {
@@ -21,17 +22,25 @@ const SettingsMainPage: React.FC<SettingsMainPageProps> = ({
   onNavigate,
   onOpenTodayMustComplete,
 }) => {
-  const canEdit = canOpenModalForEdit();
-  const canView = canOpenModalForView();
-  const taskIds = getTodayMustCompleteTaskIds();
+  const { todayMustComplete } = useUser();
+  
+  // 判断是否是今天的数据
+  const today = dayjs().format('YYYY-MM-DD');
+  const isToday = todayMustComplete.date === today;
+  
+  const taskIds = todayMustComplete.taskIds;
   const taskCount = taskIds.length;
+  
+  // 今天是否已设置过（有任务就算设置过）
+  const hasSetToday = isToday && taskCount > 0;
+  // 是否可以编辑（今天没设置过才能编辑）
+  const canEdit = !hasSetToday;
 
-  // 处理今日毕任务点击
+  // 处理今日毕任务点击 - 始终可以打开
   const handleTodayMustCompleteClick = () => {
-    if (canEdit && onOpenTodayMustComplete) {
-      onOpenTodayMustComplete(false);
-    } else if (canView && onOpenTodayMustComplete) {
-      onOpenTodayMustComplete(true);
+    if (onOpenTodayMustComplete) {
+      // 今天没设置过可编辑，设置过只读查看
+      onOpenTodayMustComplete(!canEdit);
     }
   };
 
@@ -40,7 +49,7 @@ const SettingsMainPage: React.FC<SettingsMainPageProps> = ({
     if (canEdit) {
       return '设置今天要重点完成的任务';
     }
-    if (canView) {
+    if (taskCount > 0) {
       return '查看今日已设置的任务';
     }
     return '今日已设置完成';
@@ -48,7 +57,7 @@ const SettingsMainPage: React.FC<SettingsMainPageProps> = ({
 
   // 获取今日毕任务的状态标签（使用图标）
   const getTodayMustCompleteStatusTag = () => {
-    if (canView && taskCount > 0) {
+    if (taskCount > 0) {
       // 已设置，显示图标和个数
       return (
         <span className={styles.statusTagDone}>
@@ -75,19 +84,18 @@ const SettingsMainPage: React.FC<SettingsMainPageProps> = ({
     <div className={styles.container}>
       {/* 基础设置 */}
       <SettingsSection title="基础设置">
+        
         {/* 今日毕任务 - 特殊高亮样式 */}
-        {(canEdit || canView) && (
-          <SettingsListItem
-            icon={<Target size={18} />}
-            title="今日毕任务"
-            description={getTodayMustCompleteDescription()}
-            highlight
-            animated
-            animationIndex={animationIndex++}
-            rightContent={getTodayMustCompleteStatusTag()}
-            onClick={handleTodayMustCompleteClick}
-          />
-        )}
+        <SettingsListItem
+          icon={<Target size={18} />}
+          title="今日毕任务"
+          description={getTodayMustCompleteDescription()}
+          highlight
+          animated
+          animationIndex={animationIndex++}
+          rightContent={getTodayMustCompleteStatusTag()}
+          onClick={handleTodayMustCompleteClick}
+        />
         
         <SettingsListItem
           icon={<Palette size={18} />}
@@ -167,3 +175,4 @@ const SettingsMainPage: React.FC<SettingsMainPageProps> = ({
 };
 
 export default SettingsMainPage;
+

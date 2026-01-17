@@ -28,13 +28,25 @@ export function filterDailyViewTasks(tasks: Task[]): Task[] {
   // 1. 获取今日必须完成的任务ID
   const mustCompleteIds = getTodayMustCompleteTaskIds();
   
-  // 2. 筛选所有打卡型任务（CHECK_IN类型）- 支持新旧格式
-  const checkInTasks = tasks.filter(task => 
-    task.category === 'CHECK_IN'
+  const result: Task[] = [];
+  
+  // 2. 主线任务必须包含（未完成的）
+  const mainlineTasks = tasks.filter(task => 
+    task.type === 'mainline' && 
+    task.status !== 'COMPLETED' && 
+    task.status !== 'ARCHIVED' &&
+    (task.progress?.totalPercentage ?? 0) < 100
+  );
+  result.push(...mainlineTasks);
+  
+  // 3. 筛选支线任务（CHECK_IN 和 NUMERIC 类型）
+  const sidelineTasks = tasks.filter(task => 
+    task.type !== 'mainline' && 
+    (task.category === 'CHECK_IN' || task.category === 'NUMERIC')
   );
   
-  // 3. 应用筛选规则
-  return checkInTasks.filter(task => {
+  // 4. 应用筛选规则
+  const filteredSidelineTasks = sidelineTasks.filter(task => {
     // 规则1: 今日必须完成 - 最高优先级
     if (mustCompleteIds.includes(task.id)) {
       return true;
@@ -55,7 +67,12 @@ export function filterDailyViewTasks(tasks: Task[]): Task[] {
       return false;
     }
     
-    // 获取打卡配置
+    // NUMERIC 类型任务：直接显示（有每日目标 perDayAverage）
+    if (task.category === 'NUMERIC' && task.numericConfig) {
+      return true;
+    }
+    
+    // CHECK_IN 类型任务的筛选逻辑
     const config = task.checkInConfig;
     if (!config) return false;
     
@@ -71,6 +88,10 @@ export function filterDailyViewTasks(tasks: Task[]): Task[] {
     
     return false;
   });
+  
+  result.push(...filteredSidelineTasks);
+  
+  return result;
 }
 
 /**

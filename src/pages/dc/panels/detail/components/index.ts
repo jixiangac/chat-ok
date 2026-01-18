@@ -3,7 +3,7 @@
  * 
  * 组件分类：
  * 1. 头部组件 - GoalHeader, DetailHeader
- * 2. 进度可视化组件 - CoffeeCupProgress, WaterCupProgress, IceMeltProgress, TodayProgressBar
+ * 2. 进度可视化组件 - CoffeeCupProgress, WaterCupProgress, TodayProgressBar, DuckWaterProgress
  * 3. 周期面板组件 - NumericCyclePanel, CheckInCyclePanel, ChecklistCyclePanel
  * 4. 信息展示组件 - CycleInfo, SecondaryNav
  * 4.1 变动记录组件 - ActivityRecordPanel
@@ -19,8 +19,10 @@ export { DetailHeader } from './DetailHeader';
 // 进度可视化组件（新增）
 export { default as CoffeeCupProgress } from './CoffeeCupProgress';
 export { default as WaterCupProgress } from './WaterCupProgress';
-export { default as IceMeltProgress } from './IceMeltProgress';
 export { default as TodayProgressBar } from './TodayProgressBar';
+
+// 鸭子水波进度组件（从 components 目录导入）
+export { DuckWaterProgress } from '../../../components/DuckWaterProgress';
 
 // 信息展示组件（新增）
 export { default as CycleInfo } from './CycleInfo';
@@ -49,4 +51,6 @@ export { showCycleSummaryDialog } from './CycleSummaryDialog';
 // 其他组件
 export { default as ProgressSection } from './ProgressSection';
 export { default as TabBar } from './TabBar';
+
+
 

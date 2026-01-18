@@ -41,6 +41,54 @@ export const formatNumber = (num: number): string => {
 };
 
 /**
+ * 智能格式化数字显示
+ * - 大于等于1000：千分位处理，去掉小数位，保留整数
+ * - 大于等于100：最多保留1位小数，不四舍五入
+ * - 小于100：最多保留2位小数，不四舍五入
+ * 
+ * 使用字符串分割方式处理，避免浮点数精度问题
+ */
+export const formatDisplayNumber = (num: number): string => {
+  const absNum = Math.abs(num);
+  const sign = num < 0 ? '-' : '';
+  
+  // 转为字符串并按小数点分割
+  const strNum = String(absNum);
+  const parts = strNum.split('.');
+  const intPart = parts[0];
+  const decPart = parts[1] || '';
+  
+  if (absNum >= 1000) {
+    // 大于等于1000：千分位处理，去掉小数位
+    return sign + parseInt(intPart, 10).toLocaleString('zh-CN');
+  } else if (absNum >= 100) {
+    // 大于等于100：最多保留1位小数，不四舍五入
+    if (!decPart || decPart === '0') {
+      return sign + intPart;
+    }
+    // 取小数点后1位
+    const firstDec = decPart.charAt(0);
+    if (firstDec === '0') {
+      return sign + intPart;
+    }
+    return sign + intPart + '.' + firstDec;
+  } else {
+    // 小于100：最多保留2位小数，不四舍五入
+    if (!decPart) {
+      return sign + intPart;
+    }
+    // 取小数点后最多2位
+    const twoDec = decPart.substring(0, 2);
+    // 去掉末尾的0
+    const trimmedDec = twoDec.replace(/0+$/, '');
+    if (!trimmedDec) {
+      return sign + intPart;
+    }
+    return sign + intPart + '.' + trimmedDec;
+  }
+};
+
+/**
  * 智能判断任务分类
  */
 export const getEffectiveCategory = (
@@ -484,4 +532,7 @@ export default ProgressCalculator;
 
 // 兼容旧版导出
 export { getEffectiveCategory as getEffectiveMainlineType };
+
+
+
 

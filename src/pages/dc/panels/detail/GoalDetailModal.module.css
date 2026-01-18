@@ -101,7 +101,8 @@
 /* 移除 Tab 系统后的内容容器 */
 .contentContainer {
   flex: 1;
-  overflow-y: auto;
+  /* overflow-y: auto; */
+  overflow: hidden;
   -webkit-overflow-scrolling: touch;
   display: flex;
   flex-direction: column;
@@ -135,6 +136,58 @@
 /* 二级入口区域 */
 .secondaryNavSection {
   /* SecondaryNav 组件自带样式 */
+}
+
+/* ========== 当日记录卡片 ========== */
+.todayRecordCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  margin: 0 16px;
+  background: #776c6c0f;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.todayRecordCard:active {
+  transform: scale(0.98);
+  background: #f9f9f9;
+}
+
+.todayRecordLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.todayRecordIcon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(79, 195, 247, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.todayRecordLabel {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgb(55, 53, 47);
+}
+
+.todayRecordRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.todayRecordCount {
+  font-size: 13px;
+  font-weight: 300;
+  color: rgba(55, 53, 47, 0.65);
 }
 
 /* 底部按钮容器 */
@@ -372,4 +425,3 @@
     transform: translateX(100%);
   }
 }
-

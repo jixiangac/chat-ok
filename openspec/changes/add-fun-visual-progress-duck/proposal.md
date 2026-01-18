@@ -33,22 +33,9 @@
 
 ### 核心设计
 
-#### 1. 图标映射机制
+#### 1. 统一视觉组件
 
-```typescript
-// 根据任务 category 映射到图标类型
-const CATEGORY_ICON_MAP = {
-  'water': 'duck',      // 喝水 → 鸭子
-  'coffee': 'coffee',   // 咖啡 → 咖啡杯（默认）
-  // 未来扩展：
-  // 'exercise': 'shoe',
-  // 'reading': 'book',
-}
-```
-
-- **默认图标**：咖啡杯（现有 `CoffeeCupProgress`）
-- **首个实现**：鸭子剪影（`DuckWaterProgress`）
-- **扩展方式**：通过添加 SVG 剪影 + 配置映射即可扩展
+所有 CHECK_IN 类型任务统一使用鸭子剪影 + 水波填充的视觉效果，替代现有的咖啡杯组件。
 
 #### 2. 视觉元素
 
@@ -144,7 +131,6 @@ src/pages/dc/components/
 // Task 数据结构（新增字段）
 interface Task {
   // ... 现有字段
-  category: 'water' | 'coffee' | string; // 用于图标映射
   
   checkInConfig?: {
     // ... 现有字段

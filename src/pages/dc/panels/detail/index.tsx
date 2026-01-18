@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef, useCallback, useEffect } from 'react';
 import { Popup, Toast, SafeArea } from 'antd-mobile';
-import { FileText, Check, Archive, Clock, Hash, ChevronLeft } from 'lucide-react';
+import { FileText, Check, Archive, Clock, Hash, ChevronLeft, ChevronRight, Droplets, Coffee } from 'lucide-react';
 import dayjs from 'dayjs';
 import { useTheme } from '../../contexts';
 import { useTaskContext } from '../../contexts';
@@ -11,8 +11,7 @@ import {
   DetailHeader,
   CoffeeCupProgress,
   WaterCupProgress,
-  IceMeltProgress,
-  TodayProgressBar,
+  DuckWaterProgress,
   CycleInfo,
   SecondaryNav,
   RecordDataModal,
@@ -193,14 +192,6 @@ export default function GoalDetailModal({
     return task.progress.totalPercentage || 0;
   }, [task]);
 
-  // 计算今日进度百分比
-  const todayProgressPercent = useMemo(() => {
-    if (!todayProgress) return 0;
-    const { todayValue, dailyTarget } = todayProgress;
-    if (!dailyTarget || dailyTarget === 0) return 0;
-    return Math.min(100, (todayValue / dailyTarget) * 100);
-  }, [todayProgress]);
-
   // 计算当前是周期第几天
   const currentDayInCycle = useMemo(() => {
     if (!currentCycle || !task) return 1;
@@ -378,29 +369,22 @@ export default function GoalDetailModal({
     switch (taskCategory) {
       case 'NUMERIC': {
         const numericConfig = task.numericConfig;
-        const direction = numericConfig?.direction || 'INCREASE';
+        // 使用总进度数据
         const currentValue = numericConfig?.currentValue || 0;
         const targetValue = numericConfig?.targetValue || 0;
         const unit = numericConfig?.unit || '';
+        const direction = numericConfig?.direction || 'INCREASE';
+        const startValue = numericConfig?.originalStartValue ?? numericConfig?.startValue ?? 0;
 
-        if (direction === 'DECREASE') {
-          return (
-            <IceMeltProgress
-              progress={cycleProgress}
-              currentValue={currentValue}
-              targetValue={targetValue}
-              unit={unit}
-              animate
-              size="large"
-            />
-          );
-        }
+        // 统一使用咖啡杯组件（正向和减向都用）
         return (
           <WaterCupProgress
-            progress={cycleProgress}
+            progress={totalProgress}
             currentValue={currentValue}
             targetValue={targetValue}
             unit={unit}
+            direction={direction}
+            startValue={startValue}
             animate
             size="large"
           />
@@ -409,39 +393,53 @@ export default function GoalDetailModal({
       case 'CHECK_IN':
       default: {
         const config = task.checkInConfig;
-        const unit = config?.unit === 'DURATION' ? '分钟' : 
-                     config?.unit === 'QUANTITY' ? (config?.valueUnit || '个') : '次';
+        const unitType = config?.unit || 'TIMES';
+        
+        // 计算总量数据
+        let currentValue = 0;
+        let targetValue = 0;
+        let unit = '次';
+        
+        if (unitType === 'TIMES') {
+          // 总次数
+          currentValue = config?.records?.filter(r => r.checked).reduce((sum, r) => sum + (r.entries?.length || 1), 0) || 0;
+          targetValue = (config?.cycleTargetTimes || config?.perCycleTarget || 0) * task.cycle.totalCycles;
+          unit = '次';
+        } else if (unitType === 'DURATION') {
+          // 总时长（分钟）
+          currentValue = config?.records?.reduce((sum, r) => sum + (r.totalValue || 0), 0) || 0;
+          targetValue = (config?.cycleTargetMinutes || config?.perCycleTarget || 0) * task.cycle.totalCycles;
+          unit = '分钟';
+        } else if (unitType === 'QUANTITY') {
+          // 总数量
+          currentValue = config?.records?.reduce((sum, r) => sum + (r.totalValue || 0), 0) || 0;
+          targetValue = (config?.cycleTargetValue || config?.perCycleTarget || 0) * task.cycle.totalCycles;
+          unit = config?.valueUnit || '个';
+        }
+
         return (
-          <CoffeeCupProgress
-            progress={cycleProgress}
-            currentValue={currentCycle.checkInCount}
-            targetValue={currentCycle.requiredCheckIns}
+          <WaterCupProgress
+            progress={totalProgress}
+            currentValue={currentValue}
+            targetValue={targetValue}
             unit={unit}
             animate
             size="large"
           />
         );
+        
+        // return (
+        //   <DuckWaterProgress
+        //     progress={totalProgress}
+        //     currentValue={currentValue}
+        //     targetValue={targetValue}
+        //     unit={unit}
+        //     animate
+        //     size="large"
+        //   />
+        // );
       }
     }
-  };
-
-  // 渲染今日进度条
-  const renderTodayProgress = () => {
-    if (!task || !todayProgress) return null;
-
-    const config = task.checkInConfig;
-    const unit = config?.unit === 'DURATION' ? '分钟' : 
-                 config?.unit === 'QUANTITY' ? (config?.valueUnit || '个') : '次';
-
-    return (
-      <TodayProgressBar
-        progress={todayProgressPercent}
-        currentValue={todayProgress.todayValue}
-        targetValue={todayProgress.dailyTarget || 1}
-        unit={unit}
-        isCompleted={todayCheckInStatus.isCompleted}
-      />
-    );
   };
   
   // 渲染子页面内容
@@ -450,7 +448,8 @@ export default function GoalDetailModal({
     
     switch (currentSubPage) {
       case 'records':
-        return <ActivityRecordPanel goal={task} />;
+        // 当日记录只显示今天的
+        return <ActivityRecordPanel goal={task} todayOnly />;
       case 'history':
         return <HistoryCyclePanel goal={task as any} />;
       case 'calendar':
@@ -463,9 +462,9 @@ export default function GoalDetailModal({
   // 获取子页面标题
   const getSubPageTitle = () => {
     switch (currentSubPage) {
-      case 'records': return '变动记录';
+      case 'records': return '当日记录';
       case 'history': return '周期计划';
-      case 'calendar': return '日历视图';
+      case 'calendar': return '历史记录';
       default: return '';
     }
   };
@@ -500,17 +499,10 @@ export default function GoalDetailModal({
             
             {/* 内容区域 */}
             <div className={styles.contentContainer}>
-              {/* 周期进度可视化（咖啡杯/水杯/冰块） */}
+              {/* 周期进度可视化（鸭子/水杯/冰块） */}
               <div className={styles.progressSection}>
                 {renderProgressVisual()}
               </div>
-              
-              {/* 今日进度条 */}
-              {!isPlanEnded && taskCategory === 'CHECK_IN' && (
-                <div className={styles.todayProgressSection}>
-                  {renderTodayProgress()}
-                </div>
-              )}
               
               {/* 周期信息 */}
               <CycleInfo
@@ -521,14 +513,46 @@ export default function GoalDetailModal({
                 endDate={currentCycle.endDate}
                 cycleDays={task.cycle.cycleDays}
                 currentDay={currentDayInCycle}
+                completionRate={cycleProgress}
+              cycleAchieved={
+                taskCategory === 'NUMERIC' 
+                  ? (task.progress.cycleAchieved || 0)
+                  : currentCycle.checkInCount
+              }
+              cycleTarget={
+                taskCategory === 'NUMERIC'
+                  ? (task.numericConfig?.perCycleTarget || 0)
+                  : currentCycle.requiredCheckIns
+              }
               />
               
+              {/* 当日记录入口（CHECK_IN 和 NUMERIC 类型显示） */}
+              {!isPlanEnded && (taskCategory === 'CHECK_IN' || taskCategory === 'NUMERIC') && (
+                <div 
+                  className={styles.todayRecordCard}
+                  onClick={() => handleSubPageOpen('records')}
+                >
+                  <div className={styles.todayRecordLeft}>
+                    <div className={styles.todayRecordIcon}>
+                      {taskCategory === 'NUMERIC' ? (
+                        <Coffee size={20} color="#C4A08A" />
+                      ) : (
+                        <Droplets size={20} color="#4FC3F7" />
+                      )}
+                    </div>
+                    <span className={styles.todayRecordLabel}>当日记录</span>
+                  </div>
+                  <div className={styles.todayRecordRight}>
+                    <span className={styles.todayRecordCount}>{todayCheckInStatus.todayCount}</span>
+                    <ChevronRight size={20} color="#ccc" />
+                  </div>
+                </div>
+              )}
               {/* 二级入口 */}
               <SecondaryNav
                 taskType={taskCategory}
-                onRecordsClick={() => handleSubPageOpen('records')}
-                onHistoryClick={() => handleSubPageOpen('history')}
                 onCalendarClick={() => handleSubPageOpen('calendar')}
+                onHistoryClick={() => handleSubPageOpen('history')}
               />
             </div>
             
@@ -626,6 +650,4 @@ export default function GoalDetailModal({
     </Popup>
   );
 }
-
-
 

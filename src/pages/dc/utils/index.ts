@@ -14,6 +14,7 @@ export { CycleCalculator } from './cycleCalculator';
 export {
   formatLargeNumber,
   formatNumber,
+  formatDisplayNumber,
   getEffectiveMainlineType,
   calculateNumericProgress as calculateNumericProgressV2,
   calculateChecklistProgress as calculateChecklistProgressV2,
@@ -176,4 +177,5 @@ export {
   formatExp,
   getRealmIconPath
 } from './cultivation';
+
 

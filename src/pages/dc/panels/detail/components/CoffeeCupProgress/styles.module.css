@@ -106,11 +106,93 @@
   left: 0;
   right: 0;
   border-radius: 0 0 12px 12px;
-  transition: height var(--duration-water-rise, 600ms) ease-out;
+  overflow: hidden;
 }
 
-.coffee.animating {
-  transition: height var(--duration-water-rise, 600ms) ease-out;
+/* 流体波动层容器 */
+.fluidWaves {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 20px;
+  overflow: visible;
+  pointer-events: none;
+}
+
+/* 波浪动画 - 第一层 */
+.wave1 {
+  position: absolute;
+  top: -10px;
+  left: -5%;
+  width: 110%;
+  height: 20px;
+  animation: waveFloat1 3s ease-in-out infinite;
+}
+
+/* 波浪动画 - 第二层 */
+.wave2 {
+  position: absolute;
+  top: -8px;
+  left: -3%;
+  width: 106%;
+  height: 20px;
+  animation: waveFloat2 4s ease-in-out infinite;
+}
+
+@keyframes waveFloat1 {
+  0%, 100% {
+    transform: translateX(0) translateY(0);
+  }
+  25% {
+    transform: translateX(-2%) translateY(-1px);
+  }
+  50% {
+    transform: translateX(0) translateY(1px);
+  }
+  75% {
+    transform: translateX(2%) translateY(-1px);
+  }
+}
+
+@keyframes waveFloat2 {
+  0%, 100% {
+    transform: translateX(0) translateY(0);
+  }
+  33% {
+    transform: translateX(2%) translateY(1px);
+  }
+  66% {
+    transform: translateX(-2%) translateY(-1px);
+  }
+}
+
+/* 能量光晕效果 - Apple Music 风格 */
+.energyGlow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(
+    ellipse 80% 50% at 50% 30%,
+    rgba(255, 255, 255, 0.25) 0%,
+    rgba(255, 255, 255, 0.1) 40%,
+    transparent 70%
+  );
+  animation: energyPulse 2.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes energyPulse {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
 }
 
 /* 泡沫层 */
@@ -160,37 +242,29 @@
     inset 0 2px 4px rgba(255, 255, 255, 0.8);
 }
 
-/* 进度文字 */
-.progressText {
+/* 进度信息区域 */
+.progressInfo {
   margin-top: 24px;
   display: flex;
-  align-items: baseline;
-  gap: 2px;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
 }
 
-.currentValue {
-  font-size: 32px;
+/* 主进度数字 */
+.mainValue {
+  font-size: 48px;
   font-weight: 700;
-  color: rgb(55, 53, 47);
+  color: #1a1a1a;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1;
 }
 
-.separator {
-  font-size: 20px;
-  color: #999;
-  margin: 0 2px;
-}
-
-.targetValue {
-  font-size: 20px;
-  font-weight: 500;
-  color: rgba(55, 53, 47, 0.65);
-}
-
-.unit {
-  font-size: 14px;
-  color: rgba(55, 53, 47, 0.5);
-  margin-left: 4px;
+/* 目标和差值信息 */
+.subInfo {
+  font-size: 16px;
+  color: #666;
+  font-weight: 400;
 }
 
 /* 无障碍支持 */
@@ -204,4 +278,6 @@
     transition: none;
   }
 }
+
+
 

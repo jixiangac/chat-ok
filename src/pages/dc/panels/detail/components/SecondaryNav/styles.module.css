@@ -1,48 +1,32 @@
 /* 二级入口导航组件样式 */
-/* 参考设置界面风格 */
+/* 简约文字按钮样式，参考支线任务区域的按钮 */
 
 .container {
   display: flex;
-  gap: 12px;
-  padding: 16px 20px;
-  margin: 0 16px;
-  background: white;
-  border-radius: 12px;
-}
-
-.navItem {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 6px;
-  padding: 12px 8px;
-  background: rgba(55, 53, 47, 0.04);
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.navItem:active {
-  transform: scale(0.98);
-  background: rgba(55, 53, 47, 0.08);
-}
-
-.icon {
-  display: flex;
-  align-items: center;
+  gap: 20px;
   justify-content: center;
-  width: 36px;
-  height: 36px;
-  background: rgba(55, 53, 47, 0.06);
-  border-radius: 10px;
-  color: rgb(55, 53, 47);
+  /* margin: 16px 0; */
+  /* padding: 8px 0; */
 }
 
-.label {
-  font-size: 12px;
-  color: rgba(55, 53, 47, 0.65);
+.navButton {
+  background: none;
+  border: none;
+  font-size: 14px;
+  color: #9b9b9b;
+  cursor: pointer;
+  padding: 8px 12px;
+  text-decoration: none;
+  transition: color 0.2s ease, transform 0.2s ease;
+  border-radius: 8px;
   font-weight: 500;
 }
 
+.navButton:hover {
+  color: #666;
+}
+
+.navButton:active {
+  transform: scale(0.95);
+}

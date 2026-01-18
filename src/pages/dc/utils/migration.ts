@@ -909,6 +909,16 @@ export function createTask(data: {
     task.progress.cycleRemaining = cc.perCycleTarget || 1;
   }
 
+  // 默认快捷操作配置
+  const defaultQuickActions = [
+    { label: '+1', value: 1 },
+    { label: '+2', value: 2 },
+    { label: '+3', value: 3 },
+    { label: '+5', value: 5 },
+    { label: '一键填满', action: 'fillToTarget' as const },
+    { label: '手动输入', action: 'openModal' as const },
+  ];
+
   if (data.category === 'CHECK_IN' && data.checkInConfig) {
     const cic = data.checkInConfig;
     task.checkInConfig = {
@@ -929,6 +939,8 @@ export function createTask(data: {
       checkInRate: 0,
       streaks: [],
       records: [],
+      // 添加默认快捷操作
+      quickActions: cic.quickActions || defaultQuickActions,
     };
     task.progress.cycleTargetValue = cic.perCycleTarget || 3;
     task.progress.cycleRemaining = cic.perCycleTarget || 3;
@@ -938,6 +950,7 @@ export function createTask(data: {
 }
 
 export default TaskMigration;
+
 
 
 

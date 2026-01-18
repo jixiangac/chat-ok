@@ -1,5 +1,6 @@
-import { Calendar, Clock } from 'lucide-react';
+import { Calendar } from 'lucide-react';
 import styles from './styles.module.css';
+import { formatDisplayNumber } from '../../../../utils';
 
 export interface CycleInfoProps {
   /** 当前周期 */
@@ -16,11 +17,17 @@ export interface CycleInfoProps {
   cycleDays?: number;
   /** 当前是第几天 */
   currentDay?: number;
+  /** 完成率（百分比） */
+  completionRate?: number;
+  /** 周期已完成数量（用于日期行显示） */
+  cycleAchieved?: number;
+  /** 周期目标数量（用于日期行显示） */
+  cycleTarget?: number;
 }
 
 /**
  * 周期信息展示组件
- * 显示当前周期/总周期、剩余天数等信息
+ * 显示当前周期/总周期、进度、完成率等信息
  */
 export default function CycleInfo({
   currentCycle,
@@ -29,7 +36,10 @@ export default function CycleInfo({
   startDate,
   endDate,
   cycleDays = 7,
-  currentDay = 1
+  currentDay = 1,
+  completionRate = 0,
+  cycleAchieved,
+  cycleTarget
 }: CycleInfoProps) {
   return (
     <div className={styles.container}>
@@ -57,20 +67,31 @@ export default function CycleInfo({
         <div className={styles.divider} />
         
         <div className={styles.infoItem}>
-          <span className={styles.label}>剩余</span>
+          <span className={styles.label}>完成率</span>
           <span className={styles.value}>
-            <strong>{remainingDays}</strong>
-            <span className={styles.total}>天</span>
+            <strong>{Math.round(completionRate)}</strong>
+            <span className={styles.total}>%</span>
           </span>
         </div>
       </div>
       
       <div className={styles.dateRange}>
-        <Calendar size={14} className={styles.icon} />
-        <span>{startDate} - {endDate}</span>
+        <div className={styles.dateLeft}>
+          <Calendar size={14} className={styles.icon} />
+          <span>{startDate} - {endDate}</span>
+        </div>
+        {cycleAchieved !== undefined && cycleTarget !== undefined && (
+          <div className={styles.cycleProgress}>
+            <span className={styles.cycleValue}>{formatDisplayNumber(cycleAchieved)}</span>
+            <span className={styles.cycleSeparator}>/</span>
+            <span className={styles.cycleTotal}>{formatDisplayNumber(cycleTarget)}</span>
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
 export { CycleInfo };
+
+

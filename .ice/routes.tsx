@@ -45,7 +45,6 @@ import * as dc_panels_detail_components_TodayProgressBar from '@/pages/dc/panels
 import * as dc_panels_detail_components_WaterCupProgress from '@/pages/dc/panels/detail/components/WaterCupProgress/index';
 import * as dc_panels_memorial_components_MemorialDetail from '@/pages/dc/panels/memorial/components/MemorialDetail/index';
 import * as dc_components_CreateMainlineTaskModal_steps from '@/pages/dc/components/CreateMainlineTaskModal/steps/index';
-import * as dc_panels_detail_components_IceMeltProgress from '@/pages/dc/panels/detail/components/IceMeltProgress/index';
 import * as dc_panels_detail_components_ProgressSection from '@/pages/dc/panels/detail/components/ProgressSection/index';
 import * as dc_panels_detail_components_RecordDataModal from '@/pages/dc/panels/detail/components/RecordDataModal/index';
 import * as dc_panels_happy_components_TripSummaryModal from '@/pages/dc/panels/happy/components/TripSummaryModal/index';
@@ -60,6 +59,7 @@ import * as dc_panels_settings_pages_ThemeSettingsPage from '@/pages/dc/panels/s
 import * as dc_components_CreateMainlineTaskModal_constants from '@/pages/dc/components/CreateMainlineTaskModal/constants';
 import * as dc_panels_settings_pages_SettingsMainPage from '@/pages/dc/panels/settings/pages/SettingsMainPage/index';
 import * as dc_components_CreateGoalModal_components from '@/pages/dc/components/CreateGoalModal/components/index';
+import * as dc_components_DuckWaterProgress_DuckSilhouette from '@/pages/dc/components/DuckWaterProgress/DuckSilhouette';
 import * as dc_panels_detail_components_CheckInModal from '@/pages/dc/panels/detail/components/CheckInModal/index';
 import * as dc_panels_detail_components_DetailHeader from '@/pages/dc/panels/detail/components/DetailHeader/index';
 import * as dc_panels_detail_components_SecondaryNav from '@/pages/dc/panels/detail/components/SecondaryNav/index';
@@ -76,6 +76,7 @@ import * as dc_components_CreateMainlineTaskModal_types from '@/pages/dc/compone
 import * as dc_panels_detail_components_CycleInfo from '@/pages/dc/panels/detail/components/CycleInfo/index';
 import * as dc_panels_settings_pages_DateTestPage from '@/pages/dc/panels/settings/pages/DateTestPage/index';
 import * as dc_viewmodel_CreateTaskModal_steps_TypeStep from '@/pages/dc/viewmodel/CreateTaskModal/steps/TypeStep';
+import * as dc_components_DuckWaterProgress_WaterWave from '@/pages/dc/components/DuckWaterProgress/WaterWave';
 import * as dc_components_SidelineTaskEditModal from '@/pages/dc/components/SidelineTaskEditModal/index';
 import * as dc_components_shared_CircleProgress from '@/pages/dc/components/shared/CircleProgress/index';
 import * as dc_panels_happy_components_GoalCard from '@/pages/dc/panels/happy/components/GoalCard/index';
@@ -92,6 +93,7 @@ import * as dc_contexts_CultivationProvider_storage from '@/pages/dc/contexts/Cu
 import * as dc_panels_happy_hooks_useTripNavigation from '@/pages/dc/panels/happy/hooks/useTripNavigation';
 import * as dc_panels_memorial_utils_dateCalculator from '@/pages/dc/panels/memorial/utils/dateCalculator';
 import * as dc_viewmodel_AllSidelineTasksList from '@/pages/dc/viewmodel/AllSidelineTasksList/index';
+import * as dc_components_QuickActionButtons from '@/pages/dc/components/QuickActionButtons/index';
 import * as dc_components_shared_ProgressBar from '@/pages/dc/components/shared/ProgressBar/index';
 import * as dc_contexts_SceneProvider_cacheManager from '@/pages/dc/contexts/SceneProvider/cacheManager';
 import * as dc_contexts_SceneProvider_indexBuilder from '@/pages/dc/contexts/SceneProvider/indexBuilder';
@@ -101,6 +103,7 @@ import * as dc_panels_settings_ThemeSettings from '@/pages/dc/panels/settings/Th
 import * as dc_viewmodel_CreateTaskModal_constants from '@/pages/dc/viewmodel/CreateTaskModal/constants';
 import * as dc_viewmodel_MainlineTaskSection from '@/pages/dc/viewmodel/MainlineTaskSection/index';
 import * as dc_viewmodel_SidelineTaskSection from '@/pages/dc/viewmodel/SidelineTaskSection/index';
+import * as dc_components_DuckWaterProgress from '@/pages/dc/components/DuckWaterProgress/index';
 import * as dc_contexts_CultivationProvider from '@/pages/dc/contexts/CultivationProvider/index';
 import * as dc_contexts_CultivationProvider_types from '@/pages/dc/contexts/CultivationProvider/types';
 import * as dc_panels_memorial_hooks_useMemorials from '@/pages/dc/panels/memorial/hooks/useMemorials';
@@ -209,6 +212,8 @@ import * as dc_utils_cultivation from '@/pages/dc/utils/cultivation';
 import * as dc_utils_dateTracker from '@/pages/dc/utils/dateTracker';
 import * as dc_components from '@/pages/dc/components/index';
 import * as dc_constants_colors from '@/pages/dc/constants/colors';
+import * as dc_riv_CoffeeCupSvg from '@/pages/dc/riv/CoffeeCupSvg';
+import * as dc_riv_RiveWatering from '@/pages/dc/riv/RiveWatering';
 import * as dc_utils_responsive from '@/pages/dc/utils/responsive';
 import * as dc_utils_tagStorage from '@/pages/dc/utils/tagStorage';
 import * as dc_constants from '@/pages/dc/constants/index';
@@ -219,6 +224,7 @@ import * as dc_panels from '@/pages/dc/panels/index';
 import * as dc_hooks from '@/pages/dc/hooks/index';
 import * as dc_types from '@/pages/dc/types';
 import * as dc_utils from '@/pages/dc/utils/index';
+import * as dc_riv from '@/pages/dc/riv/index';
 import * as stock_self from '@/pages/stock_self';
 import * as aloglist from '@/pages/aloglist';
 import * as dc from '@/pages/dc/index';
@@ -1363,31 +1369,6 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["ConfigStep","CycleStep","TypeStep"],
   },{
-    path: 'dc/panels/detail/components/IceMeltProgress',
-    async lazy() {
-      ;
-      return {
-        ...dc_panels_detail_components_IceMeltProgress,
-        Component: () => WrapRouteComponent({
-          routeId: 'dc/panels/detail/components/IceMeltProgress',
-          isLayout: false,
-          routeExports: dc_panels_detail_components_IceMeltProgress,
-        }),
-        loader: createRouteLoader({
-          routeId: 'dc/panels/detail/components/IceMeltProgress',
-          requestContext,
-          renderMode,
-          module: dc_panels_detail_components_IceMeltProgress,
-        }),
-      };
-    },
-    errorElement: <RouteErrorComponent />,
-    componentName: 'dc-panels-detail-components-icemeltprogress-index',
-    index: true,
-    id: 'dc/panels/detail/components/IceMeltProgress',
-    exact: true,
-    exports: ["IceMeltProgress","default"],
-  },{
     path: 'dc/panels/detail/components/ProgressSection',
     async lazy() {
       ;
@@ -1737,6 +1718,31 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/components/CreateGoalModal/components',
     exact: true,
     exports: ["CyclePreview","CycleSelector","DateSelector","DurationSelector","EncouragementInput","IconSelector","PopularGoals","PrioritySelector","RulesExplanation","TaskTypeSelector","WarningAlert"],
+  },{
+    path: 'dc/components/DuckWaterProgress/DuckSilhouette',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_DuckWaterProgress_DuckSilhouette,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/DuckWaterProgress/DuckSilhouette',
+          isLayout: false,
+          routeExports: dc_components_DuckWaterProgress_DuckSilhouette,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/DuckWaterProgress/DuckSilhouette',
+          requestContext,
+          renderMode,
+          module: dc_components_DuckWaterProgress_DuckSilhouette,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-duckwaterprogress-ducksilhouette',
+    index: undefined,
+    id: 'dc/components/DuckWaterProgress/DuckSilhouette',
+    exact: true,
+    exports: ["DUCK_CLIP_PATH_NORMALIZED","DUCK_PATH","DuckSilhouette","default"],
   },{
     path: 'dc/panels/detail/components/CheckInModal',
     async lazy() {
@@ -2138,6 +2144,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["default"],
   },{
+    path: 'dc/components/DuckWaterProgress/WaterWave',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_DuckWaterProgress_WaterWave,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/DuckWaterProgress/WaterWave',
+          isLayout: false,
+          routeExports: dc_components_DuckWaterProgress_WaterWave,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/DuckWaterProgress/WaterWave',
+          requestContext,
+          renderMode,
+          module: dc_components_DuckWaterProgress_WaterWave,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-duckwaterprogress-waterwave',
+    index: undefined,
+    id: 'dc/components/DuckWaterProgress/WaterWave',
+    exact: true,
+    exports: ["WaterWave","default"],
+  },{
     path: 'dc/components/SidelineTaskEditModal',
     async lazy() {
       ;
@@ -2538,6 +2569,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["AllSidelineTasksList","AllSidelineTasksPopup","default"],
   },{
+    path: 'dc/components/QuickActionButtons',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_QuickActionButtons,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/QuickActionButtons',
+          isLayout: false,
+          routeExports: dc_components_QuickActionButtons,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/QuickActionButtons',
+          requestContext,
+          renderMode,
+          module: dc_components_QuickActionButtons,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-quickactionbuttons-index',
+    index: true,
+    id: 'dc/components/QuickActionButtons',
+    exact: true,
+    exports: ["DEFAULT_TIMES_QUICK_ACTIONS","DEFAULT_WATER_QUICK_ACTIONS","QuickActionButtons","default"],
+  },{
     path: 'dc/components/shared/ProgressBar',
     async lazy() {
       ;
@@ -2762,6 +2818,31 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/viewmodel/SidelineTaskSection',
     exact: true,
     exports: ["default"],
+  },{
+    path: 'dc/components/DuckWaterProgress',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_DuckWaterProgress,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/DuckWaterProgress',
+          isLayout: false,
+          routeExports: dc_components_DuckWaterProgress,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/DuckWaterProgress',
+          requestContext,
+          renderMode,
+          module: dc_components_DuckWaterProgress,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-duckwaterprogress-index',
+    index: true,
+    id: 'dc/components/DuckWaterProgress',
+    exact: true,
+    exports: ["DuckSilhouette","DuckWaterProgress","WaterWave","default"],
   },{
     path: 'dc/contexts/CultivationProvider',
     async lazy() {
@@ -3511,7 +3592,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/panels/detail/components',
     exact: true,
-    exports: ["ActivityRecordPanel","CalendarViewPanel","CheckInCyclePanel","CheckInHistoryPanel","CheckInModal","CheckInRecordPanel","ChecklistCyclePanel","CoffeeCupProgress","CycleInfo","DetailHeader","GoalHeader","HistoryCyclePanel","HistoryRecordPanel","IceMeltProgress","NumericCyclePanel","ProgressSection","RecordDataModal","SecondaryNav","TabBar","TodayProgressBar","WaterCupProgress","showCycleSummaryDialog"],
+    exports: ["ActivityRecordPanel","CalendarViewPanel","CheckInCyclePanel","CheckInHistoryPanel","CheckInModal","CheckInRecordPanel","ChecklistCyclePanel","CoffeeCupProgress","CycleInfo","DetailHeader","DuckWaterProgress","GoalHeader","HistoryCyclePanel","HistoryRecordPanel","NumericCyclePanel","ProgressSection","RecordDataModal","SecondaryNav","TabBar","TodayProgressBar","WaterCupProgress","showCycleSummaryDialog"],
   },{
     path: 'dc/panels/happy/hooks/useSchedule',
     async lazy() {
@@ -4661,7 +4742,7 @@ const createRoutes: CreateRoutes = ({
     index: undefined,
     id: 'dc/utils/progressCalculator',
     exact: true,
-    exports: ["ProgressCalculator","calculateCheckInProgress","calculateChecklistProgress","calculateNumericProgress","default","formatLargeNumber","formatNumber","getEffectiveCategory","getEffectiveMainlineType"],
+    exports: ["ProgressCalculator","calculateCheckInProgress","calculateChecklistProgress","calculateNumericProgress","default","formatDisplayNumber","formatLargeNumber","formatNumber","getEffectiveCategory","getEffectiveMainlineType"],
   },{
     path: 'dc/components/shared',
     async lazy() {
@@ -5436,7 +5517,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/components',
     exact: true,
-    exports: ["CircleProgress","CreateGoalModal","CreateMainlineTaskModal","CultivationEntry","DailyProgress","LocationFilter","MainlineTaskCard","MigrationModal","ProgressBar","PullIndicator","SecondFloorIndicator","SidelineTaskCard","StatCard","StatCardGrid","ThemedButton"],
+    exports: ["CircleProgress","CreateGoalModal","CreateMainlineTaskModal","CultivationEntry","DailyProgress","DuckWaterProgress","LocationFilter","MainlineTaskCard","MigrationModal","ProgressBar","PullIndicator","QuickActionButtons","SecondFloorIndicator","SidelineTaskCard","StatCard","StatCardGrid","ThemedButton"],
   },{
     path: 'dc/constants/colors',
     async lazy() {
@@ -5462,6 +5543,56 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/constants/colors',
     exact: true,
     exports: ["COLOR_PAIRS","DEBT_COLOR_SCHEMES","SIDELINE_THEME_COLORS","getColorPair","getNextThemeColor","getRandomDebtColorScheme"],
+  },{
+    path: 'dc/riv/CoffeeCupSvg',
+    async lazy() {
+      ;
+      return {
+        ...dc_riv_CoffeeCupSvg,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/riv/CoffeeCupSvg',
+          isLayout: false,
+          routeExports: dc_riv_CoffeeCupSvg,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/riv/CoffeeCupSvg',
+          requestContext,
+          renderMode,
+          module: dc_riv_CoffeeCupSvg,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-riv-coffeecupsvg',
+    index: undefined,
+    id: 'dc/riv/CoffeeCupSvg',
+    exact: true,
+    exports: ["CoffeeCupSvg","default"],
+  },{
+    path: 'dc/riv/RiveWatering',
+    async lazy() {
+      ;
+      return {
+        ...dc_riv_RiveWatering,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/riv/RiveWatering',
+          isLayout: false,
+          routeExports: dc_riv_RiveWatering,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/riv/RiveWatering',
+          requestContext,
+          renderMode,
+          module: dc_riv_RiveWatering,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-riv-rivewatering',
+    index: undefined,
+    id: 'dc/riv/RiveWatering',
+    exact: true,
+    exports: ["RiveWatering","default"],
   },{
     path: 'dc/utils/responsive',
     async lazy() {
@@ -5711,7 +5842,32 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/utils',
     exact: true,
-    exports: ["CycleCalculator","DATA_TYPE_CONFIG","LAYOUT_CONSTANTS","MigrationTool","ProgressCalculator","TAG_COLORS","TaskMigration","advanceTaskCycle","archiveTask","calculateCheckInProgress","calculateCheckInProgressV2","calculateChecklistProgress","calculateChecklistProgressV2","calculateCurrentCycleNumber","calculateFlexibleTaskLimit","calculateGridColumns","calculateModalMaxHeight","calculateNewCycle","calculateNumericProgress","calculateNumericProgressV2","calculateRemainingDays","calculateVisibleSidelineTasks","canOpenModalForEdit","canOpenModalForView","checkDateChange","clearAllArchivedTasks","clearDailyViewCache","clearData","clearTestDate","compareLevels","copyToClipboard","createTag","createTask","createTodayState","deleteArchivedTask","deleteTag","exportAllTasks","exportData","exportSingleTask","exportToClipboard","filterDailyViewTasks","filterDailyViewTasksEnhanced","forceCheckDateChange","formatExp","formatLargeNumber","formatNumber","generateCultivationId","getAllTags","getArchiveStats","getArchivedTasks","getCachedDailyTaskIds","getCurrentDate","getCurrentExpCap","getCurrentLevelInfo","getDataStats","getDeveloperMode","getEffectiveCategory","getEffectiveMainlineType","getLastVisitedDate","getLevelDisplayName","getLevelIndex","getNextLevel","getNextTagColor","getPreviousLevel","getRealSystemDate","getRealmIconPath","getSafeAreaInsets","getSavedLocationFilter","getScreenSize","getSeclusionInfo","getTagById","getTestDate","getTodayDateString","getTodayMustCompleteTaskIds","getWeekKey","hasDailyTargetTask","hasTestDate","hasTodayBeenSet","hasTodaySetTasks","importAllTasks","importData","importSingleTask","isCrossRealmDemotion","isMobileDevice","isNearDeadline","isSmallScreen","isTaskTodayMustComplete","isTodayCheckedIn","loadTagsFromStorage","loadTodayMustCompleteState","markModalShown","migrateOldArchivedTasks","migrateToNewFormat","needsProgressReset","performDailyReset","prefersReducedMotion","removeFromTodayMustComplete","repairTaskProgressData","resetTodayProgress","restoreFromArchive","saveArchivedTasks","saveDailyTaskIdsCache","saveLocationFilter","saveTagsToStorage","saveTodayMustCompleteState","selectFlexibleTasks","setDeveloperMode","setLastVisitedDate","setTestDate","setTodayMustCompleteTasks","shouldAdvanceCycle","shouldShowTodayMustCompleteModal","skipTodayMustComplete","updateMainlineTaskProgress","updateTag"],
+    exports: ["CycleCalculator","DATA_TYPE_CONFIG","LAYOUT_CONSTANTS","MigrationTool","ProgressCalculator","TAG_COLORS","TaskMigration","advanceTaskCycle","archiveTask","calculateCheckInProgress","calculateCheckInProgressV2","calculateChecklistProgress","calculateChecklistProgressV2","calculateCurrentCycleNumber","calculateFlexibleTaskLimit","calculateGridColumns","calculateModalMaxHeight","calculateNewCycle","calculateNumericProgress","calculateNumericProgressV2","calculateRemainingDays","calculateVisibleSidelineTasks","canOpenModalForEdit","canOpenModalForView","checkDateChange","clearAllArchivedTasks","clearDailyViewCache","clearData","clearTestDate","compareLevels","copyToClipboard","createTag","createTask","createTodayState","deleteArchivedTask","deleteTag","exportAllTasks","exportData","exportSingleTask","exportToClipboard","filterDailyViewTasks","filterDailyViewTasksEnhanced","forceCheckDateChange","formatDisplayNumber","formatExp","formatLargeNumber","formatNumber","generateCultivationId","getAllTags","getArchiveStats","getArchivedTasks","getCachedDailyTaskIds","getCurrentDate","getCurrentExpCap","getCurrentLevelInfo","getDataStats","getDeveloperMode","getEffectiveCategory","getEffectiveMainlineType","getLastVisitedDate","getLevelDisplayName","getLevelIndex","getNextLevel","getNextTagColor","getPreviousLevel","getRealSystemDate","getRealmIconPath","getSafeAreaInsets","getSavedLocationFilter","getScreenSize","getSeclusionInfo","getTagById","getTestDate","getTodayDateString","getTodayMustCompleteTaskIds","getWeekKey","hasDailyTargetTask","hasTestDate","hasTodayBeenSet","hasTodaySetTasks","importAllTasks","importData","importSingleTask","isCrossRealmDemotion","isMobileDevice","isNearDeadline","isSmallScreen","isTaskTodayMustComplete","isTodayCheckedIn","loadTagsFromStorage","loadTodayMustCompleteState","markModalShown","migrateOldArchivedTasks","migrateToNewFormat","needsProgressReset","performDailyReset","prefersReducedMotion","removeFromTodayMustComplete","repairTaskProgressData","resetTodayProgress","restoreFromArchive","saveArchivedTasks","saveDailyTaskIdsCache","saveLocationFilter","saveTagsToStorage","saveTodayMustCompleteState","selectFlexibleTasks","setDeveloperMode","setLastVisitedDate","setTestDate","setTodayMustCompleteTasks","shouldAdvanceCycle","shouldShowTodayMustCompleteModal","skipTodayMustComplete","updateMainlineTaskProgress","updateTag"],
+  },{
+    path: 'dc/riv',
+    async lazy() {
+      ;
+      return {
+        ...dc_riv,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/riv',
+          isLayout: false,
+          routeExports: dc_riv,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/riv',
+          requestContext,
+          renderMode,
+          module: dc_riv,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-riv-index',
+    index: true,
+    id: 'dc/riv',
+    exact: true,
+    exports: [],
   },{
     path: 'stock_self',
     async lazy() {

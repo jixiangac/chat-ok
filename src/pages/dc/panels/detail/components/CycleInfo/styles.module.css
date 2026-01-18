@@ -35,7 +35,7 @@
 
 .value strong {
   font-size: 20px;
-  font-weight: 700;
+  font-weight: 200;
   color: rgb(55, 53, 47);
 }
 
@@ -59,8 +59,7 @@
 .dateRange {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 6px;
+  justify-content: space-between;
   margin-top: 12px;
   padding-top: 12px;
   border-top: 1px dashed rgba(55, 53, 47, 0.1);
@@ -68,7 +67,37 @@
   color: rgba(55, 53, 47, 0.5);
 }
 
+.dateLeft {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .icon {
   color: rgba(55, 53, 47, 0.35);
+}
+
+/* 周期进度（日期行右侧） */
+.cycleProgress {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.cycleValue {
+  font-size: 16px;
+  font-weight: 600;
+  color: rgb(173 169 156);
+}
+
+.cycleSeparator {
+  font-size: 13px;
+  color: #ccc;
+  margin: 0 5px;
+}
+
+.cycleTotal {
+  font-size: 13px;
+  color: rgba(55, 53, 47, 0.5);
 }
 

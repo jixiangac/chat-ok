@@ -1,19 +1,23 @@
 import { useMemo } from 'react';
 import dayjs from 'dayjs';
 import { Check, Clock, Hash, TrendingUp, TrendingDown } from 'lucide-react';
+import { getCurrentDate } from '../../../../utils';
 import type { Task, ValueUpdateLog } from '../../../../types';
 import styles from './styles.module.css';
 
 interface ActivityRecordPanelProps {
   goal: Task;
+  /** 是否只显示今天的记录 */
+  todayOnly?: boolean;
 }
 
 /**
  * 变动记录面板
  * 显示任务的所有变动记录（打卡记录或数值变动记录）
  */
-export default function ActivityRecordPanel({ goal }: ActivityRecordPanelProps) {
+export default function ActivityRecordPanel({ goal, todayOnly = false }: ActivityRecordPanelProps) {
   const category = goal.category;
+  const today = getCurrentDate();
   
   // 打卡类型：从 checkInConfig.records 中提取所有打卡记录
   const checkInRecords = useMemo(() => {
@@ -30,6 +34,9 @@ export default function ActivityRecordPanel({ goal }: ActivityRecordPanelProps) 
     }> = [];
     
     records.forEach(record => {
+      // 如果只显示今天的记录，过滤掉非今天的
+      if (todayOnly && record.date !== today) return;
+      
       if (record.checked && record.entries) {
         record.entries.forEach(entry => {
           allEntries.push({
@@ -46,14 +53,21 @@ export default function ActivityRecordPanel({ goal }: ActivityRecordPanelProps) 
     
     // 按时间戳降序排序
     return allEntries.sort((a, b) => b.timestamp - a.timestamp);
-  }, [goal.checkInConfig?.records, category]);
+  }, [goal.checkInConfig?.records, category, todayOnly, today]);
   
   // 数值类型：从 activities 中提取数值更新记录
   const numericRecords = useMemo(() => {
     if (category !== 'NUMERIC') return [];
     
-    return goal.activities
-      .filter((a): a is ValueUpdateLog => a.type === 'UPDATE_VALUE')
+    let activities = goal.activities
+      .filter((a): a is ValueUpdateLog => a.type === 'UPDATE_VALUE');
+    
+    // 如果只显示今天的记录，过滤掉非今天的
+    if (todayOnly) {
+      activities = activities.filter(a => a.date === today);
+    }
+    
+    return activities
       .map(a => ({
         id: a.id,
         date: a.date,
@@ -63,7 +77,7 @@ export default function ActivityRecordPanel({ goal }: ActivityRecordPanelProps) 
         note: a.note
       }))
       .sort((a, b) => b.timestamp - a.timestamp);
-  }, [goal.activities, category]);
+  }, [goal.activities, category, todayOnly, today]);
   
   const config = goal.checkInConfig;
   const numericConfig = goal.numericConfig;
@@ -86,11 +100,13 @@ export default function ActivityRecordPanel({ goal }: ActivityRecordPanelProps) 
       <div className={styles.container}>
         <div className={styles.empty}>
           <img 
-            src="https://img.alicdn.com/imgextra/i4/O1CN01dw7CSD25FE0pPf85P_!!6000000007496-2-tps-1056-992.png" 
+            src="https://img.alicdn.com/imgextra/i2/O1CN01MyXN5T1zlO9AGpYij_!!6000000006754-2-tps-1080-1014.png" 
             alt="暂无数据" 
             className={styles.emptyIcon}
           />
-          <div className={styles.emptyHint}>暂无变动记录</div>
+          <div className={styles.emptyHint}>
+            {todayOnly ? '今日暂无记录' : '暂无变动记录'}
+          </div>
         </div>
       </div>
     );
@@ -120,9 +136,11 @@ export default function ActivityRecordPanel({ goal }: ActivityRecordPanelProps) 
                 {record.note && (
                   <div className={styles.recordNote}>{record.note}</div>
                 )}
-                <div className={styles.recordDate}>
-                  {dayjs(record.date).format('YYYY年M月D日')}
-                </div>
+                {!todayOnly && (
+                  <div className={styles.recordDate}>
+                    {dayjs(record.date).format('YYYY年M月D日')}
+                  </div>
+                )}
               </div>
             </div>
           ))}
@@ -156,9 +174,11 @@ export default function ActivityRecordPanel({ goal }: ActivityRecordPanelProps) 
                 {record.note && (
                   <div className={styles.recordNote}>{record.note}</div>
                 )}
-                <div className={styles.recordDate}>
-                  {dayjs(record.timestamp).format('YYYY年M月D日 HH:mm')}
-                </div>
+                {!todayOnly && (
+                  <div className={styles.recordDate}>
+                    {dayjs(record.timestamp).format('YYYY年M月D日 HH:mm')}
+                  </div>
+                )}
               </div>
             </div>
           );
@@ -169,4 +189,3 @@ export default function ActivityRecordPanel({ goal }: ActivityRecordPanelProps) 
 }
 
 export { ActivityRecordPanel };
-

@@ -4,6 +4,7 @@
   "description": "A new ice.js project.",
   "dependencies": {
     "@ice/runtime": "^1.0.0",
+    "@rive-app/react-canvas": "^4.26.1",
     "ant-mobile": "^0.0.0",
     "antd-mobile": "^5.32.0",
     "axios": "^1.4.0",

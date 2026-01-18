@@ -191,27 +191,19 @@ export function SecondaryNav({ onRecordsClick, onHistoryClick, taskType }: Secon
 
 ## Data Flow
 
-### 图标选择逻辑
+### 组件选择逻辑
 
 ```typescript
 // src/pages/dc/panels/detail/index.tsx
 
-function selectProgressComponent(task: Task) {
-  const category = task.category;
-  
-  // 映射表
-  const COMPONENT_MAP = {
-    'water': DuckWaterProgress,
-    'coffee': CoffeeCupProgress,
-    // 未来扩展...
-  };
-  
-  return COMPONENT_MAP[category] || CoffeeCupProgress; // 默认咖啡杯
+// CHECK_IN 类型统一使用 DuckWaterProgress
+function renderProgressVisual() {
+  if (taskCategory === 'CHECK_IN') {
+    return <DuckWaterProgress progress={progress} {...props} />;
+  }
+  // NUMERIC 类型保持现有逻辑（WaterCupProgress / IceMeltProgress）
+  // ...
 }
-
-// 使用
-const ProgressComponent = selectProgressComponent(task);
-return <ProgressComponent progress={progress} {...props} />;
 ```
 
 ### 快捷按钮配置
@@ -225,7 +217,8 @@ function createTask(data: TaskCreateData) {
     // ... 其他字段
     checkInConfig: {
       // ... 其他配置
-      quickActions: data.category === 'water' 
+      // CHECK_IN 类型默认添加快捷按钮
+      quickActions: data.category === 'CHECK_IN' 
         ? [
             { label: '50ml', value: 50 },
             { label: '100ml', value: 100 },

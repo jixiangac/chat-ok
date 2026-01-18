@@ -85,16 +85,15 @@ interface CheckInConfig {
 
 ---
 
-### Task 6: 实现图标映射逻辑
-- [ ] 在 `src/pages/dc/panels/detail/index.tsx` 中添加 `selectProgressComponent` 函数
-- [ ] 建立 category → 组件 映射表
-- [ ] 处理默认情况（未匹配时使用 CoffeeCupProgress）
-- [ ] 添加单元测试验证映射逻辑
+### Task 6: 实现组件选择逻辑
+- [ ] 在 `src/pages/dc/panels/detail/index.tsx` 中修改 `renderProgressVisual` 函数
+- [ ] CHECK_IN 类型统一使用 DuckWaterProgress
+- [ ] NUMERIC 类型保持现有逻辑（WaterCupProgress / IceMeltProgress）
+- [ ] 添加单元测试验证组件选择逻辑
 
 **AC：**
-- `category: 'water'` 渲染 DuckWaterProgress
-- 其他 category 渲染 CoffeeCupProgress
-- 未定义 category 时渲染 CoffeeCupProgress
+- CHECK_IN 类型任务渲染 DuckWaterProgress
+- NUMERIC 类型任务渲染现有组件
 
 ---
 
@@ -147,11 +146,11 @@ interface CheckInConfig {
 
 ### Task 10: 创建任务时添加默认 quickActions
 - [ ] 修改 `src/pages/dc/contexts/TaskProvider/index.tsx` 中的 `createTask` 函数
-- [ ] 为 `category: 'water'` 任务添加默认快捷按钮配置
+- [ ] 为 CHECK_IN 类型任务添加默认快捷按钮配置
 - [ ] 确保配置可序列化（保存到 localStorage）
 
 **AC：**
-- 新建 category='water' 任务时自动添加 6 个快捷按钮
+- 新建 CHECK_IN 类型任务时自动添加 6 个快捷按钮
 - 配置正确保存到 localStorage
 - 任务详情页正确读取并显示按钮
 
@@ -170,7 +169,7 @@ interface CheckInConfig {
 ---
 
 ### Task 12: 集成测试
-- [ ] 创建测试任务（category='water'）
+- [ ] 创建 CHECK_IN 类型测试任务
 - [ ] 验证鸭子剪影正确显示
 - [ ] 验证快捷按钮正确工作
 - [ ] 验证水位动画流畅
@@ -233,7 +232,7 @@ Task 6 + Task 8 + Task 9 → Task 12 (测试)
 
 完成所有任务后，进行以下最终验证：
 
-- [ ] 新建 category='water' 的打卡任务
+- [ ] 新建 CHECK_IN 类型的打卡任务
 - [ ] 鸭子剪影正确显示，灰色背景，奶油蓝水波
 - [ ] 点击"50ml"按钮，水位上升动画流畅
 - [ ] 进度数值更新正确（455 / 2000 ml，还差 1545 ml）

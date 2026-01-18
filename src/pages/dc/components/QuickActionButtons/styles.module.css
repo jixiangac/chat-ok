@@ -1,0 +1,73 @@
+/* 快捷操作按钮组件样式 */
+/* 参考喝水打卡应用的设计风格 - 天蓝色胶囊按钮 */
+
+.container {
+  padding: 16px 20px;
+  width: 100%;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 14px 16px;
+  background: #4FC3F7;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 48px;
+  box-shadow: 0 2px 8px rgba(79, 195, 247, 0.3);
+}
+
+.button:hover:not(:disabled) {
+  box-shadow: 0 4px 12px rgba(79, 195, 247, 0.4);
+}
+
+.button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.icon {
+  color: white;
+  flex-shrink: 0;
+}
+
+.label {
+  font-size: 15px;
+  font-weight: 600;
+  color: white;
+  white-space: nowrap;
+}
+
+/* 响应式调整 */
+@media (max-width: 360px) {
+  .grid {
+    gap: 8px;
+  }
+  
+  .button {
+    padding: 12px 10px;
+    min-height: 44px;
+  }
+  
+  .label {
+    font-size: 13px;
+  }
+  
+  .icon {
+    display: none;
+  }
+}

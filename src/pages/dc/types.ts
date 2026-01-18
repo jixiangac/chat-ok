@@ -239,6 +239,16 @@ export interface StreakRecord {
   status: 'ACTIVE' | 'COMPLETED';
 }
 
+/** 快捷操作配置 */
+export interface QuickAction {
+  /** 按钮标签 */
+  label: string;
+  /** 数值（用于累加） */
+  value?: number;
+  /** 特殊操作 */
+  action?: 'fillToTarget' | 'openModal';
+}
+
 /** 打卡型任务配置 */
 export interface CheckInConfig {
   /** 打卡类型 */
@@ -269,6 +279,9 @@ export interface CheckInConfig {
   checkInRate: number;
   streaks: StreakRecord[];
   records: DailyCheckInRecord[];
+
+  /** 快捷操作按钮配置 */
+  quickActions?: QuickAction[];
 }
 
 // ============ 活动日志 ============
@@ -636,4 +649,5 @@ export interface PreviousCycleDebtSnapshot {
     completionRate: number;
   };
 }
+
 

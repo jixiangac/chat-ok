@@ -4,17 +4,15 @@
 
 ## ADDED Requirements
 
-### Requirement: 趣味视觉进度组件 - 鸭子剪影
+### Requirement: 趋味视觉进度组件 - 鸭子剪影
 
-系统 **SHALL** 为打卡型任务提供基于图标映射的趣味视觉进度组件，首个实现为鸭子剪影 + 水波填充效果。
+系统 **SHALL** 为 CHECK_IN 类型打卡任务提供鸭子剪影 + 水波填充的趋味视觉进度组件，替代现有的咖啡杯组件。
 
-#### Scenario: 根据 category 选择视觉组件
+#### Scenario: CHECK_IN 类型统一使用鸭子视觉
 
 **GIVEN** 任务类型为 CHECK_IN
 **WHEN** 显示今日进度卡片
-**THEN** 根据任务的 `category` 字段选择对应的视觉组件：
-- `category: 'water'` → 渲染 DuckWaterProgress（鸭子剪影）
-- 其他 category 或未定义 → 渲染 CoffeeCupProgress（咖啡杯，默认）
+**THEN** 渲染 DuckWaterProgress 组件（鸭子剪影）
 
 #### Scenario: 鸭子剪影视觉效果
 
@@ -153,18 +151,18 @@
 
 ## MODIFIED Requirements
 
-### Requirement: CHECK_IN 类型 - 图标映射机制
+### Requirement: CHECK_IN 类型视觉组件
 
-系统 **SHALL** 为打卡型任务使用基于 category 的图标映射机制展示进度，默认使用咖啡杯水位隐喻。
+系统 **SHALL** 为 CHECK_IN 类型打卡任务统一使用鸭子剪影水位隐喻展示进度，替代现有的咖啡杯组件。
 
-#### Scenario: 默认咖啡杯布局
+#### Scenario: CHECK_IN 类型布局
 
-**GIVEN** 任务类型为 CHECK_IN 且 category 不为 'water'
+**GIVEN** 任务类型为 CHECK_IN
 **WHEN** 显示今日进度卡片
 **THEN** 显示：
-- 中心：咖啡杯图形，水位高度 = 周期完成度
+- 中心：鸭子剪影图形，水位高度 = 周期完成度
 - 水位下方：今日进度条
-- 杯子下方：打卡按钮
+- 剪影下方：打卡按钮
 
 ---
 
@@ -208,18 +206,7 @@ interface CheckInConfig {
 }
 ```
 
-### Task 接口扩展
-
-```typescript
-interface Task {
-  // ... 现有字段
-  
-  /** 任务分类（用于图标映射） */
-  category: 'water' | 'coffee' | string;
-}
-```
-
-**注意：** `category` 字段已存在于现有 Task 接口中，本次变更仅是利用该字段进行图标映射，无需修改数据结构。
+**注意：** 仅新增 `quickActions` 可选字段，不影响现有数据结构。
 
 ---
 
@@ -268,9 +255,9 @@ interface Task {
 
 ## Implementation Notes
 
-1. **图标映射扩展性**：
-   - 使用配置映射表 `CATEGORY_ICON_MAP`，方便未来添加新图标
-   - 建议将映射表抽取到 `constants/icons.ts`
+1. **组件替代**：
+   - CHECK_IN 类型统一使用 DuckWaterProgress 替代 CoffeeCupProgress
+   - NUMERIC 类型保持现有逻辑（WaterCupProgress / IceMeltProgress）
 
 2. **性能优化**：
    - SVG 使用 `<use>` 元素复用路径
@@ -278,7 +265,6 @@ interface Task {
    - confetti 触发增加防抖，避免重复
 
 3. **兼容性**：
-   - 默认 category 为 'coffee'，保证现有任务继续使用咖啡杯
    - quickActions 为可选字段，不影响现有数据
 
 4. **测试覆盖**：
@@ -291,5 +277,6 @@ interface Task {
 ## Migration Path
 
 无需数据迁移。现有任务：
-- 继续使用 CoffeeCupProgress（默认行为）
+- CHECK_IN 类型统一切换为鸭子剪影视觉效果
+- NUMERIC 类型保持现有视觉组件
 - 新增的 quickActions 字段为可选，不影响现有功能

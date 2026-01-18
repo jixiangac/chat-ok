@@ -1,64 +1,52 @@
-import { FileText, Target, Calendar } from 'lucide-react';
+import { motion } from 'framer-motion';
 import styles from './styles.module.css';
 
 export interface SecondaryNavProps {
-  /** 点击记录入口 */
-  onRecordsClick?: () => void;
-  /** 点击历史入口 */
-  onHistoryClick?: () => void;
   /** 点击日历入口 */
   onCalendarClick?: () => void;
+  /** 点击历史入口 */
+  onHistoryClick?: () => void;
   /** 任务类型 */
   taskType?: 'CHECK_IN' | 'NUMERIC' | 'CHECKLIST';
 }
 
 /**
  * 二级入口导航组件
- * 提供「记录」「历史」「日历」等入口
+ * 简约文字按钮样式
  */
 export default function SecondaryNav({
-  onRecordsClick,
-  onHistoryClick,
   onCalendarClick,
+  onHistoryClick,
   taskType = 'CHECK_IN'
 }: SecondaryNavProps) {
   const navItems = [
     {
-      key: 'records',
-      icon: <FileText size={18} />,
-      label: taskType === 'NUMERIC' ? '变动记录' : '变动记录',
-      onClick: onRecordsClick
+      key: 'calendar',
+      label: '历史记录',
+      onClick: onCalendarClick
     },
     {
       key: 'history',
-      icon: <Target size={18} />,
       label: '周期计划',
       onClick: onHistoryClick
-    },
-    {
-      key: 'calendar',
-      icon: <Calendar size={18} />,
-      label: '日历视图',
-      onClick: onCalendarClick,
-      hidden: taskType === 'NUMERIC' // 数值型不显示日历
     }
-  ].filter(item => !item.hidden);
+  ];
 
   return (
     <div className={styles.container}>
       {navItems.map(item => (
-        <button
+        <motion.button
           key={item.key}
-          className={styles.navItem}
+          className={styles.navButton}
           onClick={item.onClick}
+          whileHover={{ color: '#666' }}
+          whileTap={{ scale: 0.95 }}
         >
-          <span className={styles.icon}>{item.icon}</span>
-          <span className={styles.label}>{item.label}</span>
-        </button>
+          {item.label}
+        </motion.button>
       ))}
     </div>
   );
 }
 
 export { SecondaryNav };
-

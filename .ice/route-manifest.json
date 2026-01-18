@@ -487,18 +487,6 @@
     ]
   },
   {
-    "path": "dc/panels/detail/components/IceMeltProgress",
-    "index": true,
-    "id": "dc/panels/detail/components/IceMeltProgress",
-    "file": "dc/panels/detail/components/IceMeltProgress/index.tsx",
-    "componentName": "dc-panels-detail-components-icemeltprogress-index",
-    "layout": false,
-    "exports": [
-      "IceMeltProgress",
-      "default"
-    ]
-  },
-  {
     "path": "dc/panels/detail/components/ProgressSection",
     "index": true,
     "id": "dc/panels/detail/components/ProgressSection",
@@ -664,6 +652,19 @@
       "RulesExplanation",
       "TaskTypeSelector",
       "WarningAlert"
+    ]
+  },
+  {
+    "path": "dc/components/DuckWaterProgress/DuckSilhouette",
+    "id": "dc/components/DuckWaterProgress/DuckSilhouette",
+    "file": "dc/components/DuckWaterProgress/DuckSilhouette.tsx",
+    "componentName": "dc-components-duckwaterprogress-ducksilhouette",
+    "layout": false,
+    "exports": [
+      "DUCK_CLIP_PATH_NORMALIZED",
+      "DUCK_PATH",
+      "DuckSilhouette",
+      "default"
     ]
   },
   {
@@ -837,6 +838,17 @@
     "componentName": "dc-viewmodel-createtaskmodal-steps-typestep",
     "layout": false,
     "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/components/DuckWaterProgress/WaterWave",
+    "id": "dc/components/DuckWaterProgress/WaterWave",
+    "file": "dc/components/DuckWaterProgress/WaterWave.tsx",
+    "componentName": "dc-components-duckwaterprogress-waterwave",
+    "layout": false,
+    "exports": [
+      "WaterWave",
       "default"
     ]
   },
@@ -1046,6 +1058,20 @@
     ]
   },
   {
+    "path": "dc/components/QuickActionButtons",
+    "index": true,
+    "id": "dc/components/QuickActionButtons",
+    "file": "dc/components/QuickActionButtons/index.tsx",
+    "componentName": "dc-components-quickactionbuttons-index",
+    "layout": false,
+    "exports": [
+      "DEFAULT_TIMES_QUICK_ACTIONS",
+      "DEFAULT_WATER_QUICK_ACTIONS",
+      "QuickActionButtons",
+      "default"
+    ]
+  },
+  {
     "path": "dc/components/shared/ProgressBar",
     "index": true,
     "id": "dc/components/shared/ProgressBar",
@@ -1146,6 +1172,20 @@
     "componentName": "dc-viewmodel-sidelinetasksection-index",
     "layout": false,
     "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/components/DuckWaterProgress",
+    "index": true,
+    "id": "dc/components/DuckWaterProgress",
+    "file": "dc/components/DuckWaterProgress/index.tsx",
+    "componentName": "dc-components-duckwaterprogress-index",
+    "layout": false,
+    "exports": [
+      "DuckSilhouette",
+      "DuckWaterProgress",
+      "WaterWave",
       "default"
     ]
   },
@@ -1501,10 +1541,10 @@
       "CoffeeCupProgress",
       "CycleInfo",
       "DetailHeader",
+      "DuckWaterProgress",
       "GoalHeader",
       "HistoryCyclePanel",
       "HistoryRecordPanel",
-      "IceMeltProgress",
       "NumericCyclePanel",
       "ProgressSection",
       "RecordDataModal",
@@ -2099,6 +2139,7 @@
       "calculateChecklistProgress",
       "calculateNumericProgress",
       "default",
+      "formatDisplayNumber",
       "formatLargeNumber",
       "formatNumber",
       "getEffectiveCategory",
@@ -2543,11 +2584,13 @@
       "CreateMainlineTaskModal",
       "CultivationEntry",
       "DailyProgress",
+      "DuckWaterProgress",
       "LocationFilter",
       "MainlineTaskCard",
       "MigrationModal",
       "ProgressBar",
       "PullIndicator",
+      "QuickActionButtons",
       "SecondFloorIndicator",
       "SidelineTaskCard",
       "StatCard",
@@ -2568,6 +2611,28 @@
       "getColorPair",
       "getNextThemeColor",
       "getRandomDebtColorScheme"
+    ]
+  },
+  {
+    "path": "dc/riv/CoffeeCupSvg",
+    "id": "dc/riv/CoffeeCupSvg",
+    "file": "dc/riv/CoffeeCupSvg.tsx",
+    "componentName": "dc-riv-coffeecupsvg",
+    "layout": false,
+    "exports": [
+      "CoffeeCupSvg",
+      "default"
+    ]
+  },
+  {
+    "path": "dc/riv/RiveWatering",
+    "id": "dc/riv/RiveWatering",
+    "file": "dc/riv/RiveWatering.tsx",
+    "componentName": "dc-riv-rivewatering",
+    "layout": false,
+    "exports": [
+      "RiveWatering",
+      "default"
     ]
   },
   {
@@ -2825,6 +2890,7 @@
       "filterDailyViewTasks",
       "filterDailyViewTasksEnhanced",
       "forceCheckDateChange",
+      "formatDisplayNumber",
       "formatExp",
       "formatLargeNumber",
       "formatNumber",
@@ -2898,6 +2964,15 @@
       "updateMainlineTaskProgress",
       "updateTag"
     ]
+  },
+  {
+    "path": "dc/riv",
+    "index": true,
+    "id": "dc/riv",
+    "file": "dc/riv/index.ts",
+    "componentName": "dc-riv-index",
+    "layout": false,
+    "exports": []
   },
   {
     "path": "stock_self",

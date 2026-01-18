@@ -1,15 +1,11 @@
 import { memo } from 'react';
 import dayjs from 'dayjs';
-import { BarChart3, ArrowRight, Calendar, PartyPopper, ChartNoAxesCombined, Check } from 'lucide-react';
+import { BarChart3, ArrowRight, Calendar, Check } from 'lucide-react';
 import type { Task } from '../../../../types';
 import type { CurrentCycleInfo } from '../../types';
 import { getSimulatedToday } from '../../hooks';
+import { formatDisplayNumber } from '../../../../utils';
 import styles from './styles.module.css';
-
-// 千分位格式化
-const formatNumber = (num: number): string => {
-  return num.toLocaleString('zh-CN');
-};
 
 interface NumericCyclePanelProps {
   goal: Task;
@@ -71,60 +67,61 @@ function NumericCyclePanelComponent({
         : Math.max(0, Math.round((actualTargetValue - config.currentValue) * 10) / 10))
     : cycleRemaining;
   
-  // 如果计划已结束，显示总结视图
+  // 如果计划已结束，显示总结视图（参考 CycleInfo 样式）
   if (goal.isPlanEnded) {
     const originalStart = config.originalStartValue ?? config.startValue;
     const isSuccess = isDecrease 
       ? config.currentValue <= config.targetValue
       : config.currentValue >= config.targetValue;
     
+    // 计算总变化量
+    const totalChange = Math.abs(config.currentValue - originalStart);
+    
     return (
-      <div className={styles.container}>
-        <div className={styles.summaryContainer}>
-          <div className={styles.summaryHeader}>
-            <span className={styles.summaryIcon}>{isSuccess ? <PartyPopper size={24} /> : <ChartNoAxesCombined size={24} />}</span>
-            <span className={styles.summaryTitle}>计划已完成</span>
+      <div className={styles.summaryWrapper}>
+        {/* 主信息行 - 参考 CycleInfo 样式 */}
+        <div className={styles.infoRow}>
+          <div className={styles.infoItem}>
+            <span className={styles.label}>周期</span>
+            <span className={styles.value}>
+              <strong>{goal.cycle.currentCycle}</strong>
+              <span className={styles.separator}>/</span>
+              <span className={styles.total}>{goal.cycle.totalCycles}</span>
+            </span>
           </div>
           
-          <div className={styles.summaryPeriod}>
-            {dayjs(goal.time.startDate).format('YYYY/MM/DD')} - {dayjs(goal.time.endDate).format('YYYY/MM/DD')}
+          <div className={styles.divider} />
+          
+          <div className={styles.infoItem}>
+            <span className={styles.label}>完成率</span>
+            <span className={styles.value}>
+              <strong>{totalProgress}</strong>
+              <span className={styles.total}>%</span>
+            </span>
           </div>
           
-          <div className={styles.comparisonCards}>
-            <div className={styles.comparisonCard}>
-              <div className={styles.cardLabel}>初始计划</div>
-              <div className={styles.cardValue}>
-                {originalStart} → {config.targetValue}{config.unit}
-              </div>
-              <div className={styles.cardHint}>
-                {isDecrease ? '减少' : '增加'}目标
-              </div>
-            </div>
-            
-            <div className={`${styles.comparisonCard} ${isSuccess ? styles.successCard : styles.normalCard}`}>
-              <div className={styles.cardLabel}>最终结算</div>
-              <div className={styles.cardValue}>
-                {config.currentValue}{config.unit}
-              </div>
-              <div className={styles.cardHint}>
-                目标: {config.targetValue}{config.unit}
-              </div>
-            </div>
-          </div>
+          <div className={styles.divider} />
           
-          <div className={styles.summaryStats}>
-            <div className={styles.statItem}>
-              <div className={styles.statValue}>{goal.cycle.currentCycle}/{goal.cycle.totalCycles}</div>
-              <div className={styles.statLabel}>完成周期</div>
-            </div>
-            <div className={styles.statItem}>
-              <div className={styles.statValue}>{totalProgress}%</div>
-              <div className={styles.statLabel}>总体完成率</div>
-            </div>
-            <div className={styles.statItem}>
-              <div className={styles.statValue}>{isSuccess ? '达成' : '未达成'}</div>
-              <div className={styles.statLabel}>目标状态</div>
-            </div>
+          <div className={styles.infoItem}>
+            <span className={styles.label}>状态</span>
+            <span className={styles.value}>
+              <strong className={isSuccess ? styles.successText : styles.warningText}>
+                {isSuccess ? '达成' : '未达成'}
+              </strong>
+            </span>
+          </div>
+        </div>
+        
+        {/* 日期行 */}
+        <div className={styles.dateRange}>
+          <div className={styles.dateLeft}>
+            <Calendar size={14} className={styles.icon} />
+            <span>{dayjs(goal.time.startDate).format('YYYY-MM-DD')} - {dayjs(goal.time.endDate).format('YYYY-MM-DD')}</span>
+          </div>
+          <div className={styles.resultValue}>
+            <span className={styles.resultCurrent}>{formatDisplayNumber(config.currentValue)}</span>
+            <span className={styles.resultSeparator}>/</span>
+            <span className={styles.resultTarget}>{formatDisplayNumber(config.targetValue)}{config.unit}</span>
           </div>
         </div>
       </div>
@@ -140,13 +137,13 @@ function NumericCyclePanelComponent({
         </div>
         
         <div className={styles.targetRange}>
-          <span className={styles.targetValue}>{formatNumber(cycleStartValue)}{config.unit}</span>
+          <span className={styles.targetValue}>{formatDisplayNumber(cycleStartValue)}{config.unit}</span>
           <ArrowRight size={16} className={styles.targetArrow} />
           <span className={styles.targetValue}>
-            {formatNumber(actualTargetValue)}{config.unit}
+            {formatDisplayNumber(actualTargetValue)}{config.unit}
             {hasCompensation && (
               <span style={{ marginLeft: '8px', fontSize: '0.85em', fontWeight: '400', color: '#999' }}>
-                (原目标: {formatNumber(originalCycleTarget)}{config.unit})
+                (原目标: {formatDisplayNumber(originalCycleTarget)}{config.unit})
               </span>
             )}
           </span>
@@ -175,13 +172,13 @@ function NumericCyclePanelComponent({
         <div className={styles.progressStats}>
           <div className={styles.statItem}>
             <span className={styles.statLabel}>已{isDecrease ? '减' : '增'}</span>
-            <span className={styles.statValue}>{formatNumber(cycleAchieved)}{config.unit}</span>
+            <span className={styles.statValue}>{formatDisplayNumber(cycleAchieved)}{config.unit}</span>
           </div>
           {/* 今日进度 */}
           <div className={styles.todayProgress}>
             <span className={styles.todayLabel}>今日</span>
             <span className={styles.todayValue}>
-              {formatNumber(goal.todayProgress?.todayValue ?? 0)}/{formatNumber(config.perDayAverage || 0)}{config.unit}
+              {formatDisplayNumber(goal.todayProgress?.todayValue ?? 0)}/{formatDisplayNumber(config.perDayAverage || 0)}{config.unit}
             </span>
             {goal.todayProgress?.isCompleted && (
               <Check size={14} className={styles.todayCheck} />
@@ -190,7 +187,7 @@ function NumericCyclePanelComponent({
           <div className={styles.statItem}>
             <span className={styles.statLabel}>还需</span>
             <span className={styles.statValue}>
-              {formatNumber(displayCycleRemaining)}{config.unit}
+              {formatDisplayNumber(displayCycleRemaining)}{config.unit}
             </span>
           </div>
         </div>
@@ -198,7 +195,7 @@ function NumericCyclePanelComponent({
       
       <div className={styles.statsGrid}>
         <div className={styles.gridItem}>
-          <div className={styles.gridValue}>{formatNumber(config.currentValue)}{config.unit}</div>
+          <div className={styles.gridValue}>{formatDisplayNumber(config.currentValue)}{config.unit}</div>
           <div className={styles.gridLabel}>当前{isDecrease ? '数值' : '数值'}</div>
         </div>
         <div className={styles.gridItem}>

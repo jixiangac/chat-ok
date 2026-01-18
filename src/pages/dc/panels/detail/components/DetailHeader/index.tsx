@@ -115,7 +115,7 @@ export default function DetailHeader({
         
         {showActions && (
           <div className={styles.menuDropdown}>
-            {onEdit && !isPlanEnded && (
+            {onEdit && (
               <div className={styles.menuItem} onClick={handleEdit}>
                 <Edit2 size={14} style={{ marginRight: 6 }} />
                 编辑任务
@@ -127,7 +127,7 @@ export default function DetailHeader({
                 提前结束
               </div>
             )}
-            {onArchive && isPlanEnded && (
+            {isPlanEnded && (
               <div className={styles.menuItem} onClick={handleArchive}>
                 <Archive size={14} style={{ marginRight: 6 }} />
                 归档任务
@@ -143,7 +143,7 @@ export default function DetailHeader({
                 🐛 Debug: 进入下一周期
               </div>
             )}
-            {isDeveloperMode && taskId && (
+            {taskId && (
               <div className={styles.menuItem} onClick={handleExportTask}>
                 <Copy size={14} style={{ marginRight: 6 }} />
                 导出任务数据

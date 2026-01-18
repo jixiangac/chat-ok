@@ -1,9 +1,10 @@
 import { useMemo } from 'react';
 import dayjs from 'dayjs';
-import { Check, Calendar, Clock, Hash, PartyPopper, ChartNoAxesCombined } from 'lucide-react';
+import { Check, Calendar, Clock, Hash } from 'lucide-react';
 import type { Task, CheckInUnit } from '../../../../types';
 import type { CurrentCycleInfo } from '../../types';
 import { getSimulatedToday } from '../../hooks';
+import { formatDisplayNumber } from '../../../../utils';
 import styles from '../../../../css/CheckInCyclePanel.module.css';
 
 interface CheckInCyclePanelProps {
@@ -179,7 +180,7 @@ export default function CheckInCyclePanel({
   
   const typeInfo = getTypeInfo();
   
-  // 如果计划已结束，显示总结视图
+  // 如果计划已结束，显示总结视图（参考 CycleInfo 样式）
   if (planEndInfo.isPlanEnded) {
     const { 
       planStartDate, planEndDate, totalCycles, completedCycles, 
@@ -189,54 +190,57 @@ export default function CheckInCyclePanel({
     // 计算累计值
     const totalValue = (config?.records || []).reduce((sum, r) => sum + (r.totalValue || 0), 0);
     
+    // 获取显示值和单位
+    const getDisplayValue = () => {
+      if (unit === 'TIMES') return `${formatDisplayNumber(totalCheckInsCount || 0)}次`;
+      if (unit === 'DURATION') return `${formatDisplayNumber(totalValue)}分钟`;
+      return `${formatDisplayNumber(totalValue)}${config?.valueUnit || '个'}`;
+    };
+    
     return (
-      <div className={styles.container}>
-        <div className={styles.summaryContainer}>
-          <div className={styles.summaryHeader}>
-            <span className={styles.summaryIcon}>{isSuccess ? <PartyPopper size={24} /> : <ChartNoAxesCombined size={24} />}</span>
-            <span className={styles.summaryTitle}>计划已完成</span>
+      <div className={styles.summaryWrapper}>
+        {/* 主信息行 - 参考 CycleInfo 样式 */}
+        <div className={styles.infoRow}>
+          <div className={styles.infoItem}>
+            <span className={styles.label}>周期</span>
+            <span className={styles.value}>
+              <strong>{completedCycles}</strong>
+              <span className={styles.separator}>/</span>
+              <span className={styles.total}>{totalCycles}</span>
+            </span>
           </div>
           
-          <div className={styles.summaryPeriod}>
-            {dayjs(planStartDate).format('YYYY/MM/DD')} - {dayjs(planEndDate).format('YYYY/MM/DD')}
+          <div className={styles.divider} />
+          
+          <div className={styles.infoItem}>
+            <span className={styles.label}>完成率</span>
+            <span className={styles.value}>
+              <strong>{averageCompletionRate}</strong>
+              <span className={styles.total}>%</span>
+            </span>
           </div>
           
-          <div className={styles.comparisonCards}>
-            <div className={styles.comparisonCard}>
-              <div className={styles.cardLabel}>{unit === 'TIMES' ? '累计打卡' : unit === 'DURATION' ? '累计时长' : '累计数值'}</div>
-              <div className={styles.cardValue}>
-                {unit === 'TIMES' 
-                  ? `${totalCheckInsCount}次` 
-                  : unit === 'DURATION' 
-                    ? `${totalValue}分钟`
-                    : `${totalValue}${config?.valueUnit || '个'}`
-                }
-              </div>
-              <div className={styles.cardHint}>
-                {typeInfo.label}
-              </div>
-            </div>
-            
-            <div className={`${styles.comparisonCard} ${isSuccess ? styles.successCard : styles.normalCard}`}>
-              <div className={styles.cardLabel}>平均完成率</div>
-              <div className={styles.cardValue}>
-                {averageCompletionRate}%
-              </div>
-              <div className={styles.cardHint}>
-                目标: 100%
-              </div>
-            </div>
-          </div>
+          <div className={styles.divider} />
           
-          <div className={styles.summaryStats}>
-            <div className={styles.statItem}>
-              <div className={styles.statValue}>{completedCycles}/{totalCycles}</div>
-              <div className={styles.statLabel}>完成周期</div>
-            </div>
-            <div className={styles.statItem}>
-              <div className={styles.statValue}>{isSuccess ? '达成' : '未达成'}</div>
-              <div className={styles.statLabel}>目标状态</div>
-            </div>
+          <div className={styles.infoItem}>
+            <span className={styles.label}>状态</span>
+            <span className={styles.value}>
+              <strong className={isSuccess ? styles.successText : styles.warningText}>
+                {isSuccess ? '达成' : '未达成'}
+              </strong>
+            </span>
+          </div>
+        </div>
+        
+        {/* 日期行 */}
+        <div className={styles.dateRangeSummary}>
+          <div className={styles.dateLeft}>
+            <Calendar size={14} className={styles.iconSummary} />
+            <span>{dayjs(planStartDate).format('YYYY-MM-DD')} - {dayjs(planEndDate).format('YYYY-MM-DD')}</span>
+          </div>
+          <div className={styles.resultValue}>
+            <span className={styles.resultLabel}>{unit === 'TIMES' ? '累计' : unit === 'DURATION' ? '时长' : '数值'}</span>
+            <span className={styles.resultCurrent}>{getDisplayValue()}</span>
           </div>
         </div>
       </div>
@@ -247,8 +251,8 @@ export default function CheckInCyclePanel({
     <div className={styles.container}>
       <div className={styles.heroSection}>
         <div className={styles.heroNumber}>
-          {progressData.cycleValue}
-          <span className={styles.heroUnit}>/{progressData.cycleTarget} {progressData.cycleUnit}</span>
+          {formatDisplayNumber(progressData.cycleValue)}
+          <span className={styles.heroUnit}>/{formatDisplayNumber(Number(progressData.cycleTarget) || 0)} {progressData.cycleUnit}</span>
         </div>
         <div className={styles.heroLabel}>本周期{unit === 'TIMES' ? '打卡次数' : unit === 'DURATION' ? '累计时长' : '累计数值'}</div>
         
@@ -271,7 +275,7 @@ export default function CheckInCyclePanel({
         
         <div className={styles.todayRow}>
           <span className={styles.todayLabel}>今日</span>
-          <span className={styles.todayValue}>{progressData.todayValue}/{progressData.todayTarget}{progressData.todayUnit}</span>
+          <span className={styles.todayValue}>{formatDisplayNumber(progressData.todayValue)}/{formatDisplayNumber(progressData.todayTarget)}{progressData.todayUnit}</span>
           {progressData.todayCompleted && <Check size={14} className={styles.todayCheck} />}
           {todayEntries.length > 0 && (
             <span className={styles.todayTimes}>
@@ -287,13 +291,6 @@ export default function CheckInCyclePanel({
         </div>
       </div>
       
-      {/* <div className={styles.statsGrid}>
-        <div className={styles.statItem}>
-          <div className={styles.statValue}>{totalAccumulatedValue}{getAccumulatedUnit()}</div>
-          <div className={styles.statLabel}>{unit === 'TIMES' ? '累计打卡' : unit === 'DURATION' ? '累计时长' : '累计数值'}</div>
-        </div>
-      </div> */}
-      
       <div className={styles.timeRange}>
         <Calendar size={14} className={styles.timeIcon} />
         <span>本周期: {cycle.startDate} - {cycle.endDate}</span>
@@ -301,5 +298,3 @@ export default function CheckInCyclePanel({
     </div>
   );
 }
-
-

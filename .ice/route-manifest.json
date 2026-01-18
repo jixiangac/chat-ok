@@ -438,6 +438,15 @@
     ]
   },
   {
+    "path": "dc/panels/detail/components/PlanEndedSummary",
+    "index": true,
+    "id": "dc/panels/detail/components/PlanEndedSummary",
+    "file": "dc/panels/detail/components/PlanEndedSummary/index.tsx",
+    "componentName": "dc-panels-detail-components-planendedsummary-index",
+    "layout": false,
+    "exports": []
+  },
+  {
     "path": "dc/panels/detail/components/TodayProgressBar",
     "index": true,
     "id": "dc/panels/detail/components/TodayProgressBar",
@@ -2722,6 +2731,17 @@
     ]
   },
   {
+    "path": "dc/riv/RiveCuteing",
+    "id": "dc/riv/RiveCuteing",
+    "file": "dc/riv/RiveCuteing.tsx",
+    "componentName": "dc-riv-rivecuteing",
+    "layout": false,
+    "exports": [
+      "RiveCuteing",
+      "default"
+    ]
+  },
+  {
     "path": "dc/utils/migration",
     "id": "dc/utils/migration",
     "file": "dc/utils/migration.ts",
@@ -2966,13 +2986,29 @@
     ]
   },
   {
+    "path": "dc/riv/DieCat",
+    "id": "dc/riv/DieCat",
+    "file": "dc/riv/DieCat.tsx",
+    "componentName": "dc-riv-diecat",
+    "layout": false,
+    "exports": [
+      "DieCat",
+      "default"
+    ]
+  },
+  {
     "path": "dc/riv",
     "index": true,
     "id": "dc/riv",
     "file": "dc/riv/index.ts",
     "componentName": "dc-riv-index",
     "layout": false,
-    "exports": []
+    "exports": [
+      "CoffeeCupSvg",
+      "DieCat",
+      "RiveCuteing",
+      "RiveWatering"
+    ]
   },
   {
     "path": "stock_self",

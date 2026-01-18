@@ -66,7 +66,7 @@
 
 /* 进度信息区域 */
 .progressInfo {
-  margin-top: 24px;
+  /* margin-top: 24px; */
   display: flex;
   flex-direction: column;
   align-items: center;

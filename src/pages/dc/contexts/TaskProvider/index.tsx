@@ -67,6 +67,21 @@ const getTodayCheckInsFromRecords = (task: Task, effectiveToday: string): CheckI
   return todayRecord?.entries || [];
 };
 
+// 数字精度处理函数
+// - 大于等于1000：保留整数
+// - 大于等于100：最多保留1位小数
+// - 小于100：最多保留2位小数
+const formatNumberPrecision = (num: number): number => {
+  const absNum = Math.abs(num);
+  if (absNum >= 1000) {
+    return Math.round(num);
+  } else if (absNum >= 100) {
+    return Math.round(num * 10) / 10;
+  } else {
+    return Math.round(num * 100) / 100;
+  }
+};
+
 // 计算今日进度
 const calculateTodayProgress = (task: Task): TodayProgress => {
   const effectiveToday = getSimulatedToday(task);
@@ -75,7 +90,7 @@ const calculateTodayProgress = (task: Task): TodayProgress => {
 
   // NUMERIC 类型任务：使用 numericConfig.perDayAverage 作为每日目标
   if (task.category === 'NUMERIC' && task.numericConfig) {
-    const dailyTarget = Math.abs(task.numericConfig.perDayAverage || 0);
+    const dailyTarget = formatNumberPrecision(Math.abs(task.numericConfig.perDayAverage || 0));
     // 计算今日记录的数值变化
     const todayActivities = task.activities?.filter(a => 
       dayjs(a.date).format('YYYY-MM-DD') === effectiveToday && a.type === 'UPDATE_VALUE'
@@ -91,7 +106,7 @@ const calculateTodayProgress = (task: Task): TodayProgress => {
     return {
       canCheckIn: true,
       todayCount: todayActivities.length,
-      todayValue,
+      todayValue: formatNumberPrecision(todayValue),
       isCompleted,
       dailyTarget,
       lastUpdatedAt: dayjs().toISOString()
@@ -122,11 +137,11 @@ const calculateTodayProgress = (task: Task): TodayProgress => {
       lastUpdatedAt: dayjs().toISOString()
     };
   } else if (unit === 'DURATION') {
-    const dailyTarget = checkInConfig.dailyTargetMinutes || 15;
+    const dailyTarget = formatNumberPrecision(checkInConfig.dailyTargetMinutes || 15);
     return {
       canCheckIn: todayValue < dailyTarget,
       todayCount: todayCheckIns.length,
-      todayValue,
+      todayValue: formatNumberPrecision(todayValue),
       isCompleted: todayValue >= dailyTarget,
       dailyTarget,
       lastUpdatedAt: dayjs().toISOString()
@@ -142,10 +157,13 @@ const calculateTodayProgress = (task: Task): TodayProgress => {
       dailyTarget = Math.ceil(checkInConfig.cycleTargetValue / cycleDays);
     }
     
+    dailyTarget = formatNumberPrecision(dailyTarget);
+    const formattedTodayValue = formatNumberPrecision(todayValue);
+    
     return {
       canCheckIn: dailyTarget === 0 || todayValue < dailyTarget,
       todayCount: todayCheckIns.length,
-      todayValue,
+      todayValue: formattedTodayValue,
       isCompleted: dailyTarget > 0 && todayValue >= dailyTarget,
       dailyTarget: dailyTarget > 0 ? dailyTarget : undefined,
       lastUpdatedAt: dayjs().toISOString()
@@ -1588,6 +1606,3 @@ export function useTaskContext(): TaskContextValue {
 }
 
 export type { TaskContextValue, HistoryRecord, CycleInfo, TodayCheckInStatus, GoalDetailData } from './types';
-
-
-

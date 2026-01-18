@@ -18,7 +18,9 @@ import {
   CheckInModal,
   ActivityRecordPanel,
   HistoryCyclePanel,
-  CalendarViewPanel
+  CalendarViewPanel,
+  NumericCyclePanel,
+  CheckInCyclePanel
 } from './components';
 import SidelineTaskEditModal from '../../components/SidelineTaskEditModal';
 import type { GoalDetailModalProps, CurrentCycleInfo } from './types';
@@ -170,6 +172,7 @@ export default function GoalDetailModal({
       return { canCheckIn: true, todayCount: 0, todayValue: 0, isCompleted: false };
     }
     return {
+      dailyTarget: todayProgress.dailyTarget,
       canCheckIn: todayProgress.canCheckIn,
       todayCount: todayProgress.todayCount,
       todayValue: todayProgress.todayValue,
@@ -364,7 +367,7 @@ export default function GoalDetailModal({
 
   // 渲染进度可视化组件
   const renderProgressVisual = () => {
-    if (!task || !currentCycle) return null;
+    if (!task || !currentCycle || !taskCategory) return null;
 
     switch (taskCategory) {
       case 'NUMERIC': {
@@ -380,11 +383,13 @@ export default function GoalDetailModal({
         return (
           <WaterCupProgress
             progress={totalProgress}
+            isPlanEnded={isPlanEnded}
             currentValue={currentValue}
             targetValue={targetValue}
             unit={unit}
             direction={direction}
             startValue={startValue}
+            category={taskCategory}
             animate
             size="large"
           />
@@ -420,8 +425,10 @@ export default function GoalDetailModal({
         return (
           <WaterCupProgress
             progress={totalProgress}
+            isPlanEnded={isPlanEnded}
             currentValue={currentValue}
             targetValue={targetValue}
+            category={taskCategory}
             unit={unit}
             animate
             size="large"
@@ -504,27 +511,42 @@ export default function GoalDetailModal({
                 {renderProgressVisual()}
               </div>
               
-              {/* 周期信息 */}
-              <CycleInfo
-                currentCycle={currentCycle.cycleNumber}
-                totalCycles={currentCycle.totalCycles}
-                remainingDays={currentCycle.remainingDays}
-                startDate={currentCycle.startDate}
-                endDate={currentCycle.endDate}
-                cycleDays={task.cycle.cycleDays}
-                currentDay={currentDayInCycle}
-                completionRate={cycleProgress}
-              cycleAchieved={
-                taskCategory === 'NUMERIC' 
-                  ? (task.progress.cycleAchieved || 0)
-                  : currentCycle.checkInCount
-              }
-              cycleTarget={
-                taskCategory === 'NUMERIC'
-                  ? (task.numericConfig?.perCycleTarget || 0)
-                  : currentCycle.requiredCheckIns
-              }
-              />
+              {/* 周期信息 - 计划结束时显示归档总结 */}
+              {isPlanEnded ? (
+                taskCategory === 'NUMERIC' ? (
+                  <NumericCyclePanel
+                    goal={task}
+                    cycle={currentCycle}
+                    onRecordData={handleRecordData}
+                  />
+                ) : (
+                  <CheckInCyclePanel
+                    goal={task}
+                    cycle={currentCycle}
+                  />
+                )
+              ) : (
+                <CycleInfo
+                  currentCycle={currentCycle.cycleNumber}
+                  totalCycles={currentCycle.totalCycles}
+                  remainingDays={currentCycle.remainingDays}
+                  startDate={currentCycle.startDate}
+                  endDate={currentCycle.endDate}
+                  cycleDays={task.cycle.cycleDays}
+                  currentDay={currentDayInCycle}
+                  completionRate={cycleProgress}
+                  cycleAchieved={
+                    taskCategory === 'NUMERIC' 
+                      ? (task.progress.cycleAchieved || 0)
+                      : currentCycle.checkInCount
+                  }
+                  cycleTarget={
+                    taskCategory === 'NUMERIC'
+                      ? (task.numericConfig?.perCycleTarget || 0)
+                      : currentCycle.requiredCheckIns
+                  }
+                />
+              )}
               
               {/* 当日记录入口（CHECK_IN 和 NUMERIC 类型显示） */}
               {!isPlanEnded && (taskCategory === 'CHECK_IN' || taskCategory === 'NUMERIC') && (
@@ -543,7 +565,9 @@ export default function GoalDetailModal({
                     <span className={styles.todayRecordLabel}>当日记录</span>
                   </div>
                   <div className={styles.todayRecordRight}>
-                    <span className={styles.todayRecordCount}>{todayCheckInStatus.todayCount}</span>
+                    <span className={styles.todayRecordCount}>
+                      {todayCheckInStatus.todayValue}<span style={{margin: '0 5px'}}>/</span>{todayCheckInStatus.dailyTarget}
+                    </span>
                     <ChevronRight size={20} color="#ccc" />
                   </div>
                 </div>
@@ -650,4 +674,3 @@ export default function GoalDetailModal({
     </Popup>
   );
 }
-

@@ -41,6 +41,7 @@ import * as dc_panels_detail_components_CoffeeCupProgress from '@/pages/dc/panel
 import * as dc_panels_detail_components_HistoryCyclePanel from '@/pages/dc/panels/detail/components/HistoryCyclePanel/index';
 import * as dc_panels_detail_components_NumericCyclePanel from '@/pages/dc/panels/detail/components/NumericCyclePanel/index';
 import * as dc_panels_settings_components_SettingsSection from '@/pages/dc/panels/settings/components/SettingsSection/index';
+import * as dc_panels_detail_components_PlanEndedSummary from '@/pages/dc/panels/detail/components/PlanEndedSummary/index';
 import * as dc_panels_detail_components_TodayProgressBar from '@/pages/dc/panels/detail/components/TodayProgressBar/index';
 import * as dc_panels_detail_components_WaterCupProgress from '@/pages/dc/panels/detail/components/WaterCupProgress/index';
 import * as dc_panels_memorial_components_MemorialDetail from '@/pages/dc/panels/memorial/components/MemorialDetail/index';
@@ -217,6 +218,7 @@ import * as dc_riv_RiveWatering from '@/pages/dc/riv/RiveWatering';
 import * as dc_utils_responsive from '@/pages/dc/utils/responsive';
 import * as dc_utils_tagStorage from '@/pages/dc/utils/tagStorage';
 import * as dc_constants from '@/pages/dc/constants/index';
+import * as dc_riv_RiveCuteing from '@/pages/dc/riv/RiveCuteing';
 import * as dc_utils_migration from '@/pages/dc/utils/migration';
 import * as dc_viewmodel from '@/pages/dc/viewmodel/index';
 import * as dc_contexts from '@/pages/dc/contexts/index';
@@ -224,6 +226,7 @@ import * as dc_panels from '@/pages/dc/panels/index';
 import * as dc_hooks from '@/pages/dc/hooks/index';
 import * as dc_types from '@/pages/dc/types';
 import * as dc_utils from '@/pages/dc/utils/index';
+import * as dc_riv_DieCat from '@/pages/dc/riv/DieCat';
 import * as dc_riv from '@/pages/dc/riv/index';
 import * as stock_self from '@/pages/stock_self';
 import * as aloglist from '@/pages/aloglist';
@@ -1268,6 +1271,31 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/panels/settings/components/SettingsSection',
     exact: true,
     exports: ["default"],
+  },{
+    path: 'dc/panels/detail/components/PlanEndedSummary',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_detail_components_PlanEndedSummary,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/detail/components/PlanEndedSummary',
+          isLayout: false,
+          routeExports: dc_panels_detail_components_PlanEndedSummary,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/detail/components/PlanEndedSummary',
+          requestContext,
+          renderMode,
+          module: dc_panels_detail_components_PlanEndedSummary,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-detail-components-planendedsummary-index',
+    index: true,
+    id: 'dc/panels/detail/components/PlanEndedSummary',
+    exact: true,
+    exports: [],
   },{
     path: 'dc/panels/detail/components/TodayProgressBar',
     async lazy() {
@@ -5669,6 +5697,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["ANIMATION_ENABLED","DEBT_COLOR_SCHEMES","EMPTY_STATE_IMAGE","MEMORIAL_SPRITE_IMAGES","RESPECT_REDUCED_MOTION","SIDELINE_THEME_COLORS","SPRITE_IMAGES","TRIP_SPRITE_IMAGES","VACATION_SPRITE_IMAGES","cardVariants","drawerLeftVariants","drawerRightVariants","fadeVariants","getCurrentTimeSlot","getNextThemeColor","getRandomDebtColorScheme","gridItemVariants","listContainerVariants","listItemVariants","modalVariants","optionVariants","overlayVariants","quickTransition","scaleVariants","smoothTransition","springTransition","stepVariants"],
   },{
+    path: 'dc/riv/RiveCuteing',
+    async lazy() {
+      ;
+      return {
+        ...dc_riv_RiveCuteing,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/riv/RiveCuteing',
+          isLayout: false,
+          routeExports: dc_riv_RiveCuteing,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/riv/RiveCuteing',
+          requestContext,
+          renderMode,
+          module: dc_riv_RiveCuteing,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-riv-rivecuteing',
+    index: undefined,
+    id: 'dc/riv/RiveCuteing',
+    exact: true,
+    exports: ["RiveCuteing","default"],
+  },{
     path: 'dc/utils/migration',
     async lazy() {
       ;
@@ -5844,6 +5897,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["CycleCalculator","DATA_TYPE_CONFIG","LAYOUT_CONSTANTS","MigrationTool","ProgressCalculator","TAG_COLORS","TaskMigration","advanceTaskCycle","archiveTask","calculateCheckInProgress","calculateCheckInProgressV2","calculateChecklistProgress","calculateChecklistProgressV2","calculateCurrentCycleNumber","calculateFlexibleTaskLimit","calculateGridColumns","calculateModalMaxHeight","calculateNewCycle","calculateNumericProgress","calculateNumericProgressV2","calculateRemainingDays","calculateVisibleSidelineTasks","canOpenModalForEdit","canOpenModalForView","checkDateChange","clearAllArchivedTasks","clearDailyViewCache","clearData","clearTestDate","compareLevels","copyToClipboard","createTag","createTask","createTodayState","deleteArchivedTask","deleteTag","exportAllTasks","exportData","exportSingleTask","exportToClipboard","filterDailyViewTasks","filterDailyViewTasksEnhanced","forceCheckDateChange","formatDisplayNumber","formatExp","formatLargeNumber","formatNumber","generateCultivationId","getAllTags","getArchiveStats","getArchivedTasks","getCachedDailyTaskIds","getCurrentDate","getCurrentExpCap","getCurrentLevelInfo","getDataStats","getDeveloperMode","getEffectiveCategory","getEffectiveMainlineType","getLastVisitedDate","getLevelDisplayName","getLevelIndex","getNextLevel","getNextTagColor","getPreviousLevel","getRealSystemDate","getRealmIconPath","getSafeAreaInsets","getSavedLocationFilter","getScreenSize","getSeclusionInfo","getTagById","getTestDate","getTodayDateString","getTodayMustCompleteTaskIds","getWeekKey","hasDailyTargetTask","hasTestDate","hasTodayBeenSet","hasTodaySetTasks","importAllTasks","importData","importSingleTask","isCrossRealmDemotion","isMobileDevice","isNearDeadline","isSmallScreen","isTaskTodayMustComplete","isTodayCheckedIn","loadTagsFromStorage","loadTodayMustCompleteState","markModalShown","migrateOldArchivedTasks","migrateToNewFormat","needsProgressReset","performDailyReset","prefersReducedMotion","removeFromTodayMustComplete","repairTaskProgressData","resetTodayProgress","restoreFromArchive","saveArchivedTasks","saveDailyTaskIdsCache","saveLocationFilter","saveTagsToStorage","saveTodayMustCompleteState","selectFlexibleTasks","setDeveloperMode","setLastVisitedDate","setTestDate","setTodayMustCompleteTasks","shouldAdvanceCycle","shouldShowTodayMustCompleteModal","skipTodayMustComplete","updateMainlineTaskProgress","updateTag"],
   },{
+    path: 'dc/riv/DieCat',
+    async lazy() {
+      ;
+      return {
+        ...dc_riv_DieCat,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/riv/DieCat',
+          isLayout: false,
+          routeExports: dc_riv_DieCat,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/riv/DieCat',
+          requestContext,
+          renderMode,
+          module: dc_riv_DieCat,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-riv-diecat',
+    index: undefined,
+    id: 'dc/riv/DieCat',
+    exact: true,
+    exports: ["DieCat","default"],
+  },{
     path: 'dc/riv',
     async lazy() {
       ;
@@ -5867,7 +5945,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/riv',
     exact: true,
-    exports: [],
+    exports: ["CoffeeCupSvg","DieCat","RiveCuteing","RiveWatering"],
   },{
     path: 'stock_self',
     async lazy() {

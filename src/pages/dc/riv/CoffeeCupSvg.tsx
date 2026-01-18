@@ -2,14 +2,14 @@ import React, { useMemo, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 
 export interface CoffeeCupSvgProps {
-  /** 液体高度百分比 (0-100) */
-  liquidHeight: number;
+  /** 进度百分比 (0-100) */
+  progress: number;
   /** 杯身颜色 */
   cupColor?: string;
   /** 液体颜色 */
   liquidColor?: string;
-  /** 是否为初始渲染 */
-  isInitialRender?: boolean;
+  /** 是否显示动画 */
+  animate?: boolean;
   /** CSS 类名 */
   className?: string;
   /** 液体样式类名 */
@@ -27,10 +27,10 @@ export interface CoffeeCupSvgProps {
  * 宽矮的 U 形马克杯，带液体填充和波动效果
  */
 export default function CoffeeCupSvg({
-  liquidHeight,
+  progress,
   cupColor = '#F5E6E0',
   liquidColor = '#C4A08A',
-  isInitialRender = false,
+  animate = true,
   className,
   liquidClassName,
   waveOverlayClassName,
@@ -38,6 +38,24 @@ export default function CoffeeCupSvg({
   energyGlowClassName,
 }: CoffeeCupSvgProps) {
   const [wavePhase, setWavePhase] = useState(0);
+  const [displayProgress, setDisplayProgress] = useState(progress);
+  const [isInitialRender, setIsInitialRender] = useState(true);
+
+  // 进度变化时触发动画
+  useEffect(() => {
+    if (animate) {
+      const timer = setTimeout(() => {
+        setDisplayProgress(progress);
+        if (isInitialRender) {
+          setIsInitialRender(false);
+        }
+      }, isInitialRender ? 100 : 50);
+      return () => clearTimeout(timer);
+    } else {
+      setDisplayProgress(progress);
+      setIsInitialRender(false);
+    }
+  }, [progress, animate, isInitialRender]);
 
   // 波动动画 - 持续更新相位
   useEffect(() => {
@@ -62,8 +80,8 @@ export default function CoffeeCupSvg({
   const cupInteriorHeight = cupInteriorBottom - cupInteriorTop; // 259 可用高度
 
   // 根据进度计算液体高度和位置
-  const clampedLiquidHeight = Math.max(0, Math.min(100, liquidHeight));
-  const liquidActualHeight = cupInteriorHeight * (clampedLiquidHeight / 100);
+  const liquidHeight = Math.max(0, Math.min(100, displayProgress));
+  const liquidActualHeight = cupInteriorHeight * (liquidHeight / 100);
   // 液体顶部 Y 坐标：从底部往上计算
   const liquidY = cupInteriorBottom - liquidActualHeight;
 

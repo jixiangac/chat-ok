@@ -248,6 +248,18 @@
     ]
   },
   {
+    "path": "dc/panels/detail/components/ActivityRecordPanel",
+    "index": true,
+    "id": "dc/panels/detail/components/ActivityRecordPanel",
+    "file": "dc/panels/detail/components/ActivityRecordPanel/index.tsx",
+    "componentName": "dc-panels-detail-components-activityrecordpanel-index",
+    "layout": false,
+    "exports": [
+      "ActivityRecordPanel",
+      "default"
+    ]
+  },
+  {
     "path": "dc/panels/detail/components/CheckInHistoryPanel",
     "index": true,
     "id": "dc/panels/detail/components/CheckInHistoryPanel",
@@ -380,6 +392,18 @@
     ]
   },
   {
+    "path": "dc/panels/detail/components/CoffeeCupProgress",
+    "index": true,
+    "id": "dc/panels/detail/components/CoffeeCupProgress",
+    "file": "dc/panels/detail/components/CoffeeCupProgress/index.tsx",
+    "componentName": "dc-panels-detail-components-coffeecupprogress-index",
+    "layout": false,
+    "exports": [
+      "CoffeeCupProgress",
+      "default"
+    ]
+  },
+  {
     "path": "dc/panels/detail/components/HistoryCyclePanel",
     "index": true,
     "id": "dc/panels/detail/components/HistoryCyclePanel",
@@ -414,6 +438,30 @@
     ]
   },
   {
+    "path": "dc/panels/detail/components/TodayProgressBar",
+    "index": true,
+    "id": "dc/panels/detail/components/TodayProgressBar",
+    "file": "dc/panels/detail/components/TodayProgressBar/index.tsx",
+    "componentName": "dc-panels-detail-components-todayprogressbar-index",
+    "layout": false,
+    "exports": [
+      "TodayProgressBar",
+      "default"
+    ]
+  },
+  {
+    "path": "dc/panels/detail/components/WaterCupProgress",
+    "index": true,
+    "id": "dc/panels/detail/components/WaterCupProgress",
+    "file": "dc/panels/detail/components/WaterCupProgress/index.tsx",
+    "componentName": "dc-panels-detail-components-watercupprogress-index",
+    "layout": false,
+    "exports": [
+      "WaterCupProgress",
+      "default"
+    ]
+  },
+  {
     "path": "dc/panels/memorial/components/MemorialDetail",
     "index": true,
     "id": "dc/panels/memorial/components/MemorialDetail",
@@ -436,6 +484,18 @@
       "ConfigStep",
       "CycleStep",
       "TypeStep"
+    ]
+  },
+  {
+    "path": "dc/panels/detail/components/IceMeltProgress",
+    "index": true,
+    "id": "dc/panels/detail/components/IceMeltProgress",
+    "file": "dc/panels/detail/components/IceMeltProgress/index.tsx",
+    "componentName": "dc-panels-detail-components-icemeltprogress-index",
+    "layout": false,
+    "exports": [
+      "IceMeltProgress",
+      "default"
     ]
   },
   {
@@ -618,6 +678,30 @@
     ]
   },
   {
+    "path": "dc/panels/detail/components/DetailHeader",
+    "index": true,
+    "id": "dc/panels/detail/components/DetailHeader",
+    "file": "dc/panels/detail/components/DetailHeader/index.tsx",
+    "componentName": "dc-panels-detail-components-detailheader-index",
+    "layout": false,
+    "exports": [
+      "DetailHeader",
+      "default"
+    ]
+  },
+  {
+    "path": "dc/panels/detail/components/SecondaryNav",
+    "index": true,
+    "id": "dc/panels/detail/components/SecondaryNav",
+    "file": "dc/panels/detail/components/SecondaryNav/index.tsx",
+    "componentName": "dc-panels-detail-components-secondarynav-index",
+    "layout": false,
+    "exports": [
+      "SecondaryNav",
+      "default"
+    ]
+  },
+  {
     "path": "dc/panels/memorial/components/IconPicker",
     "index": true,
     "id": "dc/panels/memorial/components/IconPicker",
@@ -722,6 +806,18 @@
     "componentName": "dc-components-createmainlinetaskmodal-types",
     "layout": false,
     "exports": []
+  },
+  {
+    "path": "dc/panels/detail/components/CycleInfo",
+    "index": true,
+    "id": "dc/panels/detail/components/CycleInfo",
+    "file": "dc/panels/detail/components/CycleInfo/index.tsx",
+    "componentName": "dc-panels-detail-components-cycleinfo-index",
+    "layout": false,
+    "exports": [
+      "CycleInfo",
+      "default"
+    ]
   },
   {
     "path": "dc/panels/settings/pages/DateTestPage",
@@ -1395,19 +1491,27 @@
     "componentName": "dc-panels-detail-components-index",
     "layout": false,
     "exports": [
+      "ActivityRecordPanel",
       "CalendarViewPanel",
       "CheckInCyclePanel",
       "CheckInHistoryPanel",
       "CheckInModal",
       "CheckInRecordPanel",
       "ChecklistCyclePanel",
+      "CoffeeCupProgress",
+      "CycleInfo",
+      "DetailHeader",
       "GoalHeader",
       "HistoryCyclePanel",
       "HistoryRecordPanel",
+      "IceMeltProgress",
       "NumericCyclePanel",
       "ProgressSection",
       "RecordDataModal",
+      "SecondaryNav",
       "TabBar",
+      "TodayProgressBar",
+      "WaterCupProgress",
       "showCycleSummaryDialog"
     ]
   },

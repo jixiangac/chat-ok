@@ -1,4 +1,8 @@
-/* GoalDetailModal 样式 */
+/* GoalDetailModal 样式 - 咖啡杯视觉设计重构 */
+/* 参考设置界面风格 */
+
+/* 导入 CSS 变量 */
+@import './components/shared/variables.css';
 
 .popupBody {
   border-top-left-radius: 16px;
@@ -7,18 +11,264 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: #f5f5f5;
+  background: #f7f7f5;
 }
 
+/* ========== 页面栈容器 ========== */
+.pageStack {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  perspective: 1000px;
+}
+
+/* ========== 页面层级 ========== */
+.pageLayer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #f7f7f5;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: transform 0.4s ease-out, box-shadow 0.4s ease-out, opacity 0.4s ease-out;
+  will-change: transform, box-shadow, opacity;
+  /* 初始状态在右侧 */
+  transform: translateX(100%);
+}
+
+/* 当前活动页面 */
+.pageLayerActive {
+  transform: translateX(0);
+  z-index: 2;
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+}
+
+/* 背景页面 - 缩小并向左偏移 */
+.pageLayerBackground {
+  transform: scale(0.95) translateX(-5%);
+  z-index: 1;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  pointer-events: none;
+}
+
+/* 进入中的页面 - 从右侧滑入 */
+.pageLayerEntering {
+  z-index: 2;
+  transition: none;
+  animation: slideInFromRight 0.4s ease-out forwards;
+}
+
+/* 退出中的页面 - 向右滑出 */
+.pageLayerExiting {
+  z-index: 2;
+  transition: none;
+  animation: slideOutToRight 0.4s ease-in forwards;
+}
+
+/* 隐藏的页面 */
+.pageLayerHidden {
+  transform: scale(0.9) translateX(-10%);
+  z-index: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ========== 动画关键帧 ========== */
+@keyframes slideInFromRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+  }
+}
+
+@keyframes slideOutToRight {
+  from {
+    transform: translateX(0);
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+  }
+  to {
+    transform: translateX(100%);
+    box-shadow: none;
+  }
+}
+
+/* 移除 Tab 系统后的内容容器 */
+.contentContainer {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px 0;
+}
+
+/* 进度区域 - 咖啡杯/水杯/冰块 */
+.progressSection {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0 16px;
+  border-radius: 12px;
+  /* 扁平设计：不使用阴影 */
+}
+
+/* 今日进度条区域 */
+.todayProgressSection {
+  padding: 0 16px;
+}
+
+/* 周期信息区域 */
+.cycleInfoSection {
+  /* CycleInfo 组件自带样式 */
+}
+
+/* 二级入口区域 */
+.secondaryNavSection {
+  /* SecondaryNav 组件自带样式 */
+}
+
+/* 底部按钮容器 */
+.buttonContainer {
+  padding: 16px 20px;
+  background: white;
+  flex-shrink: 0;
+  border-top: 1px solid rgba(55, 53, 47, 0.06);
+}
+
+/* CTA 按钮 - 支持换肤 */
+.actionButton {
+  width: 100%;
+  height: 52px;
+  color: #fff;
+  border: none;
+  border-radius: 26px;
+  font-size: 16px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s;
+  background: var(--cta-orange, #F97316);
+}
+
+.actionButton:active {
+  transform: scale(0.98);
+  opacity: 0.9;
+}
+
+.actionButton:disabled {
+  background: #ccc !important;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.actionButton:not(:disabled) {
+  cursor: pointer;
+}
+
+/* 已完成状态按钮 */
+.actionButton.completed {
+  opacity: 0.7;
+}
+
+/* ========== 子页面头部 ========== */
+.subPageHeader {
+  padding: 12px 16px;
+  padding-top: calc(12px + env(safe-area-inset-top));
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+/* 返回按钮 */
+.backButton {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: rgb(55, 53, 47);
+  transition: all 0.2s;
+  margin-left: -8px;
+}
+
+.backButton:hover {
+  background: rgba(55, 53, 47, 0.06);
+}
+
+.backButton:active {
+  transform: scale(0.95);
+}
+
+/* 子页面标题居中 */
+.subPageTitle {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  color: rgb(55, 53, 47);
+  flex: 1;
+  text-align: center;
+}
+
+/* 右侧占位，保持标题居中 */
+.headerSpacer {
+  width: 40px;
+  height: 40px;
+  margin-right: -8px;
+}
+
+/* 进度徽章 */
+.progressBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 12px;
+  background: linear-gradient(135deg, #E8F0E8, #F1F1E8);
+  border-radius: 12px;
+  min-width: 50px;
+  margin-right: -8px;
+}
+
+.progressValue {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgb(55, 53, 47);
+}
+
+/* 子页面内容区域 */
+.subPageContent {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ========== 旧版 Tab 系统样式（保留兼容） ========== */
 .tabsContainer {
   display: flex;
   gap: 12px;
   padding: 8px 20px 8px;
   flex-shrink: 0;
   overflow-x: auto;
-  border-bottom: 1px dashed #ddd;
-  border-top: 1px dashed #ddd;
-  background: #fff;
+  border-bottom: 1px solid rgba(55, 53, 47, 0.06);
+  border-top: 1px solid rgba(55, 53, 47, 0.06);
+  background: white;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -34,53 +284,92 @@
   flex-shrink: 0;
   transition: all 0.3s;
   background: transparent;
-  color: #525252;
+  color: rgba(55, 53, 47, 0.65);
 }
 
 .tabActive {
-  background: #F5F5F5;
-  color: #141414;
+  background: rgba(55, 53, 47, 0.06);
+  color: rgb(55, 53, 47);
 }
 
-.contentContainer {
-  flex: 1;
-  overflow-y: auto;
-  background: #fff;
-  -webkit-overflow-scrolling: touch;
+/* 清单占位符 */
+.checklistPlaceholder {
+  padding: 20px;
+  text-align: center;
+  color: rgba(55, 53, 47, 0.5);
 }
 
-.buttonContainer {
-  padding: 16px 20px;
-  background: #fff;
-  flex-shrink: 0;
+/* ========== 计划结束总结视图 ========== */
+.summaryContainer {
+  padding: 24px 20px;
+  background: white;
+  margin: 0 16px;
+  border-radius: 12px;
 }
 
-.actionButton {
-  width: 100%;
-  height: 52px;
-  color: #fff;
-  border: none;
-  border-radius: 26px;
-  font-size: 16px;
-  font-weight: 600;
+.summaryHeader {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  transition: all 0.2s;
+  margin-bottom: 16px;
 }
 
-.actionButton:disabled {
-  background: #ccc;
-  cursor: not-allowed;
+.summaryIcon {
+  font-size: 28px;
 }
 
-.actionButton:not(:disabled) {
-  cursor: pointer;
+.summaryTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--coffee-dark, #6F4E37);
 }
 
-.checklistPlaceholder {
-  padding: 20px;
+.summaryStats {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px dashed #eee;
+}
+
+.statItem {
   text-align: center;
-  color: #999;
 }
+
+.statValue {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--coffee-dark, #6F4E37);
+}
+
+.statLabel {
+  font-size: 12px;
+  color: #999;
+  margin-top: 4px;
+}
+
+/* ========== 无障碍支持 ========== */
+@media (prefers-reduced-motion: reduce) {
+  .pageLayer {
+    animation: none !important;
+    transition: none !important;
+  }
+  
+  .pageLayerActive {
+    transform: translateX(0);
+  }
+  
+  .pageLayerBackground {
+    transform: scale(0.95) translateX(-5%);
+  }
+  
+  .pageLayerEntering {
+    transform: translateX(0);
+  }
+  
+  .pageLayerExiting {
+    transform: translateX(100%);
+  }
+}
+

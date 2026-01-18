@@ -1,0 +1,132 @@
+/* 详情页顶部栏样式 */
+/* 参考设置界面风格 */
+
+.container {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background: white;
+  border-bottom: 1px solid rgba(55, 53, 47, 0.06);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.closeButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  color: rgb(55, 53, 47);
+  transition: all 0.2s ease;
+}
+
+.closeButton:active {
+  background: rgba(55, 53, 47, 0.06);
+}
+
+.menuDropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 180px;
+  z-index: 100;
+  margin-top: 4px;
+}
+
+.menuItem {
+  padding: 12px 16px;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+}
+
+.menuItem:hover {
+  background: #f5f5f5;
+}
+
+.menuItem:active {
+  background: #ebebeb;
+}
+
+.menuItem:first-child {
+  border-radius: 8px 8px 0 0;
+}
+
+.menuItem:last-child {
+  border-radius: 0 0 8px 8px;
+}
+
+.menuItem:only-child {
+  border-radius: 8px;
+}
+
+.devTag {
+  margin-left: auto;
+  font-size: 11px;
+  color: #999;
+  background: #f0f0f0;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.titleSection {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 12px;
+  overflow: hidden;
+}
+
+.icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.title {
+  font-size: 17px;
+  font-weight: 600;
+  color: rgb(55, 53, 47);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rightActions {
+  display: flex;
+  gap: 12px;
+  position: relative;
+}
+
+.moreButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  color: rgb(55, 53, 47);
+  transition: all 0.2s ease;
+}
+
+.moreButton:active {
+  background: rgba(55, 53, 47, 0.06);
+}
+
+

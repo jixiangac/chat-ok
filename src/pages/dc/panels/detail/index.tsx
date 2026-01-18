@@ -1,30 +1,30 @@
 import { useState, useMemo, useRef, useCallback, useEffect } from 'react';
 import { Popup, Toast, SafeArea } from 'antd-mobile';
-import { FileText, Check, Archive, Clock, Hash } from 'lucide-react';
+import { FileText, Check, Archive, Clock, Hash, ChevronLeft } from 'lucide-react';
+import dayjs from 'dayjs';
 import { useTheme } from '../../contexts';
-import { DEFAULT_TABS, TAB_KEYS } from './constants';
+import { useTaskContext } from '../../contexts';
+import { useConfetti } from '../../hooks';
+import { getCurrentDate } from '../../utils';
+import { useSwipeBack } from '../settings/hooks';
 import {
-  GoalHeader,
-  NumericCyclePanel,
-  ChecklistCyclePanel,
-  CheckInCyclePanel,
-  HistoryRecordPanel,
-  HistoryCyclePanel,
-  CalendarViewPanel,
+  DetailHeader,
+  CoffeeCupProgress,
+  WaterCupProgress,
+  IceMeltProgress,
+  TodayProgressBar,
+  CycleInfo,
+  SecondaryNav,
   RecordDataModal,
   CheckInModal,
-  CheckInHistoryPanel
+  ActivityRecordPanel,
+  HistoryCyclePanel,
+  CalendarViewPanel
 } from './components';
-import { getSimulatedToday } from './hooks';
-import { useConfetti } from '../../hooks';
-import { useTaskContext } from '../../contexts';
-import { getTabsConfig, isCycleTab } from './utils';
+import SidelineTaskEditModal from '../../components/SidelineTaskEditModal';
 import type { GoalDetailModalProps, CurrentCycleInfo } from './types';
 import type { Category, Task } from '../../types';
-import SidelineTaskEditModal from '../../components/SidelineTaskEditModal';
 import styles from './GoalDetailModal.module.css';
-import dayjs from 'dayjs';
-import { getCurrentDate } from '../../utils';
 
 // 从 Task 构建 CurrentCycleInfo
 function buildCurrentCycleInfo(task: Task): CurrentCycleInfo {
@@ -60,8 +60,6 @@ function buildCurrentCycleInfo(task: Task): CurrentCycleInfo {
       .map(r => r.date);
   }
   
-  // 直接使用 task.progress.cycleAchieved，这是在 TaskProvider 中已经正确计算的周期打卡次数
-  // 对于 TIMES 类型，cycleAchieved 统计的是 entries 的总数量，而不是天数
   const checkInCount = progress.cycleAchieved || 0;
   
   return {
@@ -76,14 +74,15 @@ function buildCurrentCycleInfo(task: Task): CurrentCycleInfo {
   };
 }
 
+// 子页面类型
+type SubPageType = 'records' | 'history' | 'calendar' | null;
+
 export default function GoalDetailModal({ 
   visible, 
   taskId: propTaskId, 
   onClose,
   onDataChange
 }: GoalDetailModalProps) {
-  // ========== 所有 Hooks 必须在组件顶部，条件返回之前 ==========
-  
   const { 
     getTaskById,
     updateTask,
@@ -98,41 +97,74 @@ export default function GoalDetailModal({
     selectedTaskId
   } = useTaskContext();
   
-  // 优先使用传入的 taskId，否则使用上下文中的 selectedTaskId
   const taskId = propTaskId || selectedTaskId;
 
-  // 获取任务详情
   const task = useMemo(() => {
     if (!taskId) return null;
     return getTaskById(taskId);
   }, [taskId, getTaskById]);
 
-  console.log(task,'curtask')
+  console.log(task, 'curtask');
   
-  const [activeTab, setActiveTab] = useState<string>(TAB_KEYS.TARGETS);
   const [showRecordModal, setShowRecordModal] = useState(false);
   const [showCheckInModal, setShowCheckInModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [checkInLoading, setCheckInLoading] = useState(false);
+  
+  // 子页面状态
+  const [currentSubPage, setCurrentSubPage] = useState<SubPageType>(null);
+  const [subPageAnimating, setSubPageAnimating] = useState(false);
+  const [subPageExiting, setSubPageExiting] = useState(false);
+  
   const checkInButtonRef = useRef<HTMLButtonElement>(null);
+  const subPageRef = useRef<HTMLDivElement>(null);
   const { themeColors } = useTheme();
 
-  // 使用彩纸效果 hook
   const { triggerConfetti } = useConfetti(checkInButtonRef);
   
-  // 从 Task 构建当前周期信息
+  // 子页面手势返回
+  const { pageRef: swipeRef } = useSwipeBack({
+    onBack: () => handleSubPageClose(true),
+    enabled: currentSubPage !== null && !subPageAnimating,
+  });
+  
+  // 打开子页面
+  const handleSubPageOpen = useCallback((page: SubPageType) => {
+    setSubPageAnimating(true);
+    setCurrentSubPage(page);
+    setTimeout(() => setSubPageAnimating(false), 400);
+  }, []);
+  
+  // 关闭子页面
+  const handleSubPageClose = useCallback((skipAnimation?: boolean) => {
+    if (skipAnimation) {
+      setCurrentSubPage(null);
+      setSubPageAnimating(false);
+      setSubPageExiting(false);
+    } else {
+      setSubPageExiting(true);
+      setTimeout(() => {
+        setCurrentSubPage(null);
+        setSubPageAnimating(false);
+        setSubPageExiting(false);
+      }, 400);
+    }
+  }, []);
+  
+  // 重置子页面状态
+  useEffect(() => {
+    if (!visible) {
+      setCurrentSubPage(null);
+      setSubPageAnimating(false);
+      setSubPageExiting(false);
+    }
+  }, [visible]);
+  
   const currentCycle = useMemo(() => {
     if (!task) return null;
     return buildCurrentCycleInfo(task);
   }, [task]);
-
-  useEffect(() => {
-    if (task) { 
-      setActiveTab(DEFAULT_TABS[task.category]);
-    }
-  }, [task]);
   
-  // 直接使用 Task 中预计算的今日进度
   const todayProgress = task?.todayProgress;
   const todayCheckInStatus = useMemo(() => {
     if (!todayProgress) {
@@ -146,24 +178,36 @@ export default function GoalDetailModal({
     };
   }, [todayProgress]);
   
-  // 直接使用 Task 中预计算的 isPlanEnded
   const isPlanEnded = task?.isPlanEnded ?? false;
-  
-  // 任务类型判断（直接使用 category 字段）
   const taskCategory: Category = task?.category ?? 'CHECK_IN';
   
-  // tabs 配置
-  const tabs = useMemo(() => {
-    return getTabsConfig(taskCategory, isPlanEnded);
-  }, [taskCategory, isPlanEnded]);
-  
-  // 总打卡次数（从 checkInConfig.records 计算）
-  const totalCheckIns = useMemo(() => {
-    if (!task?.checkInConfig?.records) return 0;
-    return task.checkInConfig.records
-      .filter(r => r.checked)
-      .reduce((sum, r) => sum + (r.entries?.length || 1), 0);
+  // 计算周期进度百分比
+  const cycleProgress = useMemo(() => {
+    if (!task) return 0;
+    return task.progress.cyclePercentage || 0;
   }, [task]);
+
+  // 计算总目标进度
+  const totalProgress = useMemo(() => {
+    if (!task) return 0;
+    return task.progress.totalPercentage || 0;
+  }, [task]);
+
+  // 计算今日进度百分比
+  const todayProgressPercent = useMemo(() => {
+    if (!todayProgress) return 0;
+    const { todayValue, dailyTarget } = todayProgress;
+    if (!dailyTarget || dailyTarget === 0) return 0;
+    return Math.min(100, (todayValue / dailyTarget) * 100);
+  }, [todayProgress]);
+
+  // 计算当前是周期第几天
+  const currentDayInCycle = useMemo(() => {
+    if (!currentCycle || !task) return 1;
+    const today = dayjs(getCurrentDate());
+    const cycleStart = dayjs(currentCycle.startDate);
+    return Math.max(1, today.diff(cycleStart, 'day') + 1);
+  }, [currentCycle, task]);
   
   // 提交打卡
   const handleCheckInSubmit = useCallback(async (value?: number, note?: string) => {
@@ -221,25 +265,7 @@ export default function GoalDetailModal({
     } finally {
       setCheckInLoading(false);
     }
-  }, [taskId, taskRecordNumericData, triggerConfetti, refreshTasks, onDataChange]);
-  
-  // 处理清单项更新
-  const handleUpdateProgress = useCallback(async (itemId: string) => {
-    if (!taskId) return;
-    setCheckInLoading(true);
-    try {
-      const success = await taskUpdateChecklistItem(taskId, itemId, { status: 'COMPLETED' });
-      if (success) {
-        Toast.show({ icon: 'success', content: '更新成功！' });
-        refreshTasks();
-        // onDataChange?.();
-      } else {
-        Toast.show({ icon: 'fail', content: '更新失败，请重试' });
-      }
-    } finally {
-      setCheckInLoading(false);
-    }
-  }, [taskId, taskUpdateChecklistItem, refreshTasks, onDataChange]);
+  }, [taskId, taskRecordNumericData, triggerConfetti, refreshTasks]);
   
   // 处理归档
   const handleArchive = useCallback(async () => {
@@ -286,10 +312,6 @@ export default function GoalDetailModal({
       onDataChange?.();
     }
   }, [taskId, taskEndPlanEarly, refreshTasks, onDataChange]);
-  
-  const handleConvertToSideline = useCallback(() => {
-    Toast.show({ content: '功能开发中...' });
-  }, []);
 
   // 处理编辑
   const handleEdit = useCallback(() => {
@@ -332,63 +354,123 @@ export default function GoalDetailModal({
   const isCheckInButtonDisabled = useMemo(() => {
     if (isPlanEnded) return false;
     if (taskCategory !== 'CHECK_IN') return false;
-    if ( taskCategory === 'CHECK_IN' && task?.checkInConfig?.unit === "DURATION" ) {
+    if (taskCategory === 'CHECK_IN' && task?.checkInConfig?.unit === "DURATION") {
       return false;
     }
     return todayCheckInStatus.isCompleted;
-  }, [isPlanEnded, taskCategory, todayCheckInStatus.isCompleted]);
+  }, [isPlanEnded, taskCategory, todayCheckInStatus.isCompleted, task]);
   
   // 底部按钮点击处理
   const buttonHandler = useMemo(() => {
     if (isPlanEnded) return handleArchive;
     switch (taskCategory) {
       case 'NUMERIC': return handleRecordData;
-      case 'CHECKLIST': return () => handleUpdateProgress('');
+      case 'CHECKLIST': return () => {}; // TODO: 清单类型处理
       case 'CHECK_IN':
       default: return handleCheckInClick;
     }
-  }, [isPlanEnded, taskCategory, handleArchive, handleRecordData, handleUpdateProgress, handleCheckInClick]);
-  
-  // 内容渲染
-  const renderedContent = useMemo(() => {
+  }, [isPlanEnded, taskCategory, handleArchive, handleRecordData, handleCheckInClick]);
+
+  // 渲染进度可视化组件
+  const renderProgressVisual = () => {
     if (!task || !currentCycle) return null;
-    
+
     switch (taskCategory) {
-      case 'NUMERIC':
-        if (activeTab === 'targets') {
-          return <NumericCyclePanel goal={task} cycle={currentCycle} onRecordData={handleRecordData} />;
+      case 'NUMERIC': {
+        const numericConfig = task.numericConfig;
+        const direction = numericConfig?.direction || 'INCREASE';
+        const currentValue = numericConfig?.currentValue || 0;
+        const targetValue = numericConfig?.targetValue || 0;
+        const unit = numericConfig?.unit || '';
+
+        if (direction === 'DECREASE') {
+          return (
+            <IceMeltProgress
+              progress={cycleProgress}
+              currentValue={currentValue}
+              targetValue={targetValue}
+              unit={unit}
+              animate
+              size="large"
+            />
+          );
         }
-        if (activeTab === 'records') {
-          return <HistoryRecordPanel goal={task as any} />;
-        }
-        if (activeTab === 'history') {
-          return <HistoryCyclePanel goal={task as any} />;
-        }
-        return null;
-      case 'CHECKLIST':
-        if (activeTab === 'current' || activeTab === 'cycle') {
-          return <ChecklistCyclePanel goal={task as any} cycle={currentCycle} onUpdateProgress={handleUpdateProgress} />;
-        }
-        return <div className={styles.checklistPlaceholder}>清单视图开发中...</div>;
+        return (
+          <WaterCupProgress
+            progress={cycleProgress}
+            currentValue={currentValue}
+            targetValue={targetValue}
+            unit={unit}
+            animate
+            size="large"
+          />
+        );
+      }
       case 'CHECK_IN':
+      default: {
+        const config = task.checkInConfig;
+        const unit = config?.unit === 'DURATION' ? '分钟' : 
+                     config?.unit === 'QUANTITY' ? (config?.valueUnit || '个') : '次';
+        return (
+          <CoffeeCupProgress
+            progress={cycleProgress}
+            currentValue={currentCycle.checkInCount}
+            targetValue={currentCycle.requiredCheckIns}
+            unit={unit}
+            animate
+            size="large"
+          />
+        );
+      }
+    }
+  };
+
+  // 渲染今日进度条
+  const renderTodayProgress = () => {
+    if (!task || !todayProgress) return null;
+
+    const config = task.checkInConfig;
+    const unit = config?.unit === 'DURATION' ? '分钟' : 
+                 config?.unit === 'QUANTITY' ? (config?.valueUnit || '个') : '次';
+
+    return (
+      <TodayProgressBar
+        progress={todayProgressPercent}
+        currentValue={todayProgress.todayValue}
+        targetValue={todayProgress.dailyTarget || 1}
+        unit={unit}
+        isCompleted={todayCheckInStatus.isCompleted}
+      />
+    );
+  };
+  
+  // 渲染子页面内容
+  const renderSubPageContent = () => {
+    if (!task) return null;
+    
+    switch (currentSubPage) {
+      case 'records':
+        return <ActivityRecordPanel goal={task} />;
+      case 'history':
+        return <HistoryCyclePanel goal={task as any} />;
+      case 'calendar':
+        return <CalendarViewPanel goal={task as any} />;
       default:
-        if (activeTab === 'cycle') {
-          return <CheckInCyclePanel goal={task as any} cycle={currentCycle} />;
-        }
-        if (activeTab === 'calendar') {
-          return <CalendarViewPanel goal={task as any} />;
-        }
-        if (activeTab === 'history') {
-          return <CheckInHistoryPanel goal={task as any} />;
-        }
         return null;
     }
-  }, [taskCategory, activeTab, task, currentCycle, handleRecordData, handleUpdateProgress]);
+  };
   
-  // 数据准备状态
+  // 获取子页面标题
+  const getSubPageTitle = () => {
+    switch (currentSubPage) {
+      case 'records': return '变动记录';
+      case 'history': return '周期计划';
+      case 'calendar': return '日历视图';
+      default: return '';
+    }
+  };
+  
   const isDataReady = task && currentCycle;
-  
-  // ========== 渲染 ==========
   
   return (
     <Popup
@@ -399,96 +481,151 @@ export default function GoalDetailModal({
       bodyClassName={styles.popupBody}
     >
       {isDataReady ? (
-        <>
-          <GoalHeader 
-            goal={task as any} 
-            onClose={onClose}
-            currentCheckIns={currentCycle.checkInCount}
-            requiredCheckIns={currentCycle.requiredCheckIns}
-            totalCheckIns={totalCheckIns}
-            totalCycles={task.cycle.totalCycles}
-            currentCycle={currentCycle.cycleNumber}
-            remainingDays={currentCycle.remainingDays}
-            isPlanEnded={isPlanEnded}
-            onDebugNextDay={handleDebugNextDay}
-            onDebugNextCycle={handleDebugNextCycle}
-            onEndPlanEarly={handleEndPlanEarly}
-            onConvertToSideline={handleConvertToSideline}
-            onEdit={handleEdit}
-          />
-          
-          <div className={styles.tabsContainer}>
-            {tabs.map(tab => (
-              <div
-                key={tab.key}
-                onClick={() => setActiveTab(tab.key)}
-                className={`${styles.tab} ${activeTab === tab.key ? styles.tabActive : ''}`}
-              >
-                {tab.label}
+        <div className={styles.pageStack}>
+          {/* 主页面 */}
+          <div className={`${styles.pageLayer} ${currentSubPage ? styles.pageLayerBackground : styles.pageLayerActive}`}>
+            {/* 顶部栏 */}
+            <DetailHeader
+              title={task.title}
+              icon={task.icon}
+              taskId={taskId || undefined}
+              onClose={onClose}
+              onEdit={handleEdit}
+              onArchive={handleArchive}
+              onDebugNextDay={handleDebugNextDay}
+              onDebugNextCycle={handleDebugNextCycle}
+              onEndPlanEarly={handleEndPlanEarly}
+              isPlanEnded={isPlanEnded}
+            />
+            
+            {/* 内容区域 */}
+            <div className={styles.contentContainer}>
+              {/* 周期进度可视化（咖啡杯/水杯/冰块） */}
+              <div className={styles.progressSection}>
+                {renderProgressVisual()}
               </div>
-            ))}
-          </div>
-          
-          <div className={styles.contentContainer}>
-            {renderedContent}
-          </div>
-          
-          {isCycleTab(activeTab) && task.status !== 'ARCHIVED' && task.status !== 'ARCHIVED_HISTORY' && (<>
-            <div className={styles.buttonContainer}>
-              <button
-                ref={checkInButtonRef}
-                onClick={buttonHandler}
-                disabled={checkInLoading || isCheckInButtonDisabled}
-                className={styles.actionButton}
-                style={{ background: (checkInLoading || isCheckInButtonDisabled) ? undefined : themeColors.primary }}
-              >
-                {checkInLoading ? '处理中...' : buttonText}
-              </button>
+              
+              {/* 今日进度条 */}
+              {!isPlanEnded && taskCategory === 'CHECK_IN' && (
+                <div className={styles.todayProgressSection}>
+                  {renderTodayProgress()}
+                </div>
+              )}
+              
+              {/* 周期信息 */}
+              <CycleInfo
+                currentCycle={currentCycle.cycleNumber}
+                totalCycles={currentCycle.totalCycles}
+                remainingDays={currentCycle.remainingDays}
+                startDate={currentCycle.startDate}
+                endDate={currentCycle.endDate}
+                cycleDays={task.cycle.cycleDays}
+                currentDay={currentDayInCycle}
+              />
+              
+              {/* 二级入口 */}
+              <SecondaryNav
+                taskType={taskCategory}
+                onRecordsClick={() => handleSubPageOpen('records')}
+                onHistoryClick={() => handleSubPageOpen('history')}
+                onCalendarClick={() => handleSubPageOpen('calendar')}
+              />
             </div>
-            <SafeArea position="bottom" />
-          </>)}
+            
+            {/* 底部按钮 */}
+            {task.status !== 'ARCHIVED' && task.status !== 'ARCHIVED_HISTORY' && (
+              <>
+                <div className={styles.buttonContainer}>
+                  <button
+                    ref={checkInButtonRef}
+                    onClick={buttonHandler}
+                    disabled={checkInLoading || isCheckInButtonDisabled}
+                    className={`${styles.actionButton} ${todayCheckInStatus.isCompleted ? styles.completed : ''}`}
+                    style={{ background: themeColors?.primary || undefined }}
+                  >
+                    {checkInLoading ? '处理中...' : buttonText}
+                  </button>
+                </div>
+                <SafeArea position="bottom" />
+              </>
+            )}
+          </div>
           
-          {taskCategory === 'NUMERIC' && task.numericConfig && (
-            <RecordDataModal
-              visible={showRecordModal}
-              onClose={() => setShowRecordModal(false)}
-              onSubmit={handleRecordSubmit}
-              currentValue={task.numericConfig.currentValue}
-              unit={task.numericConfig.unit}
-              direction={task.numericConfig.direction}
-              loading={checkInLoading}
-            />
+          {/* 子页面 */}
+          {currentSubPage && (
+            <div 
+              ref={swipeRef}
+              className={`${styles.pageLayer} ${subPageExiting ? styles.pageLayerExiting : subPageAnimating ? styles.pageLayerEntering : styles.pageLayerActive}`}
+            >
+              {/* 子页面头部 */}
+              <div className={styles.subPageHeader}>
+                <button className={styles.backButton} onClick={() => handleSubPageClose()}>
+                  <ChevronLeft size={24} />
+                </button>
+                <h2 className={styles.subPageTitle}>{getSubPageTitle()}</h2>
+                {currentSubPage === 'history' ? (
+                  <div className={styles.progressBadge}>
+                    <span className={styles.progressValue}>{Math.round(totalProgress)}%</span>
+                  </div>
+                ) : (
+                  <div className={styles.headerSpacer} />
+                )}
+              </div>
+              
+              {/* 子页面内容 */}
+              <div className={styles.subPageContent}>
+                {renderSubPageContent()}
+              </div>
+            </div>
           )}
-          
-          {taskCategory === 'CHECK_IN' && task.checkInConfig && (
-            <CheckInModal
-              visible={showCheckInModal}
-              onClose={() => setShowCheckInModal(false)}
-              onSubmit={handleCheckInSubmit}
-              unit={task.checkInConfig.unit || 'TIMES'}
-              loading={checkInLoading}
-              quickDurations={task.checkInConfig.quickDurations || [5, 10, 15]}
-              dailyTargetMinutes={task.checkInConfig.dailyTargetMinutes || 15}
-              valueUnit={task.checkInConfig.valueUnit || '个'}
-              dailyTargetValue={task.checkInConfig.dailyTargetValue || 0}
-              todayValue={todayCheckInStatus.todayValue}
-            />
-          )}
-
-          {/* 编辑弹窗 */}
-          <SidelineTaskEditModal
-            visible={showEditModal}
-            task={task}
-            onSave={handleEditSave}
-            onClose={() => setShowEditModal(false)}
-          />
-        </>
+        </div>
       ) : (
         <div style={{ padding: 20, textAlign: 'center', color: '#999' }}>
           加载中...
         </div>
       )}
+      
+      {/* 数值记录弹窗 */}
+      {taskCategory === 'NUMERIC' && task?.numericConfig && (
+        <RecordDataModal
+          visible={showRecordModal}
+          onClose={() => setShowRecordModal(false)}
+          onSubmit={handleRecordSubmit}
+          currentValue={task.numericConfig.currentValue}
+          unit={task.numericConfig.unit}
+          direction={task.numericConfig.direction}
+          loading={checkInLoading}
+        />
+      )}
+      
+      {/* 打卡弹窗 */}
+      {taskCategory === 'CHECK_IN' && task?.checkInConfig && (
+        <CheckInModal
+          visible={showCheckInModal}
+          onClose={() => setShowCheckInModal(false)}
+          onSubmit={handleCheckInSubmit}
+          unit={task.checkInConfig.unit || 'TIMES'}
+          loading={checkInLoading}
+          quickDurations={task.checkInConfig.quickDurations || [5, 10, 15]}
+          dailyTargetMinutes={task.checkInConfig.dailyTargetMinutes || 15}
+          valueUnit={task.checkInConfig.valueUnit || '个'}
+          dailyTargetValue={task.checkInConfig.dailyTargetValue || 0}
+          todayValue={todayCheckInStatus.todayValue}
+        />
+      )}
+
+      {/* 编辑弹窗 */}
+      {task && (
+        <SidelineTaskEditModal
+          visible={showEditModal}
+          task={task}
+          onSave={handleEditSave}
+          onClose={() => setShowEditModal(false)}
+        />
+      )}
     </Popup>
   );
 }
+
+
 

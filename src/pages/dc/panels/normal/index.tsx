@@ -46,8 +46,7 @@ const NormalPanel = forwardRef<NormalPanelRef, NormalPanelProps>((props, ref) =>
     setSelectedGroupTasks(tasks);
     setShowGroupDetail(true);
   };
-  
-  console.log(sidelineTasks,'sidelineTasks')
+
 
   // 切换视图模式
   const toggleViewMode = () => {

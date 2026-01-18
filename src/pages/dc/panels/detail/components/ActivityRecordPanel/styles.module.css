@@ -1,0 +1,112 @@
+/* 变动记录面板样式 */
+/* 参考设置界面风格 */
+
+.container {
+  padding: 16px;
+  min-height: 200px;
+}
+
+.listContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.recordItem {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  background: white;
+  border-radius: 12px;
+}
+
+.recordIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: rgba(55, 53, 47, 0.06);
+  border-radius: 10px;
+  color: rgb(55, 53, 47);
+  flex-shrink: 0;
+}
+
+.recordIcon.positive {
+  background: rgba(34, 197, 94, 0.1);
+  color: #22C55E;
+}
+
+.recordIcon.negative {
+  background: rgba(239, 68, 68, 0.1);
+  color: #EF4444;
+}
+
+.recordContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.recordMain {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.recordValue {
+  font-size: 16px;
+  font-weight: 600;
+  color: rgb(55, 53, 47);
+}
+
+.recordTime {
+  font-size: 13px;
+  color: rgba(55, 53, 47, 0.5);
+}
+
+.recordChange {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.recordChange.positive {
+  color: #22C55E;
+}
+
+.recordChange.negative {
+  color: #EF4444;
+}
+
+.recordNote {
+  font-size: 13px;
+  color: rgba(55, 53, 47, 0.65);
+  margin-bottom: 4px;
+  line-height: 1.4;
+}
+
+.recordDate {
+  font-size: 12px;
+  color: rgba(55, 53, 47, 0.4);
+}
+
+/* 空状态 */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+}
+
+.emptyIcon {
+  width: 120px;
+  height: auto;
+  opacity: 0.6;
+  margin-bottom: 16px;
+}
+
+.emptyHint {
+  font-size: 14px;
+  color: rgba(55, 53, 47, 0.5);
+}

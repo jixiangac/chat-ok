@@ -1,0 +1,155 @@
+/* 奶油风今日进度条样式 - Soft UI Evolution 风格 */
+/* 参考设置界面风格 */
+
+.container {
+  width: 100%;
+  padding: 0 20px;
+}
+
+.labelRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.label {
+  font-size: 14px;
+  color: rgba(55, 53, 47, 0.65);
+  font-weight: 500;
+}
+
+.value {
+  font-size: 14px;
+  color: rgb(55, 53, 47);
+  font-weight: 600;
+}
+
+/* 进度条轨道 */
+.progressTrack {
+  width: 100%;
+  height: 24px;
+  background: rgba(55, 53, 47, 0.06);
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 
+    inset 2px 2px 4px rgba(0, 0, 0, 0.05),
+    inset -2px -2px 4px rgba(255, 255, 255, 0.8);
+}
+
+/* 进度条填充 */
+.progressFill {
+  height: 100%;
+  min-width: 24px;
+  background: linear-gradient(90deg, #B9C9B9, #A8B8A8);
+  border-radius: 12px;
+  position: relative;
+  transition: width var(--duration-water-rise, 600ms) ease-out;
+  box-shadow: 
+    2px 0 8px rgba(55, 53, 47, 0.1),
+    inset 0 2px 4px rgba(255, 255, 255, 0.5);
+}
+
+.progressFill.completed {
+  background: linear-gradient(90deg, #A8B8A8, #98A898);
+}
+
+/* 波浪效果 */
+.wave {
+  position: absolute;
+  right: -10px;
+  top: 0;
+  width: 20px;
+  height: 100%;
+  color: #B9C9B9;
+  animation: waveMove var(--duration-wave, 1.5s) ease-in-out infinite;
+}
+
+@keyframes waveMove {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(3px);
+  }
+}
+
+/* 奶油滴落效果 */
+.dripContainer {
+  position: absolute;
+  right: 8px;
+  bottom: -8px;
+  width: 8px;
+  height: 16px;
+  overflow: visible;
+}
+
+.drip {
+  width: 6px;
+  height: 6px;
+  background: #B9C9B9;
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  position: absolute;
+  top: 0;
+  left: 1px;
+  animation: dripFall var(--duration-drip, 400ms) ease-in infinite;
+  box-shadow: 0 2px 4px rgba(55, 53, 47, 0.1);
+}
+
+@keyframes dripFall {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translateY(6px) scale(0.9);
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(12px) scale(0.7);
+    opacity: 0;
+  }
+}
+
+/* 完成徽章 */
+.completedBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #E8F0E8, #F1F1E8);
+  border-radius: 20px;
+  box-shadow: 
+    0 2px 8px rgba(55, 53, 47, 0.08),
+    inset 0 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+.completedIcon {
+  font-size: 16px;
+}
+
+.completedText {
+  font-size: 13px;
+  color: rgb(55, 53, 47);
+  font-weight: 500;
+}
+
+/* 无障碍支持 */
+@media (prefers-reduced-motion: reduce) {
+  .wave {
+    animation: none;
+  }
+  
+  .drip {
+    animation: none;
+    opacity: 0.6;
+  }
+  
+  .progressFill {
+    transition: none;
+  }
+}
+

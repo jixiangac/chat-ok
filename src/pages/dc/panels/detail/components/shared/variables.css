@@ -1,0 +1,52 @@
+/* 咖啡杯视觉设计 - CSS 变量定义 */
+
+:root {
+  /* 咖啡色系 */
+  --coffee-dark: #6F4E37;
+  --coffee-medium: #8B7355;
+  --coffee-light: #C4A484;
+  --coffee-foam: #F5E6D3;
+  
+  /* 奶油色系 */
+  --cream-light: #FFFEF5;
+  --cream-bg: #FFF8F0;
+  
+  /* 水/冰色系 */
+  --water-blue: #87CEEB;
+  --water-blue-light: #B8E0FF;
+  --ice-blue: #E0F4FF;
+  
+  /* 页面背景色 */
+  --bg-page: #F8FAFC;
+  --bg-card: #FFFFFF;
+  
+  /* CTA 按钮 */
+  --cta-orange: #F97316;
+  --cta-orange-hover: #EA580C;
+  
+  /* Neumorphism 阴影 */
+  --shadow-neumorphism-light: -5px -5px 15px #fff;
+  --shadow-neumorphism-dark: 5px 5px 15px rgba(0, 0, 0, 0.1);
+  
+  /* 动画时长 */
+  --duration-water-rise: 600ms;
+  --duration-steam: 2s;
+  --duration-wave: 1.5s;
+  --duration-drip: 400ms;
+  --duration-bubble: 2s;
+  --duration-crack: 300ms;
+  --duration-drop: 500ms;
+}
+
+/* 无障碍支持 - 减少动画 */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-water-rise: 0ms;
+    --duration-steam: 0ms;
+    --duration-wave: 0ms;
+    --duration-drip: 0ms;
+    --duration-bubble: 0ms;
+    --duration-crack: 0ms;
+    --duration-drop: 0ms;
+  }
+}

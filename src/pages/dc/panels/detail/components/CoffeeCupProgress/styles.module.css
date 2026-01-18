@@ -1,0 +1,207 @@
+/* 咖啡杯进度组件样式 - Neumorphism 风格 */
+/* 参考设置界面风格 */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 20px;
+}
+
+/* 尺寸变体 */
+.small {
+  --cup-width: 80px;
+  --cup-height: 70px;
+}
+
+.medium {
+  --cup-width: 120px;
+  --cup-height: 100px;
+}
+
+.large {
+  --cup-width: 160px;
+  --cup-height: 130px;
+}
+
+/* 蒸汽容器 */
+.steamContainer {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: var(--cup-width);
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  pointer-events: none;
+}
+
+/* 蒸汽曲线 */
+.steam {
+  width: 3px;
+  height: 40px;
+  background: linear-gradient(
+    to top,
+    rgba(200, 200, 200, 0.4),
+    rgba(200, 200, 200, 0)
+  );
+  border-radius: 50%;
+  animation: steamFloat var(--duration-steam, 2s) ease-in-out infinite;
+}
+
+.steam1 {
+  animation-delay: 0s;
+}
+
+.steam2 {
+  animation-delay: 0.3s;
+  height: 35px;
+}
+
+.steam3 {
+  animation-delay: 0.6s;
+  height: 30px;
+}
+
+@keyframes steamFloat {
+  0%, 100% {
+    transform: translateY(0) scaleX(1);
+    opacity: 0.4;
+  }
+  50% {
+    transform: translateY(-10px) scaleX(1.2);
+    opacity: 0.2;
+  }
+}
+
+/* 杯子包装器 */
+.cupWrapper {
+  position: relative;
+  margin-top: 30px;
+}
+
+/* 杯身 - Neumorphism 效果 */
+.cup {
+  width: var(--cup-width);
+  height: var(--cup-height);
+  background: linear-gradient(145deg, #ffffff, #f7f7f5);
+  border-radius: 8px 8px 16px 16px;
+  box-shadow: 
+    var(--shadow-neumorphism-light, -5px -5px 15px #fff),
+    var(--shadow-neumorphism-dark, 5px 5px 15px rgba(0, 0, 0, 0.1));
+  position: relative;
+  overflow: hidden;
+  /* 杯口略宽 */
+  border-top: 3px solid #e8e8e8;
+}
+
+/* 咖啡液体 */
+.coffee {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  border-radius: 0 0 12px 12px;
+  transition: height var(--duration-water-rise, 600ms) ease-out;
+}
+
+.coffee.animating {
+  transition: height var(--duration-water-rise, 600ms) ease-out;
+}
+
+/* 泡沫层 */
+.foam {
+  position: absolute;
+  top: -8px;
+  left: 0;
+  right: 0;
+  height: 10px;
+  overflow: hidden;
+}
+
+.foamWave {
+  width: 100%;
+  height: 100%;
+}
+
+/* 杯把手 - C 形曲线 */
+.handle {
+  position: absolute;
+  right: -18px;
+  top: 20%;
+  width: 20px;
+  height: 40%;
+  border: 4px solid transparent;
+  border-right-color: #e8e8e8;
+  border-radius: 0 20px 20px 0;
+  box-shadow: 
+    3px 0 8px rgba(55, 53, 47, 0.08),
+    inset -2px 0 4px rgba(255, 255, 255, 0.5);
+  background: linear-gradient(90deg, #f5f5f5, #ffffff);
+  background-clip: padding-box;
+}
+
+/* 杯底盘 */
+.saucer {
+  position: absolute;
+  bottom: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(var(--cup-width) + 30px);
+  height: 12px;
+  background: linear-gradient(145deg, #ffffff, #f7f7f5);
+  border-radius: 50%;
+  box-shadow: 
+    0 4px 8px rgba(55, 53, 47, 0.08),
+    inset 0 2px 4px rgba(255, 255, 255, 0.8);
+}
+
+/* 进度文字 */
+.progressText {
+  margin-top: 24px;
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.currentValue {
+  font-size: 32px;
+  font-weight: 700;
+  color: rgb(55, 53, 47);
+}
+
+.separator {
+  font-size: 20px;
+  color: #999;
+  margin: 0 2px;
+}
+
+.targetValue {
+  font-size: 20px;
+  font-weight: 500;
+  color: rgba(55, 53, 47, 0.65);
+}
+
+.unit {
+  font-size: 14px;
+  color: rgba(55, 53, 47, 0.5);
+  margin-left: 4px;
+}
+
+/* 无障碍支持 */
+@media (prefers-reduced-motion: reduce) {
+  .steam {
+    animation: none;
+    opacity: 0.3;
+  }
+  
+  .coffee {
+    transition: none;
+  }
+}
+

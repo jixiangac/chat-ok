@@ -24,6 +24,7 @@ import * as dc_components_CreateGoalModal_components_IconSelector from '@/pages/
 import * as dc_components_CreateGoalModal_components_PopularGoals from '@/pages/dc/components/CreateGoalModal/components/PopularGoals';
 import * as dc_components_CreateGoalModal_components_WarningAlert from '@/pages/dc/components/CreateGoalModal/components/WarningAlert';
 import * as dc_components_CreateMainlineTaskModal_steps_CycleStep from '@/pages/dc/components/CreateMainlineTaskModal/steps/CycleStep';
+import * as dc_panels_detail_components_ActivityRecordPanel from '@/pages/dc/panels/detail/components/ActivityRecordPanel/index';
 import * as dc_panels_detail_components_CheckInHistoryPanel from '@/pages/dc/panels/detail/components/CheckInHistoryPanel/index';
 import * as dc_panels_detail_components_ChecklistCyclePanel from '@/pages/dc/panels/detail/components/ChecklistCyclePanel/index';
 import * as dc_panels_settings_components_BottomFixedButton from '@/pages/dc/panels/settings/components/BottomFixedButton/index';
@@ -36,11 +37,15 @@ import * as dc_panels_settings_components_SettingsListItem from '@/pages/dc/pane
 import * as dc_panels_settings_pages_TodayMustCompletePage from '@/pages/dc/panels/settings/pages/TodayMustCompletePage/index';
 import * as dc_panels_detail_components_CalendarViewPanel from '@/pages/dc/panels/detail/components/CalendarViewPanel/index';
 import * as dc_panels_detail_components_CheckInCyclePanel from '@/pages/dc/panels/detail/components/CheckInCyclePanel/index';
+import * as dc_panels_detail_components_CoffeeCupProgress from '@/pages/dc/panels/detail/components/CoffeeCupProgress/index';
 import * as dc_panels_detail_components_HistoryCyclePanel from '@/pages/dc/panels/detail/components/HistoryCyclePanel/index';
 import * as dc_panels_detail_components_NumericCyclePanel from '@/pages/dc/panels/detail/components/NumericCyclePanel/index';
 import * as dc_panels_settings_components_SettingsSection from '@/pages/dc/panels/settings/components/SettingsSection/index';
+import * as dc_panels_detail_components_TodayProgressBar from '@/pages/dc/panels/detail/components/TodayProgressBar/index';
+import * as dc_panels_detail_components_WaterCupProgress from '@/pages/dc/panels/detail/components/WaterCupProgress/index';
 import * as dc_panels_memorial_components_MemorialDetail from '@/pages/dc/panels/memorial/components/MemorialDetail/index';
 import * as dc_components_CreateMainlineTaskModal_steps from '@/pages/dc/components/CreateMainlineTaskModal/steps/index';
+import * as dc_panels_detail_components_IceMeltProgress from '@/pages/dc/panels/detail/components/IceMeltProgress/index';
 import * as dc_panels_detail_components_ProgressSection from '@/pages/dc/panels/detail/components/ProgressSection/index';
 import * as dc_panels_detail_components_RecordDataModal from '@/pages/dc/panels/detail/components/RecordDataModal/index';
 import * as dc_panels_happy_components_TripSummaryModal from '@/pages/dc/panels/happy/components/TripSummaryModal/index';
@@ -56,6 +61,8 @@ import * as dc_components_CreateMainlineTaskModal_constants from '@/pages/dc/com
 import * as dc_panels_settings_pages_SettingsMainPage from '@/pages/dc/panels/settings/pages/SettingsMainPage/index';
 import * as dc_components_CreateGoalModal_components from '@/pages/dc/components/CreateGoalModal/components/index';
 import * as dc_panels_detail_components_CheckInModal from '@/pages/dc/panels/detail/components/CheckInModal/index';
+import * as dc_panels_detail_components_DetailHeader from '@/pages/dc/panels/detail/components/DetailHeader/index';
+import * as dc_panels_detail_components_SecondaryNav from '@/pages/dc/panels/detail/components/SecondaryNav/index';
 import * as dc_panels_memorial_components_IconPicker from '@/pages/dc/panels/memorial/components/IconPicker/index';
 import * as dc_panels_settings_pages_TagSettingsPage from '@/pages/dc/panels/settings/pages/TagSettingsPage/index';
 import * as dc_panels_happy_components_AddGoalModal from '@/pages/dc/panels/happy/components/AddGoalModal/index';
@@ -66,6 +73,7 @@ import * as dc_panels_happy_components_TripList_TripCard from '@/pages/dc/panels
 import * as dc_viewmodel_CreateTaskModal_steps_CycleStep from '@/pages/dc/viewmodel/CreateTaskModal/steps/CycleStep';
 import * as dc_components_CreateMainlineTaskModal from '@/pages/dc/components/CreateMainlineTaskModal/index';
 import * as dc_components_CreateMainlineTaskModal_types from '@/pages/dc/components/CreateMainlineTaskModal/types';
+import * as dc_panels_detail_components_CycleInfo from '@/pages/dc/panels/detail/components/CycleInfo/index';
 import * as dc_panels_settings_pages_DateTestPage from '@/pages/dc/panels/settings/pages/DateTestPage/index';
 import * as dc_viewmodel_CreateTaskModal_steps_TypeStep from '@/pages/dc/viewmodel/CreateTaskModal/steps/TypeStep';
 import * as dc_components_SidelineTaskEditModal from '@/pages/dc/components/SidelineTaskEditModal/index';
@@ -830,6 +838,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["default"],
   },{
+    path: 'dc/panels/detail/components/ActivityRecordPanel',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_detail_components_ActivityRecordPanel,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/detail/components/ActivityRecordPanel',
+          isLayout: false,
+          routeExports: dc_panels_detail_components_ActivityRecordPanel,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/detail/components/ActivityRecordPanel',
+          requestContext,
+          renderMode,
+          module: dc_panels_detail_components_ActivityRecordPanel,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-detail-components-activityrecordpanel-index',
+    index: true,
+    id: 'dc/panels/detail/components/ActivityRecordPanel',
+    exact: true,
+    exports: ["ActivityRecordPanel","default"],
+  },{
     path: 'dc/panels/detail/components/CheckInHistoryPanel',
     async lazy() {
       ;
@@ -1130,6 +1163,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["default"],
   },{
+    path: 'dc/panels/detail/components/CoffeeCupProgress',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_detail_components_CoffeeCupProgress,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/detail/components/CoffeeCupProgress',
+          isLayout: false,
+          routeExports: dc_panels_detail_components_CoffeeCupProgress,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/detail/components/CoffeeCupProgress',
+          requestContext,
+          renderMode,
+          module: dc_panels_detail_components_CoffeeCupProgress,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-detail-components-coffeecupprogress-index',
+    index: true,
+    id: 'dc/panels/detail/components/CoffeeCupProgress',
+    exact: true,
+    exports: ["CoffeeCupProgress","default"],
+  },{
     path: 'dc/panels/detail/components/HistoryCyclePanel',
     async lazy() {
       ;
@@ -1205,6 +1263,56 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["default"],
   },{
+    path: 'dc/panels/detail/components/TodayProgressBar',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_detail_components_TodayProgressBar,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/detail/components/TodayProgressBar',
+          isLayout: false,
+          routeExports: dc_panels_detail_components_TodayProgressBar,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/detail/components/TodayProgressBar',
+          requestContext,
+          renderMode,
+          module: dc_panels_detail_components_TodayProgressBar,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-detail-components-todayprogressbar-index',
+    index: true,
+    id: 'dc/panels/detail/components/TodayProgressBar',
+    exact: true,
+    exports: ["TodayProgressBar","default"],
+  },{
+    path: 'dc/panels/detail/components/WaterCupProgress',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_detail_components_WaterCupProgress,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/detail/components/WaterCupProgress',
+          isLayout: false,
+          routeExports: dc_panels_detail_components_WaterCupProgress,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/detail/components/WaterCupProgress',
+          requestContext,
+          renderMode,
+          module: dc_panels_detail_components_WaterCupProgress,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-detail-components-watercupprogress-index',
+    index: true,
+    id: 'dc/panels/detail/components/WaterCupProgress',
+    exact: true,
+    exports: ["WaterCupProgress","default"],
+  },{
     path: 'dc/panels/memorial/components/MemorialDetail',
     async lazy() {
       ;
@@ -1254,6 +1362,31 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/components/CreateMainlineTaskModal/steps',
     exact: true,
     exports: ["ConfigStep","CycleStep","TypeStep"],
+  },{
+    path: 'dc/panels/detail/components/IceMeltProgress',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_detail_components_IceMeltProgress,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/detail/components/IceMeltProgress',
+          isLayout: false,
+          routeExports: dc_panels_detail_components_IceMeltProgress,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/detail/components/IceMeltProgress',
+          requestContext,
+          renderMode,
+          module: dc_panels_detail_components_IceMeltProgress,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-detail-components-icemeltprogress-index',
+    index: true,
+    id: 'dc/panels/detail/components/IceMeltProgress',
+    exact: true,
+    exports: ["IceMeltProgress","default"],
   },{
     path: 'dc/panels/detail/components/ProgressSection',
     async lazy() {
@@ -1630,6 +1763,56 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["default"],
   },{
+    path: 'dc/panels/detail/components/DetailHeader',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_detail_components_DetailHeader,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/detail/components/DetailHeader',
+          isLayout: false,
+          routeExports: dc_panels_detail_components_DetailHeader,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/detail/components/DetailHeader',
+          requestContext,
+          renderMode,
+          module: dc_panels_detail_components_DetailHeader,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-detail-components-detailheader-index',
+    index: true,
+    id: 'dc/panels/detail/components/DetailHeader',
+    exact: true,
+    exports: ["DetailHeader","default"],
+  },{
+    path: 'dc/panels/detail/components/SecondaryNav',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_detail_components_SecondaryNav,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/detail/components/SecondaryNav',
+          isLayout: false,
+          routeExports: dc_panels_detail_components_SecondaryNav,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/detail/components/SecondaryNav',
+          requestContext,
+          renderMode,
+          module: dc_panels_detail_components_SecondaryNav,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-detail-components-secondarynav-index',
+    index: true,
+    id: 'dc/panels/detail/components/SecondaryNav',
+    exact: true,
+    exports: ["SecondaryNav","default"],
+  },{
     path: 'dc/panels/memorial/components/IconPicker',
     async lazy() {
       ;
@@ -1879,6 +2062,31 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/components/CreateMainlineTaskModal/types',
     exact: true,
     exports: [],
+  },{
+    path: 'dc/panels/detail/components/CycleInfo',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_detail_components_CycleInfo,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/detail/components/CycleInfo',
+          isLayout: false,
+          routeExports: dc_panels_detail_components_CycleInfo,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/detail/components/CycleInfo',
+          requestContext,
+          renderMode,
+          module: dc_panels_detail_components_CycleInfo,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-detail-components-cycleinfo-index',
+    index: true,
+    id: 'dc/panels/detail/components/CycleInfo',
+    exact: true,
+    exports: ["CycleInfo","default"],
   },{
     path: 'dc/panels/settings/pages/DateTestPage',
     async lazy() {
@@ -3303,7 +3511,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/panels/detail/components',
     exact: true,
-    exports: ["CalendarViewPanel","CheckInCyclePanel","CheckInHistoryPanel","CheckInModal","CheckInRecordPanel","ChecklistCyclePanel","GoalHeader","HistoryCyclePanel","HistoryRecordPanel","NumericCyclePanel","ProgressSection","RecordDataModal","TabBar","showCycleSummaryDialog"],
+    exports: ["ActivityRecordPanel","CalendarViewPanel","CheckInCyclePanel","CheckInHistoryPanel","CheckInModal","CheckInRecordPanel","ChecklistCyclePanel","CoffeeCupProgress","CycleInfo","DetailHeader","GoalHeader","HistoryCyclePanel","HistoryRecordPanel","IceMeltProgress","NumericCyclePanel","ProgressSection","RecordDataModal","SecondaryNav","TabBar","TodayProgressBar","WaterCupProgress","showCycleSummaryDialog"],
   },{
     path: 'dc/panels/happy/hooks/useSchedule',
     async lazy() {

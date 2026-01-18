@@ -2,15 +2,32 @@
  * Detail 面板组件导出
  * 
  * 组件分类：
- * 1. 头部组件 - GoalHeader
- * 2. 周期面板组件 - NumericCyclePanel, CheckInCyclePanel, ChecklistCyclePanel
- * 3. 历史面板组件 - HistoryRecordPanel, HistoryCyclePanel, CalendarViewPanel, CheckInRecordPanel, CheckInHistoryPanel
- * 4. 弹窗组件 - RecordDataModal, CheckInModal, CycleSummaryDialog
- * 5. 其他组件 - ProgressSection, TabBar
+ * 1. 头部组件 - GoalHeader, DetailHeader
+ * 2. 进度可视化组件 - CoffeeCupProgress, WaterCupProgress, IceMeltProgress, TodayProgressBar
+ * 3. 周期面板组件 - NumericCyclePanel, CheckInCyclePanel, ChecklistCyclePanel
+ * 4. 信息展示组件 - CycleInfo, SecondaryNav
+ * 4.1 变动记录组件 - ActivityRecordPanel
+ * 5. 历史面板组件 - HistoryRecordPanel, HistoryCyclePanel, CalendarViewPanel, CheckInRecordPanel, CheckInHistoryPanel
+ * 6. 弹窗组件 - RecordDataModal, CheckInModal, CycleSummaryDialog
+ * 7. 其他组件 - ProgressSection, TabBar
  */
 
 // 头部组件
 export { GoalHeader } from './GoalHeader';
+export { DetailHeader } from './DetailHeader';
+
+// 进度可视化组件（新增）
+export { default as CoffeeCupProgress } from './CoffeeCupProgress';
+export { default as WaterCupProgress } from './WaterCupProgress';
+export { default as IceMeltProgress } from './IceMeltProgress';
+export { default as TodayProgressBar } from './TodayProgressBar';
+
+// 信息展示组件（新增）
+export { default as CycleInfo } from './CycleInfo';
+export { default as SecondaryNav } from './SecondaryNav';
+
+// 变动记录组件（新增）
+export { default as ActivityRecordPanel } from './ActivityRecordPanel';
 
 // 周期面板组件
 export { NumericCyclePanel } from './NumericCyclePanel';

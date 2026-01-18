@@ -17,7 +17,7 @@ interface ActivityRecordPanelProps {
  */
 export default function ActivityRecordPanel({ goal, todayOnly = false }: ActivityRecordPanelProps) {
   const category = goal.category;
-  const today = getCurrentDate();
+  const today = getCurrentDate(goal);
   
   // 打卡类型：从 checkInConfig.records 中提取所有打卡记录
   const checkInRecords = useMemo(() => {
@@ -37,7 +37,8 @@ export default function ActivityRecordPanel({ goal, todayOnly = false }: Activit
       // 如果只显示今天的记录，过滤掉非今天的
       if (todayOnly && record.date !== today) return;
       
-      if (record.checked && record.entries) {
+      // 只要有 entries 就显示，不需要 checked 为 true
+      if (record.entries && record.entries.length > 0) {
         record.entries.forEach(entry => {
           allEntries.push({
             id: entry.id,
@@ -61,10 +62,10 @@ export default function ActivityRecordPanel({ goal, todayOnly = false }: Activit
     
     let activities = goal.activities
       .filter((a): a is ValueUpdateLog => a.type === 'UPDATE_VALUE');
-    
+    console.log(activities, goal, todayOnly,today,'activities')
     // 如果只显示今天的记录，过滤掉非今天的
     if (todayOnly) {
-      activities = activities.filter(a => a.date === today);
+      activities = activities.filter(a => dayjs(a.date).format('YYYY-MM-DD') === today);
     }
     
     return activities
@@ -118,30 +119,42 @@ export default function ActivityRecordPanel({ goal, todayOnly = false }: Activit
       <div className={styles.container}>
         <div className={styles.listContainer}>
           {checkInRecords.map((record, index) => (
-            <div key={record.id || index} className={styles.recordItem}>
-              <div className={styles.recordIcon}>
-                {unit === 'DURATION' ? <Clock size={16} /> : 
-                 unit === 'QUANTITY' ? <Hash size={16} /> : 
-                 <Check size={16} />}
-              </div>
-              <div className={styles.recordContent}>
-                <div className={styles.recordMain}>
-                  <span className={styles.recordValue}>
-                    +{formatValue(record.value)}
-                  </span>
-                  <span className={styles.recordTime}>
-                    {dayjs(record.timestamp).format('HH:mm')}
-                  </span>
+            <div key={record.id || index} className={styles.card}>
+              <div className={styles.cardHeader}>
+                <div className={styles.iconWrapper}>
+                  {unit === 'DURATION' ? <Clock size={18} /> : 
+                   unit === 'QUANTITY' ? <Hash size={18} /> : 
+                   <Check size={18} />}
                 </div>
-                {record.note && (
-                  <div className={styles.recordNote}>{record.note}</div>
-                )}
-                {!todayOnly && (
-                  <div className={styles.recordDate}>
-                    {dayjs(record.date).format('YYYY年M月D日')}
+                <div className={styles.cardInfo}>
+                  <div className={styles.cardTitle}>
+                    {unit === 'DURATION' ? '时长记录' : 
+                     unit === 'QUANTITY' ? '数量记录' : 
+                     '打卡记录'}
                   </div>
-                )}
+                  <div className={styles.cardSubtitle}>
+                    {dayjs(record.timestamp).format('HH:mm')}
+                  </div>
+                </div>
+                <div className={styles.cardRight}>
+                  <div className={styles.cardValue}>
+                    +{formatValue(record.value)}
+                  </div>
+                  <div className={styles.cardTag}>
+                    {unit === 'DURATION' ? '时长' : 
+                     unit === 'QUANTITY' ? '数量' : 
+                     '次数'}
+                  </div>
+                </div>
               </div>
+              {record.note && (
+                <div className={styles.cardNote}>{record.note}</div>
+              )}
+              {!todayOnly && (
+                <div className={styles.cardFooter}>
+                  记录于 {dayjs(record.date).format('YYYY-MM-DD')} ({dayjs(record.date).format('ddd')})
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -158,28 +171,36 @@ export default function ActivityRecordPanel({ goal, todayOnly = false }: Activit
           const isPositive = isDecrease ? changeValue < 0 : changeValue > 0;
           
           return (
-            <div key={record.id || index} className={styles.recordItem}>
-              <div className={`${styles.recordIcon} ${isPositive ? styles.positive : styles.negative}`}>
-                {isPositive ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
-              </div>
-              <div className={styles.recordContent}>
-                <div className={styles.recordMain}>
-                  <span className={styles.recordValue}>
-                    {record.value?.toLocaleString()}{numericConfig?.unit || ''}
-                  </span>
-                  <span className={`${styles.recordChange} ${isPositive ? styles.positive : styles.negative}`}>
-                    {changeValue > 0 ? '+' : ''}{changeValue.toLocaleString()}
-                  </span>
+            <div key={record.id || index} className={styles.card}>
+              <div className={styles.cardHeader}>
+                <div className={`${styles.iconWrapper} ${isPositive ? styles.positive : styles.negative}`}>
+                  {isPositive ? <TrendingUp size={18} /> : <TrendingDown size={18} />}
                 </div>
-                {record.note && (
-                  <div className={styles.recordNote}>{record.note}</div>
-                )}
-                {!todayOnly && (
-                  <div className={styles.recordDate}>
-                    {dayjs(record.timestamp).format('YYYY年M月D日 HH:mm')}
+                <div className={styles.cardInfo}>
+                  <div className={styles.cardTitle}>
+                    {isPositive ? (isDecrease ? '减少' : '增加') : (isDecrease ? '增加' : '减少')}记录
                   </div>
-                )}
+                  <div className={styles.cardSubtitle}>
+                    {dayjs(record.timestamp).format('HH:mm')}
+                  </div>
+                </div>
+                <div className={styles.cardRight}>
+                  <div className={`${styles.cardValue} ${isPositive ? styles.positive : styles.negative}`}>
+                    {record.value?.toLocaleString()}{numericConfig?.unit || ''}
+                  </div>
+                  <div className={styles.cardTag}>
+                    {changeValue > 0 ? '+' : ''}{changeValue.toLocaleString()}
+                  </div>
+                </div>
               </div>
+              {record.note && (
+                <div className={styles.cardNote}>{record.note}</div>
+              )}
+              {!todayOnly && (
+                <div className={styles.cardFooter}>
+                  记录于 {dayjs(record.timestamp).format('YYYY-MM-DD (ddd)')}
+                </div>
+              )}
             </div>
           );
         })}
@@ -189,3 +210,6 @@ export default function ActivityRecordPanel({ goal, todayOnly = false }: Activit
 }
 
 export { ActivityRecordPanel };
+
+
+

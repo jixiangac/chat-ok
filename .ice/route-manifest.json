@@ -444,7 +444,10 @@
     "file": "dc/panels/detail/components/PlanEndedSummary/index.tsx",
     "componentName": "dc-panels-detail-components-planendedsummary-index",
     "layout": false,
-    "exports": []
+    "exports": [
+      "PlanEndedSummary",
+      "default"
+    ]
   },
   {
     "path": "dc/panels/detail/components/TodayProgressBar",
@@ -763,18 +766,6 @@
     "componentName": "dc-viewmodel-createtaskmodal-steps-configstep",
     "layout": false,
     "exports": [
-      "default"
-    ]
-  },
-  {
-    "path": "dc/panels/detail/components/GoalHeader",
-    "index": true,
-    "id": "dc/panels/detail/components/GoalHeader",
-    "file": "dc/panels/detail/components/GoalHeader/index.tsx",
-    "componentName": "dc-panels-detail-components-goalheader-index",
-    "layout": false,
-    "exports": [
-      "GoalHeader",
       "default"
     ]
   },
@@ -1551,7 +1542,6 @@
       "CycleInfo",
       "DetailHeader",
       "DuckWaterProgress",
-      "GoalHeader",
       "HistoryCyclePanel",
       "HistoryRecordPanel",
       "NumericCyclePanel",

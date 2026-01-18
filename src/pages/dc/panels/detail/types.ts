@@ -99,23 +99,6 @@ export interface CurrentCycleInfo {
   checkInDates: string[];
 }
 
-export interface GoalHeaderProps {
-  goal: GoalDetail;
-  onClose: () => void;
-  currentCheckIns: number;
-  requiredCheckIns: number;
-  totalCheckIns: number;
-  totalCycles: number;
-  currentCycle: number;
-  remainingDays: number;
-  onDebugNextCycle?: () => void;
-  onDebugNextDay?: () => void;
-  onEndPlanEarly?: () => void;
-  onConvertToSideline?: () => void;
-  onEdit?: () => void;
-  isPlanEnded?: boolean;
-}
-
 export interface CurrentCycleCardProps {
   cycle: CurrentCycleInfo;
 }
@@ -151,6 +134,7 @@ export interface CheckInRecordPanelProps {
   cycleStartDate: string;
   cycleEndDate: string;
 }
+
 
 
 

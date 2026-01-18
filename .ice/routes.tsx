@@ -69,7 +69,6 @@ import * as dc_panels_settings_pages_TagSettingsPage from '@/pages/dc/panels/set
 import * as dc_panels_happy_components_AddGoalModal from '@/pages/dc/panels/happy/components/AddGoalModal/index';
 import * as dc_panels_settings_UnifiedSettingsPanel from '@/pages/dc/panels/settings/UnifiedSettingsPanel/index';
 import * as dc_viewmodel_CreateTaskModal_steps_ConfigStep from '@/pages/dc/viewmodel/CreateTaskModal/steps/ConfigStep';
-import * as dc_panels_detail_components_GoalHeader from '@/pages/dc/panels/detail/components/GoalHeader/index';
 import * as dc_panels_happy_components_TripList_TripCard from '@/pages/dc/panels/happy/components/TripList/TripCard';
 import * as dc_viewmodel_CreateTaskModal_steps_CycleStep from '@/pages/dc/viewmodel/CreateTaskModal/steps/CycleStep';
 import * as dc_components_CreateMainlineTaskModal from '@/pages/dc/components/CreateMainlineTaskModal/index';
@@ -1295,7 +1294,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/panels/detail/components/PlanEndedSummary',
     exact: true,
-    exports: [],
+    exports: ["PlanEndedSummary","default"],
   },{
     path: 'dc/panels/detail/components/TodayProgressBar',
     async lazy() {
@@ -1971,31 +1970,6 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/viewmodel/CreateTaskModal/steps/ConfigStep',
     exact: true,
     exports: ["default"],
-  },{
-    path: 'dc/panels/detail/components/GoalHeader',
-    async lazy() {
-      ;
-      return {
-        ...dc_panels_detail_components_GoalHeader,
-        Component: () => WrapRouteComponent({
-          routeId: 'dc/panels/detail/components/GoalHeader',
-          isLayout: false,
-          routeExports: dc_panels_detail_components_GoalHeader,
-        }),
-        loader: createRouteLoader({
-          routeId: 'dc/panels/detail/components/GoalHeader',
-          requestContext,
-          renderMode,
-          module: dc_panels_detail_components_GoalHeader,
-        }),
-      };
-    },
-    errorElement: <RouteErrorComponent />,
-    componentName: 'dc-panels-detail-components-goalheader-index',
-    index: true,
-    id: 'dc/panels/detail/components/GoalHeader',
-    exact: true,
-    exports: ["GoalHeader","default"],
   },{
     path: 'dc/panels/happy/components/TripList/TripCard',
     async lazy() {
@@ -3620,7 +3594,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/panels/detail/components',
     exact: true,
-    exports: ["ActivityRecordPanel","CalendarViewPanel","CheckInCyclePanel","CheckInHistoryPanel","CheckInModal","CheckInRecordPanel","ChecklistCyclePanel","CoffeeCupProgress","CycleInfo","DetailHeader","DuckWaterProgress","GoalHeader","HistoryCyclePanel","HistoryRecordPanel","NumericCyclePanel","ProgressSection","RecordDataModal","SecondaryNav","TabBar","TodayProgressBar","WaterCupProgress","showCycleSummaryDialog"],
+    exports: ["ActivityRecordPanel","CalendarViewPanel","CheckInCyclePanel","CheckInHistoryPanel","CheckInModal","CheckInRecordPanel","ChecklistCyclePanel","CoffeeCupProgress","CycleInfo","DetailHeader","DuckWaterProgress","HistoryCyclePanel","HistoryRecordPanel","NumericCyclePanel","ProgressSection","RecordDataModal","SecondaryNav","TabBar","TodayProgressBar","WaterCupProgress","showCycleSummaryDialog"],
   },{
     path: 'dc/panels/happy/hooks/useSchedule',
     async lazy() {

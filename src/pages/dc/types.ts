@@ -86,6 +86,12 @@ export interface CycleConfig {
   totalCycles: number;
   /** 当前周期（1-based） */
   currentCycle: number;
+  /** 当前周期开始日期 YYYY-MM-DD */
+  cycleStartDate: string;
+  /** 当前周期结束日期 YYYY-MM-DD */
+  cycleEndDate: string;
+  /** 当前周期剩余天数 */
+  remainingDays: number;
 }
 
 /** 时间信息 */
@@ -649,5 +655,6 @@ export interface PreviousCycleDebtSnapshot {
     completionRate: number;
   };
 }
+
 
 

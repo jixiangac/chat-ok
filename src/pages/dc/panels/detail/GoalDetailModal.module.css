@@ -273,8 +273,8 @@
 /* 子页面标题居中 */
 .subPageTitle {
   margin: 0;
-  font-size: 17px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 300;
   color: rgb(55, 53, 47);
   flex: 1;
   text-align: center;

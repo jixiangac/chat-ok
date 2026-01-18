@@ -207,12 +207,21 @@ export class TaskMigration {
       archivedAt: legacyAny.archivedAt,
     };
 
+    // 计算当前周期的日期信息
+    const cycleStartDate = dayjs(startDate).add((currentCycle - 1) * cycleDays, 'day').format('YYYY-MM-DD');
+    const cycleEndDate = dayjs(startDate).add(currentCycle * cycleDays - 1, 'day').format('YYYY-MM-DD');
+    const today = dayjs().format('YYYY-MM-DD');
+    const remainingDays = Math.max(0, dayjs(cycleEndDate).diff(dayjs(today), 'day'));
+
     // 构建周期配置
     const cycle: CycleConfig = {
       totalDays,
       cycleDays,
       totalCycles,
       currentCycle,
+      cycleStartDate,
+      cycleEndDate,
+      remainingDays,
     };
 
     // 先构建基础进度信息（后面会重新计算）
@@ -424,6 +433,16 @@ export class TaskMigration {
     const calculatedCycleNumber = Math.floor(elapsedDays / task.cycle.cycleDays) + 1;
     const currentCycleNumber = Math.min(Math.max(calculatedCycleNumber, 1), task.cycle.totalCycles);
     task.cycle.currentCycle = currentCycleNumber;
+    
+    // 计算当前周期的日期信息
+    const cycleDays = task.cycle.cycleDays;
+    const cycleStartDate = dayjs(task.time.startDate).add((currentCycleNumber - 1) * cycleDays, 'day').format('YYYY-MM-DD');
+    const cycleEndDate = dayjs(task.time.startDate).add(currentCycleNumber * cycleDays - 1, 'day').format('YYYY-MM-DD');
+    const remainingDays = Math.max(0, dayjs(cycleEndDate).diff(dayjs(today), 'day'));
+    
+    task.cycle.cycleStartDate = cycleStartDate;
+    task.cycle.cycleEndDate = cycleEndDate;
+    task.cycle.remainingDays = remainingDays;
     
     // 根据任务类型计算进度
     switch (task.category) {
@@ -827,6 +846,11 @@ export function createTask(data: {
   const now = dayjs().format('YYYY-MM-DD HH:mm:ss');
   const id = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   const totalCycles = Math.floor(data.totalDays / data.cycleDays);
+  
+  // 计算第一个周期的日期信息
+  const cycleStartDate = data.startDate;
+  const cycleEndDate = dayjs(data.startDate).add(data.cycleDays - 1, 'day').format('YYYY-MM-DD');
+  const remainingDays = data.cycleDays;
 
   const task: Task = {
     id,
@@ -847,6 +871,9 @@ export function createTask(data: {
       cycleDays: data.cycleDays,
       totalCycles,
       currentCycle: 1,
+      cycleStartDate,
+      cycleEndDate,
+      remainingDays,
     },
 
     progress: {
@@ -950,6 +977,9 @@ export function createTask(data: {
 }
 
 export default TaskMigration;
+
+
+
 
 
 

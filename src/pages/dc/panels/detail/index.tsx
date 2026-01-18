@@ -1,7 +1,8 @@
 import { useState, useMemo, useRef, useCallback, useEffect } from 'react';
 import { Popup, Toast, SafeArea } from 'antd-mobile';
-import { FileText, Check, Archive, Clock, Hash, ChevronLeft, ChevronRight, Droplets, Coffee } from 'lucide-react';
+import { FileText, Check, Archive, Clock, Hash, ChevronLeft, ChevronRight, Droplets, Coffee, Calendar } from 'lucide-react';
 import dayjs from 'dayjs';
+
 import { useTheme } from '../../contexts';
 import { useTaskContext } from '../../contexts';
 import { useConfetti } from '../../hooks';
@@ -26,54 +27,6 @@ import SidelineTaskEditModal from '../../components/SidelineTaskEditModal';
 import type { GoalDetailModalProps, CurrentCycleInfo } from './types';
 import type { Category, Task } from '../../types';
 import styles from './GoalDetailModal.module.css';
-
-// 从 Task 构建 CurrentCycleInfo
-function buildCurrentCycleInfo(task: Task): CurrentCycleInfo {
-  const { cycle, time, checkInConfig, progress } = task;
-  
-  // 计算当前周期的开始和结束日期
-  const startDate = dayjs(time.startDate);
-  const cycleStartDay = (cycle.currentCycle - 1) * cycle.cycleDays;
-  const cycleEndDay = cycleStartDay + cycle.cycleDays - 1;
-  
-  const cycleStartDate = startDate.add(cycleStartDay, 'day').format('YYYY-MM-DD');
-  const cycleEndDate = startDate.add(cycleEndDay, 'day').format('YYYY-MM-DD');
-  
-  // 计算剩余天数（使用全局日期）
-  const today = dayjs(getCurrentDate());
-  const cycleEnd = dayjs(cycleEndDate);
-  const remainingDays = Math.max(0, cycleEnd.diff(today, 'day'));
-  
-  // 获取本周期的打卡记录
-  let checkInDates: string[] = [];
-  
-  if (checkInConfig?.records) {
-    const cycleStart = dayjs(cycleStartDate);
-    const cycleEnd = dayjs(cycleEndDate);
-    
-    checkInDates = checkInConfig.records
-      .filter(r => {
-        const recordDate = dayjs(r.date);
-        return recordDate.isAfter(cycleStart.subtract(1, 'day')) && 
-               recordDate.isBefore(cycleEnd.add(1, 'day')) &&
-               r.checked;
-      })
-      .map(r => r.date);
-  }
-  
-  const checkInCount = progress.cycleAchieved || 0;
-  
-  return {
-    cycleNumber: cycle.currentCycle,
-    totalCycles: cycle.totalCycles,
-    startDate: cycleStartDate,
-    endDate: cycleEndDate,
-    checkInCount,
-    requiredCheckIns: checkInConfig?.perCycleTarget || 3,
-    remainingDays,
-    checkInDates
-  };
-}
 
 // 子页面类型
 type SubPageType = 'records' | 'history' | 'calendar' | null;
@@ -162,9 +115,18 @@ export default function GoalDetailModal({
   }, [visible]);
   
   const currentCycle = useMemo(() => {
-    if (!task) return null;
-    return buildCurrentCycleInfo(task);
-  }, [task]);
+    if (!task?.cycle) return null;
+    const { cycle, progress, checkInConfig } = task;
+    return {
+      cycleNumber: cycle.currentCycle,
+      totalCycles: cycle.totalCycles,
+      startDate: cycle.cycleStartDate,
+      endDate: cycle.cycleEndDate,
+      checkInCount: progress.cycleAchieved || 0,
+      requiredCheckIns: checkInConfig?.perCycleTarget || 3,
+      remainingDays: cycle.remainingDays,
+    } as CurrentCycleInfo;
+  }, [task?.cycle, task?.progress, task?.checkInConfig]);
   
   const todayProgress = task?.todayProgress;
   const todayCheckInStatus = useMemo(() => {
@@ -428,7 +390,7 @@ export default function GoalDetailModal({
             isPlanEnded={isPlanEnded}
             currentValue={currentValue}
             targetValue={targetValue}
-            category={taskCategory}
+            category={taskCategory as 'NUMERIC' | 'CHECK_IN'}
             unit={unit}
             animate
             size="large"
@@ -467,9 +429,9 @@ export default function GoalDetailModal({
   };
   
   // 获取子页面标题
-  const getSubPageTitle = () => {
+  const getSubPageTitle = (): React.ReactNode => {
     switch (currentSubPage) {
-      case 'records': return '当日记录';
+      case 'records': return <><Calendar size={18} style={{ marginRight: 12 }} /><span style={{position: 'relative', top: -3}}>{dayjs().format('YYYY-MM-DD')}</span></>;
       case 'history': return '周期计划';
       case 'calendar': return '历史记录';
       default: return '';
@@ -674,3 +636,8 @@ export default function GoalDetailModal({
     </Popup>
   );
 }
+
+
+
+
+

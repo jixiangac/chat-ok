@@ -28,15 +28,29 @@ export interface DateChangeInfo {
 }
 
 /**
+ * Task 类型（简化版，仅用于获取 debugDayOffset）
+ */
+interface TaskWithOffset {
+  debugDayOffset?: number;
+}
+
+/**
  * 获取当前有效日期（优先使用测试日期）
+ * @param task 可选的任务对象，如果传入且有 debugDayOffset，则在基础日期上偏移
  * @returns 当前日期字符串 YYYY-MM-DD
  */
-export function getCurrentDate(): string {
+export function getCurrentDate(task?: any): string {
   const testDate = getTestDate();
-  if (testDate) {
-    return testDate;
+  // 基础日期：优先使用测试日期，否则使用系统日期
+  const baseDate = testDate || dayjs().format(DATE_FORMAT);
+  // console.log(task,'tasktasktasktask')
+  // 如果传入了 task 且有 debugDayOffset，则在基础日期上偏移
+  const offset = task?.debugDayOffset || 0;
+  if (offset === 0) {
+    return baseDate;
   }
-  return dayjs().format(DATE_FORMAT);
+  
+  return dayjs(baseDate).add(offset, 'day').format(DATE_FORMAT);
 }
 
 /**
@@ -189,3 +203,4 @@ export function forceCheckDateChange(oldDate: string): DateChangeInfo | null {
     daysDiff,
   };
 }
+

@@ -52,12 +52,17 @@ const getSimulatedToday = (task: Task): string => {
 };
 
 // 获取模拟的时间戳（优先使用全局测试日期）
+// 保留当前的时分秒信息，只调整日期部分
 const getSimulatedTimestamp = (task: Task): number => {
-  // 优先使用全局测试日期
-  const currentDate = getCurrentDate();
   const offset = (task as any).debugDayOffset || 0;
   
-  return dayjs(currentDate).add(offset, 'day').valueOf();
+  if (offset === 0) {
+    // 没有偏移量，直接返回当前时间戳
+    return Date.now();
+  }
+  
+  // 有偏移量时，在当前时间基础上调整日期，保留时分秒
+  return dayjs().add(offset, 'day').valueOf();
 };
 
 // 从 checkInConfig.records 获取今日打卡记录
@@ -441,10 +446,19 @@ export function TaskProvider({ children }: TaskProviderProps) {
     if (!cycleConfig) return;
     
     if (cycleConfig.currentCycle < cycleConfig.totalCycles) {
+      const newCycleNumber = cycleConfig.currentCycle + 1;
+      const startDate = dayjs(task.time.startDate);
+      const cycleDays = task.cycle.cycleDays;
+      const newCycleStartDate = startDate.add((newCycleNumber - 1) * cycleDays, 'day').format('YYYY-MM-DD');
+      const newCycleEndDate = startDate.add(newCycleNumber * cycleDays - 1, 'day').format('YYYY-MM-DD');
+      
       scene.updateTask(targetScene, taskId, {
         cycle: {
           ...task.cycle,
-          currentCycle: cycleConfig.currentCycle + 1,
+          currentCycle: newCycleNumber,
+          cycleStartDate: newCycleStartDate,
+          cycleEndDate: newCycleEndDate,
+          remainingDays: cycleDays,
         },
       });
     }
@@ -705,11 +719,23 @@ console.log(value,'value')
       };
 
       // 添加活动日志（使用模拟日期）
-      const simulatedToday = getSimulatedToday(task);
+      // date 字段使用 ISO 格式，包含完整的时间信息
+      const currentDate = getCurrentDate();
+      const offset = (task as any).debugDayOffset || 0;
+      // 优先使用全局测试日期，如果有 debugDayOffset 则在此基础上偏移
+      const simulatedDateTime = offset === 0
+        ? dayjs(currentDate).format('YYYY-MM-DD')
+        : dayjs().add(offset, 'day').format('YYYY-MM-DD');
+
+        console.log({
+          currentDate,
+          simulatedDateTime,
+          offset,
+        },'simulatedDateTime')
       const newActivity = {
         id: generateId(),
         type: 'UPDATE_VALUE' as const,
-        date: simulatedToday,
+        date: simulatedDateTime,
         timestamp: getSimulatedTimestamp(task),
         oldValue: previousValue,
         newValue: value,
@@ -1263,11 +1289,18 @@ console.log(value,'value')
             }
           }
 
+          // 计算新周期的日期信息
+          const newCycleStartDateStr = startDate.add((newCycleNumber - 1) * cycleDays, 'day').format('YYYY-MM-DD');
+          const newCycleEndDateStr = startDate.add(newCycleNumber * cycleDays - 1, 'day').format('YYYY-MM-DD');
+
           updates = {
             ...updates,
             cycle: {
               ...task.cycle,
-              currentCycle: newCycleNumber
+              currentCycle: newCycleNumber,
+              cycleStartDate: newCycleStartDateStr,
+              cycleEndDate: newCycleEndDateStr,
+              remainingDays: cycleDays,
             },
             progress: {
               ...task.progress,
@@ -1462,11 +1495,17 @@ console.log(value,'value')
         }
       }
 
+      // 计算新周期的日期信息
+      const newCycleEndDate = startDate.add(newCycleNumber * cycleDays - 1, 'day').format('YYYY-MM-DD');
+
       // 构建更新对象
       const updates: Partial<Task> & { debugDayOffset?: number } = {
         cycle: {
           ...task.cycle,
-          currentCycle: newCycleNumber
+          currentCycle: newCycleNumber,
+          cycleStartDate: newCycleStartDate.format('YYYY-MM-DD'),
+          cycleEndDate: newCycleEndDate,
+          remainingDays: cycleDays,
         },
         progress: {
           ...task.progress,
@@ -1606,3 +1645,9 @@ export function useTaskContext(): TaskContextValue {
 }
 
 export type { TaskContextValue, HistoryRecord, CycleInfo, TodayCheckInStatus, GoalDetailData } from './types';
+
+
+
+
+
+

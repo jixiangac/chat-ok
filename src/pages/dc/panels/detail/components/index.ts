@@ -2,7 +2,7 @@
  * Detail 面板组件导出
  * 
  * 组件分类：
- * 1. 头部组件 - GoalHeader, DetailHeader
+ * 1. 头部组件 - DetailHeader
  * 2. 进度可视化组件 - CoffeeCupProgress, WaterCupProgress, TodayProgressBar, DuckWaterProgress
  * 3. 周期面板组件 - NumericCyclePanel, CheckInCyclePanel, ChecklistCyclePanel
  * 4. 信息展示组件 - CycleInfo, SecondaryNav
@@ -13,7 +13,6 @@
  */
 
 // 头部组件
-export { GoalHeader } from './GoalHeader';
 export { DetailHeader } from './DetailHeader';
 
 // 进度可视化组件（新增）
@@ -51,6 +50,7 @@ export { showCycleSummaryDialog } from './CycleSummaryDialog';
 // 其他组件
 export { default as ProgressSection } from './ProgressSection';
 export { default as TabBar } from './TabBar';
+
 
 
 

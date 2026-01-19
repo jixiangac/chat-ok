@@ -51,6 +51,7 @@ interface DuckWaterProgressProps {
 ```
 
 **内部结构：**
+{% raw %}
 ```tsx
 <div className="container">
   {/* 鸭子剪影 SVG */}
@@ -80,6 +81,7 @@ interface DuckWaterProgressProps {
   </div>
 </div>
 ```
+{% endraw %}
 
 ### 2. DuckSilhouette 组件
 

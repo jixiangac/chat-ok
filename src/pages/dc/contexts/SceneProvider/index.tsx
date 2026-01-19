@@ -21,7 +21,7 @@ import { buildIndex, addToIndex, removeFromIndex, updateInIndex } from './indexB
 import { CacheManager } from './cacheManager';
 import { loadSceneData, saveSceneData, needsMigration, performMigration } from './storage';
 import { useSpriteImage } from '../../hooks';
-import { filterDailyViewTasks, getCachedDailyTaskIds, saveDailyTaskIdsCache, clearDailyViewCache, getCurrentDate } from '../../utils';
+import { filterDailyViewTasks, getCachedDailyTaskIds, saveDailyTaskIdsCache, clearDailyViewCache, clearRefreshStatus, getCurrentDate } from '../../utils';
 import { calculateRemainingDays } from '../../utils/mainlineTaskHelper';
 import { getTodayMustCompleteTaskIds } from '../../utils/todayMustCompleteStorage';
 import { getArchivedTasks } from '../../utils/archiveStorage';
@@ -89,7 +89,11 @@ export function SceneProvider({ children }: SceneProviderProps) {
       clearDailyViewCache();
       console.log('[SceneProvider] 已清空一日清单缓存');
       
-      // 2. 执行每日数据重置
+      // 2. 清除一日清单刷新状态（新的一天可以重新刷新）
+      clearRefreshStatus();
+      console.log('[SceneProvider] 已清除一日清单刷新状态');
+      
+      // 3. 执行每日数据重置
       setScenes(prev => {
         const normalTasks = prev.normal.tasks;
         
@@ -699,3 +703,4 @@ export function useScene(): SceneContextValue {
 
 // 导出类型
 export type { SceneType, SceneData, NormalSceneAccess } from './types';
+

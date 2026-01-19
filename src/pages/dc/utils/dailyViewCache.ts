@@ -16,6 +16,7 @@ interface DailyViewCache {
 }
 
 const CACHE_KEY = 'dc_daily_view_cache';
+const REFRESH_KEY = 'dc_daily_view_refresh';
 
 /**
  * 获取缓存的任务ID列表
@@ -71,3 +72,51 @@ export function clearDailyViewCache(): void {
     console.error('清理一日清单缓存失败:', error);
   }
 }
+
+/**
+ * 检查今日是否已经手动刷新过一日清单
+ * @returns 如果今日已刷新返回 true，否则返回 false
+ */
+export function hasTodayRefreshed(): boolean {
+  try {
+    const refreshData = localStorage.getItem(REFRESH_KEY);
+    if (!refreshData) return false;
+    
+    const data = JSON.parse(refreshData);
+    const today = getCurrentDate();
+    
+    return data.date === today && data.refreshed === true;
+  } catch (error) {
+    console.error('检查一日清单刷新状态失败:', error);
+    return false;
+  }
+}
+
+/**
+ * 标记今日已手动刷新一日清单
+ */
+export function markTodayRefreshed(): void {
+  try {
+    const today = getCurrentDate();
+    const data = {
+      date: today,
+      refreshed: true,
+      refreshedAt: new Date().toISOString()
+    };
+    localStorage.setItem(REFRESH_KEY, JSON.stringify(data));
+  } catch (error) {
+    console.error('标记一日清单刷新状态失败:', error);
+  }
+}
+
+/**
+ * 清除刷新状态（用于日期变更时）
+ */
+export function clearRefreshStatus(): void {
+  try {
+    localStorage.removeItem(REFRESH_KEY);
+  } catch (error) {
+    console.error('清除一日清单刷新状态失败:', error);
+  }
+}
+

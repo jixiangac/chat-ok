@@ -10,6 +10,7 @@ import TripList from '../TripList';
 import AddGoalModal from '../AddGoalModal';
 import CreateTripModal from '../CreateTripModal';
 import TripSummaryModal from '../TripSummaryModal';
+import { useModal, UI_KEYS } from '../../../../contexts';
 import styles from './styles.module.css';
 
 export interface VacationContentRef {
@@ -58,9 +59,11 @@ const VacationContent = forwardRef<VacationContentRef, VacationContentProps>(({ 
 
   const { isEvenSchedule } = useSchedule(currentTrip, currentScheduleId);
 
-  // Modal 状态
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [showAddGoalModal, setShowAddGoalModal] = useState(false);
+  // Modal 状态 - 使用 UIProvider 管理
+  const { visible: showCreateModal, open: openCreateModal, close: closeCreateModal } = useModal(UI_KEYS.MODAL_VACATION_CREATE_TRIP_VISIBLE);
+  const { visible: showAddGoalModal, open: openAddGoalModal, close: closeAddGoalModal } = useModal(UI_KEYS.MODAL_VACATION_ADD_GOAL_VISIBLE);
+  
+  // 本地状态
   const [editingGoal, setEditingGoal] = useState<{ goal: TripGoal; scheduleId: string } | null>(null);
   const [showSummaryModal, setShowSummaryModal] = useState(false);
 
@@ -73,11 +76,11 @@ const VacationContent = forwardRef<VacationContentRef, VacationContentProps>(({ 
     triggerAdd: () => {
       if (!currentTrip) {
         // 没有行程时，打开创建行程弹窗
-        setShowCreateModal(true);
+        openCreateModal();
       } else if (!isCurrentScheduleExpired) {
         // 有行程且当前日程未过期时，打开添加目标弹窗
         setEditingGoal(null);
-        setShowAddGoalModal(true);
+        openAddGoalModal();
       }
     }
   }));
@@ -85,7 +88,7 @@ const VacationContent = forwardRef<VacationContentRef, VacationContentProps>(({ 
   // 处理创建行程
   const handleCreateTrip = (data: { name: string; startDate: string; totalDays: number; hasPreparation: boolean }) => {
     createTrip(data);
-    setShowCreateModal(false);
+    closeCreateModal();
   };
 
   // 处理添加目标
@@ -96,7 +99,7 @@ const VacationContent = forwardRef<VacationContentRef, VacationContentProps>(({ 
     } else {
       addGoal(scheduleId, goal);
     }
-    setShowAddGoalModal(false);
+    closeAddGoalModal();
   };
 
   // 处理完成目标
@@ -110,7 +113,7 @@ const VacationContent = forwardRef<VacationContentRef, VacationContentProps>(({ 
   // 处理编辑目标
   const handleEditGoal = (goal: TripGoal) => {
     setEditingGoal({ goal, scheduleId: currentScheduleId });
-    setShowAddGoalModal(true);
+    openAddGoalModal();
   };
 
   // 处理删除目标
@@ -136,7 +139,7 @@ const VacationContent = forwardRef<VacationContentRef, VacationContentProps>(({ 
           trips={trips}
           onSelectTrip={selectTrip}
           onDeleteTrip={deleteTrip}
-          onCreateTrip={() => setShowCreateModal(true)}
+          onCreateTrip={openCreateModal}
         />
       ) : (
         // 行程详情视图
@@ -186,7 +189,7 @@ const VacationContent = forwardRef<VacationContentRef, VacationContentProps>(({ 
                 className={styles.addGoalBtn}
                 onClick={() => {
                   setEditingGoal(null);
-                  setShowAddGoalModal(true);
+                  openAddGoalModal();
                 }}
               >
                 <div className={styles.addGoalIcon}>
@@ -227,7 +230,7 @@ const VacationContent = forwardRef<VacationContentRef, VacationContentProps>(({ 
       )}
 
       {/* Modals */}
-      <CreateTripModal visible={showCreateModal} onClose={() => setShowCreateModal(false)} onSubmit={handleCreateTrip} />
+      <CreateTripModal visible={showCreateModal} onClose={closeCreateModal} onSubmit={handleCreateTrip} />
 
       <AddGoalModal
         visible={showAddGoalModal}
@@ -235,7 +238,7 @@ const VacationContent = forwardRef<VacationContentRef, VacationContentProps>(({ 
         currentScheduleId={currentScheduleId}
         editingGoal={editingGoal?.goal}
         onClose={() => {
-          setShowAddGoalModal(false);
+          closeAddGoalModal();
           setEditingGoal(null);
         }}
         onSubmit={handleAddGoal}
@@ -257,4 +260,5 @@ const VacationContent = forwardRef<VacationContentRef, VacationContentProps>(({ 
 VacationContent.displayName = 'VacationContent';
 
 export default VacationContent;
+
 

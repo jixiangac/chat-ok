@@ -8,6 +8,7 @@ import { useMemorials } from './hooks';
 import { MemorialCard, CreateMemorialModal, MemorialDetail, VirtualMemorialList, MemorialListSkeleton } from './components';
 import type { Memorial, CreateMemorialInput } from './types';
 import { useSpriteImage } from '../../hooks';
+import { useModal, UI_KEYS } from '../../contexts';
 import styles from './styles.module.css';
 
 export interface MemorialPanelRef {
@@ -32,15 +33,17 @@ const MemorialPanel = forwardRef<MemorialPanelRef, MemorialPanelProps>(({ onAddC
   // 使用纪念日专属精灵图片（会自动根据全局 activeTab 显示对应图片）
   const { getCurrentSpriteImage, randomizeSpriteImage } = useSpriteImage();
 
-  // 弹窗状态
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [selectedMemorialId, setSelectedMemorialId] = useState<string | null>(null);
+  // 弹窗状态 - 使用 UIProvider 管理
+  const { visible: showCreateModal, open: openCreateModal, close: closeCreateModal } = useModal(UI_KEYS.MODAL_MEMORIAL_CREATE_VISIBLE);
+  
+  // 本地状态
   const [editingMemorial, setEditingMemorial] = useState<Memorial | null>(null);
+  const [selectedMemorialId, setSelectedMemorialId] = useState<string | null>(null);
 
   // 暴露方法给父组件
   useImperativeHandle(ref, () => ({
     triggerAdd: () => {
-      setShowCreateModal(true);
+      openCreateModal();
     }
   }));
 
@@ -58,7 +61,7 @@ const MemorialPanel = forwardRef<MemorialPanelRef, MemorialPanelProps>(({ onAddC
         // 创建模式
         addMemorial(data);
       }
-      setShowCreateModal(false);
+      closeCreateModal();
     },
     [addMemorial, updateMemorial, editingMemorial]
   );
@@ -68,7 +71,7 @@ const MemorialPanel = forwardRef<MemorialPanelRef, MemorialPanelProps>(({ onAddC
     if (selectedMemorial) {
       setEditingMemorial(selectedMemorial);
       setSelectedMemorialId(null);
-      setShowCreateModal(true);
+      openCreateModal();
     }
   }, [selectedMemorial]);
 
@@ -89,9 +92,9 @@ const MemorialPanel = forwardRef<MemorialPanelRef, MemorialPanelProps>(({ onAddC
 
   // 关闭创建弹窗
   const handleCloseCreateModal = useCallback(() => {
-    setShowCreateModal(false);
+    closeCreateModal();
     setEditingMemorial(null);
-  }, []);
+  }, [closeCreateModal]);
 
   // 渲染空状态
   const renderEmptyState = () => (
@@ -147,7 +150,7 @@ const MemorialPanel = forwardRef<MemorialPanelRef, MemorialPanelProps>(({ onAddC
       </div>
       <button
         className={styles.addButton}
-        onClick={() => setShowCreateModal(true)}
+        onClick={openCreateModal}
         type="button"
       >
         <Plus size={18} />
@@ -210,5 +213,6 @@ const MemorialPanel = forwardRef<MemorialPanelRef, MemorialPanelProps>(({ onAddC
 MemorialPanel.displayName = 'MemorialPanel';
 
 export default MemorialPanel;
+
 
 

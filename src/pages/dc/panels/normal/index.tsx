@@ -7,7 +7,7 @@ import { AnimatePresence } from 'framer-motion';
 import GroupDetailPopup from '../../components/GroupDetailPopup';
 import { TodayProgress, SidelineTaskSection, MainlineTaskSection, CreateTaskModal } from '../../viewmodel';
 import GoalDetailModal from '../detail';
-import { useTaskContext, useScene } from '../../contexts';
+import { useTaskContext, useScene, useModal, UI_KEYS } from '../../contexts';
 import type { Task, TaskTag, ViewMode } from '../../types';
 
 export interface NormalPanelRef {
@@ -22,8 +22,8 @@ const NormalPanel = forwardRef<NormalPanelRef, NormalPanelProps>((props, ref) =>
   const { refreshTasks, selectedTaskId, setSelectedTaskId } = useTaskContext();
   const { normal } = useScene();
   
-  // 常规模式内部状态
-  const [mainlineModalVisible, setMainlineModalVisible] = useState(false);
+  // 使用 UIProvider 管理创建任务弹窗状态
+  const { visible: mainlineModalVisible, open: openMainlineModal, close: closeMainlineModal } = useModal(UI_KEYS.MODAL_CREATE_TASK_VISIBLE);
   
   // Group 模式状态
   const [viewMode, setViewMode] = useState<ViewMode>('default');
@@ -60,7 +60,7 @@ const NormalPanel = forwardRef<NormalPanelRef, NormalPanelProps>((props, ref) =>
   // 暴露方法给父组件
   useImperativeHandle(ref, () => ({
     triggerAdd: () => {
-      setMainlineModalVisible(true);
+      openMainlineModal();
     },
     // 保留接口但不做任何事情，由 DCPageContent 顶层处理
     openTodayMustComplete: (readOnly?: boolean) => {
@@ -69,7 +69,7 @@ const NormalPanel = forwardRef<NormalPanelRef, NormalPanelProps>((props, ref) =>
   }));
 
   const handleAddClick = () => {
-    setMainlineModalVisible(true);
+    openMainlineModal();
   };
 
   return (
@@ -97,7 +97,7 @@ const NormalPanel = forwardRef<NormalPanelRef, NormalPanelProps>((props, ref) =>
       {/* 创建任务弹窗 */}
       <CreateTaskModal
         visible={mainlineModalVisible}
-        onClose={() => setMainlineModalVisible(false)}
+        onClose={closeMainlineModal}
       />
 
       {/* 任务详情弹窗 */}
@@ -130,6 +130,7 @@ const NormalPanel = forwardRef<NormalPanelRef, NormalPanelProps>((props, ref) =>
 NormalPanel.displayName = 'NormalPanel';
 
 export default NormalPanel;
+
 
 
 

@@ -118,7 +118,10 @@ export {
 export {
   getCachedDailyTaskIds,
   saveDailyTaskIdsCache,
-  clearDailyViewCache
+  clearDailyViewCache,
+  hasTodayRefreshed,
+  markTodayRefreshed,
+  clearRefreshStatus
 } from './dailyViewCache';
 
 // 归档存储工具
@@ -177,5 +180,6 @@ export {
   formatExp,
   getRealmIconPath
 } from './cultivation';
+
 
 

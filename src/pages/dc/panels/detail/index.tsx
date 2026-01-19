@@ -390,7 +390,7 @@ export default function GoalDetailModal({
             isPlanEnded={isPlanEnded}
             currentValue={currentValue}
             targetValue={targetValue}
-            category={taskCategory as 'NUMERIC' | 'CHECK_IN'}
+            category={`CHECK_IN_${unitType}`}
             unit={unit}
             animate
             size="large"

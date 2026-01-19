@@ -33,6 +33,10 @@ export default function CheckInModal({
   dailyTargetValue = 0,
   todayValue = 0
 }: CheckInModalProps) {
+  // 过滤掉无效的单位值（如箭头符号等）
+  const invalidUnits = ['↑', '↓', '→', '←', ''];
+  const displayUnit = invalidUnits.includes(valueUnit) ? '个' : valueUnit;
+  
   const { themeColors } = useTheme();
   const [selectedDuration, setSelectedDuration] = useState<number | null>(null);
   const [customDuration, setCustomDuration] = useState('');
@@ -75,16 +79,24 @@ export default function CheckInModal({
         visible={visible}
         onMaskClick={handleClose}
         position="bottom"
-        style={{ zIndex: 1200 }}
+        style={{ zIndex: 1200, '--width': '100vw' } as React.CSSProperties}
         bodyStyle={{
           borderTopLeftRadius: '16px',
-          borderTopRightRadius: '16px',          padding: '24px 24px 0'
+          borderTopRightRadius: '16px',
+          padding: '24px 24px 0',
+          width: '100%',
+          maxWidth: '100vw',
+          boxSizing: 'border-box',
+          overflow: 'hidden'
         }}
       >
         <div className={styles.container}>
           <div className={styles.header}>
-            <Check size={24} />
-            <span>确认打卡</span>
+            <div className={styles.headerLeft}>
+              <Check size={24} />
+              <span>确认打卡</span>
+            </div>
+            <button className={styles.closeBtn} onClick={handleClose}>✕</button>
           </div>
           <div className={styles.description}>
             点击确认完成本次打卡
@@ -112,19 +124,24 @@ export default function CheckInModal({
         visible={visible}
         onMaskClick={handleClose}
         position="bottom"
-        style={{ zIndex: 1200 }}
+        style={{ zIndex: 1200, '--width': '100vw' } as React.CSSProperties}
         bodyStyle={{
           borderTopLeftRadius: '16px',
           borderTopRightRadius: '16px',
           padding: '24px 24px 0',
+          width: '100%',
+          maxWidth: '100vw',
           boxSizing: 'border-box',
           overflow: 'hidden'
         }}
       >
         <div className={styles.container}>
           <div className={styles.header}>
-            <Clock size={24} />
-            <span>记录时长</span>
+            <div className={styles.headerLeft}>
+              <Clock size={24} />
+              <span>记录时长</span>
+            </div>
+            <button className={styles.closeBtn} onClick={handleClose}>✕</button>
           </div>
           
           <div className={styles.todayInfo}>
@@ -183,22 +200,29 @@ export default function CheckInModal({
       visible={visible}
       onMaskClick={handleClose}
       position="bottom"
-      style={{ zIndex: 1200 }}
+      style={{ zIndex: 1200, '--width': '100vw' } as React.CSSProperties}
       bodyStyle={{
         borderTopLeftRadius: '16px',
         borderTopRightRadius: '16px',
-        padding: '24px 24px 0'
+        padding: '24px 24px 0',
+        width: '100%',
+        maxWidth: '100vw',
+        boxSizing: 'border-box',
+        overflow: 'hidden'
       }}
     >
       <div className={styles.container}>
         <div className={styles.header}>
-          <Hash size={24} />
-          <span>记录数值</span>
+          <div className={styles.headerLeft}>
+            <Hash size={24} />
+            <span>记录数值</span>
+          </div>
+          <button className={styles.closeBtn} onClick={handleClose}>✕</button>
         </div>
         
         {dailyTargetValue > 0 && (
           <div className={styles.todayInfo}>
-            今日已完成 {todayValue} {valueUnit}，目标 {dailyTargetValue} {valueUnit}
+            今日已完成 {todayValue} {displayUnit}，目标 {dailyTargetValue} {displayUnit}
           </div>
         )}
         
@@ -221,7 +245,7 @@ export default function CheckInModal({
                 placeholder="0"
                 className={styles.valueInput}
               />
-              <span className={styles.valueUnit}>{valueUnit}</span>
+              <span className={styles.valueUnit}>{displayUnit}</span>
             </div>
             <button
               className={styles.controlButton}
@@ -253,13 +277,17 @@ export default function CheckInModal({
           disabled={loading || !inputValue || parseFloat(inputValue) <= 0}
           style={{ backgroundColor: (loading || !inputValue || parseFloat(inputValue) <= 0) ? '#ccc' : themeColors.primary }}
         >
-          {loading ? '记录中...' : `记录 ${inputValue || 0} ${valueUnit}`}
+          {loading ? '记录中...' : `记录 ${inputValue || 0} ${displayUnit}`}
         </button>
       </div>
       <SafeArea position="bottom" />
     </Popup>
   );
 }
+
+
+
+
 
 
 

@@ -290,3 +290,72 @@ export function getRealmIconPath(realm: RealmType): string {
   };
   return iconMap[realm];
 }
+
+// ============ 修仙角色图片配置 ============
+
+/** 修仙角色图片 URL 配置 */
+export const CULTIVATION_IMAGES = {
+  /** 炼气期第一层 */
+  LIANQI_1: 'https://img.alicdn.com/imgextra/i4/O1CN01AJt8Vy1Z8kj4Wy2HF_!!6000000003150-2-tps-1080-1080.png',
+  /** 炼气期第二层及以上 */
+  LIANQI_2_PLUS: 'https://img.alicdn.com/imgextra/i3/O1CN01oJNcMp1pVE0mZXmZN_!!6000000005365-2-tps-1080-1080.png',
+  /** 筑基期 */
+  ZHUJI: 'https://img.alicdn.com/imgextra/i1/O1CN01tICvnF1fyP5QrvrmT_!!6000000004075-2-tps-1080-1080.png',
+  /** 结丹期 */
+  JIEDAN: 'https://img.alicdn.com/imgextra/i4/O1CN01PgwI9x1iAQibYKdsS_!!6000000004372-2-tps-1080-1080.png',
+  /** 元婴初期 */
+  YUANYING_EARLY: 'https://img.alicdn.com/imgextra/i2/O1CN01UIVfWz1Kgu1Nw0g60_!!6000000001194-2-tps-1080-1080.png',
+  /** 元婴中期及以后（包括化神、炼虚、合体、大乘、渡劫） */
+  YUANYING_MIDDLE_PLUS: 'https://img.alicdn.com/imgextra/i2/O1CN01zaGwe61Zge2E0JtNi_!!6000000003224-2-tps-1080-1080.png',
+} as const;
+
+/**
+ * 根据修仙等级获取对应的角色图片
+ * @param realm 境界
+ * @param stage 阶段（筑基期及以上）
+ * @param layer 层数（炼气期）
+ * @returns 对应的图片 URL
+ */
+export function getCultivationImage(
+  realm: RealmType,
+  stage: StageType | null,
+  layer: LianqiLayer | null
+): string {
+  // 炼气期
+  if (realm === 'LIANQI') {
+    if (layer === 1) {
+      return CULTIVATION_IMAGES.LIANQI_1;
+    }
+    return CULTIVATION_IMAGES.LIANQI_2_PLUS;
+  }
+
+  // 筑基期
+  if (realm === 'ZHUJI') {
+    return CULTIVATION_IMAGES.ZHUJI;
+  }
+
+  // 结丹期
+  if (realm === 'JIEDAN') {
+    return CULTIVATION_IMAGES.JIEDAN;
+  }
+
+  // 元婴期
+  if (realm === 'YUANYING') {
+    if (stage === 'EARLY') {
+      return CULTIVATION_IMAGES.YUANYING_EARLY;
+    }
+    return CULTIVATION_IMAGES.YUANYING_MIDDLE_PLUS;
+  }
+
+  // 化神期及以上（化神、炼虚、合体、大乘、渡劫）
+  return CULTIVATION_IMAGES.YUANYING_MIDDLE_PLUS;
+}
+
+/**
+ * 根据修仙数据获取对应的角色图片
+ * @param data 修仙数据
+ * @returns 对应的图片 URL
+ */
+export function getCultivationImageFromData(data: CultivationData): string {
+  return getCultivationImage(data.realm, data.stage, data.layer);
+}

@@ -12,9 +12,18 @@ export const UI_KEYS = {
   MODAL_SETTINGS: 'modal.settings',
   MODAL_ARCHIVE: 'modal.archive',
   MODAL_CREATE_TASK: 'modal.createTask',
+  MODAL_CREATE_TASK_VISIBLE: 'modal.createTask.visible',
   MODAL_TASK_DETAIL: 'modal.taskDetail',
   MODAL_TODAY_MUST_COMPLETE: 'modal.todayMustComplete',
   MODAL_TODAY_MUST_COMPLETE_VISIBLE: 'modal.todayMustComplete.visible',
+  MODAL_DAILY_VIEW: 'modal.dailyView',
+  MODAL_DAILY_VIEW_VISIBLE: 'modal.dailyView.visible',
+  // 度假模式弹窗
+  MODAL_VACATION_CREATE_TRIP_VISIBLE: 'modal.vacation.createTrip.visible',
+  MODAL_VACATION_ADD_GOAL_VISIBLE: 'modal.vacation.addGoal.visible',
+  // 纪念日模式弹窗
+  MODAL_MEMORIAL_CREATE_VISIBLE: 'modal.memorial.create.visible',
+  MODAL_MEMORIAL_DETAIL_VISIBLE: 'modal.memorial.detail.visible',
   
   // 滚动位置
   SCROLL_NORMAL: 'scroll.normal',
@@ -42,4 +51,5 @@ export const UI_KEYS = {
 } as const;
 
 export type UIKey = typeof UI_KEYS[keyof typeof UI_KEYS];
+
 

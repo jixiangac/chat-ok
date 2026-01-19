@@ -12,7 +12,7 @@ export interface RiveWateringProps {
  */
 export default function RiveWatering({ progress }: RiveWateringProps) {
   const { rive, RiveComponent } = useRive({
-    src: '/watering.riv',
+    src: 'https://g.alicdn.com/ai-code/fjre/0.0.2/watering.riv',
     stateMachines: 'percentage',
     autoplay: true,
   });

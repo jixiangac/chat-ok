@@ -29,7 +29,9 @@ import {
   useTaskContext,
   useScene,
   CultivationProvider,
-  useCultivation
+  useCultivation,
+  useModal,
+  UI_KEYS
 } from './contexts';
 
 // Cultivation
@@ -37,6 +39,7 @@ import SecondFloorPanel from './panels/cultivation/SecondFloorPanel';
 
 // Styles
 import styles from './css/DCPage.module.css';
+
 
 type TabKey = 'home' | 'normal' | 'vacation' | 'memorial';
 
@@ -48,19 +51,31 @@ function DCPageContent() {
   } = useScene();
   
   // UI 状态（从 UIProvider）
-  const { 
-    activeTab, 
-    setActiveTab, 
-    showArchive, 
-    showSettings, 
-    openArchive, 
-    openSettings, 
-    closeArchive, 
+  const {
+    activeTab,
+    setActiveTab,
+    showArchive,
+    showSettings,
+    showTodayMustCompleteModal,
+    openArchive,
+    openSettings,
+    closeArchive,
     closeSettings
   } = useUIState();
   
   // 任务状态（从 TaskProvider）
-  const { setSelectedTaskId } = useTaskContext();
+  const { selectedTaskId, setSelectedTaskId } = useTaskContext();
+  
+  // 创建任务弹窗状态
+  const { visible: showCreateTaskModal } = useModal(UI_KEYS.MODAL_CREATE_TASK_VISIBLE);
+  
+  // 度假模式弹窗状态
+  const { visible: showVacationCreateTrip } = useModal(UI_KEYS.MODAL_VACATION_CREATE_TRIP_VISIBLE);
+  const { visible: showVacationAddGoal } = useModal(UI_KEYS.MODAL_VACATION_ADD_GOAL_VISIBLE);
+  // 纪念日模式弹窗状态
+  const { visible: showMemorialCreate } = useModal(UI_KEYS.MODAL_MEMORIAL_CREATE_VISIBLE);
+  // 一日清单弹窗状态
+  const { visible: showDailyView } = useModal(UI_KEYS.MODAL_DAILY_VIEW_VISIBLE);
   
   // 修仙状态（从 CultivationProvider）
   const { data: cultivationData, breakthrough } = useCultivation();
@@ -80,17 +95,30 @@ function DCPageContent() {
     setPullStage(stage);
   }, []);
 
+  // 判断是否有弹窗打开，有弹窗时禁用下拉进入二楼
+  // 包括：设置面板、归档列表、今日必完成弹窗、任务详情页、创建任务弹窗、度假模式弹窗、纪念日弹窗、一日清单弹窗
+  const hasModalOpen = showSettings || 
+    showArchive || 
+    showTodayMustCompleteModal || 
+    !!selectedTaskId || 
+    showCreateTaskModal || 
+    showVacationCreateTrip || 
+    showVacationAddGoal || 
+    showMemorialCreate ||
+    showDailyView;
+
   // 下拉进入二楼 Hook
-  const { 
-    containerProps, 
-    isPulling, 
+  const {
+    containerProps,
+    isPulling,
     isInSecondFloor,
     pullDistance,
-    leaveSecondFloor 
+    leaveSecondFloor
   } = usePullToSecondFloor({
     firstThreshold: 80,
     secondThreshold: 100,
     maxPull: 100,
+    enabled: !hasModalOpen,
     onProgress: handlePullProgress,
     onEnterSecondFloor: () => {
       console.log('进入修炼二楼');
@@ -218,10 +246,19 @@ function DCPageContent() {
         <div className={`${styles.content} ${activeTab === 'normal' ? styles.contentWithBottomBar : ''}`}>
           {/* 小精灵区域 - 固定不滚动 */}
           <div className={styles.spriteSection}>
-            {/* 小精灵区域 */}
-            <div className={styles.moonPhaseWrapper}>
-              <MoonPhase />
+            {/* 右上角金币 */}
+            <div className={styles.coinWrapper}>
+              <img 
+                src="https://gw.alicdn.com/imgextra/i1/O1CN01dUkd0B1UxywsCCzXY_!!6000000002585-2-tps-1080-992.png"
+                alt="金币"
+                style={{ width: 30, height: 25 }}
+              />
+              <span className={styles.coinCount}>129</span>
             </div>
+            {/* 小精灵区域 */}
+            {/* <div className={styles.moonPhaseWrapper}>
+              <MoonPhase />
+            </div> */}
             <img 
               src={spriteImage} 
               alt="可爱的小精灵"
@@ -299,3 +336,10 @@ export default function DCPage() {
     </AppProvider>
   );
 }
+
+
+
+
+
+
+

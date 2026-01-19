@@ -1,7 +1,7 @@
 import React, { useMemo, useRef } from 'react';
 import styles from './styles.module.css';
 import { formatDisplayNumber } from '../../../../utils';
-import { RiveWatering, CoffeeCupSvg, DieCat } from '../../../../riv';
+import { RiveWatering, CoffeeCupSvg, DieCat, RiveCuteing } from '../../../../riv';
 
 export interface WaterCupProgressProps {
   /** 周期进度百分比 (0-100) */
@@ -25,7 +25,7 @@ export interface WaterCupProgressProps {
   /** 起始值（用于计算进度） */
   startValue?: number;
   /** 任务类型 */
-  category: 'NUMERIC' | 'CHECK_IN';
+  category: 'NUMERIC' | 'CHECK_IN' | 'CHECK_IN_DURATION' | 'CHECK_IN_TIMES' | 'CHECK_IN_QUANTITY';
   isPlanEnded: boolean;
 }
 
@@ -71,7 +71,15 @@ export default function WaterCupProgress({
   const sizeClass = styles[size] || styles.medium;
 
   const marginleftStyle = useMemo(() => {
-    if (category === 'CHECK_IN') {
+    if (category === 'CHECK_IN_QUANTITY') {
+      return {
+        marginLeft: '9px',
+        marginBottom: '10px',
+        width: '330px',
+        height: '280px',
+        marginTop: '10px'
+      };
+    } else if (category === 'CHECK_IN_TIMES' || category === 'CHECK_IN_DURATION') {
       return {
         marginLeft: '2px',
         marginBottom: '10px',
@@ -95,7 +103,9 @@ export default function WaterCupProgress({
     if ( isPlanEnded && progress < 100 ) {
       return <DieCat progress={progress} />;
     }
-    if (category === 'CHECK_IN') {
+    if (category === 'CHECK_IN_QUANTITY') {
+      return <RiveCuteing progress={progress} />;
+    } else if ( category === 'CHECK_IN_TIMES' || category === 'CHECK_IN_DURATION') {
       return <RiveWatering progress={progress} />;
     } else if (category === 'NUMERIC') {
       return (

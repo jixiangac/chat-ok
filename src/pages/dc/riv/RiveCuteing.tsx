@@ -13,7 +13,7 @@ export interface RiveCuteingProps {
 export default function RiveCuteing({ progress }: RiveCuteingProps) {
 
   const { rive, RiveComponent } = useRive({
-    src: '/cute.riv',
+    src: 'https://g.alicdn.com/ai-code/fjre/0.0.2/cute.riv',
     stateMachines: 'water bottle',
     autoplay: true,
   });

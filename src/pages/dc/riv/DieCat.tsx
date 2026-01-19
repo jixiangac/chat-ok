@@ -13,7 +13,7 @@ export interface DieCatProps {
 export default function DieCat({ progress }: DieCatProps) {
   
   const { rive, RiveComponent } = useRive({
-    src: '/cat.riv',
+    src: 'https://g.alicdn.com/ai-code/fjre/0.0.2/cat.riv',
     stateMachines: 'State Machine 1',
     autoplay: true,
   });

@@ -6,11 +6,12 @@
 import React, { useMemo, useState } from 'react';
 import { Popup, SafeArea } from 'antd-mobile';
 import { 
-  Check, Sun, Sunset, Moon, X
+  Check, Sun, Sunset, Moon, X, RefreshCw
 } from 'lucide-react';
 import dayjs from 'dayjs';
 import type { Task, TagType } from '../../types';
 import { getUsedLocationTags } from '../../utils/tagStorage';
+import { clearDailyViewCache, hasTodayRefreshed, markTodayRefreshed } from '../../utils';
 import { useTaskContext, useScene } from '../../contexts';
 import { LocationFilter } from '../../components';
 import styles from './styles.module.css';
@@ -119,8 +120,43 @@ const DailyViewPopup: React.FC<DailyViewPopupProps> = ({
   onClose,
 }) => {
   const { setSelectedTaskId } = useTaskContext();
-  const { normal } = useScene();
+  const { normal, refreshScene } = useScene();
   
+  // 检查今日是否已刷新
+  const [hasRefreshed, setHasRefreshed] = useState(() => hasTodayRefreshed());
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  
+  // 检查今日是否有进度（进度大于0时也禁止刷新）
+  const hasTodayProgress = useMemo(() => {
+    return normal.todayProgress.percentage > 0;
+  }, [normal.todayProgress.percentage]);
+  
+  // 是否禁用刷新按钮：已刷新过 或 今日有进度
+  const isRefreshDisabled = hasRefreshed || hasTodayProgress;
+
+  // 处理刷新一日清单
+  const handleRefresh = async () => {
+    if (isRefreshDisabled || isRefreshing) return;
+    
+    setIsRefreshing(true);
+    
+    try {
+      // 1. 清除一日清单缓存
+      clearDailyViewCache();
+      
+      // 2. 标记今日已刷新
+      markTodayRefreshed();
+      setHasRefreshed(true);
+      
+      // 3. 刷新场景数据，触发重新计算 dailyViewTaskIds
+      refreshScene('normal');
+    } catch (error) {
+      console.error('刷新一日清单失败:', error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
   // 从上下文获取活跃任务
   const tasks = useMemo(() => {
     return [...normal.mainlineTasks, ...normal.sidelineTasks];
@@ -328,6 +364,22 @@ const DailyViewPopup: React.FC<DailyViewPopupProps> = ({
         
         {/* 标题 */}
         <div className={styles.header}>
+          {/* 左上角刷新按钮 */}
+          <button 
+            className={`${styles.refreshButton} ${isRefreshDisabled ? styles.refreshDisabled : ''} ${isRefreshing ? styles.refreshing : ''}`}
+            onClick={handleRefresh}
+            disabled={isRefreshDisabled || isRefreshing}
+            title={
+              hasTodayProgress 
+                ? '今日已有进度，无法刷新' 
+                : hasRefreshed 
+                  ? '今日已刷新' 
+                  : '重新生成一日清单'
+            }
+          >
+            <RefreshCw size={16} />
+          </button>
+          
           <h1 className={styles.title}>一日清单</h1>
           <p className={styles.titleEn}>* * * TODAY'S LIST * * *</p>
         </div>
@@ -380,6 +432,9 @@ const DailyViewPopup: React.FC<DailyViewPopupProps> = ({
 };
 
 export default DailyViewPopup;
+
+
+
 
 
 

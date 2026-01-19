@@ -2409,7 +2409,10 @@
     "layout": false,
     "exports": [
       "clearDailyViewCache",
+      "clearRefreshStatus",
       "getCachedDailyTaskIds",
+      "hasTodayRefreshed",
+      "markTodayRefreshed",
       "saveDailyTaskIdsCache"
     ]
   },
@@ -2536,9 +2539,12 @@
     "componentName": "dc-utils-cultivation",
     "layout": false,
     "exports": [
+      "CULTIVATION_IMAGES",
       "compareLevels",
       "formatExp",
       "generateCultivationId",
+      "getCultivationImage",
+      "getCultivationImageFromData",
       "getCurrentExpCap",
       "getCurrentLevelInfo",
       "getLevelDisplayName",
@@ -2885,6 +2891,7 @@
       "clearAllArchivedTasks",
       "clearDailyViewCache",
       "clearData",
+      "clearRefreshStatus",
       "clearTestDate",
       "compareLevels",
       "copyToClipboard",
@@ -2936,6 +2943,7 @@
       "hasDailyTargetTask",
       "hasTestDate",
       "hasTodayBeenSet",
+      "hasTodayRefreshed",
       "hasTodaySetTasks",
       "importAllTasks",
       "importData",
@@ -2949,6 +2957,7 @@
       "loadTagsFromStorage",
       "loadTodayMustCompleteState",
       "markModalShown",
+      "markTodayRefreshed",
       "migrateOldArchivedTasks",
       "migrateToNewFormat",
       "needsProgressReset",

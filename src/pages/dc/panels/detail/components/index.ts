@@ -20,9 +20,6 @@ export { default as CoffeeCupProgress } from './CoffeeCupProgress';
 export { default as WaterCupProgress } from './WaterCupProgress';
 export { default as TodayProgressBar } from './TodayProgressBar';
 
-// 鸭子水波进度组件（从 components 目录导入）
-export { DuckWaterProgress } from '../../../components/DuckWaterProgress';
-
 // 信息展示组件（新增）
 export { default as CycleInfo } from './CycleInfo';
 export { default as SecondaryNav } from './SecondaryNav';

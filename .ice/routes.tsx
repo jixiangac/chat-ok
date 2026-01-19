@@ -60,7 +60,6 @@ import * as dc_panels_settings_pages_ThemeSettingsPage from '@/pages/dc/panels/s
 import * as dc_components_CreateMainlineTaskModal_constants from '@/pages/dc/components/CreateMainlineTaskModal/constants';
 import * as dc_panels_settings_pages_SettingsMainPage from '@/pages/dc/panels/settings/pages/SettingsMainPage/index';
 import * as dc_components_CreateGoalModal_components from '@/pages/dc/components/CreateGoalModal/components/index';
-import * as dc_components_DuckWaterProgress_DuckSilhouette from '@/pages/dc/components/DuckWaterProgress/DuckSilhouette';
 import * as dc_panels_detail_components_CheckInModal from '@/pages/dc/panels/detail/components/CheckInModal/index';
 import * as dc_panels_detail_components_DetailHeader from '@/pages/dc/panels/detail/components/DetailHeader/index';
 import * as dc_panels_detail_components_SecondaryNav from '@/pages/dc/panels/detail/components/SecondaryNav/index';
@@ -76,7 +75,6 @@ import * as dc_components_CreateMainlineTaskModal_types from '@/pages/dc/compone
 import * as dc_panels_detail_components_CycleInfo from '@/pages/dc/panels/detail/components/CycleInfo/index';
 import * as dc_panels_settings_pages_DateTestPage from '@/pages/dc/panels/settings/pages/DateTestPage/index';
 import * as dc_viewmodel_CreateTaskModal_steps_TypeStep from '@/pages/dc/viewmodel/CreateTaskModal/steps/TypeStep';
-import * as dc_components_DuckWaterProgress_WaterWave from '@/pages/dc/components/DuckWaterProgress/WaterWave';
 import * as dc_components_SidelineTaskEditModal from '@/pages/dc/components/SidelineTaskEditModal/index';
 import * as dc_components_shared_CircleProgress from '@/pages/dc/components/shared/CircleProgress/index';
 import * as dc_panels_happy_components_GoalCard from '@/pages/dc/panels/happy/components/GoalCard/index';
@@ -103,7 +101,6 @@ import * as dc_panels_settings_ThemeSettings from '@/pages/dc/panels/settings/Th
 import * as dc_viewmodel_CreateTaskModal_constants from '@/pages/dc/viewmodel/CreateTaskModal/constants';
 import * as dc_viewmodel_MainlineTaskSection from '@/pages/dc/viewmodel/MainlineTaskSection/index';
 import * as dc_viewmodel_SidelineTaskSection from '@/pages/dc/viewmodel/SidelineTaskSection/index';
-import * as dc_components_DuckWaterProgress from '@/pages/dc/components/DuckWaterProgress/index';
 import * as dc_contexts_CultivationProvider from '@/pages/dc/contexts/CultivationProvider/index';
 import * as dc_contexts_CultivationProvider_types from '@/pages/dc/contexts/CultivationProvider/types';
 import * as dc_panels_memorial_hooks_useMemorials from '@/pages/dc/panels/memorial/hooks/useMemorials';
@@ -1746,31 +1743,6 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["CyclePreview","CycleSelector","DateSelector","DurationSelector","EncouragementInput","IconSelector","PopularGoals","PrioritySelector","RulesExplanation","TaskTypeSelector","WarningAlert"],
   },{
-    path: 'dc/components/DuckWaterProgress/DuckSilhouette',
-    async lazy() {
-      ;
-      return {
-        ...dc_components_DuckWaterProgress_DuckSilhouette,
-        Component: () => WrapRouteComponent({
-          routeId: 'dc/components/DuckWaterProgress/DuckSilhouette',
-          isLayout: false,
-          routeExports: dc_components_DuckWaterProgress_DuckSilhouette,
-        }),
-        loader: createRouteLoader({
-          routeId: 'dc/components/DuckWaterProgress/DuckSilhouette',
-          requestContext,
-          renderMode,
-          module: dc_components_DuckWaterProgress_DuckSilhouette,
-        }),
-      };
-    },
-    errorElement: <RouteErrorComponent />,
-    componentName: 'dc-components-duckwaterprogress-ducksilhouette',
-    index: undefined,
-    id: 'dc/components/DuckWaterProgress/DuckSilhouette',
-    exact: true,
-    exports: ["DUCK_CLIP_PATH_NORMALIZED","DUCK_PATH","DuckSilhouette","default"],
-  },{
     path: 'dc/panels/detail/components/CheckInModal',
     async lazy() {
       ;
@@ -2145,31 +2117,6 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/viewmodel/CreateTaskModal/steps/TypeStep',
     exact: true,
     exports: ["default"],
-  },{
-    path: 'dc/components/DuckWaterProgress/WaterWave',
-    async lazy() {
-      ;
-      return {
-        ...dc_components_DuckWaterProgress_WaterWave,
-        Component: () => WrapRouteComponent({
-          routeId: 'dc/components/DuckWaterProgress/WaterWave',
-          isLayout: false,
-          routeExports: dc_components_DuckWaterProgress_WaterWave,
-        }),
-        loader: createRouteLoader({
-          routeId: 'dc/components/DuckWaterProgress/WaterWave',
-          requestContext,
-          renderMode,
-          module: dc_components_DuckWaterProgress_WaterWave,
-        }),
-      };
-    },
-    errorElement: <RouteErrorComponent />,
-    componentName: 'dc-components-duckwaterprogress-waterwave',
-    index: undefined,
-    id: 'dc/components/DuckWaterProgress/WaterWave',
-    exact: true,
-    exports: ["WaterWave","default"],
   },{
     path: 'dc/components/SidelineTaskEditModal',
     async lazy() {
@@ -2820,31 +2767,6 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/viewmodel/SidelineTaskSection',
     exact: true,
     exports: ["default"],
-  },{
-    path: 'dc/components/DuckWaterProgress',
-    async lazy() {
-      ;
-      return {
-        ...dc_components_DuckWaterProgress,
-        Component: () => WrapRouteComponent({
-          routeId: 'dc/components/DuckWaterProgress',
-          isLayout: false,
-          routeExports: dc_components_DuckWaterProgress,
-        }),
-        loader: createRouteLoader({
-          routeId: 'dc/components/DuckWaterProgress',
-          requestContext,
-          renderMode,
-          module: dc_components_DuckWaterProgress,
-        }),
-      };
-    },
-    errorElement: <RouteErrorComponent />,
-    componentName: 'dc-components-duckwaterprogress-index',
-    index: true,
-    id: 'dc/components/DuckWaterProgress',
-    exact: true,
-    exports: ["DuckSilhouette","DuckWaterProgress","WaterWave","default"],
   },{
     path: 'dc/contexts/CultivationProvider',
     async lazy() {
@@ -3594,7 +3516,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/panels/detail/components',
     exact: true,
-    exports: ["ActivityRecordPanel","CalendarViewPanel","CheckInCyclePanel","CheckInHistoryPanel","CheckInModal","CheckInRecordPanel","ChecklistCyclePanel","CoffeeCupProgress","CycleInfo","DetailHeader","DuckWaterProgress","HistoryCyclePanel","HistoryRecordPanel","NumericCyclePanel","ProgressSection","RecordDataModal","SecondaryNav","TabBar","TodayProgressBar","WaterCupProgress","showCycleSummaryDialog"],
+    exports: ["ActivityRecordPanel","CalendarViewPanel","CheckInCyclePanel","CheckInHistoryPanel","CheckInModal","CheckInRecordPanel","ChecklistCyclePanel","CoffeeCupProgress","CycleInfo","DetailHeader","HistoryCyclePanel","HistoryRecordPanel","NumericCyclePanel","ProgressSection","RecordDataModal","SecondaryNav","TabBar","TodayProgressBar","WaterCupProgress","showCycleSummaryDialog"],
   },{
     path: 'dc/panels/happy/hooks/useSchedule',
     async lazy() {
@@ -5519,7 +5441,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/components',
     exact: true,
-    exports: ["CircleProgress","CreateGoalModal","CreateMainlineTaskModal","CultivationEntry","DailyProgress","DuckWaterProgress","LocationFilter","MainlineTaskCard","MigrationModal","ProgressBar","PullIndicator","QuickActionButtons","SecondFloorIndicator","SidelineTaskCard","StatCard","StatCardGrid","ThemedButton"],
+    exports: ["CircleProgress","CreateGoalModal","CreateMainlineTaskModal","CultivationEntry","DailyProgress","LocationFilter","MainlineTaskCard","MigrationModal","ProgressBar","PullIndicator","QuickActionButtons","SecondFloorIndicator","SidelineTaskCard","StatCard","StatCardGrid","ThemedButton"],
   },{
     path: 'dc/constants/colors',
     async lazy() {

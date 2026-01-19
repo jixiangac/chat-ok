@@ -667,19 +667,6 @@
     ]
   },
   {
-    "path": "dc/components/DuckWaterProgress/DuckSilhouette",
-    "id": "dc/components/DuckWaterProgress/DuckSilhouette",
-    "file": "dc/components/DuckWaterProgress/DuckSilhouette.tsx",
-    "componentName": "dc-components-duckwaterprogress-ducksilhouette",
-    "layout": false,
-    "exports": [
-      "DUCK_CLIP_PATH_NORMALIZED",
-      "DUCK_PATH",
-      "DuckSilhouette",
-      "default"
-    ]
-  },
-  {
     "path": "dc/panels/detail/components/CheckInModal",
     "index": true,
     "id": "dc/panels/detail/components/CheckInModal",
@@ -838,17 +825,6 @@
     "componentName": "dc-viewmodel-createtaskmodal-steps-typestep",
     "layout": false,
     "exports": [
-      "default"
-    ]
-  },
-  {
-    "path": "dc/components/DuckWaterProgress/WaterWave",
-    "id": "dc/components/DuckWaterProgress/WaterWave",
-    "file": "dc/components/DuckWaterProgress/WaterWave.tsx",
-    "componentName": "dc-components-duckwaterprogress-waterwave",
-    "layout": false,
-    "exports": [
-      "WaterWave",
       "default"
     ]
   },
@@ -1172,20 +1148,6 @@
     "componentName": "dc-viewmodel-sidelinetasksection-index",
     "layout": false,
     "exports": [
-      "default"
-    ]
-  },
-  {
-    "path": "dc/components/DuckWaterProgress",
-    "index": true,
-    "id": "dc/components/DuckWaterProgress",
-    "file": "dc/components/DuckWaterProgress/index.tsx",
-    "componentName": "dc-components-duckwaterprogress-index",
-    "layout": false,
-    "exports": [
-      "DuckSilhouette",
-      "DuckWaterProgress",
-      "WaterWave",
       "default"
     ]
   },
@@ -1541,7 +1503,6 @@
       "CoffeeCupProgress",
       "CycleInfo",
       "DetailHeader",
-      "DuckWaterProgress",
       "HistoryCyclePanel",
       "HistoryRecordPanel",
       "NumericCyclePanel",
@@ -2589,7 +2550,6 @@
       "CreateMainlineTaskModal",
       "CultivationEntry",
       "DailyProgress",
-      "DuckWaterProgress",
       "LocationFilter",
       "MainlineTaskCard",
       "MigrationModal",

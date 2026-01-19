@@ -12,7 +12,6 @@ import {
   DetailHeader,
   CoffeeCupProgress,
   WaterCupProgress,
-  DuckWaterProgress,
   CycleInfo,
   SecondaryNav,
   RecordDataModal,
@@ -396,17 +395,7 @@ export default function GoalDetailModal({
             size="large"
           />
         );
-        
-        // return (
-        //   <DuckWaterProgress
-        //     progress={totalProgress}
-        //     currentValue={currentValue}
-        //     targetValue={targetValue}
-        //     unit={unit}
-        //     animate
-        //     size="large"
-        //   />
-        // );
+
       }
     }
   };

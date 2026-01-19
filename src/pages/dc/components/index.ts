@@ -27,9 +27,6 @@ export { default as PullIndicator } from './PullIndicator';
 // Second Floor Indicator - 二楼下拉指示器
 export { default as SecondFloorIndicator } from './SecondFloorIndicator';
 
-// Duck Water Progress - 鸭子水波进度组件
-export { default as DuckWaterProgress } from './DuckWaterProgress';
-
 // Quick Action Buttons - 快捷操作按钮组件
 export { default as QuickActionButtons } from './QuickActionButtons';
 

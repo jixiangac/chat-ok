@@ -1,0 +1,74 @@
+/* BottomNavigation - 底部双按钮导航 */
+
+.container {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, #f7f7f5 85%, transparent);
+  padding: 12px 16px 20px;
+  padding-bottom: calc(20px + env(safe-area-inset-bottom));
+}
+
+.hint {
+  text-align: center;
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: rgba(55, 53, 47, 0.6);
+}
+
+.buttons {
+  display: flex;
+  gap: 12px;
+}
+
+/* 单按钮时全宽 */
+.singleButton .nextButton {
+  width: 100%;
+}
+
+.backButton,
+.nextButton {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 15px 24px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.backButton {
+  border: 1.5px solid rgba(55, 53, 47, 0.15);
+  background: white;
+  color: rgb(55, 53, 47);
+}
+
+.backButton:active {
+  transform: scale(0.98);
+  background: rgba(55, 53, 47, 0.04);
+}
+
+.nextButton {
+  border: none;
+  background: rgb(55, 53, 47);
+  color: white;
+}
+
+.nextButton:active {
+  transform: scale(0.98);
+  opacity: 0.9;
+}
+
+.nextButton:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.nextButton:disabled:active {
+  transform: none;
+  opacity: 0.35;
+}

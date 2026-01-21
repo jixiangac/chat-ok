@@ -1,0 +1,100 @@
+/* OptionGrid - 网格选项卡片样式 */
+
+.container {
+  padding: 0 16px;
+  margin-bottom: 16px;
+}
+
+.title {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(55, 53, 47, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+  padding-left: 4px;
+}
+
+.grid {
+  display: grid;
+  gap: 10px;
+}
+
+.gridTwo {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.gridThree {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 14px 12px;
+  background: white;
+  border: 1.5px solid rgba(55, 53, 47, 0.08);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 44px;
+}
+
+/* 有图标时使用横向布局 */
+.card:has(.icon) {
+  flex-direction: row;
+  gap: 6px;
+  padding: 14px 16px;
+}
+
+.card:active {
+  transform: scale(0.98);
+}
+
+.cardSelected {
+  border-color: rgb(55, 53, 47);
+  background: rgba(55, 53, 47, 0.04);
+}
+
+/* 选中状态下图标高亮 */
+.cardSelected .icon {
+  opacity: 1;
+}
+
+.cardDisabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.cardDisabled:active {
+  transform: none;
+}
+
+/* 隐藏勾选图标，用边框表示选中 */
+.checkIcon {
+  display: none;
+}
+
+.icon {
+  color: rgb(55, 53, 47);
+  opacity: 0.5;
+  flex-shrink: 0;
+  transition: opacity 0.2s ease;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgb(55, 53, 47);
+  text-align: center;
+}
+
+.description {
+  font-size: 11px;
+  color: rgba(55, 53, 47, 0.5);
+  text-align: center;
+}

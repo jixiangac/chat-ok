@@ -1,4 +1,7 @@
-import type { MainlineTaskType, NumericDirection, CheckInUnit } from '../../types';
+import type { Category, NumericDirection, CheckInUnit } from '../../types';
+
+// 保持旧版兼容的别名
+type MainlineTaskType = Category;
 
 // 步骤枚举
 export type Step = 'cycle' | 'type' | 'config';

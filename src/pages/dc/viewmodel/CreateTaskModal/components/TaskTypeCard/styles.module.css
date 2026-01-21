@@ -1,0 +1,129 @@
+/* 任务类型卡片样式 */
+.card {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  margin: 0 16px 8px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+}
+
+.card:hover {
+  background: rgba(55, 53, 47, 0.04);
+}
+
+.card:active {
+  transform: scale(0.98);
+}
+
+.selected {
+  border-color: rgb(55, 53, 47);
+  background: rgba(55, 53, 47, 0.02);
+}
+
+.content {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.iconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(55, 53, 47, 0.06);
+  color: rgb(55, 53, 47);
+  flex-shrink: 0;
+}
+
+.textContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  font-size: 15px;
+  font-weight: 600;
+  color: rgb(55, 53, 47);
+  margin-bottom: 6px;
+}
+
+.description {
+  font-size: 13px;
+  color: rgba(55, 53, 47, 0.65);
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+.examples {
+  font-size: 12px;
+  color: rgba(55, 53, 47, 0.5);
+  margin-bottom: 8px;
+  line-height: 1.5;
+  padding: 6px 10px;
+  background: rgba(55, 53, 47, 0.04);
+  border-radius: 6px;
+}
+
+.feature {
+  font-size: 12px;
+  color: rgba(55, 53, 47, 0.55);
+  line-height: 1.5;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid rgba(55, 53, 47, 0.2);
+  flex-shrink: 0;
+  margin-top: 4px;
+  transition: all 0.2s;
+}
+
+.selected .checkbox {
+  background: rgb(55, 53, 47);
+  border-color: rgb(55, 53, 47);
+  color: white;
+}
+
+/* 翻书动画 */
+@keyframes flipIn {
+  0% {
+    opacity: 0;
+    transform: rotateX(-90deg);
+  }
+  60% {
+    opacity: 1;
+    transform: rotateX(10deg);
+  }
+  100% {
+    opacity: 1;
+    transform: rotateX(0deg);
+  }
+}
+
+.animated {
+  animation: flipIn 0.4s ease-out forwards;
+}
+
+/* 无障碍支持 */
+@media (prefers-reduced-motion: reduce) {
+  .animated {
+    animation: none;
+    opacity: 1;
+    transform: rotateX(0deg);
+  }
+}

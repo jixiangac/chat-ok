@@ -1,0 +1,176 @@
+/* CreateTaskModal 主样式文件 - Popup 底部弹窗 + 内部页面横移 */
+
+/* ==================== Popup 容器 ==================== */
+.popupBody {
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  height: 85vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #f7f7f5;
+}
+
+/* ==================== 顶部 Header ==================== */
+.header {
+  padding: 12px 16px;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.headerButton {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: rgb(55, 53, 47);
+  transition: all 0.2s;
+  margin-left: -8px;
+}
+
+.headerButton:hover {
+  background: rgba(55, 53, 47, 0.06);
+}
+
+.headerButton:active {
+  transform: scale(0.95);
+}
+
+.title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  color: rgb(55, 53, 47);
+  flex: 1;
+  text-align: center;
+}
+
+.headerSpacer {
+  width: 40px;
+  height: 40px;
+  margin-right: -8px;
+}
+
+/* ==================== 页面栈容器 ==================== */
+.pageStack {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  background: #f7f7f5;
+}
+
+/* ==================== 页面层级 ==================== */
+.pageLayer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #f7f7f5;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  /* 默认隐藏在右侧 */
+  visibility: hidden;
+  transform: translateX(100%);
+  /* 关键：使用 transition 实现所有动画 */
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              visibility 0s linear 0.3s;
+  will-change: transform;
+}
+
+/* 当前活动页面 - 居中显示 */
+.pageLayerActive {
+  visibility: visible;
+  transform: translateX(0);
+  z-index: 2;
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              visibility 0s linear 0s;
+}
+
+/* 背景页面 - 在左侧 30% 位置 */
+.pageLayerBackground {
+  visibility: visible;
+  transform: translateX(-30%);
+  z-index: 1;
+  pointer-events: none;
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              visibility 0s linear 0s;
+}
+
+/* 进入动画状态 - 新页面从右侧进入 */
+.pageLayerEntering {
+  visibility: visible;
+  transform: translateX(0);
+  z-index: 3;
+  box-shadow: -4px 0 16px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              visibility 0s linear 0s;
+}
+
+/* 收缩状态 - 背景页面向左移动 */
+.pageLayerShrinking {
+  visibility: visible;
+  transform: translateX(-30%);
+  z-index: 1;
+  pointer-events: none;
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              visibility 0s linear 0s;
+}
+
+/* 退出动画状态 - 当前页面向右滑出 */
+.pageLayerExiting {
+  visibility: visible;
+  transform: translateX(100%);
+  z-index: 3;
+  box-shadow: -4px 0 16px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              visibility 0s linear 0s;
+}
+
+/* 展开状态 - 背景页面恢复到中间 */
+.pageLayerExpanding {
+  visibility: visible;
+  transform: translateX(0);
+  z-index: 1;
+  pointer-events: none;
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              visibility 0s linear 0s;
+}
+
+/* 隐藏的页面 */
+.pageLayerHidden {
+  visibility: hidden;
+  transform: translateX(-50%);
+  z-index: 0;
+}
+
+/* ==================== 无障碍支持 ==================== */
+@media (prefers-reduced-motion: reduce) {
+  .pageLayer,
+  .pageLayerActive,
+  .pageLayerBackground,
+  .pageLayerEntering,
+  .pageLayerShrinking,
+  .pageLayerExiting,
+  .pageLayerExpanding {
+    transition: none !important;
+  }
+}
+
+/* ==================== 桌面端样式 ==================== */
+@media (min-width: 768px) {
+  .popupBody {
+    max-width: 420px;
+    margin: 0 auto;
+    max-height: 700px;
+  }
+}

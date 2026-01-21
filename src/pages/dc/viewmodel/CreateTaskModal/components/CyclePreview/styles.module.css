@@ -1,0 +1,27 @@
+/* 周期预览组件样式 */
+.container {
+  background: linear-gradient(135deg, #F1F1E8 0%, #E8F0E8 100%);
+  border: 1px solid rgba(55, 53, 47, 0.08);
+  border-radius: 12px;
+  padding: 16px;
+  margin: 0 16px 16px;
+}
+
+.title {
+  font-size: 15px;
+  font-weight: 600;
+  color: rgb(55, 53, 47);
+  margin-bottom: 12px;
+}
+
+.details {
+  font-size: 13px;
+  color: rgba(55, 53, 47, 0.7);
+  line-height: 1.8;
+}
+
+.details > div {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}

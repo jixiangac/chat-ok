@@ -40,6 +40,28 @@
     ]
   },
   {
+    "path": "dc/viewmodel/CreateTaskModal/components/BottomNavigation",
+    "index": true,
+    "id": "dc/viewmodel/CreateTaskModal/components/BottomNavigation",
+    "file": "dc/viewmodel/CreateTaskModal/components/BottomNavigation/index.tsx",
+    "componentName": "dc-viewmodel-createtaskmodal-components-bottomnavigation-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/viewmodel/CreateTaskModal/components/StepProgressBar",
+    "index": true,
+    "id": "dc/viewmodel/CreateTaskModal/components/StepProgressBar",
+    "file": "dc/viewmodel/CreateTaskModal/components/StepProgressBar/index.tsx",
+    "componentName": "dc-viewmodel-createtaskmodal-components-stepprogressbar-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
     "path": "dc/components/CreateGoalModal/components/EncouragementInput",
     "id": "dc/components/CreateGoalModal/components/EncouragementInput",
     "file": "dc/components/CreateGoalModal/components/EncouragementInput.tsx",
@@ -50,10 +72,33 @@
     ]
   },
   {
-    "path": "dc/viewmodel/CreateTaskModal/steps/configs/ChecklistConfig",
-    "id": "dc/viewmodel/CreateTaskModal/steps/configs/ChecklistConfig",
-    "file": "dc/viewmodel/CreateTaskModal/steps/configs/ChecklistConfig.tsx",
-    "componentName": "dc-viewmodel-createtaskmodal-steps-configs-checklistconfig",
+    "path": "dc/viewmodel/CreateTaskModal/components/CyclePreview",
+    "index": true,
+    "id": "dc/viewmodel/CreateTaskModal/components/CyclePreview",
+    "file": "dc/viewmodel/CreateTaskModal/components/CyclePreview/index.tsx",
+    "componentName": "dc-viewmodel-createtaskmodal-components-cyclepreview-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/viewmodel/CreateTaskModal/components/TaskTypeCard",
+    "index": true,
+    "id": "dc/viewmodel/CreateTaskModal/components/TaskTypeCard",
+    "file": "dc/viewmodel/CreateTaskModal/components/TaskTypeCard/index.tsx",
+    "componentName": "dc-viewmodel-createtaskmodal-components-tasktypecard-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/viewmodel/CreateTaskModal/pages/CycleSettingsPage",
+    "index": true,
+    "id": "dc/viewmodel/CreateTaskModal/pages/CycleSettingsPage",
+    "file": "dc/viewmodel/CreateTaskModal/pages/CycleSettingsPage/index.tsx",
+    "componentName": "dc-viewmodel-createtaskmodal-pages-cyclesettingspage-index",
     "layout": false,
     "exports": [
       "default"
@@ -124,20 +169,11 @@
     ]
   },
   {
-    "path": "dc/viewmodel/CreateTaskModal/steps/configs/CheckInConfig",
-    "id": "dc/viewmodel/CreateTaskModal/steps/configs/CheckInConfig",
-    "file": "dc/viewmodel/CreateTaskModal/steps/configs/CheckInConfig.tsx",
-    "componentName": "dc-viewmodel-createtaskmodal-steps-configs-checkinconfig",
-    "layout": false,
-    "exports": [
-      "default"
-    ]
-  },
-  {
-    "path": "dc/viewmodel/CreateTaskModal/steps/configs/NumericConfig",
-    "id": "dc/viewmodel/CreateTaskModal/steps/configs/NumericConfig",
-    "file": "dc/viewmodel/CreateTaskModal/steps/configs/NumericConfig.tsx",
-    "componentName": "dc-viewmodel-createtaskmodal-steps-configs-numericconfig",
+    "path": "dc/viewmodel/CreateTaskModal/components/OptionGrid",
+    "index": true,
+    "id": "dc/viewmodel/CreateTaskModal/components/OptionGrid",
+    "file": "dc/viewmodel/CreateTaskModal/components/OptionGrid/index.tsx",
+    "componentName": "dc-viewmodel-createtaskmodal-components-optiongrid-index",
     "layout": false,
     "exports": [
       "default"
@@ -164,6 +200,17 @@
     "layout": false,
     "exports": [
       "VirtualMemorialList",
+      "default"
+    ]
+  },
+  {
+    "path": "dc/viewmodel/CreateTaskModal/pages/TypeSelectPage",
+    "index": true,
+    "id": "dc/viewmodel/CreateTaskModal/pages/TypeSelectPage",
+    "file": "dc/viewmodel/CreateTaskModal/pages/TypeSelectPage/index.tsx",
+    "componentName": "dc-viewmodel-createtaskmodal-pages-typeselectpage-index",
+    "layout": false,
+    "exports": [
       "default"
     ]
   },
@@ -432,6 +479,17 @@
     "id": "dc/panels/settings/components/SettingsSection",
     "file": "dc/panels/settings/components/SettingsSection/index.tsx",
     "componentName": "dc-panels-settings-components-settingssection-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/viewmodel/CreateTaskModal/pages/ConfigPage",
+    "index": true,
+    "id": "dc/viewmodel/CreateTaskModal/pages/ConfigPage",
+    "file": "dc/viewmodel/CreateTaskModal/pages/ConfigPage/index.tsx",
+    "componentName": "dc-viewmodel-createtaskmodal-pages-configpage-index",
     "layout": false,
     "exports": [
       "default"
@@ -747,13 +805,18 @@
     ]
   },
   {
-    "path": "dc/viewmodel/CreateTaskModal/steps/ConfigStep",
-    "id": "dc/viewmodel/CreateTaskModal/steps/ConfigStep",
-    "file": "dc/viewmodel/CreateTaskModal/steps/ConfigStep.tsx",
-    "componentName": "dc-viewmodel-createtaskmodal-steps-configstep",
+    "path": "dc/viewmodel/CreateTaskModal/components",
+    "index": true,
+    "id": "dc/viewmodel/CreateTaskModal/components",
+    "file": "dc/viewmodel/CreateTaskModal/components/index.ts",
+    "componentName": "dc-viewmodel-createtaskmodal-components-index",
     "layout": false,
     "exports": [
-      "default"
+      "BottomNavigation",
+      "CyclePreview",
+      "OptionGrid",
+      "StepProgressBar",
+      "TaskTypeCard"
     ]
   },
   {
@@ -761,16 +824,6 @@
     "id": "dc/panels/happy/components/TripList/TripCard",
     "file": "dc/panels/happy/components/TripList/TripCard.tsx",
     "componentName": "dc-panels-happy-components-triplist-tripcard",
-    "layout": false,
-    "exports": [
-      "default"
-    ]
-  },
-  {
-    "path": "dc/viewmodel/CreateTaskModal/steps/CycleStep",
-    "id": "dc/viewmodel/CreateTaskModal/steps/CycleStep",
-    "file": "dc/viewmodel/CreateTaskModal/steps/CycleStep.tsx",
-    "componentName": "dc-viewmodel-createtaskmodal-steps-cyclestep",
     "layout": false,
     "exports": [
       "default"
@@ -813,16 +866,6 @@
     "id": "dc/panels/settings/pages/DateTestPage",
     "file": "dc/panels/settings/pages/DateTestPage/index.tsx",
     "componentName": "dc-panels-settings-pages-datetestpage-index",
-    "layout": false,
-    "exports": [
-      "default"
-    ]
-  },
-  {
-    "path": "dc/viewmodel/CreateTaskModal/steps/TypeStep",
-    "id": "dc/viewmodel/CreateTaskModal/steps/TypeStep",
-    "file": "dc/viewmodel/CreateTaskModal/steps/TypeStep.tsx",
-    "componentName": "dc-viewmodel-createtaskmodal-steps-typestep",
     "layout": false,
     "exports": [
       "default"
@@ -946,16 +989,16 @@
     ]
   },
   {
-    "path": "dc/viewmodel/CreateTaskModal/steps",
+    "path": "dc/viewmodel/CreateTaskModal/pages",
     "index": true,
-    "id": "dc/viewmodel/CreateTaskModal/steps",
-    "file": "dc/viewmodel/CreateTaskModal/steps/index.ts",
-    "componentName": "dc-viewmodel-createtaskmodal-steps-index",
+    "id": "dc/viewmodel/CreateTaskModal/pages",
+    "file": "dc/viewmodel/CreateTaskModal/pages/index.ts",
+    "componentName": "dc-viewmodel-createtaskmodal-pages-index",
     "layout": false,
     "exports": [
-      "ConfigStep",
-      "CycleStep",
-      "TypeStep"
+      "ConfigPage",
+      "CycleSettingsPage",
+      "TypeSelectPage"
     ]
   },
   {
@@ -1041,6 +1084,16 @@
       "AllSidelineTasksList",
       "AllSidelineTasksPopup",
       "default"
+    ]
+  },
+  {
+    "path": "dc/viewmodel/CreateTaskModal/modalTypes",
+    "id": "dc/viewmodel/CreateTaskModal/modalTypes",
+    "file": "dc/viewmodel/CreateTaskModal/modalTypes.ts",
+    "componentName": "dc-viewmodel-createtaskmodal-modaltypes",
+    "layout": false,
+    "exports": [
+      "createInitialState"
     ]
   },
   {
@@ -1132,6 +1185,7 @@
     "componentName": "dc-viewmodel-createtaskmodal-constants",
     "layout": false,
     "exports": [
+      "CHECKLIST_TEMPLATES",
       "CHECK_IN_TYPE_OPTIONS",
       "CYCLE_LENGTH_OPTIONS",
       "DIRECTION_OPTIONS",

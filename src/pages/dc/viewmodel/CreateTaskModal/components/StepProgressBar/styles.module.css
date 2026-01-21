@@ -1,0 +1,61 @@
+/* StepProgressBar - 分段式步骤进度条 */
+
+.container {
+  padding: 4px 20px 16px;
+}
+
+.segments {
+  display: flex;
+  gap: 6px;
+}
+
+.segment {
+  flex: 1;
+  height: 4px;
+  background: rgba(55, 53, 47, 0.1);
+  border-radius: 2px;
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  position: relative;
+  overflow: hidden;
+}
+
+/* 已完成的步骤 */
+.completed {
+  background: rgb(55, 53, 47);
+}
+
+/* 当前步骤 - 带有渐变和动画效果 */
+.current {
+  background: linear-gradient(
+    90deg,
+    rgb(55, 53, 47) 0%,
+    rgb(55, 53, 47) 50%,
+    rgba(55, 53, 47, 0.3) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  50% {
+    background-position: 0% 0;
+  }
+  100% {
+    background-position: 100% 0;
+  }
+}
+
+/* 无障碍支持 */
+@media (prefers-reduced-motion: reduce) {
+  .segment {
+    transition: none;
+  }
+
+  .current {
+    animation: none;
+    background: rgb(55, 53, 47);
+  }
+}

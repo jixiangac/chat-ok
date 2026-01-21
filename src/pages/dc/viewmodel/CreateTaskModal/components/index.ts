@@ -3,3 +3,4 @@ export { default as TaskTypeCard } from './TaskTypeCard';
 export { default as StepProgressBar } from './StepProgressBar';
 export { default as OptionGrid } from './OptionGrid';
 export { default as BottomNavigation } from './BottomNavigation';
+export { default as TaskPreview } from './TaskPreview';

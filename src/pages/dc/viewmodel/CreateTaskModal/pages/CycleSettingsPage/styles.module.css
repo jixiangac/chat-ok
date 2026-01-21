@@ -62,3 +62,18 @@
   margin-top: 8px;
   padding-left: 4px;
 }
+
+/* 灵石消耗提示 */
+.costHint {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: rgb(55, 53, 47);
+  font-weight: 500;
+}
+
+.costIcon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}

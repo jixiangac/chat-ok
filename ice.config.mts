@@ -20,6 +20,12 @@ export default defineConfig(() => ({
       changeOrigin: true,
       // pathRewrite: { '^/api' : '' },
     },
+    '/ai-api': {
+      target: 'https://apis.iflow.cn',
+      changeOrigin: true,
+      pathRewrite: { '^/ai-api': '' },
+      secure: true,
+    },
   },
   // 排除测试文件和 fixtures 被路由系统解析
   routes: {

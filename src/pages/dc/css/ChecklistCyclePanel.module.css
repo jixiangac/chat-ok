@@ -127,3 +127,30 @@
 .timeIcon {
   font-size: 16px;
 }
+
+/* AI 辅助按钮 */
+.aiButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 16px;
+  padding: 14px 16px;
+  background: #000000;
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.aiButton:hover {
+  background: #333333;
+}
+
+.aiButton:active {
+  transform: scale(0.98);
+}

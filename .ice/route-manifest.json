@@ -145,6 +145,17 @@
     ]
   },
   {
+    "path": "dc/viewmodel/CreateTaskModal/components/TaskPreview",
+    "index": true,
+    "id": "dc/viewmodel/CreateTaskModal/components/TaskPreview",
+    "file": "dc/viewmodel/CreateTaskModal/components/TaskPreview/index.tsx",
+    "componentName": "dc-viewmodel-createtaskmodal-components-taskpreview-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
     "path": "dc/panels/memorial/components/MemorialCardSkeleton",
     "index": true,
     "id": "dc/panels/memorial/components/MemorialCardSkeleton",
@@ -816,6 +827,7 @@
       "CyclePreview",
       "OptionGrid",
       "StepProgressBar",
+      "TaskPreview",
       "TaskTypeCard"
     ]
   },
@@ -928,6 +940,18 @@
     ]
   },
   {
+    "path": "dc/agent/components/AgentChatPopup",
+    "index": true,
+    "id": "dc/agent/components/AgentChatPopup",
+    "file": "dc/agent/components/AgentChatPopup/index.tsx",
+    "componentName": "dc-agent-components-agentchatpopup-index",
+    "layout": false,
+    "exports": [
+      "AgentChatPopup",
+      "default"
+    ]
+  },
+  {
     "path": "dc/components/SecondFloorIndicator",
     "index": true,
     "id": "dc/components/SecondFloorIndicator",
@@ -999,6 +1023,30 @@
       "ConfigPage",
       "CycleSettingsPage",
       "TypeSelectPage"
+    ]
+  },
+  {
+    "path": "dc/agent/components/ActionPreview",
+    "index": true,
+    "id": "dc/agent/components/ActionPreview",
+    "file": "dc/agent/components/ActionPreview/index.tsx",
+    "componentName": "dc-agent-components-actionpreview-index",
+    "layout": false,
+    "exports": [
+      "ActionPreview",
+      "default"
+    ]
+  },
+  {
+    "path": "dc/agent/components/MessageBubble",
+    "index": true,
+    "id": "dc/agent/components/MessageBubble",
+    "file": "dc/agent/components/MessageBubble/index.tsx",
+    "componentName": "dc-agent-components-messagebubble-index",
+    "layout": false,
+    "exports": [
+      "MessageBubble",
+      "default"
     ]
   },
   {
@@ -1216,6 +1264,18 @@
     ]
   },
   {
+    "path": "dc/agent/components/MessageList",
+    "index": true,
+    "id": "dc/agent/components/MessageList",
+    "file": "dc/agent/components/MessageList/index.tsx",
+    "componentName": "dc-agent-components-messagelist-index",
+    "layout": false,
+    "exports": [
+      "MessageList",
+      "default"
+    ]
+  },
+  {
     "path": "dc/contexts/CultivationProvider",
     "index": true,
     "id": "dc/contexts/CultivationProvider",
@@ -1338,6 +1398,18 @@
     "componentName": "dc-panels-settings-tagsettings-index",
     "layout": false,
     "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/agent/components/ChatInput",
+    "index": true,
+    "id": "dc/agent/components/ChatInput",
+    "file": "dc/agent/components/ChatInput/index.tsx",
+    "componentName": "dc-agent-components-chatinput-index",
+    "layout": false,
+    "exports": [
+      "ChatInput",
       "default"
     ]
   },
@@ -2052,6 +2124,16 @@
     ]
   },
   {
+    "path": "dc/agent/hooks/useStreamChat",
+    "id": "dc/agent/hooks/useStreamChat",
+    "file": "dc/agent/hooks/useStreamChat.ts",
+    "componentName": "dc-agent-hooks-usestreamchat",
+    "layout": false,
+    "exports": [
+      "useStreamChat"
+    ]
+  },
+  {
     "path": "dc/contexts/UIProvider/hooks",
     "id": "dc/contexts/UIProvider/hooks",
     "file": "dc/contexts/UIProvider/hooks.ts",
@@ -2299,6 +2381,21 @@
     ]
   },
   {
+    "path": "dc/agent/components",
+    "index": true,
+    "id": "dc/agent/components",
+    "file": "dc/agent/components/index.ts",
+    "componentName": "dc-agent-components-index",
+    "layout": false,
+    "exports": [
+      "ActionPreview",
+      "AgentChatPopup",
+      "ChatInput",
+      "MessageBubble",
+      "MessageList"
+    ]
+  },
+  {
     "path": "dc/utils/dataExportImport",
     "id": "dc/utils/dataExportImport",
     "file": "dc/utils/dataExportImport.ts",
@@ -2331,6 +2428,19 @@
       "importSingleTask",
       "saveLocationFilter",
       "setDeveloperMode"
+    ]
+  },
+  {
+    "path": "dc/agent/constants",
+    "index": true,
+    "id": "dc/agent/constants",
+    "file": "dc/agent/constants/index.ts",
+    "componentName": "dc-agent-constants-index",
+    "layout": false,
+    "exports": [
+      "API_CONFIG",
+      "ROLE_PROMPTS",
+      "WELCOME_CONFIGS"
     ]
   },
   {
@@ -2423,6 +2533,18 @@
       "hasDailyTargetTask",
       "isNearDeadline",
       "selectFlexibleTasks"
+    ]
+  },
+  {
+    "path": "dc/agent/hooks/useAgent",
+    "id": "dc/agent/hooks/useAgent",
+    "file": "dc/agent/hooks/useAgent.ts",
+    "componentName": "dc-agent-hooks-useagent",
+    "layout": false,
+    "exports": [
+      "client",
+      "createAgent",
+      "useAgent"
     ]
   },
   {
@@ -2651,6 +2773,29 @@
     "exports": []
   },
   {
+    "path": "dc/agent/hooks",
+    "index": true,
+    "id": "dc/agent/hooks",
+    "file": "dc/agent/hooks/index.ts",
+    "componentName": "dc-agent-hooks-index",
+    "layout": false,
+    "exports": [
+      "client",
+      "createAgent",
+      "useAgent",
+      "useStreamChat"
+    ]
+  },
+  {
+    "path": "dc/agent/types",
+    "index": true,
+    "id": "dc/agent/types",
+    "file": "dc/agent/types/index.ts",
+    "componentName": "dc-agent-types-index",
+    "layout": false,
+    "exports": []
+  },
+  {
     "path": "dc/constants/sprites",
     "id": "dc/constants/sprites",
     "file": "dc/constants/sprites.ts",
@@ -2873,6 +3018,17 @@
     ]
   },
   {
+    "path": "dc/agent/AgentChat",
+    "id": "dc/agent/AgentChat",
+    "file": "dc/agent/AgentChat.tsx",
+    "componentName": "dc-agent-agentchat",
+    "layout": false,
+    "exports": [
+      "AgentChat",
+      "default"
+    ]
+  },
+  {
     "path": "dc/constants",
     "index": true,
     "id": "dc/constants",
@@ -3009,6 +3165,28 @@
       "MemorialPanel",
       "NormalPanel",
       "UnifiedSettingsPanel"
+    ]
+  },
+  {
+    "path": "dc/agent",
+    "index": true,
+    "id": "dc/agent",
+    "file": "dc/agent/index.tsx",
+    "componentName": "dc-agent-index",
+    "layout": false,
+    "exports": [
+      "API_CONFIG",
+      "ActionPreview",
+      "AgentChat",
+      "AgentChatPopup",
+      "ChatInput",
+      "MessageBubble",
+      "MessageList",
+      "ROLE_PROMPTS",
+      "createAgent",
+      "default",
+      "useAgent",
+      "useStreamChat"
     ]
   },
   {

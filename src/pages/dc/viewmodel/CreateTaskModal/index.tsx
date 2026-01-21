@@ -6,7 +6,8 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import confetti from 'canvas-confetti';
 import { Popup, SafeArea, Toast } from 'antd-mobile';
-import { X, ChevronLeft } from 'lucide-react';
+import { X, ChevronLeft, Sparkles } from 'lucide-react';
+import { AgentChat, type StructuredOutput, type TaskConfigData } from '../../agent';
 import type { Category } from '../../types';
 import { useScene, useTaskContext, useCultivation } from '../../contexts';
 import { getNextThemeColor } from '../../constants';
@@ -21,14 +22,14 @@ import type { CreateTaskModalState } from './modalTypes';
 import { createInitialState } from './modalTypes';
 import styles from './styles.module.css';
 
-// 初始页面
-const INITIAL_PAGE = { id: 'cycle', title: '周期设置' };
+// 初始页面 - 调整为类型选择
+const INITIAL_PAGE = { id: 'type', title: '任务类型' };
 
-// 页面步骤映射
+// 页面步骤映射 - 调整顺序：类型 -> 配置 -> 周期预览
 const PAGE_STEP_MAP: Record<string, number> = {
-  cycle: 1,
-  type: 2,
-  config: 3,
+  type: 1,
+  config: 2,
+  cycle: 3,
 };
 
 export default function CreateTaskModal({
@@ -54,6 +55,8 @@ export default function CreateTaskModal({
   const [pageAnimationState, setPageAnimationState] = useState<'idle' | 'entering' | 'exiting'>('idle');
   // 动画计数器，用于强制重新触发 CSS 动画
   const [animationKey, setAnimationKey] = useState(0);
+  // AI 模式状态
+  const [isAIMode, setIsAIMode] = useState(false);
   // 页面元素 refs，用于强制触发动画
   const pageRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
@@ -65,9 +68,31 @@ export default function CreateTaskModal({
       setPageAnimationState('idle');
       setTaskCategory(hasMainlineTask ? 'SIDELINE' : 'MAINLINE');
       setState(createInitialState(getCurrentDate()));
+      setIsAIMode(false);
       reset();
     }
   }, [visible, hasMainlineTask, reset]);
+
+  // 处理 AI 生成的任务配置
+  const handleAIStructuredOutput = useCallback((output: StructuredOutput) => {
+    if (output.type === 'TASK_CONFIG') {
+      const config = output.data as TaskConfigData;
+      // 将 AI 生成的配置应用到表单
+      setState(s => ({
+        ...s,
+        taskTitle: config.title,
+        totalDays: config.totalDays,
+        cycleDays: config.cycleDays,
+        selectedType: config.category,
+      }));
+      // 切换回表单模式，跳转到配置页
+      setIsAIMode(false);
+      // 跳转到配置页和周期预览页让用户确认
+      push({ id: 'config', title: '任务配置' });
+      push({ id: 'cycle', title: '周期预览' });
+      Toast.show({ content: 'AI 已生成任务配置，请确认' });
+    }
+  }, [push]);
 
   // 关闭处理
   const handleClose = useCallback(() => {
@@ -118,7 +143,7 @@ export default function CreateTaskModal({
   // 获取页面 ref
   const getPageRef = (index: number, pageId: string) => {
     if (index !== stack.length - 1) return undefined;
-    return pageId === 'cycle' ? mainPageRef : subPageRef;
+    return pageId === 'type' ? mainPageRef : subPageRef;
   };
 
   // 提交任务
@@ -318,10 +343,16 @@ export default function CreateTaskModal({
   // 获取当前页面标题
   const getCurrentTitle = () => {
     const currentPage = stack[stack.length - 1];
-    if (currentPage.id === 'cycle') {
-      return `创建${taskCategory === 'MAINLINE' ? '主线' : '支线'}任务`;
+    switch (currentPage.id) {
+      case 'type':
+        return `创建${taskCategory === 'MAINLINE' ? '主线' : '支线'}任务`;
+      case 'config':
+        return '任务配置';
+      case 'cycle':
+        return '周期配置';
+      default:
+        return currentPage.title;
     }
-    return currentPage.title;
   };
 
   // 获取当前步骤
@@ -330,31 +361,31 @@ export default function CreateTaskModal({
     return PAGE_STEP_MAP[currentPage.id] || 1;
   };
 
-  // 渲染页面内容
+  // 渲染页面内容 - 顺序：类型 -> 配置 -> 周期预览
   const renderPageContent = (pageId: string) => {
     switch (pageId) {
-      case 'cycle':
-        return (
-          <CycleSettingsPage
-            state={state}
-            setState={setState}
-            onNext={() => handleNavigate('type', '任务类型')}
-            onBack={() => handleClose()}
-            taskCategory={taskCategory}
-          />
-        );
       case 'type':
         return (
           <TypeSelectPage
             state={state}
             setState={setState}
             onNext={() => handleNavigate('config', '任务配置')}
-            onBack={() => handleBack()}
+            onBack={() => handleClose()}
           />
         );
       case 'config':
         return (
           <ConfigPage
+            state={state}
+            setState={setState}
+            onNext={() => handleNavigate('cycle', '周期预览')}
+            onBack={() => handleBack()}
+            taskCategory={taskCategory}
+          />
+        );
+      case 'cycle':
+        return (
+          <CycleSettingsPage
             state={state}
             setState={setState}
             onSubmit={handleSubmit}
@@ -378,18 +409,50 @@ export default function CreateTaskModal({
       <div className={styles.header}>
         <button
           className={styles.headerButton}
-          onClick={() => canGoBack ? handleBack() : handleClose()}
+          onClick={() => {
+            if (isAIMode) {
+              setIsAIMode(false);
+            } else if (canGoBack) {
+              handleBack();
+            } else {
+              handleClose();
+            }
+          }}
         >
-          {canGoBack ? <ChevronLeft size={24} /> : <X size={24} />}
+          {(canGoBack || isAIMode) ? <ChevronLeft size={24} /> : <X size={24} />}
         </button>
-        <h2 className={styles.title}>{getCurrentTitle()}</h2>
-        <div className={styles.headerSpacer} />
+        <h2 className={styles.title}>
+          {isAIMode ? 'AI 任务助手' : getCurrentTitle()}
+        </h2>
+        {/* AI 模式切换按钮 - 仅在第一页显示 */}
+        {!isAIMode && !canGoBack ? (
+          <button
+            className={styles.headerButton}
+            onClick={() => setIsAIMode(true)}
+            title="AI 帮我创建"
+          >
+            <Sparkles size={20} />
+          </button>
+        ) : (
+          <div className={styles.headerSpacer} />
+        )}
       </div>
 
-      {/* iOS 风格进度条 */}
-      <StepProgressBar currentStep={getCurrentStep()} totalSteps={3} />
+      {/* iOS 风格进度条 - AI 模式不显示 */}
+      {!isAIMode && <StepProgressBar currentStep={getCurrentStep()} totalSteps={3} />}
 
-      {/* 页面栈容器 */}
+      {/* AI 模式 - 显示 AgentChat */}
+      {isAIMode ? (
+        <div className={styles.aiModeContainer}>
+          <AgentChat
+            role="taskCreator"
+            onStructuredOutput={handleAIStructuredOutput}
+            placeholder="告诉我你想达成什么目标..."
+            hideHeader
+          />
+        </div>
+      ) : (
+      /* 页面栈容器 */
       <div className={styles.pageStack} ref={containerRef}>
         {stack.map((page, index) => {
           const isCurrentPage = index === stack.length - 1;
@@ -433,6 +496,7 @@ export default function CreateTaskModal({
           );
         })}
       </div>
+      )}
 
       <SafeArea position="bottom" />
     </Popup>

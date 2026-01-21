@@ -2,6 +2,9 @@ import { useRef, useState, useCallback } from 'react';
 import { Plus, Archive, Settings as SettingsIcon } from 'lucide-react';
 import { SafeArea } from 'antd-mobile';
 
+// Agent Chat
+import { AgentChatPopup } from './agent';
+
 // Panels
 import { HappyPanel, ArchiveList, UnifiedSettingsPanel, MemorialPanel, NormalPanel } from './panels';
 import type { HappyPanelRef } from './panels';
@@ -88,6 +91,9 @@ function DCPageContent() {
   // 二楼状态
   const [pullProgress, setPullProgress] = useState(0);
   const [pullStage, setPullStage] = useState<'idle' | 'first' | 'second'>('idle');
+
+  // AI 小精灵对话状态
+  const [showSpriteChat, setShowSpriteChat] = useState(false);
 
   // 下拉进度回调
   const handlePullProgress = useCallback((progress: number, stage: 'idle' | 'first' | 'second') => {
@@ -255,14 +261,16 @@ function DCPageContent() {
               />
               <span className={styles.coinCount}>{spiritJadeData.balance}</span>
             </div>
-            {/* 小精灵区域 */}
+            {/* 小精灵区域 - 点击唤起 AI 对话 */}
             {/* <div className={styles.moonPhaseWrapper}>
               <MoonPhase />
             </div> */}
-            <img 
-              src={spriteImage} 
+            <img
+              src={spriteImage}
               alt="可爱的小精灵"
               className={styles.spriteImage}
+              onClick={() => setShowSpriteChat(true)}
+              style={{ cursor: 'pointer' }}
             />
           </div>
 
@@ -298,6 +306,14 @@ function DCPageContent() {
         visible={isInSecondFloor}
         onClose={handleCloseCultivation}
         onBreakthrough={handleBreakthrough}
+      />
+
+      {/* AI 小精灵对话弹窗 */}
+      <AgentChatPopup
+        visible={showSpriteChat}
+        onClose={() => setShowSpriteChat(false)}
+        role="general"
+        placeholder="和小精灵聊聊天吧..."
       />
 
       {/* 底部安全区域 */}

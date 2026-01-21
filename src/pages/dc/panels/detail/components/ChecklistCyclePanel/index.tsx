@@ -1,19 +1,24 @@
-import { CheckCircle, FileText, ClipboardList, Calendar, Square, CheckSquare } from 'lucide-react';
+import { useState } from 'react';
+import { CheckCircle, FileText, ClipboardList, Calendar, Square, CheckSquare, Sparkles } from 'lucide-react';
 import type { Task, ChecklistItem } from '../../../../types';
 import type { CurrentCycleInfo } from '../../types';
+import { AgentChatPopup, type StructuredOutput, type ChecklistItemsData } from '../../../../agent';
 import styles from '../../../../css/ChecklistCyclePanel.module.css';
 
 interface ChecklistCyclePanelProps {
   goal: Task;
   cycle: CurrentCycleInfo;
   onUpdateProgress: (itemId: string) => void;
+  onAddChecklistItems?: (items: { title: string }[]) => void;
 }
 
-export default function ChecklistCyclePanel({ 
-  goal, 
+export default function ChecklistCyclePanel({
+  goal,
   cycle,
-  onUpdateProgress 
+  onUpdateProgress,
+  onAddChecklistItems
 }: ChecklistCyclePanelProps) {
+  const [showAIChat, setShowAIChat] = useState(false);
   const config = goal.checklistConfig;
   
   if (!config) {
@@ -115,6 +120,32 @@ export default function ChecklistCyclePanel({
         <Calendar size={14} className={styles.timeIcon} />
         <span>本周期: {cycle.startDate} - {cycle.endDate}</span>
       </div>
+
+      {/* AI 辅助按钮 */}
+      {onAddChecklistItems && (
+        <button
+          className={styles.aiButton}
+          onClick={() => setShowAIChat(true)}
+        >
+          <Sparkles size={16} />
+          <span>AI 帮我梳理清单</span>
+        </button>
+      )}
+
+      {/* AI 清单助手弹窗 */}
+      <AgentChatPopup
+        visible={showAIChat}
+        onClose={() => setShowAIChat(false)}
+        role="checklistHelper"
+        placeholder="告诉我你的目标，我来帮你拆解..."
+        onStructuredOutput={(output: StructuredOutput) => {
+          if (output.type === 'CHECKLIST_ITEMS' && onAddChecklistItems) {
+            const data = output.data as ChecklistItemsData;
+            onAddChecklistItems(data.items);
+            setShowAIChat(false);
+          }
+        }}
+      />
     </div>
   );
 }

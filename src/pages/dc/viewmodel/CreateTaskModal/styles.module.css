@@ -166,6 +166,15 @@
   }
 }
 
+/* ==================== AI 模式容器 ==================== */
+.aiModeContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #ffffff;
+}
+
 /* ==================== 桌面端样式 ==================== */
 @media (min-width: 768px) {
   .popupBody {

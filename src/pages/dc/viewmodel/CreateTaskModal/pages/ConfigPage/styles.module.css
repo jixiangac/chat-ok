@@ -230,12 +230,75 @@
   text-align: center;
 }
 
+/* ==================== 类型说明提示 ==================== */
+.typeTips {
+  background: linear-gradient(135deg, rgba(241, 241, 232, 0.6) 0%, rgba(232, 240, 232, 0.6) 100%);
+  border: 1px solid rgba(55, 53, 47, 0.06);
+  border-radius: 12px;
+  padding: 16px;
+  margin: 16px 16px 0;
+}
+
+.typeTipsTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgb(55, 53, 47);
+  margin-bottom: 10px;
+}
+
+.typeTipsList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.typeTipsList li {
+  font-size: 13px;
+  color: rgba(55, 53, 47, 0.7);
+  line-height: 1.6;
+  padding: 4px 0;
+  padding-left: 16px;
+  position: relative;
+}
+
+.typeTipsList li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: rgba(55, 53, 47, 0.4);
+}
+
 /* ==================== 清单配置样式 ==================== */
 .sectionHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 12px;
+}
+
+.sectionActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.aiButton {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background: #000000;
+  border: none;
+  border-radius: 8px;
+  font-size: 12px;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.aiButton:active {
+  transform: scale(0.96);
+  background: #333333;
 }
 
 .templateButton {
@@ -293,11 +356,36 @@
   color: rgba(55, 53, 47, 0.3);
 }
 
+.checklistHintRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+  padding: 0 16px 0 30px;
+}
+
 .checklistHint {
   font-size: 12px;
   color: rgba(55, 53, 47, 0.5);
-  margin-top: 8px;
-  padding-left: 30px;
+}
+
+.clearAllBtn {
+  font-size: 12px;
+  color: #e03e3e;
+  background: none;
+  border: none;
+  padding: 4px 8px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.clearAllBtn:hover {
+  background: rgba(224, 62, 62, 0.08);
+}
+
+.clearAllBtn:active {
+  background: rgba(224, 62, 62, 0.15);
 }
 
 /* ==================== 模版弹窗样式 ==================== */

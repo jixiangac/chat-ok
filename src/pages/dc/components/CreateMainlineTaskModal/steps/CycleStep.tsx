@@ -266,7 +266,7 @@ export default function CycleStep({
       </div>
       
       {/* 预览 */}
-      <motion.div
+      {/* <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
@@ -286,7 +286,7 @@ export default function CycleStep({
           <div>总周期数：{cycleInfo.totalCycles}个</div>
           {cycleInfo.remainingDays > 0 && <div>剩余：{cycleInfo.remainingDays}天（缓冲期）</div>}
         </div>
-      </motion.div>
+      </motion.div> */}
       
       {/* 起始时间 */}
       <div style={{ marginTop: '20px' }}>

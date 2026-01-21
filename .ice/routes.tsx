@@ -14,6 +14,7 @@ import * as dc_components_CreateGoalModal_components_DurationSelector from '@/pa
 import * as dc_components_CreateGoalModal_components_PrioritySelector from '@/pages/dc/components/CreateGoalModal/components/PrioritySelector';
 import * as dc_components_CreateGoalModal_components_RulesExplanation from '@/pages/dc/components/CreateGoalModal/components/RulesExplanation';
 import * as dc_components_CreateGoalModal_components_TaskTypeSelector from '@/pages/dc/components/CreateGoalModal/components/TaskTypeSelector';
+import * as dc_viewmodel_CreateTaskModal_components_TaskPreview from '@/pages/dc/viewmodel/CreateTaskModal/components/TaskPreview/index';
 import * as dc_panels_memorial_components_MemorialCardSkeleton from '@/pages/dc/panels/memorial/components/MemorialCardSkeleton/index';
 import * as dc_panels_memorial_components_MemorialListSkeleton from '@/pages/dc/panels/memorial/components/MemorialListSkeleton/index';
 import * as dc_viewmodel_CreateTaskModal_components_OptionGrid from '@/pages/dc/viewmodel/CreateTaskModal/components/OptionGrid/index';
@@ -83,12 +84,15 @@ import * as dc_components_shared_CircleProgress from '@/pages/dc/components/shar
 import * as dc_panels_happy_components_GoalCard from '@/pages/dc/panels/happy/components/GoalCard/index';
 import * as dc_panels_happy_components_TripList from '@/pages/dc/panels/happy/components/TripList/index';
 import * as dc_viewmodel_TodayMustCompleteModal from '@/pages/dc/viewmodel/TodayMustCompleteModal/index';
+import * as dc_agent_components_AgentChatPopup from '@/pages/dc/agent/components/AgentChatPopup/index';
 import * as dc_components_SecondFloorIndicator from '@/pages/dc/components/SecondFloorIndicator/index';
 import * as dc_panels_detail_components_TabBar from '@/pages/dc/panels/detail/components/TabBar/index';
 import * as dc_panels_happy_components_DayTabs from '@/pages/dc/panels/happy/components/DayTabs/index';
 import * as dc_panels_happy_contexts_VacationContext from '@/pages/dc/panels/happy/contexts/VacationContext';
 import * as dc_panels_memorial_constants_backgrounds from '@/pages/dc/panels/memorial/constants/backgrounds';
 import * as dc_viewmodel_CreateTaskModal_pages from '@/pages/dc/viewmodel/CreateTaskModal/pages/index';
+import * as dc_agent_components_ActionPreview from '@/pages/dc/agent/components/ActionPreview/index';
+import * as dc_agent_components_MessageBubble from '@/pages/dc/agent/components/MessageBubble/index';
 import * as dc_components_CreateGoalModal_constants from '@/pages/dc/components/CreateGoalModal/constants';
 import * as dc_contexts_CultivationProvider_storage from '@/pages/dc/contexts/CultivationProvider/storage';
 import * as dc_panels_happy_hooks_useTripNavigation from '@/pages/dc/panels/happy/hooks/useTripNavigation';
@@ -105,6 +109,7 @@ import * as dc_panels_settings_ThemeSettings from '@/pages/dc/panels/settings/Th
 import * as dc_viewmodel_CreateTaskModal_constants from '@/pages/dc/viewmodel/CreateTaskModal/constants';
 import * as dc_viewmodel_MainlineTaskSection from '@/pages/dc/viewmodel/MainlineTaskSection/index';
 import * as dc_viewmodel_SidelineTaskSection from '@/pages/dc/viewmodel/SidelineTaskSection/index';
+import * as dc_agent_components_MessageList from '@/pages/dc/agent/components/MessageList/index';
 import * as dc_contexts_CultivationProvider from '@/pages/dc/contexts/CultivationProvider/index';
 import * as dc_contexts_CultivationProvider_types from '@/pages/dc/contexts/CultivationProvider/types';
 import * as dc_panels_memorial_hooks_useMemorials from '@/pages/dc/panels/memorial/hooks/useMemorials';
@@ -116,6 +121,7 @@ import * as dc_components_GroupDetailPopup from '@/pages/dc/components/GroupDeta
 import * as dc_panels_detail_hooks_checkInStatus from '@/pages/dc/panels/detail/hooks/checkInStatus';
 import * as dc_panels_happy_utils_scheduleHelper from '@/pages/dc/panels/happy/utils/scheduleHelper';
 import * as dc_panels_settings_TagSettings from '@/pages/dc/panels/settings/TagSettings/index';
+import * as dc_agent_components_ChatInput from '@/pages/dc/agent/components/ChatInput/index';
 import * as dc_components_CreateGoalModal from '@/pages/dc/components/CreateGoalModal/index';
 import * as dc_components_CreateGoalModal_types from '@/pages/dc/components/CreateGoalModal/types';
 import * as dc_components_card_MainlineTaskCard from '@/pages/dc/components/card/MainlineTaskCard';
@@ -172,6 +178,7 @@ import * as dc_contexts_AppProvider_types from '@/pages/dc/contexts/AppProvider/
 import * as dc_hooks_usePullToSecondFloor from '@/pages/dc/hooks/usePullToSecondFloor';
 import * as dc_hooks_useTodayMustComplete from '@/pages/dc/hooks/useTodayMustComplete';
 import * as dc_utils_spiritJadeCalculator from '@/pages/dc/utils/spiritJadeCalculator';
+import * as dc_agent_hooks_useStreamChat from '@/pages/dc/agent/hooks/useStreamChat';
 import * as dc_contexts_UIProvider_hooks from '@/pages/dc/contexts/UIProvider/hooks';
 import * as dc_contexts_UIProvider from '@/pages/dc/contexts/UIProvider/index';
 import * as dc_contexts_UIProvider_types from '@/pages/dc/contexts/UIProvider/types';
@@ -190,8 +197,10 @@ import * as dc_utils_mainlineTaskHelper from '@/pages/dc/utils/mainlineTaskHelpe
 import * as dc_utils_progressCalculator from '@/pages/dc/utils/progressCalculator';
 import * as dc_components_shared from '@/pages/dc/components/shared/index';
 import * as dc_panels_memorial_storage from '@/pages/dc/panels/memorial/storage';
+import * as dc_agent_components from '@/pages/dc/agent/components/index';
 import * as dc_utils_dataExportImport from '@/pages/dc/utils/dataExportImport';
 import * as dc_utils_developerStorage from '@/pages/dc/utils/developerStorage';
+import * as dc_agent_constants from '@/pages/dc/agent/constants/index';
 import * as dc_components_card from '@/pages/dc/components/card/index';
 import * as dc_constants_cultivation from '@/pages/dc/constants/cultivation';
 import * as dc_hooks_usePullToReveal from '@/pages/dc/hooks/usePullToReveal';
@@ -199,6 +208,7 @@ import * as dc_panels_memorial from '@/pages/dc/panels/memorial/index';
 import * as dc_panels_memorial_types from '@/pages/dc/panels/memorial/types';
 import * as dc_utils_cycleCalculator from '@/pages/dc/utils/cycleCalculator';
 import * as dc_utils_dailyViewFilter from '@/pages/dc/utils/dailyViewFilter';
+import * as dc_agent_hooks_useAgent from '@/pages/dc/agent/hooks/useAgent';
 import * as dc_constants_animations from '@/pages/dc/constants/animations';
 import * as dc_constants_spiritJade from '@/pages/dc/constants/spiritJade';
 import * as dc_hooks_useRewardQueue from '@/pages/dc/hooks/useRewardQueue';
@@ -214,6 +224,8 @@ import * as dc_panels_normal from '@/pages/dc/panels/normal/index';
 import * as dc_utils_checkInHelper from '@/pages/dc/utils/checkInHelper';
 import * as dc_panels_happy from '@/pages/dc/panels/happy/index';
 import * as dc_panels_happy_types from '@/pages/dc/panels/happy/types';
+import * as dc_agent_hooks from '@/pages/dc/agent/hooks/index';
+import * as dc_agent_types from '@/pages/dc/agent/types/index';
 import * as dc_constants_sprites from '@/pages/dc/constants/sprites';
 import * as dc_hooks_useConfetti from '@/pages/dc/hooks/useConfetti';
 import * as dc_hooks_useProgress from '@/pages/dc/hooks/useProgress';
@@ -228,12 +240,14 @@ import * as dc_riv_RiveWatering from '@/pages/dc/riv/RiveWatering';
 import * as dc_types_spiritJade from '@/pages/dc/types/spiritJade';
 import * as dc_utils_responsive from '@/pages/dc/utils/responsive';
 import * as dc_utils_tagStorage from '@/pages/dc/utils/tagStorage';
+import * as dc_agent_AgentChat from '@/pages/dc/agent/AgentChat';
 import * as dc_constants from '@/pages/dc/constants/index';
 import * as dc_riv_RiveCuteing from '@/pages/dc/riv/RiveCuteing';
 import * as dc_utils_migration from '@/pages/dc/utils/migration';
 import * as dc_viewmodel from '@/pages/dc/viewmodel/index';
 import * as dc_contexts from '@/pages/dc/contexts/index';
 import * as dc_panels from '@/pages/dc/panels/index';
+import * as dc_agent from '@/pages/dc/agent/index';
 import * as dc_hooks from '@/pages/dc/hooks/index';
 import * as dc_types from '@/pages/dc/types';
 import * as dc_utils from '@/pages/dc/utils/index';
@@ -605,6 +619,31 @@ const createRoutes: CreateRoutes = ({
     componentName: 'dc-components-creategoalmodal-components-tasktypeselector',
     index: undefined,
     id: 'dc/components/CreateGoalModal/components/TaskTypeSelector',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/viewmodel/CreateTaskModal/components/TaskPreview',
+    async lazy() {
+      ;
+      return {
+        ...dc_viewmodel_CreateTaskModal_components_TaskPreview,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/viewmodel/CreateTaskModal/components/TaskPreview',
+          isLayout: false,
+          routeExports: dc_viewmodel_CreateTaskModal_components_TaskPreview,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/viewmodel/CreateTaskModal/components/TaskPreview',
+          requestContext,
+          renderMode,
+          module: dc_viewmodel_CreateTaskModal_components_TaskPreview,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-viewmodel-createtaskmodal-components-taskpreview-index',
+    index: true,
+    id: 'dc/viewmodel/CreateTaskModal/components/TaskPreview',
     exact: true,
     exports: ["default"],
   },{
@@ -2081,7 +2120,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/viewmodel/CreateTaskModal/components',
     exact: true,
-    exports: ["BottomNavigation","CyclePreview","OptionGrid","StepProgressBar","TaskTypeCard"],
+    exports: ["BottomNavigation","CyclePreview","OptionGrid","StepProgressBar","TaskPreview","TaskTypeCard"],
   },{
     path: 'dc/panels/happy/components/TripList/TripCard',
     async lazy() {
@@ -2333,6 +2372,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["default"],
   },{
+    path: 'dc/agent/components/AgentChatPopup',
+    async lazy() {
+      ;
+      return {
+        ...dc_agent_components_AgentChatPopup,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/agent/components/AgentChatPopup',
+          isLayout: false,
+          routeExports: dc_agent_components_AgentChatPopup,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/agent/components/AgentChatPopup',
+          requestContext,
+          renderMode,
+          module: dc_agent_components_AgentChatPopup,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-agent-components-agentchatpopup-index',
+    index: true,
+    id: 'dc/agent/components/AgentChatPopup',
+    exact: true,
+    exports: ["AgentChatPopup","default"],
+  },{
     path: 'dc/components/SecondFloorIndicator',
     async lazy() {
       ;
@@ -2482,6 +2546,56 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/viewmodel/CreateTaskModal/pages',
     exact: true,
     exports: ["ConfigPage","CycleSettingsPage","TypeSelectPage"],
+  },{
+    path: 'dc/agent/components/ActionPreview',
+    async lazy() {
+      ;
+      return {
+        ...dc_agent_components_ActionPreview,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/agent/components/ActionPreview',
+          isLayout: false,
+          routeExports: dc_agent_components_ActionPreview,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/agent/components/ActionPreview',
+          requestContext,
+          renderMode,
+          module: dc_agent_components_ActionPreview,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-agent-components-actionpreview-index',
+    index: true,
+    id: 'dc/agent/components/ActionPreview',
+    exact: true,
+    exports: ["ActionPreview","default"],
+  },{
+    path: 'dc/agent/components/MessageBubble',
+    async lazy() {
+      ;
+      return {
+        ...dc_agent_components_MessageBubble,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/agent/components/MessageBubble',
+          isLayout: false,
+          routeExports: dc_agent_components_MessageBubble,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/agent/components/MessageBubble',
+          requestContext,
+          renderMode,
+          module: dc_agent_components_MessageBubble,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-agent-components-messagebubble-index',
+    index: true,
+    id: 'dc/agent/components/MessageBubble',
+    exact: true,
+    exports: ["MessageBubble","default"],
   },{
     path: 'dc/components/CreateGoalModal/constants',
     async lazy() {
@@ -2883,6 +2997,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["default"],
   },{
+    path: 'dc/agent/components/MessageList',
+    async lazy() {
+      ;
+      return {
+        ...dc_agent_components_MessageList,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/agent/components/MessageList',
+          isLayout: false,
+          routeExports: dc_agent_components_MessageList,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/agent/components/MessageList',
+          requestContext,
+          renderMode,
+          module: dc_agent_components_MessageList,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-agent-components-messagelist-index',
+    index: true,
+    id: 'dc/agent/components/MessageList',
+    exact: true,
+    exports: ["MessageList","default"],
+  },{
     path: 'dc/contexts/CultivationProvider',
     async lazy() {
       ;
@@ -3157,6 +3296,31 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/panels/settings/TagSettings',
     exact: true,
     exports: ["default"],
+  },{
+    path: 'dc/agent/components/ChatInput',
+    async lazy() {
+      ;
+      return {
+        ...dc_agent_components_ChatInput,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/agent/components/ChatInput',
+          isLayout: false,
+          routeExports: dc_agent_components_ChatInput,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/agent/components/ChatInput',
+          requestContext,
+          renderMode,
+          module: dc_agent_components_ChatInput,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-agent-components-chatinput-index',
+    index: true,
+    id: 'dc/agent/components/ChatInput',
+    exact: true,
+    exports: ["ChatInput","default"],
   },{
     path: 'dc/components/CreateGoalModal',
     async lazy() {
@@ -4558,6 +4722,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["calculateArchiveReward","calculateCycleCompleteBonus","calculateDailyPointsCap","calculateDailyViewCompleteReward","distributeCheckInPoints","getTaskCheckInUnit","mergeRewards"],
   },{
+    path: 'dc/agent/hooks/useStreamChat',
+    async lazy() {
+      ;
+      return {
+        ...dc_agent_hooks_useStreamChat,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/agent/hooks/useStreamChat',
+          isLayout: false,
+          routeExports: dc_agent_hooks_useStreamChat,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/agent/hooks/useStreamChat',
+          requestContext,
+          renderMode,
+          module: dc_agent_hooks_useStreamChat,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-agent-hooks-usestreamchat',
+    index: undefined,
+    id: 'dc/agent/hooks/useStreamChat',
+    exact: true,
+    exports: ["useStreamChat"],
+  },{
     path: 'dc/contexts/UIProvider/hooks',
     async lazy() {
       ;
@@ -5008,6 +5197,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["generateId","loadDateFormat","loadMemorials","saveDateFormat","saveMemorials"],
   },{
+    path: 'dc/agent/components',
+    async lazy() {
+      ;
+      return {
+        ...dc_agent_components,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/agent/components',
+          isLayout: false,
+          routeExports: dc_agent_components,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/agent/components',
+          requestContext,
+          renderMode,
+          module: dc_agent_components,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-agent-components-index',
+    index: true,
+    id: 'dc/agent/components',
+    exact: true,
+    exports: ["ActionPreview","AgentChatPopup","ChatInput","MessageBubble","MessageList"],
+  },{
     path: 'dc/utils/dataExportImport',
     async lazy() {
       ;
@@ -5057,6 +5271,31 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/utils/developerStorage',
     exact: true,
     exports: ["copyToClipboard","exportAllTasks","exportSingleTask","getDeveloperMode","getSavedLocationFilter","importAllTasks","importSingleTask","saveLocationFilter","setDeveloperMode"],
+  },{
+    path: 'dc/agent/constants',
+    async lazy() {
+      ;
+      return {
+        ...dc_agent_constants,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/agent/constants',
+          isLayout: false,
+          routeExports: dc_agent_constants,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/agent/constants',
+          requestContext,
+          renderMode,
+          module: dc_agent_constants,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-agent-constants-index',
+    index: true,
+    id: 'dc/agent/constants',
+    exact: true,
+    exports: ["API_CONFIG","ROLE_PROMPTS","WELCOME_CONFIGS"],
   },{
     path: 'dc/components/card',
     async lazy() {
@@ -5232,6 +5471,31 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/utils/dailyViewFilter',
     exact: true,
     exports: ["calculateFlexibleTaskLimit","filterDailyViewTasks","filterDailyViewTasksEnhanced","hasDailyTargetTask","isNearDeadline","selectFlexibleTasks"],
+  },{
+    path: 'dc/agent/hooks/useAgent',
+    async lazy() {
+      ;
+      return {
+        ...dc_agent_hooks_useAgent,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/agent/hooks/useAgent',
+          isLayout: false,
+          routeExports: dc_agent_hooks_useAgent,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/agent/hooks/useAgent',
+          requestContext,
+          renderMode,
+          module: dc_agent_hooks_useAgent,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-agent-hooks-useagent',
+    index: undefined,
+    id: 'dc/agent/hooks/useAgent',
+    exact: true,
+    exports: ["client","createAgent","useAgent"],
   },{
     path: 'dc/constants/animations',
     async lazy() {
@@ -5608,6 +5872,56 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: [],
   },{
+    path: 'dc/agent/hooks',
+    async lazy() {
+      ;
+      return {
+        ...dc_agent_hooks,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/agent/hooks',
+          isLayout: false,
+          routeExports: dc_agent_hooks,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/agent/hooks',
+          requestContext,
+          renderMode,
+          module: dc_agent_hooks,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-agent-hooks-index',
+    index: true,
+    id: 'dc/agent/hooks',
+    exact: true,
+    exports: ["client","createAgent","useAgent","useStreamChat"],
+  },{
+    path: 'dc/agent/types',
+    async lazy() {
+      ;
+      return {
+        ...dc_agent_types,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/agent/types',
+          isLayout: false,
+          routeExports: dc_agent_types,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/agent/types',
+          requestContext,
+          renderMode,
+          module: dc_agent_types,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-agent-types-index',
+    index: true,
+    id: 'dc/agent/types',
+    exact: true,
+    exports: [],
+  },{
     path: 'dc/constants/sprites',
     async lazy() {
       ;
@@ -5958,6 +6272,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["LOCATION_ICONS","MOOD_ICONS","NORMAL_ICONS","TAG_COLORS","cleanupTaskTagReferences","createTag","deleteTag","getAllTags","getDefaultIconForType","getIconsForType","getNextTagColor","getTagById","getTagsByType","getTaskNormalTagId","getTaskTags","getUsedLocationTags","loadTagsFromStorage","migrateAllTaskTags","migrateTaskTags","saveTagsToStorage","updateTag","updateTaskTags"],
   },{
+    path: 'dc/agent/AgentChat',
+    async lazy() {
+      ;
+      return {
+        ...dc_agent_AgentChat,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/agent/AgentChat',
+          isLayout: false,
+          routeExports: dc_agent_AgentChat,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/agent/AgentChat',
+          requestContext,
+          renderMode,
+          module: dc_agent_AgentChat,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-agent-agentchat',
+    index: undefined,
+    id: 'dc/agent/AgentChat',
+    exact: true,
+    exports: ["AgentChat","default"],
+  },{
     path: 'dc/constants',
     async lazy() {
       ;
@@ -6107,6 +6446,31 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/panels',
     exact: true,
     exports: ["ArchiveList","CultivationPanel","GoalDetailModal","HappyPanel","MemorialPanel","NormalPanel","UnifiedSettingsPanel"],
+  },{
+    path: 'dc/agent',
+    async lazy() {
+      ;
+      return {
+        ...dc_agent,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/agent',
+          isLayout: false,
+          routeExports: dc_agent,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/agent',
+          requestContext,
+          renderMode,
+          module: dc_agent,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-agent-index',
+    index: true,
+    id: 'dc/agent',
+    exact: true,
+    exports: ["API_CONFIG","ActionPreview","AgentChat","AgentChatPopup","ChatInput","MessageBubble","MessageList","ROLE_PROMPTS","createAgent","default","useAgent","useStreamChat"],
   },{
     path: 'dc/hooks',
     async lazy() {

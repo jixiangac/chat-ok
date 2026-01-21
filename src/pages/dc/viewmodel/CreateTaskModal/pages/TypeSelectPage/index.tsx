@@ -47,7 +47,6 @@ const TypeSelectPage: React.FC<TypeSelectPageProps> = ({
       </div>
 
       <BottomNavigation
-        onBack={onBack}
         onNext={onNext}
         nextDisabled={!state.selectedType}
       />

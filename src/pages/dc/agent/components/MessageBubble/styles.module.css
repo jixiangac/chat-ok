@@ -1,0 +1,250 @@
+/* MessageBubble 样式 - Smore 风格 */
+
+.bubble {
+  max-width: 85%;
+  margin-bottom: 14px;
+  animation: fadeIn 0.25s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==================== 用户消息 - 右侧深色胶囊 ==================== */
+.user {
+  margin-left: auto;
+}
+
+.user .content {
+  /* 背景色由组件动态设置（随机奶油风配色） */
+  color: rgb(55, 53, 47);
+  border-radius: 22px;
+  border-bottom-right-radius: 8px;
+  padding: 12px 18px;
+  font-size: 15px;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+/* ==================== AI 消息 - 左侧无边框融入背景 ==================== */
+.assistant {
+  margin-right: auto;
+  max-width: 92%;
+}
+
+.assistant .content {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: rgb(55, 53, 47);
+  border-radius: 18px;
+  border-bottom-left-radius: 6px;
+  padding: 14px 18px;
+  font-size: 15px;
+  line-height: 1.7;
+  word-break: break-word;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+/* 流式输出光标 */
+.cursor {
+  display: inline-block;
+  animation: blink 0.8s infinite;
+  color: rgba(55, 53, 47, 0.4);
+  margin-left: 2px;
+}
+
+@keyframes blink {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0;
+  }
+}
+
+/* 错误提示 */
+.errorHint {
+  font-size: 12px;
+  color: #e03e3e;
+  margin-top: 4px;
+}
+
+/* Markdown 渲染样式 - Notion 风格 */
+.markdown {
+  font-size: 15px;
+  line-height: 1.7;
+  color: rgb(55, 53, 47);
+}
+
+/* 段落 */
+.markdown :global(p) {
+  margin: 0 0 12px;
+}
+
+.markdown :global(p:last-child) {
+  margin-bottom: 0;
+}
+
+/* 有序/无序列表 */
+.markdown :global(ul),
+.markdown :global(ol) {
+  margin: 10px 0;
+  padding-left: 24px;
+}
+
+.markdown :global(ol) {
+  list-style-type: decimal;
+}
+
+.markdown :global(li) {
+  margin: 6px 0;
+  padding-left: 4px;
+}
+
+/* 列表项内的段落 */
+.markdown :global(li p) {
+  margin: 4px 0;
+}
+
+.markdown :global(li p:first-child) {
+  margin-top: 0;
+}
+
+.markdown :global(li p:last-child) {
+  margin-bottom: 0;
+}
+
+/* 嵌套列表 */
+.markdown :global(li ul),
+.markdown :global(li ol) {
+  margin: 6px 0;
+}
+
+/* 行内代码 */
+.markdown :global(code) {
+  background: rgba(55, 53, 47, 0.06);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'SF Mono', Monaco, 'Consolas', monospace;
+  font-size: 13px;
+  color: #eb5757;
+}
+
+/* 代码块 */
+.markdown :global(pre) {
+  background: rgba(55, 53, 47, 0.05);
+  padding: 14px 16px;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 12px 0;
+}
+
+.markdown :global(pre code) {
+  background: none;
+  padding: 0;
+  color: rgb(55, 53, 47);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* 引用块 */
+.markdown :global(blockquote) {
+  border-left: 3px solid rgba(55, 53, 47, 0.2);
+  margin: 12px 0;
+  padding: 8px 0 8px 16px;
+  color: rgba(55, 53, 47, 0.7);
+  background: rgba(55, 53, 47, 0.02);
+  border-radius: 0 4px 4px 0;
+}
+
+.markdown :global(blockquote p) {
+  margin: 0;
+}
+
+/* 加粗和斜体 */
+.markdown :global(strong) {
+  font-weight: 600;
+  color: rgb(55, 53, 47);
+}
+
+.markdown :global(em) {
+  font-style: italic;
+}
+
+/* 链接 */
+.markdown :global(a) {
+  color: #2383e2;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s;
+}
+
+.markdown :global(a:hover) {
+  border-bottom-color: #2383e2;
+}
+
+/* 标题 */
+.markdown :global(h1),
+.markdown :global(h2),
+.markdown :global(h3) {
+  font-weight: 600;
+  color: rgb(55, 53, 47);
+  margin: 16px 0 10px;
+}
+
+.markdown :global(h1:first-child),
+.markdown :global(h2:first-child),
+.markdown :global(h3:first-child) {
+  margin-top: 0;
+}
+
+.markdown :global(h1) {
+  font-size: 18px;
+}
+
+.markdown :global(h2) {
+  font-size: 16px;
+}
+
+.markdown :global(h3) {
+  font-size: 15px;
+}
+
+/* 分割线 */
+.markdown :global(hr) {
+  border: none;
+  border-top: 1px solid rgba(55, 53, 47, 0.1);
+  margin: 16px 0;
+}
+
+/* 表格 */
+.markdown :global(table) {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 12px 0;
+  font-size: 14px;
+}
+
+.markdown :global(th),
+.markdown :global(td) {
+  border: 1px solid rgba(55, 53, 47, 0.1);
+  padding: 8px 12px;
+  text-align: left;
+}
+
+.markdown :global(th) {
+  background: rgba(55, 53, 47, 0.04);
+  font-weight: 600;
+}
+
+.markdown :global(tr:hover td) {
+  background: rgba(55, 53, 47, 0.02);
+}

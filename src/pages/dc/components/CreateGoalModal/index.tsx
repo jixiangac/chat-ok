@@ -244,18 +244,19 @@ export default function CreateGoalModal({
           cycleDays={cycleDays} 
           onCycleDaysChange={setCycleDays} 
         />
-        
-        <CyclePreview 
-          cycleInfo={cycleInfo} 
-          configValidation={configValidation} 
-          cycleDays={cycleDays} 
-        />
-        
+
         <DateSelector 
           startDate={startDate} 
           totalDays={totalDays} 
           onStartDateChange={setStartDate} 
         />
+        
+        {/* <CyclePreview 
+          cycleInfo={cycleInfo} 
+          configValidation={configValidation} 
+          cycleDays={cycleDays} 
+        /> */}
+        
         
         <TaskTypeSelector 
           taskType={taskType} 

@@ -4,6 +4,7 @@
   "description": "A new ice.js project.",
   "dependencies": {
     "@ice/runtime": "^1.0.0",
+    "@openai/agents": "^0.4.1",
     "@rive-app/react-canvas": "^4.26.1",
     "ant-mobile": "^0.0.0",
     "antd-mobile": "^5.32.0",
@@ -15,9 +16,11 @@
     "localforage": "^1.10.0",
     "lorem-ipsum": "^2.0.8",
     "lucide-react": "*",
+    "openai": "^6.16.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-virtuoso": "^4.18.1"
+    "react-virtuoso": "^4.18.1",
+    "streamdown": "^2.1.0"
   },
   "devDependencies": {
     "@ali/eslint-config-att": "^1.0.0",

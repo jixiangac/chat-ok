@@ -1,0 +1,118 @@
+/* MessageList 样式 - Notion 风格 */
+
+.container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  scroll-behavior: smooth;
+  background: transparent;
+}
+
+.messageList {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+/* ==================== 欢迎界面 ==================== */
+.welcome {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 0;
+}
+
+/* 欢迎图片 */
+.welcomeImageWrapper {
+  width: 100%;
+  max-width: 280px;
+  margin-bottom: 24px;
+}
+
+.welcomeImage {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+/* 快捷问话 */
+.quickQuestions {
+  width: 100%;
+  padding: 0 4px;
+}
+
+.quickQuestionsTitle {
+  font-size: 13px;
+  color: rgba(55, 53, 47, 0.5);
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.quickQuestionsList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.quickQuestionBtn {
+  width: 100%;
+  padding: 12px 16px;
+  background: #ffffff;
+  border: 1px solid rgba(55, 53, 47, 0.08);
+  border-radius: 12px;
+  font-size: 14px;
+  color: rgb(55, 53, 47);
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.quickQuestionBtn:hover {
+  background: rgba(55, 53, 47, 0.04);
+  border-color: rgba(55, 53, 47, 0.15);
+}
+
+.quickQuestionBtn:active {
+  transform: scale(0.98);
+}
+
+/* ==================== 旧的空状态（保留兼容） ==================== */
+.empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  color: rgba(55, 53, 47, 0.4);
+}
+
+.emptyIcon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.emptyText {
+  font-size: 15px;
+  color: rgba(55, 53, 47, 0.5);
+}
+
+/* ==================== 滚动条样式 ==================== */
+.container::-webkit-scrollbar {
+  width: 4px;
+}
+
+.container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.container::-webkit-scrollbar-thumb {
+  background: rgba(55, 53, 47, 0.1);
+  border-radius: 2px;
+}
+
+.container::-webkit-scrollbar-thumb:hover {
+  background: rgba(55, 53, 47, 0.2);
+}

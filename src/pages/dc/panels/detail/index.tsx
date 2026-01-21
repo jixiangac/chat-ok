@@ -20,7 +20,8 @@ import {
   HistoryCyclePanel,
   CalendarViewPanel,
   NumericCyclePanel,
-  CheckInCyclePanel
+  CheckInCyclePanel,
+  ChecklistCyclePanel
 } from './components';
 import SidelineTaskEditModal from '../../components/SidelineTaskEditModal';
 import type { GoalDetailModalProps, CurrentCycleInfo } from './types';
@@ -531,12 +532,24 @@ export default function GoalDetailModal({
                     cycle={currentCycle}
                     onRecordData={handleRecordData}
                   />
+                ) : taskCategory === 'CHECKLIST' ? (
+                  <ChecklistCyclePanel
+                    goal={task}
+                    cycle={currentCycle}
+                    onUpdateProgress={(itemId) => taskUpdateChecklistItem(taskId!, itemId)}
+                  />
                 ) : (
                   <CheckInCyclePanel
                     goal={task}
                     cycle={currentCycle}
                   />
                 )
+              ) : taskCategory === 'CHECKLIST' ? (
+                <ChecklistCyclePanel
+                  goal={task}
+                  cycle={currentCycle}
+                  onUpdateProgress={(itemId) => taskUpdateChecklistItem(taskId!, itemId)}
+                />
               ) : (
                 <CycleInfo
                   currentCycle={currentCycle.cycleNumber}

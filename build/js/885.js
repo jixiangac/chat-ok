@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunk_ice_lite_scaffold=self.webpackChunk_ice_lite_scaffold||[]).push([[885],{8885:(e,c,s)=>{s.r(c),s.d(c,{Mermaid:()=>a.d});var a=s(7621)}}]);

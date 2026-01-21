@@ -4,12 +4,13 @@
  */
 
 import React, { useState } from 'react';
-import { Popup } from 'antd-mobile';
-import { X, Sparkles } from 'lucide-react';
+import { Popup, Dialog } from 'antd-mobile';
+import { X, Sparkles, Bot } from 'lucide-react';
 import { OptionGrid, BottomNavigation } from '../../components';
 import { DIRECTION_OPTIONS, CHECK_IN_TYPE_OPTIONS, CHECKLIST_TEMPLATES } from '../../constants';
 import { SPIRIT_JADE_COST } from '../../../../constants/spiritJade';
 import { calculateDailyPointsCap } from '../../../../utils/spiritJadeCalculator';
+import { AgentChatPopup, type StructuredOutput, type ChecklistItemsData } from '../../../../agent';
 import type { CreateTaskModalState } from '../../modalTypes';
 import type { NumericDirection, CheckInUnit } from '../../../../types';
 import styles from './styles.module.css';
@@ -21,7 +22,8 @@ const CULTIVATION_ICON = 'https://gw.alicdn.com/imgextra/i3/O1CN01i3fa4U1waRq3yx
 export interface ConfigPageProps {
   state: CreateTaskModalState;
   setState: React.Dispatch<React.SetStateAction<CreateTaskModalState>>;
-  onSubmit: () => void;
+  onNext?: () => void;
+  onSubmit?: () => void;
   onBack: () => void;
   taskCategory: 'MAINLINE' | 'SIDELINE';
 }
@@ -29,6 +31,7 @@ export interface ConfigPageProps {
 const ConfigPage: React.FC<ConfigPageProps> = ({
   state,
   setState,
+  onNext,
   onSubmit,
   onBack,
   taskCategory,
@@ -111,6 +114,26 @@ const ConfigPage: React.FC<ConfigPageProps> = ({
   const [templatePopupVisible, setTemplatePopupVisible] = useState(false);
   // 当前预览的模版
   const [previewTemplate, setPreviewTemplate] = useState<typeof CHECKLIST_TEMPLATES[0] | null>(null);
+  // AI 生成清单弹窗状态
+  const [aiChatVisible, setAiChatVisible] = useState(false);
+
+  // 处理 AI 生成的清单项
+  const handleAIChecklistOutput = (output: StructuredOutput) => {
+    if (output.type === 'CHECKLIST_ITEMS') {
+      const data = output.data as ChecklistItemsData;
+      const newItems = data.items.map(item => item.title);
+      // 确保至少有空位可以继续填写
+      while (newItems.length < 6) {
+        newItems.push('');
+      }
+      setState(s => ({
+        ...s,
+        checklistItems: newItems,
+        totalItems: String(data.items.length)
+      }));
+      setAiChatVisible(false);
+    }
+  };
 
   // 计算需要显示的输入框数量（至少5个，每填一个多显示一个）
   const getVisibleInputCount = () => {
@@ -171,13 +194,22 @@ const ConfigPage: React.FC<ConfigPageProps> = ({
       <div className={styles.inputGroup}>
         <div className={styles.sectionHeader}>
           <div className={styles.sectionTitle}>清单项目</div>
-          <button
-            className={styles.templateButton}
-            onClick={() => setTemplatePopupVisible(true)}
-          >
-            <Sparkles size={14} />
-            选择模版
-          </button>
+          <div className={styles.sectionActions}>
+            <button
+              className={styles.aiButton}
+              onClick={() => setAiChatVisible(true)}
+            >
+              <Bot size={14} />
+              AI 生成
+            </button>
+            <button
+              className={styles.templateButton}
+              onClick={() => setTemplatePopupVisible(true)}
+            >
+              <Sparkles size={14} />
+              选择模版
+            </button>
+          </div>
         </div>
 
         <div className={styles.checklistInputs}>
@@ -195,8 +227,31 @@ const ConfigPage: React.FC<ConfigPageProps> = ({
           ))}
         </div>
 
-        <div className={styles.checklistHint}>
-          已填写 {filledCount} 项{filledCount < 5 ? `，至少需要 5 项` : ''}
+        <div className={styles.checklistHintRow}>
+          <div className={styles.checklistHint}>
+            已填写 {filledCount} 项{filledCount < 5 ? `，至少需要 5 项` : ''}
+          </div>
+          {filledCount > 0 && (
+            <button
+              className={styles.clearAllBtn}
+              onClick={() => {
+                Dialog.confirm({
+                  title: '清空所有',
+                  content: '确定要清空所有已填写的清单项吗？',
+                  confirmText: '确定清空',
+                  cancelText: '取消',
+                  onConfirm: () => {
+                    setState(s => ({
+                      ...s,
+                      checklistItems: Array(20).fill(''),
+                    }));
+                  },
+                });
+              }}
+            >
+              清空所有
+            </button>
+          )}
         </div>
       </div>
     );
@@ -300,6 +355,48 @@ const ConfigPage: React.FC<ConfigPageProps> = ({
       </div>
     </Popup>
   );
+
+  // 类型说明
+  const TYPE_DESCRIPTIONS: Record<string, { title: string; tips: string[] }> = {
+    NUMERIC: {
+      title: '数值型任务',
+      tips: [
+        '适合有明确数字目标的任务',
+        '例如：减重5kg、存钱10000元、跑步100公里',
+        '每日记录数值变化，系统自动计算进度',
+      ],
+    },
+    CHECKLIST: {
+      title: '清单型任务',
+      tips: [
+        '适合有多个子项需要逐一完成的任务',
+        '例如：阅读书单、学习课程、旅行计划',
+        '每完成一项打勾，清晰追踪进度',
+      ],
+    },
+    CHECK_IN: {
+      title: '打卡型任务',
+      tips: [
+        '适合需要每日坚持的习惯养成',
+        '例如：每天运动、学习英语、早起打卡',
+        '支持次数、时长、数值三种记录方式',
+      ],
+    },
+  };
+
+  const renderTypeTips = () => {
+    const typeInfo = TYPE_DESCRIPTIONS[state.selectedType || 'CHECK_IN'];
+    return (
+      <div className={styles.typeTips}>
+        <div className={styles.typeTipsTitle}>{typeInfo.title}</div>
+        <ul className={styles.typeTipsList}>
+          {typeInfo.tips.map((tip, index) => (
+            <li key={index}>{tip}</li>
+          ))}
+        </ul>
+      </div>
+    );
+  };
 
   const renderCheckInConfig = () => (
     <>
@@ -410,16 +507,26 @@ const ConfigPage: React.FC<ConfigPageProps> = ({
   );
 
   const renderConfig = () => {
+    let configContent = null;
     switch (state.selectedType) {
       case 'NUMERIC':
-        return renderNumericConfig();
+        configContent = renderNumericConfig();
+        break;
       case 'CHECKLIST':
-        return renderChecklistConfig();
+        configContent = renderChecklistConfig();
+        break;
       case 'CHECK_IN':
-        return renderCheckInConfig();
+        configContent = renderCheckInConfig();
+        break;
       default:
-        return null;
+        break;
     }
+    return (
+      <>
+        {configContent}
+        {renderTypeTips()}
+      </>
+    );
   };
 
   // 计算预计收益
@@ -523,21 +630,26 @@ const ConfigPage: React.FC<ConfigPageProps> = ({
         </div>
 
         {renderConfig()}
-
-        {/* 预览 */}
-        {renderPreview()}
       </div>
 
       <BottomNavigation
         onBack={onBack}
-        onNext={onSubmit}
-        nextText="创建任务"
+        onNext={onNext || onSubmit}
+        nextText="下一步"
         nextDisabled={!isValid}
-        hint={costHint}
       />
 
       {/* 清单模版弹窗 */}
       {renderTemplatePopup()}
+
+      {/* AI 生成清单弹窗 */}
+      <AgentChatPopup
+        visible={aiChatVisible}
+        onClose={() => setAiChatVisible(false)}
+        role="checklistHelper"
+        placeholder="告诉我你想完成什么目标，我来帮你拆解成清单..."
+        onStructuredOutput={handleAIChecklistOutput}
+      />
     </div>
   );
 };

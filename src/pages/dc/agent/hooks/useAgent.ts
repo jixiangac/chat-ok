@@ -11,9 +11,9 @@ import { API_CONFIG, ROLE_PROMPTS, type AgentRole } from '../constants';
 // 构建完整的 baseURL（OpenAI SDK 需要绝对 URL）
 function getBaseURL() {
   // 浏览器环境：使用当前域名 + 代理路径
-  if (typeof window !== 'undefined') {
-    return `${window.location.origin}${API_CONFIG.baseURL}`;
-  }
+  // if (typeof window !== 'undefined') {
+  //   return `${window.location.origin}${API_CONFIG.baseURL}`;
+  // }
   // SSR 环境：直接使用原始 API
   return 'https://apis.iflow.cn/v1';
 }

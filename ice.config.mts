@@ -20,7 +20,17 @@ export default defineConfig(() => ({
       changeOrigin: true,
       // pathRewrite: { '^/api' : '' },
     },
-  }
+  },
+  // 排除测试文件和 fixtures 被路由系统解析
+  routes: {
+    ignoreFiles: [
+      '**/*.test.ts',
+      '**/*.test.tsx',
+      '**/*.spec.ts',
+      '**/*.spec.tsx',
+      '**/__tests__/**',
+    ],
+  },
   // plugins: [def()],
 }));
 

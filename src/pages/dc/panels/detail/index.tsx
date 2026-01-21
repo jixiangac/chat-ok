@@ -176,7 +176,7 @@ export default function GoalDetailModal({
       const result = await taskCheckIn(taskId, value, note);
       if (result.success) {
         triggerConfetti();
-        Toast.show({ icon: 'success', content: '打卡成功！' });
+        // Toast.show({ icon: 'success', content: '打卡成功！' });
         setShowCheckInModal(false);
         
         // 计算完成比例
@@ -243,7 +243,7 @@ export default function GoalDetailModal({
       const success = await taskRecordNumericData(taskId, value, note);
       if (success) {
         triggerConfetti();
-        Toast.show({ icon: 'success', content: '记录成功！' });
+        // Toast.show({ icon: 'success', content: '记录成功！' });
         setShowRecordModal(false);
         
         // 计算完成比例

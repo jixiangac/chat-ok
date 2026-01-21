@@ -31,4 +31,7 @@ export {
 // 修仙等级体系常量
 export * from './cultivation';
 
+// 灵玉系统常量
+export * from './spiritJade';
+
 

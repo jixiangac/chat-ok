@@ -55,24 +55,26 @@ export function getCurrentLevelInfo(data: CultivationData): CurrentLevelInfo {
   const realmInfo = REALM_CONFIG[data.realm];
   const expCap = getCurrentExpCap(data);
   const progress = Math.min(100, (data.currentExp / expCap) * 100);
-  const canBreakthrough = data.currentExp >= expCap;
   
   // 检查是否是最高等级
   const isMaxLevel = data.realm === 'DUJIE' && data.stage === 'PERFECT';
   
   // 获取下一等级信息
   let nextLevel: CurrentLevelInfo['nextLevel'] = null;
-  if (!isMaxLevel) {
-    const next = getNextLevel(data.realm, data.stage, data.layer);
-    if (next) {
-      nextLevel = {
-        realm: next.realm,
-        stage: next.stage,
-        layer: next.layer,
-        displayName: getLevelDisplayName(next.realm, next.stage, next.layer),
-      };
-    }
+  const next = !isMaxLevel ? getNextLevel(data.realm, data.stage, data.layer) : null;
+  if (next) {
+    nextLevel = {
+      realm: next.realm,
+      stage: next.stage,
+      layer: next.layer,
+      displayName: getLevelDisplayName(next.realm, next.stage, next.layer),
+    };
   }
+  
+  // canBreakthrough: 只有跨境界时才需要手动突破
+  // 同境界内升级是自动的，不需要突破按钮
+  const isCrossRealmBreakthrough = !!(next && next.realm !== data.realm);
+  const canBreakthrough = data.currentExp >= expCap && isCrossRealmBreakthrough;
   
   return {
     realm: data.realm,

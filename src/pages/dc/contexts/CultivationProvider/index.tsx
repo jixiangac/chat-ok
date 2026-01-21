@@ -9,9 +9,12 @@ import {
   useCallback, 
   useMemo, 
   useEffect,
+  useRef,
   type ReactNode 
 } from 'react';
 import type { CultivationData, CultivationRecord, CultivationHistory } from '../../types/cultivation';
+import type { SpiritJadeData, PointsHistory, PointsRecord, RewardItem, AddPointsParams, SpendSpiritJadeParams } from '../../types/spiritJade';
+import type { TaskType, CheckInUnit } from '../../types';
 import { INITIAL_CULTIVATION_DATA } from '../../types/cultivation';
 import { 
   TASK_EXP_CONFIG, 
@@ -28,6 +31,7 @@ import {
   getLevelDisplayName,
   generateCultivationId,
   getWeekKey,
+  getCultivationImageFromData,
 } from '../../utils/cultivation';
 import {
   loadCultivationData,
@@ -37,13 +41,34 @@ import {
   clearCultivationData,
   exportCultivationData,
   importCultivationData,
+  loadSpiritJadeData,
+  saveSpiritJadeData,
+  loadPointsHistory,
+  savePointsHistory,
+  clearSpiritJadeData,
+  INITIAL_SPIRIT_JADE_DATA,
 } from './storage';
 import type { 
   CultivationContextValue, 
   ExpChangeParams, 
   BreakthroughResult,
   SeclusionResult,
+  CheckInRewardParams,
+  CycleCompleteRewardParams,
+  DailyCompleteRewardParams,
+  ArchiveRewardParams,
 } from './types';
+import {
+  calculateDailyPointsCap,
+  distributeCheckInPoints,
+  calculateCycleCompleteBonus,
+  calculateDailyViewCompleteReward,
+  calculateArchiveReward,
+} from '../../utils/spiritJadeCalculator';
+import { isTaskTodayMustComplete } from '../../utils/todayMustCompleteStorage';
+import { hasCycleRewardClaimed, markCycleRewardClaimed } from '../../utils/cycleRewardStorage';
+import { hasTodayDailyCompleteRewardClaimed, markTodayDailyCompleteRewardClaimed } from '../../utils/dailyCompleteRewardStorage';
+import { RewardToast } from '../../components';
 
 // ============ Context ============
 
@@ -66,17 +91,29 @@ interface CultivationProviderProps {
 }
 
 export function CultivationProvider({ children }: CultivationProviderProps) {
-  // 状态
+  // 修仙状态
   const [data, setData] = useState<CultivationData>(INITIAL_CULTIVATION_DATA);
   const [history, setHistory] = useState<CultivationHistory>({});
   const [loading, setLoading] = useState(true);
+  
+  // 灵玉状态
+  const [spiritJadeData, setSpiritJadeData] = useState<SpiritJadeData>(INITIAL_SPIRIT_JADE_DATA);
+  const [pointsHistory, setPointsHistory] = useState<PointsHistory>({});
+
+  // 奖励队列状态
+  const [currentRewards, setCurrentRewards] = useState<RewardItem[]>([]);
+  const [showRewardToast, setShowRewardToast] = useState(false);
 
   // 初始化加载数据
   useEffect(() => {
     const loadedData = loadCultivationData();
     const loadedHistory = loadCultivationHistory();
+    const loadedSpiritJade = loadSpiritJadeData();
+    const loadedPointsHistory = loadPointsHistory();
     setData(loadedData);
     setHistory(loadedHistory);
+    setSpiritJadeData(loadedSpiritJade);
+    setPointsHistory(loadedPointsHistory);
     setLoading(false);
   }, []);
 
@@ -108,23 +145,76 @@ export function CultivationProvider({ children }: CultivationProviderProps) {
 
   // ========== 修为操作 ==========
 
+  // 最近一次升级信息（用于奖励弹窗显示）
+  const lastLevelUpRef = useRef<{ newLevelName: string } | null>(null);
+
   // 增加修为
   const addExp = useCallback((params: ExpChangeParams) => {
     const { amount, type, taskId, taskTitle, description } = params;
     if (amount <= 0) return;
 
-    const expBefore = data.currentExp;
-    const newExp = data.currentExp + amount;
-    const newTotalExp = data.totalExpGained + amount;
+    // 清除上次的升级信息
+    lastLevelUpRef.current = null;
 
-    const newData: CultivationData = {
+    const expBefore = data.currentExp;
+    let newExp = data.currentExp + amount;
+    const newTotalExp = data.totalExpGained + amount;
+    const currentExpCap = getExpCap(data.realm, data.stage, data.layer);
+
+    let finalData: CultivationData = {
       ...data,
-      currentExp: newExp,
       totalExpGained: newTotalExp,
       lastUpdatedAt: new Date().toISOString(),
     };
 
-    saveData(newData);
+    let finalRealm = data.realm;
+    let autoUpgradeMessage = '';
+
+    // 检查是否需要自动升级（同境界内）
+    if (newExp >= currentExpCap) {
+      const nextLevel = getNextLevel(data.realm, data.stage, data.layer);
+      
+      if (nextLevel) {
+        // 同境界内自动升级
+        if (nextLevel.realm === data.realm) {
+          const overflowExp = newExp - currentExpCap;
+          finalData = {
+            ...finalData,
+            realm: nextLevel.realm,
+            stage: nextLevel.stage,
+            layer: nextLevel.layer,
+            currentExp: overflowExp,
+            breakthroughCount: data.breakthroughCount + 1,
+          };
+          finalRealm = nextLevel.realm;
+          const newLevelName = getLevelDisplayName(nextLevel.realm, nextLevel.stage, nextLevel.layer);
+          autoUpgradeMessage = `，自动晋升至${newLevelName}`;
+          // 记录升级信息
+          lastLevelUpRef.current = { newLevelName };
+        } else {
+          // 跨境界，修为停在上限，等待手动突破
+          newExp = currentExpCap;
+          finalData = {
+            ...finalData,
+            currentExp: newExp,
+          };
+        }
+      } else {
+        // 已是最高等级，修为停在上限
+        newExp = currentExpCap;
+        finalData = {
+          ...finalData,
+          currentExp: newExp,
+        };
+      }
+    } else {
+      finalData = {
+        ...finalData,
+        currentExp: newExp,
+      };
+    }
+
+    saveData(finalData);
 
     // 添加历史记录
     const record: CultivationRecord = {
@@ -134,11 +224,11 @@ export function CultivationProvider({ children }: CultivationProviderProps) {
       amount,
       taskId,
       taskTitle,
-      description: description || `获得 ${amount} 修为`,
+      description: (description || `获得 ${amount} 修为`) + autoUpgradeMessage,
       expBefore,
-      expAfter: newExp,
+      expAfter: finalData.currentExp,
       realmBefore: data.realm,
-      realmAfter: data.realm,
+      realmAfter: finalRealm,
     };
     addHistoryRecord(record);
   }, [data, saveData, addHistoryRecord]);
@@ -259,6 +349,333 @@ export function CultivationProvider({ children }: CultivationProviderProps) {
       description: `周期结算惩罚：完成度不足，扣除 ${penaltyAmount} 修为`,
     });
   }, [data.realm, reduceExp]);
+
+  // ========== 灵玉操作 ==========
+
+  // 保存灵玉数据
+  const saveSpiritJade = useCallback((newData: SpiritJadeData) => {
+    setSpiritJadeData(newData);
+    saveSpiritJadeData(newData);
+  }, []);
+
+  // 添加积分历史记录
+  const addPointsHistoryRecord = useCallback((record: PointsRecord) => {
+    const weekKey = getWeekKey();
+    setPointsHistory(prev => {
+      const newHistory = { ...prev };
+      if (!newHistory[weekKey]) {
+        newHistory[weekKey] = [];
+      }
+      newHistory[weekKey] = [record, ...newHistory[weekKey]];
+      savePointsHistory(newHistory);
+      return newHistory;
+    });
+  }, []);
+
+  // 检查是否可以消耗灵玉
+  const canSpendSpiritJade = useCallback((amount: number): boolean => {
+    return spiritJadeData.balance >= amount;
+  }, [spiritJadeData.balance]);
+
+  // 增加灵玉
+  const addSpiritJade = useCallback((params: AddPointsParams) => {
+    const { spiritJade, cultivation, source, taskId, taskTitle, description } = params;
+    
+    const newSpiritJadeData: SpiritJadeData = {
+      ...spiritJadeData,
+      balance: spiritJadeData.balance + spiritJade,
+      totalEarned: spiritJadeData.totalEarned + spiritJade,
+      lastUpdatedAt: new Date().toISOString(),
+    };
+    saveSpiritJade(newSpiritJadeData);
+
+    // 添加历史记录
+    const record: PointsRecord = {
+      id: generateCultivationId(),
+      timestamp: new Date().toISOString(),
+      type: 'EARN',
+      source,
+      spiritJade,
+      cultivation,
+      taskId,
+      taskTitle,
+      description: description || `获得 ${spiritJade} 灵玉`,
+    };
+    addPointsHistoryRecord(record);
+  }, [spiritJadeData, saveSpiritJade, addPointsHistoryRecord]);
+
+  // 消耗灵玉
+  const spendSpiritJade = useCallback((params: SpendSpiritJadeParams): boolean => {
+    const { amount, source, taskId, taskTitle, description } = params;
+    
+    if (!canSpendSpiritJade(amount)) {
+      return false;
+    }
+
+    const newSpiritJadeData: SpiritJadeData = {
+      ...spiritJadeData,
+      balance: spiritJadeData.balance - amount,
+      totalSpent: spiritJadeData.totalSpent + amount,
+      lastUpdatedAt: new Date().toISOString(),
+    };
+    saveSpiritJade(newSpiritJadeData);
+
+    // 添加历史记录
+    const record: PointsRecord = {
+      id: generateCultivationId(),
+      timestamp: new Date().toISOString(),
+      type: 'SPEND',
+      source,
+      spiritJade: -amount,
+      cultivation: 0,
+      taskId,
+      taskTitle,
+      description: description || `消耗 ${amount} 灵玉`,
+    };
+    addPointsHistoryRecord(record);
+
+    return true;
+  }, [spiritJadeData, canSpendSpiritJade, saveSpiritJade, addPointsHistoryRecord]);
+
+  // 同时增加灵玉和修为
+  const addPoints = useCallback((params: AddPointsParams): RewardItem => {
+    const { spiritJade, cultivation, source, taskId, taskTitle, description } = params;
+    
+    // 增加灵玉
+    addSpiritJade(params);
+    
+    // 增加修为
+    if (cultivation > 0) {
+      addExp({
+        amount: cultivation,
+        type: 'CHECK_IN',
+        taskId,
+        taskTitle,
+        description: description || `获得 ${cultivation} 修为`,
+      });
+    }
+
+    // 检查是否有等级提升
+    const levelUpInfo = lastLevelUpRef.current;
+
+    return {
+      spiritJade,
+      cultivation,
+      source: description || source,
+      levelUp: levelUpInfo ? { newLevelName: levelUpInfo.newLevelName } : undefined,
+    };
+  }, [addSpiritJade, addExp]);
+
+  // ========== 奖励队列管理 ==========
+
+  // 添加奖励到队列并显示（手动关闭）
+  const showReward = useCallback((reward: RewardItem) => {
+    setCurrentRewards(prev => [...prev, reward]);
+    setShowRewardToast(true);
+  }, []);
+
+  // 批量添加奖励（手动关闭）
+  const showRewards = useCallback((rewards: RewardItem[]) => {
+    if (rewards.length === 0) return;
+    setCurrentRewards(prev => [...prev, ...rewards]);
+    setShowRewardToast(true);
+  }, []);
+
+  // 关闭奖励显示
+  const closeRewardToast = useCallback(() => {
+    setShowRewardToast(false);
+    setCurrentRewards([]);
+  }, []);
+
+  // ========== 奖励发放方法 ==========
+
+  // 发放打卡奖励
+  const dispatchCheckInReward = useCallback((params: CheckInRewardParams): RewardItem | null => {
+    const { task, completionRatio, isCycleComplete = false, cycleNumber } = params;
+    
+    if (completionRatio <= 0) return null;
+
+    const taskType = task.type as TaskType;
+    const checkInUnit = (task.checkInConfig?.unit || 'TIMES') as CheckInUnit;
+    const isTodayMustComplete = isTaskTodayMustComplete(task.id);
+
+    // 检查周期奖励是否已领取
+    const shouldGiveCycleBonus = isCycleComplete && cycleNumber !== undefined && !hasCycleRewardClaimed(task.id, cycleNumber);
+
+    // 计算每日上限
+    const dailyCap = calculateDailyPointsCap(taskType, checkInUnit);
+    
+    // 计算积分分配（包含基础和加成明细）
+    const pointsResult = distributeCheckInPoints(completionRatio, dailyCap, isTodayMustComplete, shouldGiveCycleBonus);
+
+    // 发放奖励（使用最终总计）
+    addSpiritJade({
+      spiritJade: pointsResult.total.spiritJade,
+      cultivation: pointsResult.total.cultivation,
+      source: 'CHECK_IN',
+      taskId: task.id,
+      taskTitle: task.title,
+      description: `任务「${task.title}」打卡`,
+    });
+
+    // 增加修为
+    if (pointsResult.total.cultivation > 0) {
+      addExp({
+        amount: pointsResult.total.cultivation,
+        type: 'CHECK_IN',
+        taskId: task.id,
+        taskTitle: task.title,
+        description: `任务「${task.title}」打卡`,
+      });
+    }
+
+    // 标记周期奖励已领取
+    if (shouldGiveCycleBonus && cycleNumber !== undefined) {
+      markCycleRewardClaimed(task.id, cycleNumber);
+    }
+
+    // 检查是否有等级提升
+    const levelUpInfo = lastLevelUpRef.current;
+
+    // 构建奖励显示对象
+    const reward: RewardItem = {
+      spiritJade: pointsResult.baseSpiritJade,
+      cultivation: pointsResult.baseCultivation,
+      source: `任务「${task.title}」打卡`,
+      levelUp: levelUpInfo ? { newLevelName: levelUpInfo.newLevelName } : undefined,
+    };
+
+    // 添加加成信息
+    const bonuses: string[] = [];
+    let bonusSpiritJade = 0;
+    let bonusCultivation = 0;
+
+    if (pointsResult.mustCompleteBonus) {
+      bonuses.push('必完成任务');
+      bonusSpiritJade += pointsResult.mustCompleteBonus.spiritJade;
+      bonusCultivation += pointsResult.mustCompleteBonus.cultivation;
+    }
+
+    if (pointsResult.cycleCompleteBonus) {
+      bonuses.push('周期完成');
+      bonusSpiritJade += pointsResult.cycleCompleteBonus.spiritJade;
+      bonusCultivation += pointsResult.cycleCompleteBonus.cultivation;
+    }
+
+    if (bonuses.length > 0) {
+      reward.bonus = {
+        reason: bonuses.join('、'),
+        percentage: bonuses.length === 1 
+          ? (pointsResult.mustCompleteBonus?.percentage || pointsResult.cycleCompleteBonus?.percentage || 0)
+          : 0,  // 多个加成时不显示单一比例
+        spiritJade: bonusSpiritJade,
+        cultivation: bonusCultivation,
+      };
+    }
+
+    // 显示奖励
+    showReward(reward);
+
+    return reward;
+  }, [addSpiritJade, addExp, showReward]);
+
+  // 发放周期完成奖励
+  const dispatchCycleCompleteReward = useCallback((params: CycleCompleteRewardParams): RewardItem | null => {
+    const { task, cycleNumber } = params;
+    
+    // 检查是否已领取过该周期的奖励
+    if (hasCycleRewardClaimed(task.id, cycleNumber)) {
+      return null;
+    }
+    
+    const taskType = task.type as TaskType;
+    const checkInUnit = (task.checkInConfig?.unit || 'TIMES') as CheckInUnit;
+
+    // 计算每日上限作为基准
+    const dailyCap = calculateDailyPointsCap(taskType, checkInUnit);
+    
+    // 计算周期完成奖励
+    const bonus = calculateCycleCompleteBonus(dailyCap);
+
+    // 发放奖励
+    const reward = addPoints({
+      spiritJade: bonus.spiritJade,
+      cultivation: bonus.cultivation,
+      source: 'CYCLE_COMPLETE',
+      taskId: task.id,
+      taskTitle: task.title,
+      description: `周期${cycleNumber}完成100%`,
+    });
+
+    // 标记已领取
+    markCycleRewardClaimed(task.id, cycleNumber);
+
+    // 显示奖励
+    showReward(reward);
+
+    return reward;
+  }, [addPoints, showReward]);
+
+  // 发放一日清单完成奖励
+  const dispatchDailyCompleteReward = useCallback((params: DailyCompleteRewardParams): RewardItem | null => {
+    const { taskCount } = params;
+    
+    // 检查今日是否已领取
+    if (hasTodayDailyCompleteRewardClaimed()) {
+      return null;
+    }
+    
+    // 计算一日清单完成奖励
+    const bonus = calculateDailyViewCompleteReward(taskCount);
+
+    // 发放奖励
+    const reward = addPoints({
+      spiritJade: bonus.spiritJade,
+      cultivation: bonus.cultivation,
+      source: 'DAILY_COMPLETE',
+      description: `一日清单完成100%（${taskCount}个任务）`,
+    });
+
+    // 标记今日已领取
+    markTodayDailyCompleteRewardClaimed();
+
+    // 显示奖励
+    showReward(reward);
+
+    return reward;
+  }, [addPoints, showReward]);
+
+  // 发放归档奖励
+  const dispatchArchiveReward = useCallback((params: ArchiveRewardParams): RewardItem | null => {
+    const { task, completionRate } = params;
+    
+    // 完成率低于30%不发放
+    if (completionRate < 0.3) return null;
+
+    const taskType = task.type as TaskType;
+    const checkInUnit = (task.checkInConfig?.unit || 'TIMES') as CheckInUnit;
+
+    // 计算每日上限作为基准
+    const dailyCap = calculateDailyPointsCap(taskType, checkInUnit);
+    
+    // 计算归档奖励
+    const points = calculateArchiveReward(dailyCap, completionRate);
+
+    // 发放奖励
+    const reward = addPoints({
+      spiritJade: points.spiritJade,
+      cultivation: points.cultivation,
+      source: 'ARCHIVE',
+      taskId: task.id,
+      taskTitle: task.title,
+      description: `归档「${task.title}」（完成率${Math.round(completionRate * 100)}%）`,
+    });
+
+    // 显示奖励
+    showReward(reward);
+
+    return reward;
+  }, [addPoints, showReward]);
 
   // ========== 境界操作 ==========
 
@@ -421,8 +838,11 @@ export function CultivationProvider({ children }: CultivationProviderProps) {
   // 重置数据
   const resetData = useCallback(() => {
     clearCultivationData();
+    clearSpiritJadeData();
     setData({ ...INITIAL_CULTIVATION_DATA });
     setHistory({});
+    setSpiritJadeData({ ...INITIAL_SPIRIT_JADE_DATA });
+    setPointsHistory({});
   }, []);
 
   // 导出数据
@@ -450,11 +870,26 @@ export function CultivationProvider({ children }: CultivationProviderProps) {
     seclusionInfo,
     history,
     loading,
+    spiritJadeData,
+    pointsHistory,
     addExp,
     reduceExp,
     gainExpFromCheckIn,
     applyCycleReward,
     applyCyclePenalty,
+    addSpiritJade,
+    spendSpiritJade,
+    canSpendSpiritJade,
+    addPoints,
+    // 奖励发放
+    currentRewards,
+    showRewardToast,
+    dispatchCheckInReward,
+    dispatchCycleCompleteReward,
+    dispatchDailyCompleteReward,
+    dispatchArchiveReward,
+    closeRewardToast,
+    // 境界操作
     breakthrough,
     checkSeclusionEnd,
     getWeekHistory,
@@ -468,11 +903,24 @@ export function CultivationProvider({ children }: CultivationProviderProps) {
     seclusionInfo,
     history,
     loading,
+    spiritJadeData,
+    pointsHistory,
     addExp,
     reduceExp,
     gainExpFromCheckIn,
     applyCycleReward,
     applyCyclePenalty,
+    addSpiritJade,
+    spendSpiritJade,
+    canSpendSpiritJade,
+    addPoints,
+    currentRewards,
+    showRewardToast,
+    dispatchCheckInReward,
+    dispatchCycleCompleteReward,
+    dispatchDailyCompleteReward,
+    dispatchArchiveReward,
+    closeRewardToast,
     breakthrough,
     checkSeclusionEnd,
     getWeekHistory,
@@ -482,9 +930,19 @@ export function CultivationProvider({ children }: CultivationProviderProps) {
     importDataFn,
   ]);
 
+  // 计算当前等级形象图
+  const currentLevelImage = useMemo(() => getCultivationImageFromData(data), [data]);
+
   return (
     <CultivationContext.Provider value={contextValue}>
       {children}
+      {/* 全局奖励Toast */}
+      <RewardToast
+        rewards={currentRewards}
+        visible={showRewardToast}
+        onClose={closeRewardToast}
+        currentLevelImage={currentLevelImage}
+      />
     </CultivationContext.Provider>
   );
 }

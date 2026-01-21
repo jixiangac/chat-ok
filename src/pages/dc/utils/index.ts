@@ -181,5 +181,29 @@ export {
   getRealmIconPath
 } from './cultivation';
 
+// 灵玉积分计算工具
+export {
+  calculateDailyPointsCap,
+  distributeCheckInPoints,
+  calculateCycleCompleteBonus,
+  calculateDailyViewCompleteReward,
+  calculateArchiveReward,
+  mergeRewards,
+  getTaskCheckInUnit
+} from './spiritJadeCalculator';
 
+// 周期完成奖励追踪
+export {
+  hasCycleRewardClaimed,
+  markCycleRewardClaimed,
+  getClaimedCycles,
+  clearTaskCycleRewards,
+  cleanExpiredCycleRewards
+} from './cycleRewardStorage';
 
+// 一日清单完成奖励追踪
+export {
+  hasTodayDailyCompleteRewardClaimed,
+  markTodayDailyCompleteRewardClaimed,
+  clearDailyCompleteReward
+} from './dailyCompleteRewardStorage';

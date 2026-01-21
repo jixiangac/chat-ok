@@ -103,7 +103,7 @@ export interface TaskContextValue {
   completeTask: (taskId: string, scene?: SceneType) => void;
   
   // 打卡（支持多种打卡类型）
-  checkIn: (taskId: string, value?: number, note?: string, scene?: SceneType) => Promise<boolean>;
+  checkIn: (taskId: string, value?: number, note?: string, scene?: SceneType) => Promise<{ success: boolean; cycleJustCompleted?: boolean; cycleNumber?: number }>;
   
   // 获取今日打卡状态
   getTodayCheckInStatus: (taskId: string, scene?: SceneType) => TodayCheckInStatus;

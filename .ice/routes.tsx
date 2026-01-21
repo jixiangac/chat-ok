@@ -119,6 +119,7 @@ import * as dc_components_card_SidelineTaskCard from '@/pages/dc/components/card
 import * as dc_components_shared_StatCard from '@/pages/dc/components/shared/StatCard/index';
 import * as dc_panels_memorial_components from '@/pages/dc/panels/memorial/components/index';
 import * as dc_panels_settings_components from '@/pages/dc/panels/settings/components/index';
+import * as dc_utils_dailyCompleteRewardStorage from '@/pages/dc/utils/dailyCompleteRewardStorage';
 import * as dc_viewmodel_RandomTaskPicker from '@/pages/dc/viewmodel/RandomTaskPicker/index';
 import * as dc_viewmodel_SidelineTaskGrid from '@/pages/dc/viewmodel/SidelineTaskGrid/index';
 import * as dc_components_LocationFilter from '@/pages/dc/components/LocationFilter/index';
@@ -143,6 +144,7 @@ import * as dc_panels_happy_components from '@/pages/dc/panels/happy/components/
 import * as dc_panels_happy_utils_dateHelper from '@/pages/dc/panels/happy/utils/dateHelper';
 import * as dc_viewmodel_GroupModeGrid from '@/pages/dc/viewmodel/GroupModeGrid/index';
 import * as dc_viewmodel_TodayProgress from '@/pages/dc/viewmodel/TodayProgress/index';
+import * as dc_components_RewardToast from '@/pages/dc/components/RewardToast/index';
 import * as dc_components_TagSelector from '@/pages/dc/components/TagSelector/index';
 import * as dc_contexts_AppProvider_storage from '@/pages/dc/contexts/AppProvider/storage';
 import * as dc_contexts_SceneProvider from '@/pages/dc/contexts/SceneProvider/index';
@@ -164,9 +166,11 @@ import * as dc_contexts_AppProvider from '@/pages/dc/contexts/AppProvider/index'
 import * as dc_contexts_AppProvider_types from '@/pages/dc/contexts/AppProvider/types';
 import * as dc_hooks_usePullToSecondFloor from '@/pages/dc/hooks/usePullToSecondFloor';
 import * as dc_hooks_useTodayMustComplete from '@/pages/dc/hooks/useTodayMustComplete';
+import * as dc_utils_spiritJadeCalculator from '@/pages/dc/utils/spiritJadeCalculator';
 import * as dc_contexts_UIProvider_hooks from '@/pages/dc/contexts/UIProvider/hooks';
 import * as dc_contexts_UIProvider from '@/pages/dc/contexts/UIProvider/index';
 import * as dc_contexts_UIProvider_types from '@/pages/dc/contexts/UIProvider/types';
+import * as dc_hooks_useRewardDispatcher from '@/pages/dc/hooks/useRewardDispatcher';
 import * as dc_panels_detail_hooks from '@/pages/dc/panels/detail/hooks';
 import * as dc_panels_detail_utils from '@/pages/dc/panels/detail/utils/index';
 import * as dc_viewmodel_GroupCard from '@/pages/dc/viewmodel/GroupCard/index';
@@ -175,6 +179,7 @@ import * as dc_contexts_UIProvider_keys from '@/pages/dc/contexts/UIProvider/key
 import * as dc_panels_cultivation from '@/pages/dc/panels/cultivation/index';
 import * as dc_panels_happy_hooks from '@/pages/dc/panels/happy/hooks/index';
 import * as dc_panels_happy_utils from '@/pages/dc/panels/happy/utils/index';
+import * as dc_utils_cycleRewardStorage from '@/pages/dc/utils/cycleRewardStorage';
 import * as dc_utils_mainlineTaskHelper from '@/pages/dc/utils/mainlineTaskHelper';
 import * as dc_utils_progressCalculator from '@/pages/dc/utils/progressCalculator';
 import * as dc_components_shared from '@/pages/dc/components/shared/index';
@@ -189,6 +194,8 @@ import * as dc_panels_memorial_types from '@/pages/dc/panels/memorial/types';
 import * as dc_utils_cycleCalculator from '@/pages/dc/utils/cycleCalculator';
 import * as dc_utils_dailyViewFilter from '@/pages/dc/utils/dailyViewFilter';
 import * as dc_constants_animations from '@/pages/dc/constants/animations';
+import * as dc_constants_spiritJade from '@/pages/dc/constants/spiritJade';
+import * as dc_hooks_useRewardQueue from '@/pages/dc/hooks/useRewardQueue';
 import * as dc_hooks_useSpriteImage from '@/pages/dc/hooks/useSpriteImage';
 import * as dc_panels_archive from '@/pages/dc/panels/archive/index';
 import * as dc_panels_happy_storage from '@/pages/dc/panels/happy/storage';
@@ -211,6 +218,7 @@ import * as dc_components from '@/pages/dc/components/index';
 import * as dc_constants_colors from '@/pages/dc/constants/colors';
 import * as dc_riv_CoffeeCupSvg from '@/pages/dc/riv/CoffeeCupSvg';
 import * as dc_riv_RiveWatering from '@/pages/dc/riv/RiveWatering';
+import * as dc_types_spiritJade from '@/pages/dc/types/spiritJade';
 import * as dc_utils_responsive from '@/pages/dc/utils/responsive';
 import * as dc_utils_tagStorage from '@/pages/dc/utils/tagStorage';
 import * as dc_constants from '@/pages/dc/constants/index';
@@ -2441,7 +2449,7 @@ const createRoutes: CreateRoutes = ({
     index: undefined,
     id: 'dc/contexts/CultivationProvider/storage',
     exact: true,
-    exports: ["clearCultivationData","exportCultivationData","importCultivationData","loadCultivationData","loadCultivationHistory","saveCultivationData","saveCultivationHistory"],
+    exports: ["INITIAL_SPIRIT_JADE_DATA","clearCultivationData","clearSpiritJadeData","exportCultivationData","hasTodayClaimedDailyCompleteReward","importCultivationData","loadCultivationData","loadCultivationHistory","loadDailyCompleteRewardState","loadPointsHistory","loadSpiritJadeData","markDailyCompleteRewardClaimed","saveCultivationData","saveCultivationHistory","saveDailyCompleteRewardState","savePointsHistory","saveSpiritJadeData"],
   },{
     path: 'dc/panels/happy/hooks/useTripNavigation',
     async lazy() {
@@ -3218,6 +3226,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["BottomFixedButton","SettingsListItem","SettingsSection","SubPageLayout"],
   },{
+    path: 'dc/utils/dailyCompleteRewardStorage',
+    async lazy() {
+      ;
+      return {
+        ...dc_utils_dailyCompleteRewardStorage,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/utils/dailyCompleteRewardStorage',
+          isLayout: false,
+          routeExports: dc_utils_dailyCompleteRewardStorage,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/utils/dailyCompleteRewardStorage',
+          requestContext,
+          renderMode,
+          module: dc_utils_dailyCompleteRewardStorage,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-utils-dailycompleterewardstorage',
+    index: undefined,
+    id: 'dc/utils/dailyCompleteRewardStorage',
+    exact: true,
+    exports: ["clearDailyCompleteReward","hasTodayDailyCompleteRewardClaimed","markTodayDailyCompleteRewardClaimed"],
+  },{
     path: 'dc/viewmodel/RandomTaskPicker',
     async lazy() {
       ;
@@ -3818,6 +3851,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["default"],
   },{
+    path: 'dc/components/RewardToast',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_RewardToast,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/RewardToast',
+          isLayout: false,
+          routeExports: dc_components_RewardToast,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/RewardToast',
+          requestContext,
+          renderMode,
+          module: dc_components_RewardToast,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-rewardtoast-index',
+    index: true,
+    id: 'dc/components/RewardToast',
+    exact: true,
+    exports: ["RewardToast","default"],
+  },{
     path: 'dc/components/TagSelector',
     async lazy() {
       ;
@@ -4343,6 +4401,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["default","useTodayMustComplete"],
   },{
+    path: 'dc/utils/spiritJadeCalculator',
+    async lazy() {
+      ;
+      return {
+        ...dc_utils_spiritJadeCalculator,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/utils/spiritJadeCalculator',
+          isLayout: false,
+          routeExports: dc_utils_spiritJadeCalculator,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/utils/spiritJadeCalculator',
+          requestContext,
+          renderMode,
+          module: dc_utils_spiritJadeCalculator,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-utils-spiritjadecalculator',
+    index: undefined,
+    id: 'dc/utils/spiritJadeCalculator',
+    exact: true,
+    exports: ["calculateArchiveReward","calculateCycleCompleteBonus","calculateDailyPointsCap","calculateDailyViewCompleteReward","distributeCheckInPoints","getTaskCheckInUnit","mergeRewards"],
+  },{
     path: 'dc/contexts/UIProvider/hooks',
     async lazy() {
       ;
@@ -4417,6 +4500,31 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/contexts/UIProvider/types',
     exact: true,
     exports: [],
+  },{
+    path: 'dc/hooks/useRewardDispatcher',
+    async lazy() {
+      ;
+      return {
+        ...dc_hooks_useRewardDispatcher,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/hooks/useRewardDispatcher',
+          isLayout: false,
+          routeExports: dc_hooks_useRewardDispatcher,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/hooks/useRewardDispatcher',
+          requestContext,
+          renderMode,
+          module: dc_hooks_useRewardDispatcher,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-hooks-userewarddispatcher',
+    index: undefined,
+    id: 'dc/hooks/useRewardDispatcher',
+    exact: true,
+    exports: ["default","useRewardDispatcher"],
   },{
     path: 'dc/panels/detail/hooks',
     async lazy() {
@@ -4617,6 +4725,31 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/panels/happy/utils',
     exact: true,
     exports: [],
+  },{
+    path: 'dc/utils/cycleRewardStorage',
+    async lazy() {
+      ;
+      return {
+        ...dc_utils_cycleRewardStorage,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/utils/cycleRewardStorage',
+          isLayout: false,
+          routeExports: dc_utils_cycleRewardStorage,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/utils/cycleRewardStorage',
+          requestContext,
+          renderMode,
+          module: dc_utils_cycleRewardStorage,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-utils-cyclerewardstorage',
+    index: undefined,
+    id: 'dc/utils/cycleRewardStorage',
+    exact: true,
+    exports: ["cleanExpiredCycleRewards","clearTaskCycleRewards","getClaimedCycles","hasCycleRewardClaimed","markCycleRewardClaimed"],
   },{
     path: 'dc/utils/mainlineTaskHelper',
     async lazy() {
@@ -4967,6 +5100,56 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/constants/animations',
     exact: true,
     exports: ["ANIMATION_ENABLED","RESPECT_REDUCED_MOTION","cardVariants","drawerLeftVariants","drawerRightVariants","fadeVariants","gridItemVariants","listContainerVariants","listItemVariants","modalVariants","optionVariants","overlayVariants","quickTransition","scaleVariants","smoothTransition","springTransition","stepVariants"],
+  },{
+    path: 'dc/constants/spiritJade',
+    async lazy() {
+      ;
+      return {
+        ...dc_constants_spiritJade,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/constants/spiritJade',
+          isLayout: false,
+          routeExports: dc_constants_spiritJade,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/constants/spiritJade',
+          requestContext,
+          renderMode,
+          module: dc_constants_spiritJade,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-constants-spiritjade',
+    index: undefined,
+    id: 'dc/constants/spiritJade',
+    exact: true,
+    exports: ["ARCHIVE_REWARD","BASE_POINTS_CULTIVATION","BASE_POINTS_SPIRIT_JADE","CHECK_IN_UNIT_MULTIPLIER","CYCLE_COMPLETE_BONUS_RATE","DAILY_VIEW_COMPLETE_REWARD","INITIAL_SPIRIT_JADE","POINTS_SOURCE_LABEL","REWARD_TOAST_DURATION","SPIRIT_JADE_COST","TASK_TYPE_MULTIPLIER","TODAY_MUST_COMPLETE_BONUS"],
+  },{
+    path: 'dc/hooks/useRewardQueue',
+    async lazy() {
+      ;
+      return {
+        ...dc_hooks_useRewardQueue,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/hooks/useRewardQueue',
+          isLayout: false,
+          routeExports: dc_hooks_useRewardQueue,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/hooks/useRewardQueue',
+          requestContext,
+          renderMode,
+          module: dc_hooks_useRewardQueue,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-hooks-userewardqueue',
+    index: undefined,
+    id: 'dc/hooks/useRewardQueue',
+    exact: true,
+    exports: ["default","useRewardQueue"],
   },{
     path: 'dc/hooks/useSpriteImage',
     async lazy() {
@@ -5441,7 +5624,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/components',
     exact: true,
-    exports: ["CircleProgress","CreateGoalModal","CreateMainlineTaskModal","CultivationEntry","DailyProgress","LocationFilter","MainlineTaskCard","MigrationModal","ProgressBar","PullIndicator","QuickActionButtons","SecondFloorIndicator","SidelineTaskCard","StatCard","StatCardGrid","ThemedButton"],
+    exports: ["CircleProgress","CreateGoalModal","CreateMainlineTaskModal","CultivationEntry","DailyProgress","LocationFilter","MainlineTaskCard","MigrationModal","ProgressBar","PullIndicator","QuickActionButtons","RewardToast","SecondFloorIndicator","SidelineTaskCard","StatCard","StatCardGrid","ThemedButton"],
   },{
     path: 'dc/constants/colors',
     async lazy() {
@@ -5517,6 +5700,31 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/riv/RiveWatering',
     exact: true,
     exports: ["RiveWatering","default"],
+  },{
+    path: 'dc/types/spiritJade',
+    async lazy() {
+      ;
+      return {
+        ...dc_types_spiritJade,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/types/spiritJade',
+          isLayout: false,
+          routeExports: dc_types_spiritJade,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/types/spiritJade',
+          requestContext,
+          renderMode,
+          module: dc_types_spiritJade,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-types-spiritjade',
+    index: undefined,
+    id: 'dc/types/spiritJade',
+    exact: true,
+    exports: [],
   },{
     path: 'dc/utils/responsive',
     async lazy() {
@@ -5791,7 +5999,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/utils',
     exact: true,
-    exports: ["CycleCalculator","DATA_TYPE_CONFIG","LAYOUT_CONSTANTS","MigrationTool","ProgressCalculator","TAG_COLORS","TaskMigration","advanceTaskCycle","archiveTask","calculateCheckInProgress","calculateCheckInProgressV2","calculateChecklistProgress","calculateChecklistProgressV2","calculateCurrentCycleNumber","calculateFlexibleTaskLimit","calculateGridColumns","calculateModalMaxHeight","calculateNewCycle","calculateNumericProgress","calculateNumericProgressV2","calculateRemainingDays","calculateVisibleSidelineTasks","canOpenModalForEdit","canOpenModalForView","checkDateChange","clearAllArchivedTasks","clearDailyViewCache","clearData","clearRefreshStatus","clearTestDate","compareLevels","copyToClipboard","createTag","createTask","createTodayState","deleteArchivedTask","deleteTag","exportAllTasks","exportData","exportSingleTask","exportToClipboard","filterDailyViewTasks","filterDailyViewTasksEnhanced","forceCheckDateChange","formatDisplayNumber","formatExp","formatLargeNumber","formatNumber","generateCultivationId","getAllTags","getArchiveStats","getArchivedTasks","getCachedDailyTaskIds","getCurrentDate","getCurrentExpCap","getCurrentLevelInfo","getDataStats","getDeveloperMode","getEffectiveCategory","getEffectiveMainlineType","getLastVisitedDate","getLevelDisplayName","getLevelIndex","getNextLevel","getNextTagColor","getPreviousLevel","getRealSystemDate","getRealmIconPath","getSafeAreaInsets","getSavedLocationFilter","getScreenSize","getSeclusionInfo","getTagById","getTestDate","getTodayDateString","getTodayMustCompleteTaskIds","getWeekKey","hasDailyTargetTask","hasTestDate","hasTodayBeenSet","hasTodayRefreshed","hasTodaySetTasks","importAllTasks","importData","importSingleTask","isCrossRealmDemotion","isMobileDevice","isNearDeadline","isSmallScreen","isTaskTodayMustComplete","isTodayCheckedIn","loadTagsFromStorage","loadTodayMustCompleteState","markModalShown","markTodayRefreshed","migrateOldArchivedTasks","migrateToNewFormat","needsProgressReset","performDailyReset","prefersReducedMotion","removeFromTodayMustComplete","repairTaskProgressData","resetTodayProgress","restoreFromArchive","saveArchivedTasks","saveDailyTaskIdsCache","saveLocationFilter","saveTagsToStorage","saveTodayMustCompleteState","selectFlexibleTasks","setDeveloperMode","setLastVisitedDate","setTestDate","setTodayMustCompleteTasks","shouldAdvanceCycle","shouldShowTodayMustCompleteModal","skipTodayMustComplete","updateMainlineTaskProgress","updateTag"],
+    exports: ["CycleCalculator","DATA_TYPE_CONFIG","LAYOUT_CONSTANTS","MigrationTool","ProgressCalculator","TAG_COLORS","TaskMigration","advanceTaskCycle","archiveTask","calculateArchiveReward","calculateCheckInProgress","calculateCheckInProgressV2","calculateChecklistProgress","calculateChecklistProgressV2","calculateCurrentCycleNumber","calculateCycleCompleteBonus","calculateDailyPointsCap","calculateDailyViewCompleteReward","calculateFlexibleTaskLimit","calculateGridColumns","calculateModalMaxHeight","calculateNewCycle","calculateNumericProgress","calculateNumericProgressV2","calculateRemainingDays","calculateVisibleSidelineTasks","canOpenModalForEdit","canOpenModalForView","checkDateChange","cleanExpiredCycleRewards","clearAllArchivedTasks","clearDailyCompleteReward","clearDailyViewCache","clearData","clearRefreshStatus","clearTaskCycleRewards","clearTestDate","compareLevels","copyToClipboard","createTag","createTask","createTodayState","deleteArchivedTask","deleteTag","distributeCheckInPoints","exportAllTasks","exportData","exportSingleTask","exportToClipboard","filterDailyViewTasks","filterDailyViewTasksEnhanced","forceCheckDateChange","formatDisplayNumber","formatExp","formatLargeNumber","formatNumber","generateCultivationId","getAllTags","getArchiveStats","getArchivedTasks","getCachedDailyTaskIds","getClaimedCycles","getCurrentDate","getCurrentExpCap","getCurrentLevelInfo","getDataStats","getDeveloperMode","getEffectiveCategory","getEffectiveMainlineType","getLastVisitedDate","getLevelDisplayName","getLevelIndex","getNextLevel","getNextTagColor","getPreviousLevel","getRealSystemDate","getRealmIconPath","getSafeAreaInsets","getSavedLocationFilter","getScreenSize","getSeclusionInfo","getTagById","getTaskCheckInUnit","getTestDate","getTodayDateString","getTodayMustCompleteTaskIds","getWeekKey","hasCycleRewardClaimed","hasDailyTargetTask","hasTestDate","hasTodayBeenSet","hasTodayDailyCompleteRewardClaimed","hasTodayRefreshed","hasTodaySetTasks","importAllTasks","importData","importSingleTask","isCrossRealmDemotion","isMobileDevice","isNearDeadline","isSmallScreen","isTaskTodayMustComplete","isTodayCheckedIn","loadTagsFromStorage","loadTodayMustCompleteState","markCycleRewardClaimed","markModalShown","markTodayDailyCompleteRewardClaimed","markTodayRefreshed","mergeRewards","migrateOldArchivedTasks","migrateToNewFormat","needsProgressReset","performDailyReset","prefersReducedMotion","removeFromTodayMustComplete","repairTaskProgressData","resetTodayProgress","restoreFromArchive","saveArchivedTasks","saveDailyTaskIdsCache","saveLocationFilter","saveTagsToStorage","saveTodayMustCompleteState","selectFlexibleTasks","setDeveloperMode","setLastVisitedDate","setTestDate","setTodayMustCompleteTasks","shouldAdvanceCycle","shouldShowTodayMustCompleteModal","skipTodayMustComplete","updateMainlineTaskProgress","updateTag"],
   },{
     path: 'dc/riv/DieCat',
     async lazy() {

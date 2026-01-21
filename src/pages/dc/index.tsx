@@ -78,7 +78,7 @@ function DCPageContent() {
   const { visible: showDailyView } = useModal(UI_KEYS.MODAL_DAILY_VIEW_VISIBLE);
   
   // 修仙状态（从 CultivationProvider）
-  const { data: cultivationData, breakthrough } = useCultivation();
+  const { data: cultivationData, breakthrough, spiritJadeData } = useCultivation();
   
   // Panel refs
   const normalPanelRef = useRef<NormalPanelRef>(null);
@@ -246,14 +246,14 @@ function DCPageContent() {
         <div className={`${styles.content} ${activeTab === 'normal' ? styles.contentWithBottomBar : ''}`}>
           {/* 小精灵区域 - 固定不滚动 */}
           <div className={styles.spriteSection}>
-            {/* 右上角金币 */}
+            {/* 右上角灵玉 */}
             <div className={styles.coinWrapper}>
               <img 
                 src="https://gw.alicdn.com/imgextra/i1/O1CN01dUkd0B1UxywsCCzXY_!!6000000002585-2-tps-1080-992.png"
-                alt="金币"
+                alt="灵玉"
                 style={{ width: 30, height: 25 }}
               />
-              <span className={styles.coinCount}>129</span>
+              <span className={styles.coinCount}>{spiritJadeData.balance}</span>
             </div>
             {/* 小精灵区域 */}
             {/* <div className={styles.moonPhaseWrapper}>

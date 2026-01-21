@@ -981,13 +981,23 @@
     "componentName": "dc-contexts-cultivationprovider-storage",
     "layout": false,
     "exports": [
+      "INITIAL_SPIRIT_JADE_DATA",
       "clearCultivationData",
+      "clearSpiritJadeData",
       "exportCultivationData",
+      "hasTodayClaimedDailyCompleteReward",
       "importCultivationData",
       "loadCultivationData",
       "loadCultivationHistory",
+      "loadDailyCompleteRewardState",
+      "loadPointsHistory",
+      "loadSpiritJadeData",
+      "markDailyCompleteRewardClaimed",
       "saveCultivationData",
-      "saveCultivationHistory"
+      "saveCultivationHistory",
+      "saveDailyCompleteRewardState",
+      "savePointsHistory",
+      "saveSpiritJadeData"
     ]
   },
   {
@@ -1361,6 +1371,18 @@
     ]
   },
   {
+    "path": "dc/utils/dailyCompleteRewardStorage",
+    "id": "dc/utils/dailyCompleteRewardStorage",
+    "file": "dc/utils/dailyCompleteRewardStorage.ts",
+    "componentName": "dc-utils-dailycompleterewardstorage",
+    "layout": false,
+    "exports": [
+      "clearDailyCompleteReward",
+      "hasTodayDailyCompleteRewardClaimed",
+      "markTodayDailyCompleteRewardClaimed"
+    ]
+  },
+  {
     "path": "dc/viewmodel/RandomTaskPicker",
     "index": true,
     "id": "dc/viewmodel/RandomTaskPicker",
@@ -1689,6 +1711,18 @@
     ]
   },
   {
+    "path": "dc/components/RewardToast",
+    "index": true,
+    "id": "dc/components/RewardToast",
+    "file": "dc/components/RewardToast/index.tsx",
+    "componentName": "dc-components-rewardtoast-index",
+    "layout": false,
+    "exports": [
+      "RewardToast",
+      "default"
+    ]
+  },
+  {
     "path": "dc/components/TagSelector",
     "index": true,
     "id": "dc/components/TagSelector",
@@ -1932,6 +1966,22 @@
     ]
   },
   {
+    "path": "dc/utils/spiritJadeCalculator",
+    "id": "dc/utils/spiritJadeCalculator",
+    "file": "dc/utils/spiritJadeCalculator.ts",
+    "componentName": "dc-utils-spiritjadecalculator",
+    "layout": false,
+    "exports": [
+      "calculateArchiveReward",
+      "calculateCycleCompleteBonus",
+      "calculateDailyPointsCap",
+      "calculateDailyViewCompleteReward",
+      "distributeCheckInPoints",
+      "getTaskCheckInUnit",
+      "mergeRewards"
+    ]
+  },
+  {
     "path": "dc/contexts/UIProvider/hooks",
     "id": "dc/contexts/UIProvider/hooks",
     "file": "dc/contexts/UIProvider/hooks.ts",
@@ -1969,6 +2019,17 @@
     "componentName": "dc-contexts-uiprovider-types",
     "layout": false,
     "exports": []
+  },
+  {
+    "path": "dc/hooks/useRewardDispatcher",
+    "id": "dc/hooks/useRewardDispatcher",
+    "file": "dc/hooks/useRewardDispatcher.ts",
+    "componentName": "dc-hooks-userewarddispatcher",
+    "layout": false,
+    "exports": [
+      "default",
+      "useRewardDispatcher"
+    ]
   },
   {
     "path": "dc/panels/detail/hooks",
@@ -2066,6 +2127,20 @@
     "componentName": "dc-panels-happy-utils-index",
     "layout": false,
     "exports": []
+  },
+  {
+    "path": "dc/utils/cycleRewardStorage",
+    "id": "dc/utils/cycleRewardStorage",
+    "file": "dc/utils/cycleRewardStorage.ts",
+    "componentName": "dc-utils-cyclerewardstorage",
+    "layout": false,
+    "exports": [
+      "cleanExpiredCycleRewards",
+      "clearTaskCycleRewards",
+      "getClaimedCycles",
+      "hasCycleRewardClaimed",
+      "markCycleRewardClaimed"
+    ]
   },
   {
     "path": "dc/utils/mainlineTaskHelper",
@@ -2285,6 +2360,38 @@
       "smoothTransition",
       "springTransition",
       "stepVariants"
+    ]
+  },
+  {
+    "path": "dc/constants/spiritJade",
+    "id": "dc/constants/spiritJade",
+    "file": "dc/constants/spiritJade.ts",
+    "componentName": "dc-constants-spiritjade",
+    "layout": false,
+    "exports": [
+      "ARCHIVE_REWARD",
+      "BASE_POINTS_CULTIVATION",
+      "BASE_POINTS_SPIRIT_JADE",
+      "CHECK_IN_UNIT_MULTIPLIER",
+      "CYCLE_COMPLETE_BONUS_RATE",
+      "DAILY_VIEW_COMPLETE_REWARD",
+      "INITIAL_SPIRIT_JADE",
+      "POINTS_SOURCE_LABEL",
+      "REWARD_TOAST_DURATION",
+      "SPIRIT_JADE_COST",
+      "TASK_TYPE_MULTIPLIER",
+      "TODAY_MUST_COMPLETE_BONUS"
+    ]
+  },
+  {
+    "path": "dc/hooks/useRewardQueue",
+    "id": "dc/hooks/useRewardQueue",
+    "file": "dc/hooks/useRewardQueue.ts",
+    "componentName": "dc-hooks-userewardqueue",
+    "layout": false,
+    "exports": [
+      "default",
+      "useRewardQueue"
     ]
   },
   {
@@ -2556,6 +2663,7 @@
       "ProgressBar",
       "PullIndicator",
       "QuickActionButtons",
+      "RewardToast",
       "SecondFloorIndicator",
       "SidelineTaskCard",
       "StatCard",
@@ -2599,6 +2707,14 @@
       "RiveWatering",
       "default"
     ]
+  },
+  {
+    "path": "dc/types/spiritJade",
+    "id": "dc/types/spiritJade",
+    "file": "dc/types/spiritJade.ts",
+    "componentName": "dc-types-spiritjade",
+    "layout": false,
+    "exports": []
   },
   {
     "path": "dc/utils/responsive",
@@ -2832,11 +2948,15 @@
       "TaskMigration",
       "advanceTaskCycle",
       "archiveTask",
+      "calculateArchiveReward",
       "calculateCheckInProgress",
       "calculateCheckInProgressV2",
       "calculateChecklistProgress",
       "calculateChecklistProgressV2",
       "calculateCurrentCycleNumber",
+      "calculateCycleCompleteBonus",
+      "calculateDailyPointsCap",
+      "calculateDailyViewCompleteReward",
       "calculateFlexibleTaskLimit",
       "calculateGridColumns",
       "calculateModalMaxHeight",
@@ -2848,10 +2968,13 @@
       "canOpenModalForEdit",
       "canOpenModalForView",
       "checkDateChange",
+      "cleanExpiredCycleRewards",
       "clearAllArchivedTasks",
+      "clearDailyCompleteReward",
       "clearDailyViewCache",
       "clearData",
       "clearRefreshStatus",
+      "clearTaskCycleRewards",
       "clearTestDate",
       "compareLevels",
       "copyToClipboard",
@@ -2860,6 +2983,7 @@
       "createTodayState",
       "deleteArchivedTask",
       "deleteTag",
+      "distributeCheckInPoints",
       "exportAllTasks",
       "exportData",
       "exportSingleTask",
@@ -2876,6 +3000,7 @@
       "getArchiveStats",
       "getArchivedTasks",
       "getCachedDailyTaskIds",
+      "getClaimedCycles",
       "getCurrentDate",
       "getCurrentExpCap",
       "getCurrentLevelInfo",
@@ -2896,13 +3021,16 @@
       "getScreenSize",
       "getSeclusionInfo",
       "getTagById",
+      "getTaskCheckInUnit",
       "getTestDate",
       "getTodayDateString",
       "getTodayMustCompleteTaskIds",
       "getWeekKey",
+      "hasCycleRewardClaimed",
       "hasDailyTargetTask",
       "hasTestDate",
       "hasTodayBeenSet",
+      "hasTodayDailyCompleteRewardClaimed",
       "hasTodayRefreshed",
       "hasTodaySetTasks",
       "importAllTasks",
@@ -2916,8 +3044,11 @@
       "isTodayCheckedIn",
       "loadTagsFromStorage",
       "loadTodayMustCompleteState",
+      "markCycleRewardClaimed",
       "markModalShown",
+      "markTodayDailyCompleteRewardClaimed",
       "markTodayRefreshed",
+      "mergeRewards",
       "migrateOldArchivedTasks",
       "migrateToNewFormat",
       "needsProgressReset",

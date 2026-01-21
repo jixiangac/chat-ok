@@ -1,0 +1,306 @@
+/* 奖励弹窗样式 */
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modalOverlay.leaving {
+  animation: fadeOut 0.3s ease-in forwards;
+}
+
+.modalContent {
+  background: white;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 320px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.3s ease-out;
+}
+
+/* 顶部图片 */
+.headerImage {
+  width: 100%;
+  height: 120px;
+  overflow: hidden;
+  position: relative;
+  background: linear-gradient(135deg, #f8f4e8 0%, #e8d4a8 100%);
+}
+
+.headerImage.levelUp {
+  background: linear-gradient(135deg, #fdf2d0 0%, #f5c76b 100%);
+  height: 140px;
+}
+
+.closeButton {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: rgba(55, 53, 47, 0.65);
+  transition: all 0.2s;
+  z-index: 1;
+}
+
+.closeButton:hover {
+  background: rgba(255, 255, 255, 1);
+  color: rgb(55, 53, 47);
+}
+
+.headerImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 标题区域 - 只在等级提升时显示 */
+.titleSection {
+  padding: 16px 20px 8px;
+  text-align: center;
+}
+
+.levelUpTitle {
+  font-size: 15px;
+  font-weight: 500;
+  color: rgba(55, 53, 47, 0.65);
+  margin: 0 0 4px;
+}
+
+.levelUpName {
+  font-size: 22px;
+  font-weight: 700;
+  color: #d4a24c;
+  margin: 0;
+  background: linear-gradient(135deg, #d4a24c 0%, #a67c2e 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* 奖励内容区域 */
+.rewardSection {
+  padding: 16px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* 来源描述 */
+.sourceText {
+  font-size: 14px;
+  color: rgba(55, 53, 47, 0.65);
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+/* 小节标题 */
+.sectionTitle {
+  font-size: 12px;
+  color: rgba(55, 53, 47, 0.5);
+  margin-bottom: 8px;
+}
+
+/* 基础获取区块 */
+.baseSection {
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 8px;
+}
+
+/* 奖励行 */
+.rewardLine {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.rewardIcon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.rewardLabel {
+  font-size: 14px;
+  color: rgba(55, 53, 47, 0.8);
+}
+
+/* 数字滚动动画 - 字体粗细200 */
+.animatedNumber {
+  font-size: 18px;
+  font-weight: 200;
+  color: rgb(55, 53, 47);
+  margin-left: auto;
+}
+
+/* 额外加成区块 */
+.bonusSection {
+  padding: 12px;
+  background: rgba(212, 162, 76, 0.08);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bonusSection .sectionTitle {
+  margin-bottom: 0;
+}
+
+.bonusRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.bonusReason {
+  font-size: 13px;
+  font-weight: 500;
+  color: #d4a24c;
+}
+
+.bonusValues {
+  display: flex;
+  gap: 16px;
+}
+
+.bonusValue {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  font-weight: 200;
+  color: #d4a24c;
+}
+
+.bonusIcon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
+
+/* 最终获得区块 */
+.totalSection {
+  padding: 12px;
+  background: linear-gradient(135deg, rgba(212, 162, 76, 0.15) 0%, rgba(166, 124, 46, 0.1) 100%);
+  border-radius: 8px;
+}
+
+.totalValues {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+}
+
+.totalValue {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 20px;
+  font-weight: 600;
+  color: rgb(55, 53, 47);
+}
+
+.totalIcon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+/* 今日奖励剩余 */
+.remainingSection {
+  margin-top: 4px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 8px;
+}
+
+.remainingTitle {
+  font-size: 12px;
+  color: rgba(55, 53, 47, 0.5);
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.remainingItems {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+}
+
+.remainingItem {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: rgba(55, 53, 47, 0.65);
+}
+
+.remainingIcon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
+
+/* 动画 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* 动画偏好 */
+@media (prefers-reduced-motion: reduce) {
+  .modalOverlay,
+  .modalContent {
+    animation: none;
+  }
+  
+  .modalOverlay.leaving {
+    opacity: 0;
+  }
+}

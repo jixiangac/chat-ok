@@ -3,7 +3,7 @@ import { Popup, Toast, SafeArea } from 'antd-mobile';
 import { FileText, Check, Archive, Clock, Hash, ChevronLeft, ChevronRight, Droplets, Coffee, Calendar } from 'lucide-react';
 import dayjs from 'dayjs';
 
-import { useTheme } from '../../contexts';
+import { useTheme, useCultivation } from '../../contexts';
 import { useTaskContext } from '../../contexts';
 import { useConfetti } from '../../hooks';
 import { getCurrentDate } from '../../utils';
@@ -74,6 +74,10 @@ export default function GoalDetailModal({
   const { themeColors } = useTheme();
 
   const { triggerConfetti } = useConfetti(checkInButtonRef);
+  const { 
+    dispatchCheckInReward, 
+    dispatchArchiveReward,
+  } = useCultivation();
   
   // 子页面手势返回
   const { pageRef: swipeRef } = useSwipeBack({
@@ -166,14 +170,36 @@ export default function GoalDetailModal({
   
   // 提交打卡
   const handleCheckInSubmit = useCallback(async (value?: number, note?: string) => {
-    if (!taskId) return;
+    if (!taskId || !task) return;
     setCheckInLoading(true);
     try {
-      const success = await taskCheckIn(taskId, value, note);
-      if (success) {
+      const result = await taskCheckIn(taskId, value, note);
+      if (result.success) {
         triggerConfetti();
         Toast.show({ icon: 'success', content: '打卡成功！' });
         setShowCheckInModal(false);
+        
+        // 计算完成比例
+        const config = task.checkInConfig;
+        const unit = config?.unit || 'TIMES';
+        const dailyTarget = todayCheckInStatus.dailyTarget || 1;
+        let completionRatio = 1;
+        
+        if (unit === 'TIMES') {
+          completionRatio = 1 / dailyTarget;
+        } else {
+          const checkInValue = value || 1;
+          completionRatio = Math.min(1, checkInValue / dailyTarget);
+        }
+        
+        // 发放奖励（包含周期完成加成）
+        dispatchCheckInReward({ 
+          task, 
+          completionRatio,
+          isCycleComplete: result.cycleJustCompleted,
+          cycleNumber: result.cycleNumber,
+        });
+        
         refreshTasks();
         onDataChange?.();
       } else {
@@ -185,7 +211,7 @@ export default function GoalDetailModal({
     } finally {
       setCheckInLoading(false);
     }
-  }, [taskId, taskCheckIn, triggerConfetti, todayCheckInStatus.isCompleted, refreshTasks, onDataChange]);
+  }, [taskId, task, taskCheckIn, triggerConfetti, todayCheckInStatus, dispatchCheckInReward, refreshTasks, getTaskById, onDataChange]);
   
   // 处理打卡按钮点击
   const handleCheckInClick = useCallback(() => {
@@ -205,34 +231,69 @@ export default function GoalDetailModal({
   
   // 提交数值记录
   const handleRecordSubmit = useCallback(async (value: number, note?: string) => {
-    if (!taskId) return;
+    if (!taskId || !task) return;
     setCheckInLoading(true);
     try {
+      // 记录打卡前的周期进度
+      const prevCyclePercentage = task.progress?.cyclePercentage || 0;
+      const currentCycleNumber = task.cycle?.currentCycle || 1;
+      
+      const numericConfig = task.numericConfig;
+      const previousValue = numericConfig?.currentValue || 0;
       const success = await taskRecordNumericData(taskId, value, note);
       if (success) {
         triggerConfetti();
         Toast.show({ icon: 'success', content: '记录成功！' });
         setShowRecordModal(false);
-        refreshTasks();
+        
+        // 计算完成比例
+        const dailyTarget = todayCheckInStatus.dailyTarget || 1;
+        const change = Math.abs(value - previousValue);
+        const completionRatio = Math.min(1, change / dailyTarget);
+        
+        // 刷新任务数据后检查周期完成
+        await refreshTasks();
+        
+        // 获取更新后的任务数据，检查是否触发周期100%完成
+        const updatedTask = getTaskById(taskId);
+        const newCyclePercentage = updatedTask?.progress?.cyclePercentage || 0;
+        const isCycleComplete = prevCyclePercentage < 100 && newCyclePercentage >= 100;
+        
+        // 发放奖励（包含周期完成加成）
+        if (completionRatio > 0) {
+          dispatchCheckInReward({ 
+            task, 
+            completionRatio,
+            isCycleComplete,
+            cycleNumber: isCycleComplete ? currentCycleNumber : undefined,
+          });
+        }
       } else {
         Toast.show({ icon: 'fail', content: '记录失败，请重试' });
       }
     } finally {
       setCheckInLoading(false);
     }
-  }, [taskId, taskRecordNumericData, triggerConfetti, refreshTasks]);
+  }, [taskId, task, taskRecordNumericData, triggerConfetti, todayCheckInStatus.dailyTarget, dispatchCheckInReward, refreshTasks, getTaskById]);
   
   // 处理归档
   const handleArchive = useCallback(async () => {
-    if (!taskId) return;
+    if (!taskId || !task) return;
+    
+    // 计算完成率
+    const completionRate = (task.progress?.totalPercentage || 0) / 100;
+    
     const result = archiveTask(taskId);
     if (result.success) {
+      // 发放归档奖励
+      dispatchArchiveReward({ task, completionRate });
+      
       Toast.show({ icon: 'success', content: '已归档！' });
       onClose();
     } else {
       Toast.show({ icon: 'fail', content: '归档失败，请重试' });
     }
-  }, [archiveTask, taskId, onClose]);
+  }, [archiveTask, taskId, task, dispatchArchiveReward, onClose]);
   
   // Debug 回调
   const handleDebugNextDay = useCallback(async () => {
@@ -620,8 +681,8 @@ export default function GoalDetailModal({
           task={task}
           onSave={handleEditSave}
           onClose={() => setShowEditModal(false)}
-        />
-      )}
+        />)
+      }
     </Popup>
   );
 }

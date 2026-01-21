@@ -486,15 +486,19 @@ export function TaskProvider({ children }: TaskProviderProps) {
   }, [scene, detectScene]);
 
   // 打卡功能
-  const checkIn = useCallback(async (taskId: string, value?: number, note?: string, sceneType?: SceneType): Promise<boolean> => {
+  const checkIn = useCallback(async (taskId: string, value?: number, note?: string, sceneType?: SceneType): Promise<{ success: boolean; cycleJustCompleted?: boolean; cycleNumber?: number }> => {
     const targetScene = sceneType || detectScene(taskId);
-    if (!targetScene) return false;
+    if (!targetScene) return { success: false };
 
     const task = scene.getTaskById(taskId, targetScene);
-    if (!task) return false;
+    if (!task) return { success: false };
 
     console.log(task,'config')
     console.log(task.checkInConfig, 'config')
+
+    // 记录打卡前的周期进度
+    const prevCyclePercentage = task.progress?.cyclePercentage || 0;
+    const currentCycleNumber = task.cycle?.currentCycle || 1;
 
     try {
       const simulatedToday = getSimulatedToday(task);
@@ -509,7 +513,7 @@ export function TaskProvider({ children }: TaskProviderProps) {
           const dailyMax = config.dailyMaxTimes || 1;
           if (todayCheckIns.length >= dailyMax) {
             console.log('今日已达到打卡上限');
-            return false;
+            return { success: false };
           }
         } else if (unit === 'DURATION') {
           const dailyTarget = config.dailyTargetMinutes || 15;
@@ -523,7 +527,7 @@ export function TaskProvider({ children }: TaskProviderProps) {
           const todayTotal = todayCheckIns.reduce((sum, c) => sum + (c.value || 0), 0);
           if (dailyTarget > 0 && todayTotal >= dailyTarget) {
             console.log('今日已达到数值目标');
-            return false;
+            return { success: false };
           }
         }
       }
@@ -653,10 +657,18 @@ export function TaskProvider({ children }: TaskProviderProps) {
         ...progressUpdate
       });
 
-      return true;
+      // 检查是否触发周期100%完成
+      const newCyclePercentage = (progressUpdate.progress as any)?.cyclePercentage || 0;
+      const cycleJustCompleted = prevCyclePercentage < 100 && newCyclePercentage >= 100;
+
+      return { 
+        success: true, 
+        cycleJustCompleted,
+        cycleNumber: cycleJustCompleted ? currentCycleNumber : undefined
+      };
     } catch (error) {
       console.error('打卡失败:', error);
-      return false;
+      return { success: false };
     }
   }, [scene, detectScene]);
 

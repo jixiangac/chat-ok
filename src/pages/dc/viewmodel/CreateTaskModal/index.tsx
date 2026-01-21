@@ -2,10 +2,11 @@ import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import dayjs from 'dayjs';
-import { Popup, SafeArea } from 'antd-mobile';
+import { Popup, SafeArea, Toast } from 'antd-mobile';
 import type { MainlineTaskType, NumericDirection, CheckInUnit, Category } from '../../types';
-import { useTheme, useScene, useTaskContext } from '../../contexts';
+import { useTheme, useScene, useTaskContext, useCultivation } from '../../contexts';
 import { getNextThemeColor } from '../../constants';
+import { SPIRIT_JADE_COST } from '../../constants/spiritJade';
 import { createTask } from '../../utils/migration';
 import { getCurrentDate } from '../../utils';
 import type { Step, TaskCategory, CycleInfo, CreateTaskModalProps } from './types';
@@ -19,6 +20,7 @@ export default function CreateTaskModal({
   const { themeColors } = useTheme();
   const { normal } = useScene();
   const { addTask } = useTaskContext();
+  const { canSpendSpiritJade, spendSpiritJade, spiritJadeData } = useCultivation();
   
   const { hasMainlineTask, sidelineTasks } = normal;
   
@@ -139,6 +141,20 @@ export default function CreateTaskModal({
   const handleSubmit = () => {
     if (!taskTitle.trim() || !selectedType) {
       alert('请填写完整信息');
+      return;
+    }
+    
+    // 检查灵玉余额
+    const isMainlineTask = taskCategory === 'MAINLINE';
+    const requiredJade = isMainlineTask 
+      ? SPIRIT_JADE_COST.CREATE_MAINLINE_TASK 
+      : SPIRIT_JADE_COST.CREATE_SIDELINE_TASK;
+    
+    if (!canSpendSpiritJade(requiredJade)) {
+      Toast.show({
+        icon: 'fail',
+        content: `灵玉不足！创建${isMainlineTask ? '主线' : '支线'}任务需要 ${requiredJade} 灵玉，当前余额 ${spiritJadeData.balance}`,
+      });
       return;
     }
     
@@ -281,6 +297,15 @@ export default function CreateTaskModal({
 
     // 使用上下文的 addTask 方法添加任务
     addTask(newTask);
+    
+    // 扣除灵玉
+    spendSpiritJade({
+      amount: requiredJade,
+      source: 'CREATE_TASK',
+      taskId: newTask.id,
+      taskTitle: newTask.title,
+      description: `创建${isMainline ? '主线' : '支线'}任务「${newTask.title}」`,
+    });
     
     // 触发彩纸效果
     const canvas = document.createElement('canvas');

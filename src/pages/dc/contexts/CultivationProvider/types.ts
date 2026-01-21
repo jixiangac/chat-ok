@@ -11,6 +11,14 @@ import type {
   SeclusionInfo,
   CultivationRecordType
 } from '../../types/cultivation';
+import type {
+  SpiritJadeData,
+  PointsHistory,
+  RewardItem,
+  AddPointsParams,
+  SpendSpiritJadeParams,
+} from '../../types/spiritJade';
+import type { Task } from '../../types';
 
 /** 修为变动参数 */
 export interface ExpChangeParams {
@@ -53,9 +61,38 @@ export interface SeclusionResult {
   };
 }
 
+// ========== 奖励发放参数 ==========
+
+/** 打卡奖励参数 */
+export interface CheckInRewardParams {
+  task: Task;
+  completionRatio: number; // 0-1，本次打卡的完成比例
+  /** 是否触发周期100%完成 */
+  isCycleComplete?: boolean;
+  /** 周期编号（周期100%完成时必填） */
+  cycleNumber?: number;
+}
+
+/** 周期完成奖励参数 */
+export interface CycleCompleteRewardParams {
+  task: Task;
+  cycleNumber: number;
+}
+
+/** 一日清单完成奖励参数 */
+export interface DailyCompleteRewardParams {
+  taskCount: number;
+}
+
+/** 归档奖励参数 */
+export interface ArchiveRewardParams {
+  task: Task;
+  completionRate: number; // 0-1，总完成率
+}
+
 /** CultivationContext 值 */
 export interface CultivationContextValue {
-  // ========== 数据 ==========
+  // ========== 修仙数据 ==========
   /** 修仙数据 */
   data: CultivationData;
   /** 当前等级信息（计算后） */
@@ -66,6 +103,12 @@ export interface CultivationContextValue {
   history: CultivationHistory;
   /** 是否正在加载 */
   loading: boolean;
+
+  // ========== 灵玉数据 ==========
+  /** 灵玉数据 */
+  spiritJadeData: SpiritJadeData;
+  /** 积分历史记录 */
+  pointsHistory: PointsHistory;
 
   // ========== 修为操作 ==========
   /** 增加修为 */
@@ -78,6 +121,32 @@ export interface CultivationContextValue {
   applyCycleReward: (completionRate: number, baseExp: number) => void;
   /** 周期结算惩罚 */
   applyCyclePenalty: () => void;
+
+  // ========== 灵玉操作 ==========
+  /** 增加灵玉 */
+  addSpiritJade: (params: AddPointsParams) => void;
+  /** 消耗灵玉 */
+  spendSpiritJade: (params: SpendSpiritJadeParams) => boolean;
+  /** 检查是否可以消耗 */
+  canSpendSpiritJade: (amount: number) => boolean;
+  /** 同时增加灵玉和修为（任务打卡用） */
+  addPoints: (params: AddPointsParams) => RewardItem;
+
+  // ========== 奖励发放（数据驱动） ==========
+  /** 当前显示的奖励 */
+  currentRewards: RewardItem[];
+  /** 是否显示奖励 */
+  showRewardToast: boolean;
+  /** 发放打卡奖励 */
+  dispatchCheckInReward: (params: CheckInRewardParams) => RewardItem | null;
+  /** 发放周期完成奖励 */
+  dispatchCycleCompleteReward: (params: CycleCompleteRewardParams) => RewardItem | null;
+  /** 发放一日清单完成奖励 */
+  dispatchDailyCompleteReward: (params: DailyCompleteRewardParams) => RewardItem | null;
+  /** 发放归档奖励 */
+  dispatchArchiveReward: (params: ArchiveRewardParams) => RewardItem | null;
+  /** 关闭奖励显示 */
+  closeRewardToast: () => void;
 
   // ========== 境界操作 ==========
   /** 突破 */

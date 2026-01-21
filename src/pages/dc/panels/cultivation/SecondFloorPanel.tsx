@@ -4,12 +4,13 @@
  */
 
 import { memo, useMemo, useRef, useCallback, useState, useEffect } from 'react';
-import { ChevronLeft, Bug } from 'lucide-react';
+import { ChevronLeft, Bug, Zap, Clock } from 'lucide-react';
+import { Toast } from 'antd-mobile';
 import { REALM_CONFIG, LIANQI_LAYER_NAMES, STAGE_CONFIG } from '../../constants/cultivation';
 import type { LianqiLayer, StageType, RealmType } from '../../constants/cultivation';
 import type { CultivationData } from '../../types/cultivation';
-import { getCurrentLevelInfo, formatExp, getCultivationImageFromData, getCultivationImage } from '../../utils/cultivation';
-import { useModal, UI_KEYS } from '../../contexts';
+import { getCurrentLevelInfo, formatExp, getCultivationImageFromData, getCultivationImage, getSeclusionInfo } from '../../utils/cultivation';
+import { useModal, UI_KEYS, useCultivation } from '../../contexts';
 import styles from './SecondFloorPanel.module.css';
 
 // ============ DEBUG 配置 ============
@@ -48,10 +49,15 @@ function SecondFloorPanelComponent({
   data,
   visible,
   onClose,
+  onBreakthrough,
 }: SecondFloorPanelProps) {
   const levelInfo = useMemo(() => getCurrentLevelInfo(data), [data]);
+  const seclusionInfo = useMemo(() => getSeclusionInfo(data), [data]);
   const panelRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  
+  // 获取突破方法
+  const { breakthrough } = useCultivation();
   
   // 获取创建任务弹窗状态，用于禁用上滑关闭
   const { visible: isCreateTaskModalOpen } = useModal(UI_KEYS.MODAL_CREATE_TASK_VISIBLE);
@@ -127,7 +133,7 @@ function SecondFloorPanelComponent({
     // 初始化时直接设置图片
     if (!displayedImage) {
       setDisplayedImage(targetImage);
-      return;
+      return undefined;
     }
     
     // 如果目标图片与当前显示的图片不同，触发过渡动画
@@ -140,15 +146,15 @@ function SecondFloorPanelComponent({
         setDisplayedImage(targetImage);
         
         // 短暂延迟后淡入
-        const fadeInTimer = setTimeout(() => {
+        setTimeout(() => {
           setIsImageTransitioning(false);
         }, 50);
-        
-        return () => clearTimeout(fadeInTimer);
       }, 300);
       
       return () => clearTimeout(fadeOutTimer);
     }
+    
+    return undefined;
   }, [targetImage, displayedImage]);
 
   // 切换 DEBUG 模式
@@ -166,6 +172,25 @@ function SecondFloorPanelComponent({
   const prevDebugLevel = useCallback(() => {
     setDebugLevelIndex(prev => (prev - 1 + DEBUG_LEVELS.length) % DEBUG_LEVELS.length);
   }, []);
+
+  // 处理突破
+  const handleBreakthrough = useCallback(() => {
+    if (!levelInfo.canBreakthrough || levelInfo.isMaxLevel) return;
+    
+    const result = breakthrough();
+    if (result.success) {
+      Toast.show({
+        icon: 'success',
+        content: result.message,
+      });
+      onBreakthrough?.();
+    } else {
+      Toast.show({
+        icon: 'fail',
+        content: result.message,
+      });
+    }
+  }, [levelInfo.canBreakthrough, levelInfo.isMaxLevel, breakthrough, onBreakthrough]);
 
   // 触摸开始
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
@@ -331,6 +356,34 @@ function SecondFloorPanelComponent({
 
       {/* 底部提示 */}
       <footer className={styles.footer}>
+        {/* 闭关状态横幅 */}
+        {seclusionInfo && (
+          <div className={styles.seclusionBanner}>
+            <div className={styles.seclusionIcon}>
+              <Clock size={24} />
+            </div>
+            <div className={styles.seclusionInfo}>
+              <div className={styles.seclusionTitle}>
+                闭关修炼中 · 剩余 {seclusionInfo.remainingDays} 天
+              </div>
+              <div className={styles.seclusionDesc}>
+                目标修为: {formatExp(seclusionInfo.targetExp)} · 进度: {seclusionInfo.progress.toFixed(0)}%
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 突破按钮 - 只在可突破时显示 */}
+        {!seclusionInfo && levelInfo.canBreakthrough && !levelInfo.isMaxLevel && (
+          <button
+            className={`${styles.breakthroughButton} ${styles.active}`}
+            onClick={handleBreakthrough}
+          >
+            <Zap size={18} />
+            <span>突破</span>
+          </button>
+        )}
+
         <div className={styles.swipeHint}>
           <span>上滑关闭</span>
         </div>

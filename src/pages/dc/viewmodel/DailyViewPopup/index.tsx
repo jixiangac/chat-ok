@@ -3,8 +3,8 @@
  * 展示今日任务的时段分布 - 小票风格
  */
 
-import React, { useMemo, useState } from 'react';
-import { Popup, SafeArea } from 'antd-mobile';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
+import { Popup, SafeArea, Toast } from 'antd-mobile';
 import { 
   Check, Sun, Sunset, Moon, X, RefreshCw
 } from 'lucide-react';
@@ -12,8 +12,9 @@ import dayjs from 'dayjs';
 import type { Task, TagType } from '../../types';
 import { getUsedLocationTags } from '../../utils/tagStorage';
 import { clearDailyViewCache, hasTodayRefreshed, markTodayRefreshed } from '../../utils';
-import { useTaskContext, useScene } from '../../contexts';
+import { useTaskContext, useScene, useCultivation } from '../../contexts';
 import { LocationFilter } from '../../components';
+import { SPIRIT_JADE_COST } from '../../constants/spiritJade';
 import styles from './styles.module.css';
 
 // 圆圈进度条组件（与支线卡片一致）
@@ -121,6 +122,12 @@ const DailyViewPopup: React.FC<DailyViewPopupProps> = ({
 }) => {
   const { setSelectedTaskId } = useTaskContext();
   const { normal, refreshScene } = useScene();
+  const { 
+    canSpendSpiritJade, 
+    spendSpiritJade, 
+    spiritJadeData, 
+    dispatchDailyCompleteReward 
+  } = useCultivation();
   
   // 检查今日是否已刷新
   const [hasRefreshed, setHasRefreshed] = useState(() => hasTodayRefreshed());
@@ -134,9 +141,40 @@ const DailyViewPopup: React.FC<DailyViewPopupProps> = ({
   // 是否禁用刷新按钮：已刷新过 或 今日有进度
   const isRefreshDisabled = hasRefreshed || hasTodayProgress;
 
+  // 记录上一次的进度比例，用于检测是否刚达到100%
+  const prevPercentageRef = useRef<number>(normal.todayProgress.percentage);
+
+  // 监听一日清单完成进度，达到100%时发放奖励
+  useEffect(() => {
+    const prevPercentage = prevPercentageRef.current;
+    const currentPercentage = normal.todayProgress.percentage;
+    
+    // 检测从非100%变到100%
+    if (prevPercentage < 100 && currentPercentage >= 100) {
+      // 获取一日清单任务数量
+      const taskCount = normal.dailyViewTaskIds.length;
+      if (taskCount > 0) {
+        dispatchDailyCompleteReward({ taskCount });
+      }
+    }
+    
+    prevPercentageRef.current = currentPercentage;
+  }, [normal.todayProgress.percentage, normal.dailyViewTaskIds.length, dispatchDailyCompleteReward]);
+
   // 处理刷新一日清单
   const handleRefresh = async () => {
     if (isRefreshDisabled || isRefreshing) return;
+    
+    const refreshCost = SPIRIT_JADE_COST.REFRESH_DAILY_VIEW;
+    
+    // 检查灵玉是否足够
+    if (!canSpendSpiritJade(refreshCost)) {
+      Toast.show({
+        icon: 'fail',
+        content: `灵玉不足！刷新需要 ${refreshCost} 灵玉，当前余额 ${spiritJadeData.balance}`,
+      });
+      return;
+    }
     
     setIsRefreshing(true);
     
@@ -150,6 +188,18 @@ const DailyViewPopup: React.FC<DailyViewPopupProps> = ({
       
       // 3. 刷新场景数据，触发重新计算 dailyViewTaskIds
       refreshScene('normal');
+      
+      // 4. 扣除灵玉
+      spendSpiritJade({
+        amount: refreshCost,
+        source: 'REFRESH_DAILY',
+        description: '刷新一日清单',
+      });
+      
+      Toast.show({
+        icon: 'success',
+        content: `已刷新一日清单，消耗 ${refreshCost} 灵玉`,
+      });
     } catch (error) {
       console.error('刷新一日清单失败:', error);
     } finally {

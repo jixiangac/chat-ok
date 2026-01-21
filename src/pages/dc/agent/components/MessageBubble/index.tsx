@@ -1,11 +1,11 @@
 /**
  * 消息气泡组件
  * 用户消息使用奶油风随机配色，AI 消息使用半透明毛玻璃效果
- * AI 消息使用 Streamdown 渲染 Markdown
+ * AI 消息使用 ReactMarkdown 渲染 Markdown
  */
 
 import { useMemo } from 'react';
-import { Streamdown } from 'streamdown';
+import ReactMarkdown from 'react-markdown';
 import { COLOR_PAIRS } from '@/pages/dc/constants/colors';
 import type { MessageBubbleProps } from '../../types';
 import styles from './styles.module.css';
@@ -54,7 +54,9 @@ export function MessageBubble({ message }: MessageBubbleProps) {
         {isUser ? (
           message.content
         ) : (
-          <Streamdown className={styles.markdown}>{message.content}</Streamdown>
+          <div className={styles.markdown}>
+            <ReactMarkdown>{message.content}</ReactMarkdown>
+          </div>
         )}
         {isStreaming && <span className={styles.cursor}>|</span>}
       </div>

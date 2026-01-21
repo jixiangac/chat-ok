@@ -1,12 +1,14 @@
 /**
  * 流式对话 Hook
- * 使用 OpenAI SDK 的 Chat Completions API 实现流式输出
+ * 使用原生 fetch 实现流式输出（避免 OpenAI SDK 的 CORS 问题）
  */
 
 import { useState, useRef, useCallback } from 'react';
 import type { Message, StructuredOutput } from '../types';
-import { client } from './useAgent';
 import { API_CONFIG, ROLE_PROMPTS, type AgentRole } from '../constants';
+
+// API 端点
+const API_URL = 'https://apis.iflow.cn/v1/chat/completions';
 
 /**
  * 从消息内容中解析结构化输出
@@ -87,29 +89,72 @@ export function useStreamChat(options: UseStreamChatOptions) {
       // 添加当前用户消息
       chatMessages.push({ role: 'user', content });
 
-      // 使用 OpenAI SDK 调用 Chat Completions API
-      const stream = await client.chat.completions.create({
-        model: API_CONFIG.model,
-        messages: chatMessages,
-        stream: true,
-      }, {
-        signal: abortControllerRef.current.signal,
+      // 使用原生 fetch 调用 API
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${API_CONFIG.apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: API_CONFIG.model,
+          messages: chatMessages,
+          stream: true,
+        }),
+                signal: abortControllerRef.current.signal,
       });
 
-      // 处理流式输出
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+
+      // 处理流式输出 (SSE)
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
       let fullContent = '';
-      for await (const chunk of stream) {
-        const delta = chunk.choices[0]?.delta?.content;
-        if (delta) {
-          fullContent += delta;
-          setMessages(prev => {
-            const updated = [...prev];
-            const lastMsg = updated[updated.length - 1];
-            if (lastMsg.id === aiMessageId) {
-              lastMsg.content = fullContent;
+      let buffer = ''; // 缓冲不完整的行
+
+      if (!reader) {
+        throw new Error('No response body');
+      }
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        
+        // 保留最后一个可能不完整的行
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          const trimmedLine = line.trim();
+          if (!trimmedLine) continue;
+          
+          // 处理 SSE 格式: "data: {...}"
+          if (trimmedLine.startsWith('data:')) {
+            const data = trimmedLine.slice(5).trim();
+            if (data === '[DONE]') continue;
+
+            try {
+              const parsed = JSON.parse(data);
+              const delta = parsed.choices?.[0]?.delta?.content;
+              if (delta) {
+                fullContent += delta;
+                setMessages(prev => {
+                  const updated = [...prev];
+                  const lastMsg = updated[updated.length - 1];
+                  if (lastMsg.id === aiMessageId) {
+                    lastMsg.content = fullContent;
+                  }
+                  return updated;
+                });
+              }
+            } catch (e) {
+              console.log('SSE parse error:', data, e);
             }
-            return updated;
-          });
+          }
         }
       }
 

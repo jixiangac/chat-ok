@@ -13,17 +13,37 @@ import { useScene } from '../SceneProvider';
 import { archiveTask as archiveTaskToStorage } from '../../utils/archiveStorage';
 import { getEffectiveMainlineType, getCurrentDate } from '../../utils';
 
-// 欠账快照配色方案
-const DEBT_COLOR_SCHEMES = [
-  { bgColor: 'rgba(246, 239, 239, 0.6)', progressColor: 'linear-gradient(90deg, #F6EFEF 0%, #E0CEC6 100%)', borderColor: '#E0CEC6' },
-  { bgColor: 'rgba(241, 241, 232, 0.6)', progressColor: 'linear-gradient(90deg, #F1F1E8 0%, #B9C9B9 100%)', borderColor: '#B9C9B9' },
-  { bgColor: 'rgba(231, 230, 237, 0.6)', progressColor: 'linear-gradient(90deg, #E7E6ED 0%, #C0BDD1 100%)', borderColor: '#C0BDD1' },
-  { bgColor: 'rgba(234, 236, 239, 0.6)', progressColor: 'linear-gradient(90deg, #EAECEF 0%, #B8BCC1 100%)', borderColor: '#B8BCC1' },
-];
+// 导入重构后的辅助函数
+import {
+  calculateTodayProgress,
+  getSimulatedToday,
+  formatNumberPrecision
+} from '../../utils/todayProgressCalculator';
+import {
+  validateCheckIn,
+  createCheckInEntry,
+  updateCheckInRecords,
+  calculateStreak,
+  calculateCheckInCycleProgress,
+  detectCycleCompletion,
+  createCheckInActivity,
+  getTodayCheckInsFromRecords,
+  mergeCheckInProgressUpdate
+} from '../../utils/checkInHelper';
+import {
+  calculateNumericTotalProgress,
+  calculateNumericCycleProgress,
+  calculateCompensationTarget,
+  createDebtSnapshot,
+  createValueUpdateActivity,
+  calculateOriginalCycleTargetValue,
+  hasReachedFinalTarget,
+  calculateCycleTimeInfo,
+  handleLegacyDebtSnapshot,
+  getRandomColorScheme
+} from '../../utils/numericRecordHelper';
 
-const getRandomColorScheme = () => {
-  return DEBT_COLOR_SCHEMES[Math.floor(Math.random() * DEBT_COLOR_SCHEMES.length)];
-};
+// 注意：DEBT_COLOR_SCHEMES 和 getRandomColorScheme 已从 numericRecordHelper 导入
 
 // 创建 Context
 const TaskContext = createContext<TaskContextValue | null>(null);
@@ -37,19 +57,7 @@ const generateId = (): string => {
   return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 };
 
-// 获取模拟的"今天"日期（优先使用全局测试日期）
-const getSimulatedToday = (task: Task): string => {
-  // 优先使用全局测试日期
-  const currentDate = getCurrentDate();
-  const offset = (task as any).debugDayOffset || 0;
-  
-  if (offset === 0) {
-    return currentDate;
-  }
-  
-  // 如果有偏移量，在当前日期基础上计算
-  return dayjs(currentDate).add(offset, 'day').format('YYYY-MM-DD');
-};
+// 注意：getSimulatedToday 已从 todayProgressCalculator 导入
 
 // 获取模拟的时间戳（优先使用全局测试日期）
 // 保留当前的时分秒信息，只调整日期部分
@@ -65,118 +73,9 @@ const getSimulatedTimestamp = (task: Task): number => {
   return dayjs().add(offset, 'day').valueOf();
 };
 
-// 从 checkInConfig.records 获取今日打卡记录
-const getTodayCheckInsFromRecords = (task: Task, effectiveToday: string): CheckInEntry[] => {
-  const records = task.checkInConfig?.records || [];
-  const todayRecord = records.find(r => r.date === effectiveToday);
-  return todayRecord?.entries || [];
-};
+// 注意：getTodayCheckInsFromRecords 已从 checkInHelper 导入
 
-// 数字精度处理函数
-// - 大于等于1000：保留整数
-// - 大于等于100：最多保留1位小数
-// - 小于100：最多保留2位小数
-const formatNumberPrecision = (num: number): number => {
-  const absNum = Math.abs(num);
-  if (absNum >= 1000) {
-    return Math.round(num);
-  } else if (absNum >= 100) {
-    return Math.round(num * 10) / 10;
-  } else {
-    return Math.round(num * 100) / 100;
-  }
-};
-
-// 计算今日进度
-const calculateTodayProgress = (task: Task): TodayProgress => {
-  const effectiveToday = getSimulatedToday(task);
-  const checkInConfig = task.checkInConfig;
-  const todayCheckIns = getTodayCheckInsFromRecords(task, effectiveToday);
-
-  // NUMERIC 类型任务：使用 numericConfig.perDayAverage 作为每日目标
-  if (task.category === 'NUMERIC' && task.numericConfig) {
-    const dailyTarget = formatNumberPrecision(Math.abs(task.numericConfig.perDayAverage || 0));
-    // 计算今日记录的数值变化
-    const todayActivities = task.activities?.filter(a => 
-      dayjs(a.date).format('YYYY-MM-DD') === effectiveToday && a.type === 'UPDATE_VALUE'
-    ) || [];
-    // 计算今日数值变化总和（newValue - oldValue）
-    const todayValue = todayActivities.reduce((sum, a) => {
-      const activity = a as { newValue?: number; oldValue?: number };
-      return sum + ((activity.newValue || 0) - (activity.oldValue || 0));
-    }, 0);
-    // 使用绝对值判断是否完成（减少型任务 todayValue 为负数）
-    const isCompleted = dailyTarget > 0 && Math.abs(todayValue) >= dailyTarget;
-    
-    return {
-      canCheckIn: true,
-      todayCount: todayActivities.length,
-      todayValue: formatNumberPrecision(todayValue),
-      isCompleted,
-      dailyTarget,
-      lastUpdatedAt: dayjs().toISOString()
-    };
-  }
-
-  if (!checkInConfig) {
-    return {
-      canCheckIn: todayCheckIns.length === 0,
-      todayCount: todayCheckIns.length,
-      todayValue: 0,
-      isCompleted: todayCheckIns.length > 0,
-      lastUpdatedAt: dayjs().toISOString()
-    };
-  }
-
-  const unit = checkInConfig.unit;
-  const todayValue = todayCheckIns.reduce((sum, c) => sum + (c.value || 1), 0);
-
-  if (unit === 'TIMES') {
-    const dailyMax = checkInConfig.dailyMaxTimes || 1;
-    return {
-      canCheckIn: todayCheckIns.length < dailyMax,
-      todayCount: todayCheckIns.length,
-      todayValue: todayCheckIns.length,
-      isCompleted: todayCheckIns.length >= dailyMax,
-      dailyTarget: dailyMax,
-      lastUpdatedAt: dayjs().toISOString()
-    };
-  } else if (unit === 'DURATION') {
-    const dailyTarget = formatNumberPrecision(checkInConfig.dailyTargetMinutes || 15);
-    return {
-      canCheckIn: todayValue < dailyTarget,
-      todayCount: todayCheckIns.length,
-      todayValue: formatNumberPrecision(todayValue),
-      isCompleted: todayValue >= dailyTarget,
-      dailyTarget,
-      lastUpdatedAt: dayjs().toISOString()
-    };
-  } else if (unit === 'QUANTITY') {
-    // 数值型打卡：优先使用 dailyTargetValue，如果没有则使用 cycleTargetValue / cycleDays 计算
-    let dailyTarget = checkInConfig.dailyTargetValue || 0;
-    
-    // 如果没有设置每日目标，但有周期目标，则计算每日平均目标
-    if (dailyTarget === 0 && checkInConfig.cycleTargetValue) {
-      // 从任务中获取周期天数
-      const cycleDays = task.cycle?.cycleDays || 7;
-      dailyTarget = Math.ceil(checkInConfig.cycleTargetValue / cycleDays);
-    }
-    
-    dailyTarget = formatNumberPrecision(dailyTarget);
-    const formattedTodayValue = formatNumberPrecision(todayValue);
-    
-    return {
-      canCheckIn: dailyTarget === 0 || todayValue < dailyTarget,
-      todayCount: todayCheckIns.length,
-      todayValue: formattedTodayValue,
-      isCompleted: dailyTarget > 0 && todayValue >= dailyTarget,
-      dailyTarget: dailyTarget > 0 ? dailyTarget : undefined,
-      lastUpdatedAt: dayjs().toISOString()
-    };
-  }
-
-  return { canCheckIn: true, todayCount: 0, todayValue: 0, isCompleted: false, lastUpdatedAt: dayjs().toISOString() };
-};
+// 注意：formatNumberPrecision 和 calculateTodayProgress 已从 todayProgressCalculator 导入
 
 export function TaskProvider({ children }: TaskProviderProps) {
   // 依赖 SceneProvider
@@ -485,171 +384,77 @@ export function TaskProvider({ children }: TaskProviderProps) {
     };
   }, [scene, detectScene]);
 
-  // 打卡功能
-  const checkIn = useCallback(async (taskId: string, value?: number, note?: string, sceneType?: SceneType): Promise<{ success: boolean; cycleJustCompleted?: boolean; cycleNumber?: number }> => {
+  // 打卡功能（使用重构后的辅助函数）
+  const checkIn = useCallback(async (
+    taskId: string,
+    value?: number,
+    note?: string,
+    sceneType?: SceneType
+  ): Promise<{ success: boolean; cycleJustCompleted?: boolean; cycleNumber?: number }> => {
     const targetScene = sceneType || detectScene(taskId);
     if (!targetScene) return { success: false };
 
     const task = scene.getTaskById(taskId, targetScene);
     if (!task) return { success: false };
 
-    console.log(task,'config')
-    console.log(task.checkInConfig, 'config')
-
-    // 记录打卡前的周期进度
-    const prevCyclePercentage = task.progress?.cyclePercentage || 0;
-    const currentCycleNumber = task.cycle?.currentCycle || 1;
-
     try {
       const simulatedToday = getSimulatedToday(task);
       const config = task.checkInConfig;
-      
       const todayCheckIns = getTodayCheckInsFromRecords(task, simulatedToday);
 
-      // 检查是否可以打卡
-      if (config) {
-        const unit = config.unit;
-        if (unit === 'TIMES') {
-          const dailyMax = config.dailyMaxTimes || 1;
-          if (todayCheckIns.length >= dailyMax) {
-            console.log('今日已达到打卡上限');
-            return { success: false };
-          }
-        } else if (unit === 'DURATION') {
-          const dailyTarget = config.dailyTargetMinutes || 15;
-          const todayTotal = todayCheckIns.reduce((sum, c) => sum + (c.value || 0), 0);
-          if (todayTotal >= dailyTarget) {
-            console.log('今日已达到时长目标');
-            // return false;
-          }
-        } else if (unit === 'QUANTITY') {
-          const dailyTarget = config.dailyTargetValue || 0;
-          const todayTotal = todayCheckIns.reduce((sum, c) => sum + (c.value || 0), 0);
-          if (dailyTarget > 0 && todayTotal >= dailyTarget) {
-            console.log('今日已达到数值目标');
-            return { success: false };
-          }
-        }
+      // 1. 验证是否可以打卡
+      const validation = validateCheckIn(config, todayCheckIns);
+      if (!validation.allowed) {
+        console.log(validation.reason);
+        return { success: false };
       }
 
-      // 创建新的打卡记录
-      const newEntry: CheckInEntry = {
-        id: `checkin_${Date.now()}`,
-        time: dayjs().format('HH:mm:ss'),
-        value: value,
-        note: note || undefined
-      };
+      // 2. 创建打卡记录
+      const newEntry = createCheckInEntry(value, note);
 
-      // 更新 records
-      const records = [...(config?.records || [])];
-      const todayRecordIndex = records.findIndex(r => r.date === simulatedToday);
-      
-      if (todayRecordIndex >= 0) {
-        // 确保 entries 数组存在，如果不存在则初始化为空数组
-        const existingEntries = records[todayRecordIndex].entries || [];
-        records[todayRecordIndex] = {
-          ...records[todayRecordIndex],
-          checked: true,
-          entries: [...existingEntries, newEntry],
-          totalValue: (records[todayRecordIndex].totalValue || 0) + (value || 1),
-        };
-      } else {
-        records.push({
-          date: simulatedToday,
-          checked: true,
-          entries: [newEntry],
-          totalValue: value || 1,
-        });
-      }
-      
-      // 更新连续打卡记录
-      let updatedConfig = { ...(config || {}) } as any;
-      if (config) {
-        const uniqueDates = [...new Set(records.filter(r => r.checked).map(r => r.date))].sort();
-        let currentStreak = 0;
-        let checkDate = dayjs(simulatedToday);
-        
-        while (uniqueDates.includes(checkDate.format('YYYY-MM-DD'))) {
-          currentStreak++;
-          checkDate = checkDate.subtract(1, 'day');
-        }
-        
-        updatedConfig.currentStreak = currentStreak;
-        updatedConfig.longestStreak = Math.max(updatedConfig.longestStreak || 0, currentStreak);
-        updatedConfig.records = records;
-      }
+      // 3. 更新打卡记录数组
+      const newRecords = updateCheckInRecords(
+        config?.records || [],
+        newEntry,
+        simulatedToday,
+        value
+      );
 
-      // 计算并更新打卡型任务的进度
+      // 4. 计算连续打卡
+      const streak = calculateStreak(newRecords, simulatedToday);
+      const updatedConfig = {
+        ...(config || {}),
+        records: newRecords,
+        currentStreak: streak.currentStreak,
+        longestStreak: Math.max(config?.longestStreak || 0, streak.longestStreak)
+      } as any;
+
+      // 5. 计算周期进度
+      const prevCyclePercentage = task.progress?.cyclePercentage || 0;
+      const currentCycleNumber = task.cycle?.currentCycle || 1;
       let progressUpdate: Partial<Task> = {};
+
       if (task.category === 'CHECK_IN') {
-        // 直接使用 task.cycle 中的周期信息
-        const { currentCycle, totalCycles, cycleDays } = task.cycle;
-        const startDate = dayjs(task.time.startDate);
-        const perCycleTarget = config?.perCycleTarget || 1;
-        const unit = config?.unit || 'TIMES';
-
-        // 计算当前周期的开始和结束日期
-        const cycleStartDay = (currentCycle - 1) * cycleDays;
-        const cycleEndDay = cycleStartDay + cycleDays - 1;
-        const cycleStartDate = startDate.add(cycleStartDay, 'day').format('YYYY-MM-DD');
-        const cycleEndDate = startDate.add(cycleEndDay, 'day').format('YYYY-MM-DD');
-
-        const cycleRecords = records.filter(r =>
-          r.date >= cycleStartDate && r.date <= cycleEndDate && r.checked
-        );
-
-        let currentCycleValue: number;
-        let totalValue: number;
-
-        if (unit === 'TIMES') {
-          // 确保 entries 数组存在，如果不存在则默认计为1次
-          currentCycleValue = cycleRecords.reduce((sum, r) => sum + (r.entries?.length || 1), 0);
-          totalValue = records.filter(r => r.checked).reduce((sum, r) => sum + (r.entries?.length || 1), 0);
-        } else {
-          currentCycleValue = cycleRecords.reduce((sum, r) => sum + (r.totalValue || 0), 0);
-          totalValue = records.filter(r => r.checked).reduce((sum, r) => sum + (r.totalValue || 0), 0);
-        }
-
-        const cyclePercentage = Math.min(100, Math.round((currentCycleValue / perCycleTarget) * 100));
-        const totalTarget = totalCycles * perCycleTarget;
-        const totalPercentage = Math.min(100, Math.round((totalValue / totalTarget) * 100));
-
-        // 计算 cycleAchieved 和 cycleRemaining
-        const cycleAchieved = currentCycleValue;
-        const cycleRemaining = Math.max(0, perCycleTarget - currentCycleValue);
-
+        const cycleProgress = calculateCheckInCycleProgress(task, newRecords);
         progressUpdate = {
-          progress: {
-            ...task.progress,
-            cyclePercentage,
-            totalPercentage,
-            cycleAchieved,
-            cycleRemaining,
-            lastUpdatedAt: dayjs().toISOString()
-          }
+          progress: mergeCheckInProgressUpdate(task.progress, cycleProgress)
         };
       }
 
-      // 添加活动日志（使用模拟日期）
-      const newActivity = {
-        id: generateId(),
-        type: 'CHECK_IN' as const,
-        date: simulatedToday,
-        timestamp: getSimulatedTimestamp(task),
-        count: 1,
-        value: value,
-        note: note || undefined
-      };
-
+      // 6. 创建活动日志
+      const newActivity = createCheckInActivity(
+        simulatedToday,
+        getSimulatedTimestamp(task),
+        value,
+        note
+      );
       const updatedActivities = [...task.activities, newActivity];
 
-      // 计算更新后的今日进度
-      const updatedTask = {
-        ...task,
-        checkInConfig: updatedConfig
-      };
+      // 7. 计算更新后的今日进度
+      const updatedTask = { ...task, checkInConfig: updatedConfig };
       const todayProgress = calculateTodayProgress(updatedTask as Task);
 
+      // 8. 更新任务
       scene.updateTask(targetScene, taskId, {
         checkInConfig: updatedConfig,
         todayProgress,
@@ -657,14 +462,18 @@ export function TaskProvider({ children }: TaskProviderProps) {
         ...progressUpdate
       });
 
-      // 检查是否触发周期100%完成
+      // 9. 检测周期完成
       const newCyclePercentage = (progressUpdate.progress as any)?.cyclePercentage || 0;
-      const cycleJustCompleted = prevCyclePercentage < 100 && newCyclePercentage >= 100;
+      const completion = detectCycleCompletion(
+        prevCyclePercentage,
+        newCyclePercentage,
+        currentCycleNumber
+      );
 
-      return { 
-        success: true, 
-        cycleJustCompleted,
-        cycleNumber: cycleJustCompleted ? currentCycleNumber : undefined
+      return {
+        success: true,
+        cycleJustCompleted: completion.cycleJustCompleted,
+        cycleNumber: completion.cycleNumber
       };
     } catch (error) {
       console.error('打卡失败:', error);
@@ -672,274 +481,143 @@ export function TaskProvider({ children }: TaskProviderProps) {
     }
   }, [scene, detectScene]);
 
-  // 记录数值型数据
-  const recordNumericData = useCallback(async (taskId: string, value: number, note?: string, sceneType?: SceneType): Promise<boolean> => {
+  // 记录数值型数据（使用重构后的辅助函数）
+  const recordNumericData = useCallback(async (
+    taskId: string,
+    value: number,
+    note?: string,
+    sceneType?: SceneType
+  ): Promise<boolean> => {
     const targetScene = sceneType || detectScene(taskId);
     if (!targetScene) return false;
 
     const task = scene.getTaskById(taskId, targetScene);
     if (!task) return false;
-console.log(value,'value')
+
     try {
       const config = task.numericConfig;
       if (!config) return false;
 
       const previousValue = config.currentValue;
-      const change = value - previousValue;
       const progress = task.progress;
       const isDecrease = config.direction === 'DECREASE';
       const originalStart = config.originalStartValue ?? config.startValue;
       const totalChange = Math.abs(config.targetValue - originalStart);
-      const rawChange = value - originalStart;
-      const effectiveChange = isDecrease ? Math.max(0, -rawChange) : Math.max(0, rawChange);
-      const totalPercentage = totalChange > 0 ? Math.min(100, Math.round((effectiveChange / totalChange) * 100)) : 0;
-
       const perCycleTarget = config.perCycleTarget || (totalChange / task.cycle.totalCycles);
 
-      // 从 progress 中获取周期起始值
-      const cycleStartValueRaw = progress.cycleStartValue ?? config.startValue;
-      const cycleStartValue = typeof cycleStartValueRaw === 'number' ? cycleStartValueRaw : config.startValue;
+      // 1. 计算总进度
+      const totalProgress = calculateNumericTotalProgress(config, value);
 
-      // 检查是否已有补偿目标值，如果有则用它来计算进度
-      const existingCompensationTarget = progress.compensationTargetValue;
-      
-      let cyclePercentage: number;
-      let effectiveCycleChange: number;
-      
-      if (existingCompensationTarget !== undefined) {
-        // 使用补偿目标值计算进度
-        const compensationTotal = isDecrease 
-          ? cycleStartValue - existingCompensationTarget 
-          : existingCompensationTarget - cycleStartValue;
-        const compensationChange = isDecrease 
-          ? cycleStartValue - value 
-          : value - cycleStartValue;
-        effectiveCycleChange = Math.max(0, compensationChange);
-        cyclePercentage = compensationTotal > 0 
-          ? Math.max(0, Math.min(100, Math.round((compensationChange / compensationTotal) * 100)))
-          : 0;
-      } else {
-        // 使用原周期目标计算进度
-        const rawCycleChange = value - cycleStartValue;
-        effectiveCycleChange = isDecrease ? Math.max(0, -rawCycleChange) : Math.max(0, rawCycleChange);
-        cyclePercentage = perCycleTarget > 0 ? Math.min(100, Math.round((effectiveCycleChange / perCycleTarget) * 100)) : 0;
-      }
+      // 2. 计算周期进度
+      const cycleProgress = calculateNumericCycleProgress(config, progress, value, perCycleTarget);
+      let { cyclePercentage, effectiveCycleChange, cycleStartValue } = cycleProgress;
 
+      // 3. 更新数值配置
       const updatedNumericConfig = {
         ...config,
         currentValue: value
       };
 
-      // 添加活动日志（使用模拟日期）
-      // date 字段使用 ISO 格式，包含完整的时间信息
-      const currentDate = getCurrentDate();
-      const offset = (task as any).debugDayOffset || 0;
-      // 优先使用全局测试日期，如果有 debugDayOffset 则在此基础上偏移
-      const simulatedDateTime = offset === 0
-        ? dayjs(currentDate).format('YYYY-MM-DD')
-        : dayjs().add(offset, 'day').format('YYYY-MM-DD');
+      // 4. 创建活动日志
+      const simulatedToday = getSimulatedToday(task);
+      const newActivity = createValueUpdateActivity(
+        previousValue,
+        value,
+        simulatedToday,
+        getSimulatedTimestamp(task),
+        note
+      );
 
-        console.log({
-          currentDate,
-          simulatedDateTime,
-          offset,
-        },'simulatedDateTime')
-      const newActivity = {
-        id: generateId(),
-        type: 'UPDATE_VALUE' as const,
-        date: simulatedDateTime,
-        timestamp: getSimulatedTimestamp(task),
-        oldValue: previousValue,
-        newValue: value,
-        delta: change,
-        note: note || undefined
-      };
+      // 5. 检查是否已达成最终目标
+      const alreadyReachedFinalTarget = hasReachedFinalTarget(config, value);
 
-      // 检查是否已达成最终目标
-      const alreadyReachedFinalTarget = isDecrease 
-        ? value <= config.targetValue
-        : value >= config.targetValue;
-      
-      // 计算 cycleAchieved 和 cycleRemaining（数值型任务）
+      // 6. 计算 cycleAchieved 和 cycleRemaining
       let cycleAchieved = effectiveCycleChange;
-      let cycleRemainingCalc = Math.max(0, perCycleTarget - effectiveCycleChange);
-      
-      // 如果已达成最终目标，进度100%，还需0
+      let cycleRemaining = Math.max(0, perCycleTarget - effectiveCycleChange);
+
       if (alreadyReachedFinalTarget) {
         cyclePercentage = 100;
-        cycleRemainingCalc = 0;
-      }
-      
-      const cycleRemaining = cycleRemainingCalc;
-
-      // 计算当前周期目标值（保持原值不变，不用 compensationTargetValue 覆盖）
-      let originalCycleTargetValue = cycleStartValue + perCycleTarget * (isDecrease ? -1 : 1);
-      // 确保周期目标值不超过最终目标值
-      if (isDecrease) {
-        originalCycleTargetValue = Math.max(originalCycleTargetValue, config.targetValue);
-      } else {
-        originalCycleTargetValue = Math.min(originalCycleTargetValue, config.targetValue);
+        cycleRemaining = 0;
       }
 
+      // 7. 计算原始周期目标值
+      const originalCycleTargetValue = calculateOriginalCycleTargetValue(config, cycleStartValue, perCycleTarget);
+
+      // 8. 构建基础更新对象
+      const existingCompensationTarget = progress.compensationTargetValue;
       const updates: Partial<Task> = {
         numericConfig: updatedNumericConfig,
         activities: [...task.activities, newActivity],
         progress: {
           ...task.progress,
-          totalPercentage,
+          totalPercentage: totalProgress.totalPercentage,
           cyclePercentage,
           cycleStartValue,
           cycleAchieved,
           cycleRemaining,
           lastUpdatedAt: dayjs().toISOString(),
           cycleTargetValue: originalCycleTargetValue,
-          // 保留已有的补偿目标值（只用于计算，不覆盖 cycleTargetValue）
           compensationTargetValue: existingCompensationTarget,
         }
       };
 
-      // 处理欠款和补偿目标值逻辑
-      const currentCycle = task.cycle.currentCycle;
-      const cycleDays = task.cycle.cycleDays;
-      const startDate = dayjs(task.time.startDate);
+      // 9. 处理补偿目标值逻辑
       const debugOffset = (task as any).debugDayOffset || 0;
       const simulatedTodayDate = dayjs().add(debugOffset, 'day');
-      
-      // 计算当前周期的开始日期和已过天数
-      const cycleStartDay = (currentCycle - 1) * cycleDays;
-      const currentCycleStart = startDate.add(cycleStartDay, 'day');
-      const daysInCurrentCycle = simulatedTodayDate.diff(currentCycleStart, 'day');
-      const isInFirstHalf = daysInCurrentCycle < cycleDays / 2;
+      const { daysInCurrentCycle, isInFirstHalf } = calculateCycleTimeInfo(task, simulatedTodayDate);
+      const currentCycle = task.cycle.currentCycle;
 
-      // 如果当前周期进度达到100%且在前50%时间内，且没有已设置的补偿目标，检查是否需要设置补偿目标
-      // 不依赖 previousCycleDebt，直接检查当前值是否达到各周期计划目标
       if (cyclePercentage >= 100 && isInFirstHalf && existingCompensationTarget === undefined) {
-        // 从周期计划取最多3个周期的目标值，找第一个当前值未达标的作为补偿目标
-        const originalStart = config.originalStartValue ?? config.startValue;
-        let compensationTarget: number | undefined;
-        let compensationFromCycle: number | undefined;
-        
-        // 从当前周期开始往前检查，最多检查3个周期
-        const startCycle = currentCycle;
-        const endCycle = Math.max(1, currentCycle - 2); // 往前最多2个，总共3个周期
-        
-        for (let i = startCycle; i >= endCycle; i--) {
-          // 计算第i个周期的计划目标值
-          const cycleTargetForI = isDecrease 
-            ? originalStart - (perCycleTarget * i)
-            : originalStart + (perCycleTarget * i);
-          
-          // 检查当前值是否达到这个周期的目标
-          let hasReached = false;
-          if (isDecrease) {
-            hasReached = value <= cycleTargetForI;
-          } else {
-            hasReached = value >= cycleTargetForI;
-          }
-          
-          if (!hasReached) {
-            // 找到未达标的周期目标（从当前往前找，取最早未达标的）
-            compensationTarget = cycleTargetForI;
-            compensationFromCycle = i;
-            // 继续往前找，取最早未达标的
-          }
-        }
-        
-        if (compensationTarget !== undefined) {
-          // 补偿目标不能超过最终目标值（减少方向不能小于targetValue，增加方向不能大于targetValue）
-          if (isDecrease) {
-            compensationTarget = Math.max(compensationTarget, config.targetValue);
-          } else {
-            compensationTarget = Math.min(compensationTarget, config.targetValue);
-          }
-          
-          // 设置补偿目标值，替代当前周期目标
-          (updates.progress as any).compensationTargetValue = compensationTarget;
-          (updates.progress as any).debtFromCycle = compensationFromCycle;
-          
-          // 重新计算基于补偿目标的进度（从当前周期起始值到补偿目标）
-          const cycleStartNum = typeof cycleStartValue === 'number' ? cycleStartValue : 0;
-          const compensationChange = isDecrease 
-            ? cycleStartNum - value 
-            : value - cycleStartNum;
-          const compensationTotal = isDecrease 
-            ? cycleStartNum - compensationTarget 
-            : compensationTarget - cycleStartNum;
-          // 确保进度不为负数
-          const compensationPercentage = compensationTotal > 0 
-            ? Math.max(0, Math.min(100, Math.round((compensationChange / compensationTotal) * 100)))
-            : 0;
-          
-          (updates.progress as any).cyclePercentage = compensationPercentage;
-          // 不覆盖 cycleTargetValue，保持原值，只用 compensationTargetValue 进行计算
-          
-          // 设置欠账快照用于卡片显示
-          const colorScheme = getRandomColorScheme();
-          updates.previousCycleDebtSnapshot = {
-            currentCycleNumber: currentCycle,
-            targetValue: compensationTarget,
-            bgColor: colorScheme.bgColor,
-            progressColor: colorScheme.progressColor,
-            borderColor: colorScheme.borderColor,
-            debtCycleSnapshot: {
-              cycleNumber: compensationFromCycle || 1,
-              startValue: originalStart,
-              targetValue: compensationTarget,
-              actualValue: value,
-              completionRate: compensationPercentage,
-            }
-          };
+        const compensation = calculateCompensationTarget(
+          config,
+          value,
+          currentCycle,
+          perCycleTarget,
+          progress
+        );
+
+        if (compensation.compensationTarget !== undefined) {
+          // 设置补偿目标值
+          (updates.progress as any).compensationTargetValue = compensation.compensationTarget;
+          (updates.progress as any).debtFromCycle = compensation.compensationFromCycle;
+          (updates.progress as any).cyclePercentage = compensation.compensationPercentage;
+
+          // 创建欠账快照
+          updates.previousCycleDebtSnapshot = createDebtSnapshot(
+            currentCycle,
+            compensation.compensationTarget,
+            compensation.compensationFromCycle || 1,
+            originalStart,
+            value,
+            compensation.compensationPercentage || 0
+          );
         } else {
-          // 所有周期目标都已达到，清除补偿目标
+          // 清除补偿目标
           (updates.progress as any).compensationTargetValue = undefined;
           (updates.progress as any).debtFromCycle = undefined;
           updates.previousCycleDebtSnapshot = undefined;
         }
       }
 
-      // 兼容旧的欠账快照逻辑
-      const cycleSnapshots = (task as any).cycleSnapshots || [];
-      if (cycleSnapshots.length > 0 && cyclePercentage >= 100 && !updates.previousCycleDebtSnapshot) {
-        const lastSnapshot = cycleSnapshots[cycleSnapshots.length - 1];
-        if (lastSnapshot.completionRate !== undefined && lastSnapshot.completionRate < 100) {
-          const previousCycleTarget = lastSnapshot.targetValue;
-          let reachedLastTarget = false;
-          if (isDecrease) {
-            reachedLastTarget = value <= previousCycleTarget;
-          } else {
-            reachedLastTarget = value >= previousCycleTarget;
-          }
-
-          if (!reachedLastTarget) {
-            const remainingDays = Math.max(0, cycleDays - daysInCurrentCycle);
-
-            if (remainingDays > cycleDays / 2 && !task.previousCycleDebtSnapshot) {
-              const colorScheme = getRandomColorScheme();
-              updates.previousCycleDebtSnapshot = {
-                currentCycleNumber: currentCycle,
-                targetValue: previousCycleTarget,
-                bgColor: colorScheme.bgColor,
-                progressColor: colorScheme.progressColor,
-                borderColor: colorScheme.borderColor,
-                debtCycleSnapshot: {
-                  cycleNumber: lastSnapshot.cycleNumber,
-                  startValue: cycleStartValue,
-                  targetValue: previousCycleTarget,
-                  actualValue: lastSnapshot.actualValue,
-                  completionRate: lastSnapshot.completionRate,
-                }
-              };
-            }
-          } else {
-            updates.previousCycleDebtSnapshot = undefined;
-          }
+      // 10. 处理旧版欠账快照兼容逻辑
+      if (!updates.previousCycleDebtSnapshot) {
+        const legacySnapshot = handleLegacyDebtSnapshot(
+          task,
+          cyclePercentage,
+          value,
+          daysInCurrentCycle,
+          task.cycle.cycleDays
+        );
+        if (legacySnapshot) {
+          updates.previousCycleDebtSnapshot = legacySnapshot;
         }
       }
 
-      // 计算更新后的今日进度
+      // 11. 计算更新后的今日进度
       const updatedTask = { ...task, ...updates };
       updates.todayProgress = calculateTodayProgress(updatedTask as Task);
 
+      // 12. 更新任务
       scene.updateTask(targetScene, taskId, updates);
       return true;
     } catch (error) {

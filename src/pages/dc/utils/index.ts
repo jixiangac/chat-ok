@@ -207,3 +207,49 @@ export {
   markTodayDailyCompleteRewardClaimed,
   clearDailyCompleteReward
 } from './dailyCompleteRewardStorage';
+
+// 今日进度计算工具（统一的进度计算函数）
+export {
+  calculateTodayProgress,
+  getTodayCheckInStatusForTask,
+  getSimulatedToday,
+  getTodayCheckIns,
+  formatNumberPrecision,
+  type TodayProgressResult,
+  type TodayProgressOptions
+} from './todayProgressCalculator';
+
+// 打卡辅助工具
+export {
+  validateCheckIn,
+  createCheckInEntry,
+  updateCheckInRecords,
+  calculateStreak,
+  calculateCheckInCycleProgress,
+  detectCycleCompletion,
+  createCheckInActivity,
+  getTodayCheckInsFromRecords,
+  mergeCheckInProgressUpdate,
+  type CheckInValidationResult,
+  type StreakResult,
+  type CheckInCycleProgressResult,
+  type CycleCompletionResult
+} from './checkInHelper';
+
+// 数值记录辅助工具
+export {
+  calculateNumericTotalProgress,
+  calculateNumericCycleProgress,
+  calculateCompensationTarget,
+  createDebtSnapshot,
+  createValueUpdateActivity,
+  calculateOriginalCycleTargetValue,
+  hasReachedFinalTarget,
+  calculateCycleTimeInfo,
+  handleLegacyDebtSnapshot,
+  getRandomColorScheme,
+  type NumericTotalProgressResult,
+  type NumericCycleProgressResult,
+  type CompensationTargetResult,
+  type DebtColorScheme
+} from './numericRecordHelper';

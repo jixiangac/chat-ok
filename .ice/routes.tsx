@@ -142,6 +142,7 @@ import * as dc_panels_detail_hooks_constants from '@/pages/dc/panels/detail/hook
 import * as dc_panels_detail_hooks_dateUtils from '@/pages/dc/panels/detail/hooks/dateUtils';
 import * as dc_panels_happy_components from '@/pages/dc/panels/happy/components/index';
 import * as dc_panels_happy_utils_dateHelper from '@/pages/dc/panels/happy/utils/dateHelper';
+import * as dc_utils_todayProgressCalculator from '@/pages/dc/utils/todayProgressCalculator';
 import * as dc_viewmodel_GroupModeGrid from '@/pages/dc/viewmodel/GroupModeGrid/index';
 import * as dc_viewmodel_TodayProgress from '@/pages/dc/viewmodel/TodayProgress/index';
 import * as dc_components_RewardToast from '@/pages/dc/components/RewardToast/index';
@@ -173,6 +174,7 @@ import * as dc_contexts_UIProvider_types from '@/pages/dc/contexts/UIProvider/ty
 import * as dc_hooks_useRewardDispatcher from '@/pages/dc/hooks/useRewardDispatcher';
 import * as dc_panels_detail_hooks from '@/pages/dc/panels/detail/hooks';
 import * as dc_panels_detail_utils from '@/pages/dc/panels/detail/utils/index';
+import * as dc_utils_numericRecordHelper from '@/pages/dc/utils/numericRecordHelper';
 import * as dc_viewmodel_GroupCard from '@/pages/dc/viewmodel/GroupCard/index';
 import * as dc_viewmodel_MoonPhase from '@/pages/dc/viewmodel/MoonPhase/index';
 import * as dc_contexts_UIProvider_keys from '@/pages/dc/contexts/UIProvider/keys';
@@ -205,6 +207,7 @@ import * as dc_utils_dailyViewCache from '@/pages/dc/utils/dailyViewCache';
 import * as dc_panels_detail from '@/pages/dc/panels/detail/index';
 import * as dc_panels_detail_types from '@/pages/dc/panels/detail/types';
 import * as dc_panels_normal from '@/pages/dc/panels/normal/index';
+import * as dc_utils_checkInHelper from '@/pages/dc/utils/checkInHelper';
 import * as dc_panels_happy from '@/pages/dc/panels/happy/index';
 import * as dc_panels_happy_types from '@/pages/dc/panels/happy/types';
 import * as dc_constants_sprites from '@/pages/dc/constants/sprites';
@@ -2999,7 +3002,7 @@ const createRoutes: CreateRoutes = ({
     index: undefined,
     id: 'dc/panels/detail/hooks/checkInStatus',
     exact: true,
-    exports: ["getTodayCheckInStatusForTask"],
+    exports: ["getSimulatedToday","getTodayCheckInStatusForTask"],
   },{
     path: 'dc/panels/happy/utils/scheduleHelper',
     async lazy() {
@@ -3801,6 +3804,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["formatDate","formatDateISO","getDateOnly","getDaysDiff","getToday","getTripDayIndex","getTripEndDate","isDateInRange","isTripActive","isTripExpired","isTripUpcoming"],
   },{
+    path: 'dc/utils/todayProgressCalculator',
+    async lazy() {
+      ;
+      return {
+        ...dc_utils_todayProgressCalculator,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/utils/todayProgressCalculator',
+          isLayout: false,
+          routeExports: dc_utils_todayProgressCalculator,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/utils/todayProgressCalculator',
+          requestContext,
+          renderMode,
+          module: dc_utils_todayProgressCalculator,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-utils-todayprogresscalculator',
+    index: undefined,
+    id: 'dc/utils/todayProgressCalculator',
+    exact: true,
+    exports: ["calculateTodayProgress","default","formatNumberPrecision","getSimulatedToday","getTodayCheckInStatusForTask","getTodayCheckIns"],
+  },{
     path: 'dc/viewmodel/GroupModeGrid',
     async lazy() {
       ;
@@ -4575,6 +4603,31 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/panels/detail/utils',
     exact: true,
     exports: ["formatLargeNumber","formatNumber","getDefaultTab","getTabsConfig","isCycleTab"],
+  },{
+    path: 'dc/utils/numericRecordHelper',
+    async lazy() {
+      ;
+      return {
+        ...dc_utils_numericRecordHelper,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/utils/numericRecordHelper',
+          isLayout: false,
+          routeExports: dc_utils_numericRecordHelper,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/utils/numericRecordHelper',
+          requestContext,
+          renderMode,
+          module: dc_utils_numericRecordHelper,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-utils-numericrecordhelper',
+    index: undefined,
+    id: 'dc/utils/numericRecordHelper',
+    exact: true,
+    exports: ["calculateCompensationTarget","calculateCycleTimeInfo","calculateNumericCycleProgress","calculateNumericTotalProgress","calculateOriginalCycleTargetValue","createDebtSnapshot","createValueUpdateActivity","getRandomColorScheme","handleLegacyDebtSnapshot","hasReachedFinalTarget"],
   },{
     path: 'dc/viewmodel/GroupCard',
     async lazy() {
@@ -5376,6 +5429,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["default"],
   },{
+    path: 'dc/utils/checkInHelper',
+    async lazy() {
+      ;
+      return {
+        ...dc_utils_checkInHelper,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/utils/checkInHelper',
+          isLayout: false,
+          routeExports: dc_utils_checkInHelper,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/utils/checkInHelper',
+          requestContext,
+          renderMode,
+          module: dc_utils_checkInHelper,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-utils-checkinhelper',
+    index: undefined,
+    id: 'dc/utils/checkInHelper',
+    exact: true,
+    exports: ["calculateCheckInCycleProgress","calculateStreak","createCheckInActivity","createCheckInEntry","detectCycleCompletion","getTodayCheckInsFromRecords","mergeCheckInProgressUpdate","updateCheckInRecords","validateCheckIn"],
+  },{
     path: 'dc/panels/happy',
     async lazy() {
       ;
@@ -5999,7 +6077,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/utils',
     exact: true,
-    exports: ["CycleCalculator","DATA_TYPE_CONFIG","LAYOUT_CONSTANTS","MigrationTool","ProgressCalculator","TAG_COLORS","TaskMigration","advanceTaskCycle","archiveTask","calculateArchiveReward","calculateCheckInProgress","calculateCheckInProgressV2","calculateChecklistProgress","calculateChecklistProgressV2","calculateCurrentCycleNumber","calculateCycleCompleteBonus","calculateDailyPointsCap","calculateDailyViewCompleteReward","calculateFlexibleTaskLimit","calculateGridColumns","calculateModalMaxHeight","calculateNewCycle","calculateNumericProgress","calculateNumericProgressV2","calculateRemainingDays","calculateVisibleSidelineTasks","canOpenModalForEdit","canOpenModalForView","checkDateChange","cleanExpiredCycleRewards","clearAllArchivedTasks","clearDailyCompleteReward","clearDailyViewCache","clearData","clearRefreshStatus","clearTaskCycleRewards","clearTestDate","compareLevels","copyToClipboard","createTag","createTask","createTodayState","deleteArchivedTask","deleteTag","distributeCheckInPoints","exportAllTasks","exportData","exportSingleTask","exportToClipboard","filterDailyViewTasks","filterDailyViewTasksEnhanced","forceCheckDateChange","formatDisplayNumber","formatExp","formatLargeNumber","formatNumber","generateCultivationId","getAllTags","getArchiveStats","getArchivedTasks","getCachedDailyTaskIds","getClaimedCycles","getCurrentDate","getCurrentExpCap","getCurrentLevelInfo","getDataStats","getDeveloperMode","getEffectiveCategory","getEffectiveMainlineType","getLastVisitedDate","getLevelDisplayName","getLevelIndex","getNextLevel","getNextTagColor","getPreviousLevel","getRealSystemDate","getRealmIconPath","getSafeAreaInsets","getSavedLocationFilter","getScreenSize","getSeclusionInfo","getTagById","getTaskCheckInUnit","getTestDate","getTodayDateString","getTodayMustCompleteTaskIds","getWeekKey","hasCycleRewardClaimed","hasDailyTargetTask","hasTestDate","hasTodayBeenSet","hasTodayDailyCompleteRewardClaimed","hasTodayRefreshed","hasTodaySetTasks","importAllTasks","importData","importSingleTask","isCrossRealmDemotion","isMobileDevice","isNearDeadline","isSmallScreen","isTaskTodayMustComplete","isTodayCheckedIn","loadTagsFromStorage","loadTodayMustCompleteState","markCycleRewardClaimed","markModalShown","markTodayDailyCompleteRewardClaimed","markTodayRefreshed","mergeRewards","migrateOldArchivedTasks","migrateToNewFormat","needsProgressReset","performDailyReset","prefersReducedMotion","removeFromTodayMustComplete","repairTaskProgressData","resetTodayProgress","restoreFromArchive","saveArchivedTasks","saveDailyTaskIdsCache","saveLocationFilter","saveTagsToStorage","saveTodayMustCompleteState","selectFlexibleTasks","setDeveloperMode","setLastVisitedDate","setTestDate","setTodayMustCompleteTasks","shouldAdvanceCycle","shouldShowTodayMustCompleteModal","skipTodayMustComplete","updateMainlineTaskProgress","updateTag"],
+    exports: ["CycleCalculator","DATA_TYPE_CONFIG","LAYOUT_CONSTANTS","MigrationTool","ProgressCalculator","TAG_COLORS","TaskMigration","advanceTaskCycle","archiveTask","calculateArchiveReward","calculateCheckInCycleProgress","calculateCheckInProgress","calculateCheckInProgressV2","calculateChecklistProgress","calculateChecklistProgressV2","calculateCompensationTarget","calculateCurrentCycleNumber","calculateCycleCompleteBonus","calculateCycleTimeInfo","calculateDailyPointsCap","calculateDailyViewCompleteReward","calculateFlexibleTaskLimit","calculateGridColumns","calculateModalMaxHeight","calculateNewCycle","calculateNumericCycleProgress","calculateNumericProgress","calculateNumericProgressV2","calculateNumericTotalProgress","calculateOriginalCycleTargetValue","calculateRemainingDays","calculateStreak","calculateTodayProgress","calculateVisibleSidelineTasks","canOpenModalForEdit","canOpenModalForView","checkDateChange","cleanExpiredCycleRewards","clearAllArchivedTasks","clearDailyCompleteReward","clearDailyViewCache","clearData","clearRefreshStatus","clearTaskCycleRewards","clearTestDate","compareLevels","copyToClipboard","createCheckInActivity","createCheckInEntry","createDebtSnapshot","createTag","createTask","createTodayState","createValueUpdateActivity","deleteArchivedTask","deleteTag","detectCycleCompletion","distributeCheckInPoints","exportAllTasks","exportData","exportSingleTask","exportToClipboard","filterDailyViewTasks","filterDailyViewTasksEnhanced","forceCheckDateChange","formatDisplayNumber","formatExp","formatLargeNumber","formatNumber","formatNumberPrecision","generateCultivationId","getAllTags","getArchiveStats","getArchivedTasks","getCachedDailyTaskIds","getClaimedCycles","getCurrentDate","getCurrentExpCap","getCurrentLevelInfo","getDataStats","getDeveloperMode","getEffectiveCategory","getEffectiveMainlineType","getLastVisitedDate","getLevelDisplayName","getLevelIndex","getNextLevel","getNextTagColor","getPreviousLevel","getRandomColorScheme","getRealSystemDate","getRealmIconPath","getSafeAreaInsets","getSavedLocationFilter","getScreenSize","getSeclusionInfo","getSimulatedToday","getTagById","getTaskCheckInUnit","getTestDate","getTodayCheckInStatusForTask","getTodayCheckIns","getTodayCheckInsFromRecords","getTodayDateString","getTodayMustCompleteTaskIds","getWeekKey","handleLegacyDebtSnapshot","hasCycleRewardClaimed","hasDailyTargetTask","hasReachedFinalTarget","hasTestDate","hasTodayBeenSet","hasTodayDailyCompleteRewardClaimed","hasTodayRefreshed","hasTodaySetTasks","importAllTasks","importData","importSingleTask","isCrossRealmDemotion","isMobileDevice","isNearDeadline","isSmallScreen","isTaskTodayMustComplete","isTodayCheckedIn","loadTagsFromStorage","loadTodayMustCompleteState","markCycleRewardClaimed","markModalShown","markTodayDailyCompleteRewardClaimed","markTodayRefreshed","mergeCheckInProgressUpdate","mergeRewards","migrateOldArchivedTasks","migrateToNewFormat","needsProgressReset","performDailyReset","prefersReducedMotion","removeFromTodayMustComplete","repairTaskProgressData","resetTodayProgress","restoreFromArchive","saveArchivedTasks","saveDailyTaskIdsCache","saveLocationFilter","saveTagsToStorage","saveTodayMustCompleteState","selectFlexibleTasks","setDeveloperMode","setLastVisitedDate","setTestDate","setTodayMustCompleteTasks","shouldAdvanceCycle","shouldShowTodayMustCompleteModal","skipTodayMustComplete","updateCheckInRecords","updateMainlineTaskProgress","updateTag","validateCheckIn"],
   },{
     path: 'dc/riv/DieCat',
     async lazy() {

@@ -1256,6 +1256,7 @@
     "componentName": "dc-panels-detail-hooks-checkinstatus",
     "layout": false,
     "exports": [
+      "getSimulatedToday",
       "getTodayCheckInStatusForTask"
     ]
   },
@@ -1689,6 +1690,21 @@
     ]
   },
   {
+    "path": "dc/utils/todayProgressCalculator",
+    "id": "dc/utils/todayProgressCalculator",
+    "file": "dc/utils/todayProgressCalculator.ts",
+    "componentName": "dc-utils-todayprogresscalculator",
+    "layout": false,
+    "exports": [
+      "calculateTodayProgress",
+      "default",
+      "formatNumberPrecision",
+      "getSimulatedToday",
+      "getTodayCheckInStatusForTask",
+      "getTodayCheckIns"
+    ]
+  },
+  {
     "path": "dc/viewmodel/GroupModeGrid",
     "index": true,
     "id": "dc/viewmodel/GroupModeGrid",
@@ -2060,6 +2076,25 @@
       "getDefaultTab",
       "getTabsConfig",
       "isCycleTab"
+    ]
+  },
+  {
+    "path": "dc/utils/numericRecordHelper",
+    "id": "dc/utils/numericRecordHelper",
+    "file": "dc/utils/numericRecordHelper.ts",
+    "componentName": "dc-utils-numericrecordhelper",
+    "layout": false,
+    "exports": [
+      "calculateCompensationTarget",
+      "calculateCycleTimeInfo",
+      "calculateNumericCycleProgress",
+      "calculateNumericTotalProgress",
+      "calculateOriginalCycleTargetValue",
+      "createDebtSnapshot",
+      "createValueUpdateActivity",
+      "getRandomColorScheme",
+      "handleLegacyDebtSnapshot",
+      "hasReachedFinalTarget"
     ]
   },
   {
@@ -2515,6 +2550,24 @@
     ]
   },
   {
+    "path": "dc/utils/checkInHelper",
+    "id": "dc/utils/checkInHelper",
+    "file": "dc/utils/checkInHelper.ts",
+    "componentName": "dc-utils-checkinhelper",
+    "layout": false,
+    "exports": [
+      "calculateCheckInCycleProgress",
+      "calculateStreak",
+      "createCheckInActivity",
+      "createCheckInEntry",
+      "detectCycleCompletion",
+      "getTodayCheckInsFromRecords",
+      "mergeCheckInProgressUpdate",
+      "updateCheckInRecords",
+      "validateCheckIn"
+    ]
+  },
+  {
     "path": "dc/panels/happy",
     "index": true,
     "id": "dc/panels/happy",
@@ -2949,21 +3002,29 @@
       "advanceTaskCycle",
       "archiveTask",
       "calculateArchiveReward",
+      "calculateCheckInCycleProgress",
       "calculateCheckInProgress",
       "calculateCheckInProgressV2",
       "calculateChecklistProgress",
       "calculateChecklistProgressV2",
+      "calculateCompensationTarget",
       "calculateCurrentCycleNumber",
       "calculateCycleCompleteBonus",
+      "calculateCycleTimeInfo",
       "calculateDailyPointsCap",
       "calculateDailyViewCompleteReward",
       "calculateFlexibleTaskLimit",
       "calculateGridColumns",
       "calculateModalMaxHeight",
       "calculateNewCycle",
+      "calculateNumericCycleProgress",
       "calculateNumericProgress",
       "calculateNumericProgressV2",
+      "calculateNumericTotalProgress",
+      "calculateOriginalCycleTargetValue",
       "calculateRemainingDays",
+      "calculateStreak",
+      "calculateTodayProgress",
       "calculateVisibleSidelineTasks",
       "canOpenModalForEdit",
       "canOpenModalForView",
@@ -2978,11 +3039,16 @@
       "clearTestDate",
       "compareLevels",
       "copyToClipboard",
+      "createCheckInActivity",
+      "createCheckInEntry",
+      "createDebtSnapshot",
       "createTag",
       "createTask",
       "createTodayState",
+      "createValueUpdateActivity",
       "deleteArchivedTask",
       "deleteTag",
+      "detectCycleCompletion",
       "distributeCheckInPoints",
       "exportAllTasks",
       "exportData",
@@ -2995,6 +3061,7 @@
       "formatExp",
       "formatLargeNumber",
       "formatNumber",
+      "formatNumberPrecision",
       "generateCultivationId",
       "getAllTags",
       "getArchiveStats",
@@ -3014,20 +3081,27 @@
       "getNextLevel",
       "getNextTagColor",
       "getPreviousLevel",
+      "getRandomColorScheme",
       "getRealSystemDate",
       "getRealmIconPath",
       "getSafeAreaInsets",
       "getSavedLocationFilter",
       "getScreenSize",
       "getSeclusionInfo",
+      "getSimulatedToday",
       "getTagById",
       "getTaskCheckInUnit",
       "getTestDate",
+      "getTodayCheckInStatusForTask",
+      "getTodayCheckIns",
+      "getTodayCheckInsFromRecords",
       "getTodayDateString",
       "getTodayMustCompleteTaskIds",
       "getWeekKey",
+      "handleLegacyDebtSnapshot",
       "hasCycleRewardClaimed",
       "hasDailyTargetTask",
+      "hasReachedFinalTarget",
       "hasTestDate",
       "hasTodayBeenSet",
       "hasTodayDailyCompleteRewardClaimed",
@@ -3048,6 +3122,7 @@
       "markModalShown",
       "markTodayDailyCompleteRewardClaimed",
       "markTodayRefreshed",
+      "mergeCheckInProgressUpdate",
       "mergeRewards",
       "migrateOldArchivedTasks",
       "migrateToNewFormat",
@@ -3071,8 +3146,10 @@
       "shouldAdvanceCycle",
       "shouldShowTodayMustCompleteModal",
       "skipTodayMustComplete",
+      "updateCheckInRecords",
       "updateMainlineTaskProgress",
-      "updateTag"
+      "updateTag",
+      "validateCheckIn"
     ]
   },
   {

@@ -47,7 +47,8 @@
     "stylelint:fix": "npm run stylelint -- --fix",
     "test": "vitest",
     "test:run": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "hercules": "cd hercules-tests && chmod +x run-hercules.sh && ./run-local.sh"
   },
   "publishConfig": {
     "access": "public"

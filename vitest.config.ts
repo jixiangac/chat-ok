@@ -23,6 +23,7 @@ export default defineConfig({
       include: [
         'src/pages/dc/utils/checkInHelper.ts',
         'src/pages/dc/utils/todayProgressCalculator.ts',
+        'src/pages/dc/utils/mainlineTaskHelper.ts',
       ],
       exclude: [
         'src/**/*.test.ts',

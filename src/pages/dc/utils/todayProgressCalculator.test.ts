@@ -465,3 +465,71 @@ describe('getTodayCheckInStatusForTask', () => {
     expect(result.todayCount).toBe(0);
   });
 });
+
+// ============ 边缘情况测试 ============
+
+describe('边缘情况', () => {
+  const today = '2024-01-15';
+
+  describe('未知 unit 类型', () => {
+    it('未知 unit 类型返回默认值', () => {
+      const task = createCheckInTask({
+        checkInConfig: {
+          ...createTimesCheckInConfig(),
+          unit: 'UNKNOWN' as any, // 未知类型
+        },
+      });
+      const result = calculateTodayProgress(task, { simulatedToday: today });
+
+      expect(result.canCheckIn).toBe(true);
+      expect(result.todayCount).toBe(0);
+      expect(result.todayValue).toBe(0);
+      expect(result.isCompleted).toBe(false);
+    });
+  });
+
+  describe('自动检测任务分类', () => {
+    it('无 category 但有 numericConfig 时识别为 NUMERIC', () => {
+      const task = {
+        ...createNumericTask({
+          numericConfig: createIncreaseNumericConfig({ perDayAverage: 5 }),
+          activities: [
+            { id: '1', type: 'UPDATE_VALUE', date: today, timestamp: Date.now(), oldValue: 0, newValue: 3, delta: 3 },
+          ],
+        }),
+        category: undefined, // 故意不设置 category
+      } as any;
+
+      const result = calculateTodayProgress(task, { simulatedToday: today });
+      expect(result.dailyTarget).toBe(5);
+    });
+
+    it('无 category 但有 checklistConfig 时降级为 CHECK_IN', () => {
+      const task = {
+        checklistConfig: {
+          totalItems: 10,
+          completedItems: 5,
+          perCycleTarget: 3,
+          items: [],
+        },
+        activities: [],
+        // 无 category
+      } as any;
+
+      const result = calculateTodayProgress(task, { simulatedToday: today });
+      // 由于没有 numericConfig，会走 CHECK_IN 路径
+      expect(result.canCheckIn).toBe(true);
+    });
+
+    it('无任何配置时识别为 CHECK_IN', () => {
+      const task = {
+        activities: [],
+        // 无 category、无配置
+      } as any;
+
+      const result = calculateTodayProgress(task, { simulatedToday: today });
+      expect(result.canCheckIn).toBe(true);
+      expect(result.isCompleted).toBe(false);
+    });
+  });
+});

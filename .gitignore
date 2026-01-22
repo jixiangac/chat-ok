@@ -1,2 +1,18 @@
 node_modules
 .vscode
+
+# Hercules 测试输出
+hercules-tests/output/
+hercules-tests/proofs/
+hercules-tests/log_files/
+
+# Python 虚拟环境
+.hercules-venv/
+__pycache__/
+*.pyc
+
+.cache/
+
+coverage
+
+hercules-tests/

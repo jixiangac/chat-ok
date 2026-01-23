@@ -79,6 +79,7 @@ import * as dc_components_CreateMainlineTaskModal from '@/pages/dc/components/Cr
 import * as dc_components_CreateMainlineTaskModal_types from '@/pages/dc/components/CreateMainlineTaskModal/types';
 import * as dc_panels_detail_components_CycleInfo from '@/pages/dc/panels/detail/components/CycleInfo/index';
 import * as dc_panels_settings_pages_DateTestPage from '@/pages/dc/panels/settings/pages/DateTestPage/index';
+import * as dc_agent_components_FollowupQuestion from '@/pages/dc/agent/components/FollowupQuestion/index';
 import * as dc_components_SidelineTaskEditModal from '@/pages/dc/components/SidelineTaskEditModal/index';
 import * as dc_components_shared_CircleProgress from '@/pages/dc/components/shared/CircleProgress/index';
 import * as dc_panels_happy_components_GoalCard from '@/pages/dc/panels/happy/components/GoalCard/index';
@@ -2246,6 +2247,31 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/panels/settings/pages/DateTestPage',
     exact: true,
     exports: ["default"],
+  },{
+    path: 'dc/agent/components/FollowupQuestion',
+    async lazy() {
+      ;
+      return {
+        ...dc_agent_components_FollowupQuestion,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/agent/components/FollowupQuestion',
+          isLayout: false,
+          routeExports: dc_agent_components_FollowupQuestion,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/agent/components/FollowupQuestion',
+          requestContext,
+          renderMode,
+          module: dc_agent_components_FollowupQuestion,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-agent-components-followupquestion-index',
+    index: true,
+    id: 'dc/agent/components/FollowupQuestion',
+    exact: true,
+    exports: ["FollowupQuestion","default"],
   },{
     path: 'dc/components/SidelineTaskEditModal',
     async lazy() {
@@ -4745,7 +4771,7 @@ const createRoutes: CreateRoutes = ({
     index: undefined,
     id: 'dc/agent/hooks/useStreamChat',
     exact: true,
-    exports: ["useStreamChat"],
+    exports: ["filterHiddenContent","useStreamChat"],
   },{
     path: 'dc/contexts/UIProvider/hooks',
     async lazy() {
@@ -5220,7 +5246,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/agent/components',
     exact: true,
-    exports: ["ActionPreview","AgentChatPopup","ChatInput","MessageBubble","MessageList"],
+    exports: ["ActionPreview","AgentChatPopup","ChatInput","FollowupQuestion","MessageBubble","MessageList"],
   },{
     path: 'dc/utils/dataExportImport',
     async lazy() {
@@ -5895,7 +5921,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/agent/hooks',
     exact: true,
-    exports: ["client","createAgent","useAgent","useStreamChat"],
+    exports: ["client","createAgent","filterHiddenContent","useAgent","useStreamChat"],
   },{
     path: 'dc/agent/types',
     async lazy() {

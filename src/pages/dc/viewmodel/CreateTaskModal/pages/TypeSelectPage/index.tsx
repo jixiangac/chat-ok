@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import { Sparkles } from 'lucide-react';
 import { TaskTypeCard, BottomNavigation } from '../../components';
 import { TASK_TYPE_OPTIONS } from '../../constants';
 import type { CreateTaskModalState } from '../../modalTypes';
@@ -14,6 +15,7 @@ export interface TypeSelectPageProps {
   setState: React.Dispatch<React.SetStateAction<CreateTaskModalState>>;
   onNext: () => void;
   onBack: () => void;
+  onAIMode?: () => void;
 }
 
 const TypeSelectPage: React.FC<TypeSelectPageProps> = ({
@@ -21,6 +23,7 @@ const TypeSelectPage: React.FC<TypeSelectPageProps> = ({
   setState,
   onNext,
   onBack,
+  onAIMode,
 }) => {
   const handleTypeSelect = (type: typeof TASK_TYPE_OPTIONS[0]['type']) => {
     setState(s => ({ ...s, selectedType: type }));
@@ -44,6 +47,16 @@ const TypeSelectPage: React.FC<TypeSelectPageProps> = ({
             />
           ))}
         </div>
+
+        {/* AI 入口 - 简洁淡雅风格 */}
+        {onAIMode && (
+          <div className={styles.aiEntrySection}>
+            <button className={styles.aiEntryButton} onClick={onAIMode}>
+              <Sparkles size={14} />
+              <span>AI 帮我创建</span>
+            </button>
+          </div>
+        )}
       </div>
 
       <BottomNavigation

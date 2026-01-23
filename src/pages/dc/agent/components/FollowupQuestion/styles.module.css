@@ -1,0 +1,146 @@
+/* 追问组件样式 - 列表卡片式设计 */
+
+.container {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  margin: 12px 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+/* 标题区域 */
+.header {
+  padding: 14px 16px 10px;
+}
+
+.title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #666;
+}
+
+/* 选项列表 */
+.optionList {
+  display: flex;
+  flex-direction: column;
+}
+
+/* 单个选项 */
+.optionItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: transparent;
+  border: none;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  transition: background-color 0.15s;
+  text-align: left;
+}
+
+.optionItem:first-child {
+  border-top: none;
+}
+
+.optionItem:hover {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.optionItem:active {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+/* 消息图标 */
+.optionIcon {
+  flex-shrink: 0;
+  color: #999;
+}
+
+/* 选项文字 */
+.optionText {
+  flex: 1;
+  font-size: 15px;
+  color: #333;
+  line-height: 1.4;
+}
+
+/* 右侧箭头 */
+.arrowIcon {
+  flex-shrink: 0;
+  color: #ccc;
+}
+
+/* 自定义选项 */
+.customOption .optionText {
+  color: #888;
+}
+
+/* 自定义输入区域 */
+.customInputWrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.customInput {
+  flex: 1;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 20px;
+  padding: 8px 14px;
+  font-size: 14px;
+  outline: none;
+  background: white;
+  transition: border-color 0.2s;
+}
+
+.customInput:focus {
+  border-color: #8b7355;
+}
+
+.customInput::placeholder {
+  color: #aaa;
+}
+
+.sendBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #8b7355 0%, #6d5a45 100%);
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sendBtn:hover:not(:disabled) {
+  transform: scale(1.05);
+}
+
+.sendBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.cancelBtn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 16px;
+  background: transparent;
+  color: #888;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancelBtn:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: #666;
+}

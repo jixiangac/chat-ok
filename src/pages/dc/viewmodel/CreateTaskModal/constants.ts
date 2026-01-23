@@ -33,7 +33,7 @@ export const TASK_TYPE_OPTIONS: Array<{
     Icon: BarChart3,
     label: '数值型',
     description: '追踪可增可减的数值变化',
-    examples: '减肥 10kg、攒钱 5000、读完 12 本书',
+    examples: '减肥 10kg、攒钱 5000、还清贷款',
     feature: '记录起点→终点，见证每一步变化'
   },
   {

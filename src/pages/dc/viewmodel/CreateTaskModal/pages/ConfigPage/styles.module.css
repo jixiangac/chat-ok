@@ -14,20 +14,27 @@
   padding-bottom: 120px;
 }
 
-/* 任务名称区域 - 突出显示 */
+/* 任务名称区域 - 带 AI 辅助按钮 */
 .nameSection {
   padding: 0 16px 16px;
 }
 
+.nameInputWrapper {
+  display: flex;
+  align-items: center;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
 .nameInput {
-  width: 100%;
+  flex: 1;
   padding: 16px;
   border: none;
-  border-radius: 12px;
   font-size: 17px;
   font-weight: 500;
   color: rgb(55, 53, 47);
-  background: white;
+  background: transparent;
   outline: none;
   box-sizing: border-box;
 }
@@ -35,6 +42,56 @@
 .nameInput::placeholder {
   color: rgba(55, 53, 47, 0.4);
   font-weight: 400;
+}
+
+/* AI 图标按钮 */
+.nameAiButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  margin-right: 8px;
+  background: rgba(55, 53, 47, 0.06);
+  border: none;
+  border-radius: 8px;
+  color: rgba(55, 53, 47, 0.5);
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.nameAiButton:active {
+  background: rgba(55, 53, 47, 0.1);
+}
+
+/* AI 提示文字 - 输入框内，指向图标 */
+.aiHint {
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  color: rgba(55, 53, 47, 0.35);
+  white-space: nowrap;
+  margin-right: 18px;
+  /* 初始状态：隐藏 */
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* 显示状态：淡入 + 左右晃动动画 */
+.aiHintVisible {
+  opacity: 1;
+  animation: hintBounce 1.5s ease-in-out infinite;
+}
+
+/* 左右晃动动画 - 指示点击图标 */
+@keyframes hintBounce {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(4px);
+  }
 }
 
 /* 输入组 */
@@ -287,18 +344,18 @@
   align-items: center;
   gap: 4px;
   padding: 6px 12px;
-  background: #000000;
+  background: rgba(55, 53, 47, 0.06);
   border: none;
   border-radius: 8px;
   font-size: 12px;
-  color: #ffffff;
+  color: rgba(55, 53, 47, 0.7);
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .aiButton:active {
   transform: scale(0.96);
-  background: #333333;
+  background: rgba(55, 53, 47, 0.1);
 }
 
 .templateButton {

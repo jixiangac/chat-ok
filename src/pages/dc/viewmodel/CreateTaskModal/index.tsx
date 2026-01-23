@@ -6,7 +6,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import confetti from 'canvas-confetti';
 import { Popup, SafeArea, Toast } from 'antd-mobile';
-import { X, ChevronLeft, Sparkles } from 'lucide-react';
+import { X, ChevronLeft } from 'lucide-react';
 import { AgentChat, type StructuredOutput, type TaskConfigData } from '../../agent';
 import type { Category } from '../../types';
 import { useScene, useTaskContext, useCultivation } from '../../contexts';
@@ -57,10 +57,42 @@ export default function CreateTaskModal({
   const [animationKey, setAnimationKey] = useState(0);
   // AI 模式状态
   const [isAIMode, setIsAIMode] = useState(false);
+  // AI 模式下滑关闭的拖拽状态
+  const [aiDragY, setAiDragY] = useState(0);
+  const [isDraggingAI, setIsDraggingAI] = useState(false);
+  const aiTouchStartY = useRef(0);
+  const aiContainerRef = useRef<HTMLDivElement>(null);
   // 页面元素 refs，用于强制触发动画
   const pageRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // AI 模式下滑手势处理
+  const handleAITouchStart = useCallback((e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    aiTouchStartY.current = touch.clientY;
+    setIsDraggingAI(true);
+  }, []);
+
+  const handleAITouchMove = useCallback((e: React.TouchEvent) => {
+    if (!isDraggingAI) return;
+    const touch = e.touches[0];
+    const deltaY = touch.clientY - aiTouchStartY.current;
+    // 只允许向下拖拽
+    if (deltaY > 0) {
+      setAiDragY(deltaY);
+    }
+  }, [isDraggingAI]);
+
+  const handleAITouchEnd = useCallback(() => {
+    if (!isDraggingAI) return;
+    setIsDraggingAI(false);
+    // 如果拖拽超过 80px，关闭 AI 模式
+    if (aiDragY > 80) {
+      setIsAIMode(false);
+    }
+    setAiDragY(0);
+  }, [isDraggingAI, aiDragY]);
 
   // 处理面板显示
   useEffect(() => {
@@ -77,22 +109,54 @@ export default function CreateTaskModal({
   const handleAIStructuredOutput = useCallback((output: StructuredOutput) => {
     if (output.type === 'TASK_CONFIG') {
       const config = output.data as TaskConfigData;
-      // 将 AI 生成的配置应用到表单
-      setState(s => ({
-        ...s,
-        taskTitle: config.title,
-        totalDays: config.totalDays,
-        cycleDays: config.cycleDays,
-        selectedType: config.category,
-      }));
-      // 切换回表单模式，跳转到配置页
+      // 将 AI 生成的配置完整应用到表单
+      setState(s => {
+        const newState = {
+          ...s,
+          taskTitle: config.title,
+          totalDays: config.totalDays,
+          cycleDays: config.cycleDays,
+          selectedType: config.category,
+        };
+
+        // 应用数值型配置
+        if (config.numericConfig) {
+          newState.numericDirection = config.numericConfig.direction;
+          newState.numericUnit = config.numericConfig.unit;
+          newState.startValue = String(config.numericConfig.startValue);
+          newState.targetValue = String(config.numericConfig.targetValue);
+        }
+
+        // 应用清单型配置
+        if (config.checklistItems && config.checklistItems.length > 0) {
+          newState.totalItems = String(config.checklistItems.length);
+          newState.checklistItems = config.checklistItems;
+        }
+
+        // 应用打卡型配置
+        if (config.checkInConfig) {
+          newState.checkInUnit = config.checkInConfig.unit;
+          if (config.checkInConfig.dailyMax) {
+            if (config.checkInConfig.unit === 'DURATION') {
+              newState.dailyTargetMinutes = String(config.checkInConfig.dailyMax);
+            } else if (config.checkInConfig.unit === 'TIMES') {
+              newState.dailyMaxTimes = String(config.checkInConfig.dailyMax);
+            } else if (config.checkInConfig.unit === 'QUANTITY' && config.checkInConfig.valueUnit) {
+              newState.dailyTargetValue = String(config.checkInConfig.dailyMax);
+              newState.valueUnit = config.checkInConfig.valueUnit;
+            }
+          }
+        }
+
+        return newState;
+      });
+      // 切换回表单模式，直接跳转到最后一步（周期预览页）
       setIsAIMode(false);
-      // 跳转到配置页和周期预览页让用户确认
-      push({ id: 'config', title: '任务配置' });
-      push({ id: 'cycle', title: '周期预览' });
-      Toast.show({ content: 'AI 已生成任务配置，请确认' });
+      reset();
+      push({ id: 'cycle', title: '确认创建' });
+      Toast.show({ content: '配置已生成，确认后即可创建' });
     }
-  }, [push]);
+  }, [push, reset]);
 
   // 关闭处理
   const handleClose = useCallback(() => {
@@ -371,6 +435,7 @@ export default function CreateTaskModal({
             setState={setState}
             onNext={() => handleNavigate('config', '任务配置')}
             onBack={() => handleClose()}
+            onAIMode={() => setIsAIMode(true)}
           />
         );
       case 'config':
@@ -424,26 +489,30 @@ export default function CreateTaskModal({
         <h2 className={styles.title}>
           {isAIMode ? 'AI 任务助手' : getCurrentTitle()}
         </h2>
-        {/* AI 模式切换按钮 - 仅在第一页显示 */}
-        {!isAIMode && !canGoBack ? (
-          <button
-            className={styles.headerButton}
-            onClick={() => setIsAIMode(true)}
-            title="AI 帮我创建"
-          >
-            <Sparkles size={20} />
-          </button>
-        ) : (
-          <div className={styles.headerSpacer} />
-        )}
+        {/* 右侧占位 - AI 入口已移到卡片下方 */}
+        <div className={styles.headerSpacer} />
       </div>
 
       {/* iOS 风格进度条 - AI 模式不显示 */}
       {!isAIMode && <StepProgressBar currentStep={getCurrentStep()} totalSteps={3} />}
 
-      {/* AI 模式 - 显示 AgentChat */}
-      {isAIMode ? (
-        <div className={styles.aiModeContainer}>
+      {/* 内容区域容器 - 用于定位 AI 模式层 */}
+      <div className={styles.contentWrapper}>
+        {/* AI 模式 - 从下往上滑入动画，支持下滑关闭 */}
+        <div
+          ref={aiContainerRef}
+          className={`${styles.aiModeContainer} ${isAIMode ? styles.aiModeVisible : ''}`}
+          style={{
+            transform: isAIMode
+              ? `translateY(${aiDragY}px)`
+              : 'translateY(100%)',
+            transition: isDraggingAI ? 'none' : undefined,
+            opacity: isAIMode ? Math.max(0.3, 1 - aiDragY / 300) : 0,
+          }}
+          onTouchStart={handleAITouchStart}
+          onTouchMove={handleAITouchMove}
+          onTouchEnd={handleAITouchEnd}
+        >
           <AgentChat
             role="taskCreator"
             onStructuredOutput={handleAIStructuredOutput}
@@ -451,52 +520,52 @@ export default function CreateTaskModal({
             hideHeader
           />
         </div>
-      ) : (
-      /* 页面栈容器 */
-      <div className={styles.pageStack} ref={containerRef}>
-        {stack.map((page, index) => {
-          const isCurrentPage = index === stack.length - 1;
-          // 只有新进入的页面使用动态 key（确保每次导航创建新元素）
-          const needsAnimationKey = isCurrentPage && pageAnimationState === 'entering';
-          const pageKey = needsAnimationKey ? `${page.id}-anim-${animationKey}` : page.id;
 
-          // 收集页面元素 ref，并处理入场动画
-          const setPageRef = (el: HTMLDivElement | null) => {
-            if (el) {
-              pageRefs.current.set(page.id, el);
+        {/* 页面栈容器 */}
+        <div className={styles.pageStack} ref={containerRef}>
+          {stack.map((page, index) => {
+            const isCurrentPage = index === stack.length - 1;
+            // 只有新进入的页面使用动态 key（确保每次导航创建新元素）
+            const needsAnimationKey = isCurrentPage && pageAnimationState === 'entering';
+            const pageKey = needsAnimationKey ? `${page.id}-anim-${animationKey}` : page.id;
 
-              // 如果这是新进入的页面，设置入场动画
-              if (pendingEnterPageId.current === page.id) {
-                // 先禁用 transition，设置到右侧
-                el.style.transition = 'none';
-                el.style.transform = 'translateX(100%)';
-                // 强制 reflow
-                void el.offsetHeight;
-                // 恢复 transition 并滑入
-                el.style.transition = '';
-                el.style.transform = '';
-                pendingEnterPageId.current = null;
+            // 收集页面元素 ref，并处理入场动画
+            const setPageRef = (el: HTMLDivElement | null) => {
+              if (el) {
+                pageRefs.current.set(page.id, el);
+
+                // 如果这是新进入的页面，设置入场动画
+                if (pendingEnterPageId.current === page.id) {
+                  // 先禁用 transition，设置到右侧
+                  el.style.transition = 'none';
+                  el.style.transform = 'translateX(100%)';
+                  // 强制 reflow
+                  void el.offsetHeight;
+                  // 恢复 transition 并滑入
+                  el.style.transition = '';
+                  el.style.transform = '';
+                  pendingEnterPageId.current = null;
+                }
               }
-            }
-            // 同时处理原有的 ref
-            const originalRef = getPageRef(index, page.id);
-            if (originalRef && typeof originalRef === 'object' && 'current' in originalRef) {
-              (originalRef as React.MutableRefObject<HTMLDivElement | null>).current = el;
-            }
-          };
+              // 同时处理原有的 ref
+              const originalRef = getPageRef(index, page.id);
+              if (originalRef && typeof originalRef === 'object' && 'current' in originalRef) {
+                (originalRef as React.MutableRefObject<HTMLDivElement | null>).current = el;
+              }
+            };
 
-          return (
-            <div
-              key={pageKey}
-              ref={setPageRef}
-              className={`${styles.pageLayer} ${getPageLayerClass(index)}`}
-            >
-              {renderPageContent(page.id)}
-            </div>
-          );
-        })}
+            return (
+              <div
+                key={pageKey}
+                ref={setPageRef}
+                className={`${styles.pageLayer} ${getPageLayerClass(index)}`}
+              >
+                {renderPageContent(page.id)}
+              </div>
+            );
+          })}
+        </div>
       </div>
-      )}
 
       <SafeArea position="bottom" />
     </Popup>

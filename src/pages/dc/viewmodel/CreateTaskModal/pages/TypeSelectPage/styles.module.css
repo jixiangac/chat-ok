@@ -29,3 +29,33 @@
   flex-direction: column;
   gap: 0;
 }
+
+/* AI 入口区域 - 简洁淡雅 */
+.aiEntrySection {
+  display: flex;
+  justify-content: center;
+  padding: 16px 20px 8px;
+}
+
+.aiEntryButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: transparent;
+  border: 1px dashed rgba(55, 53, 47, 0.2);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 13px;
+  color: rgba(55, 53, 47, 0.6);
+}
+
+.aiEntryButton:active {
+  background: rgba(55, 53, 47, 0.04);
+  border-color: rgba(55, 53, 47, 0.3);
+}
+
+.aiEntryButton svg {
+  color: rgba(55, 53, 47, 0.5);
+}

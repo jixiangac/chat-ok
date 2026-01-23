@@ -20,6 +20,8 @@ export type {
   StructuredOutput,
   StructuredOutputType,
   TaskConfigData,
+  NumericConfigData,
+  CheckInConfigData,
   ChecklistItemsData,
   ChecklistItemData,
   AgentChatProps,

@@ -3,17 +3,32 @@
  * 步骤 3：完善任务的详细信息
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Popup, Dialog } from 'antd-mobile';
-import { X, Sparkles, Bot } from 'lucide-react';
+import { X, Sparkles } from 'lucide-react';
 import { OptionGrid, BottomNavigation } from '../../components';
 import { DIRECTION_OPTIONS, CHECK_IN_TYPE_OPTIONS, CHECKLIST_TEMPLATES } from '../../constants';
 import { SPIRIT_JADE_COST } from '../../../../constants/spiritJade';
 import { calculateDailyPointsCap } from '../../../../utils/spiritJadeCalculator';
-import { AgentChatPopup, type StructuredOutput, type ChecklistItemsData } from '../../../../agent';
+import { AgentChatPopup, type StructuredOutput, type ChecklistItemsData, type TaskConfigData } from '../../../../agent';
 import type { CreateTaskModalState } from '../../modalTypes';
 import type { NumericDirection, CheckInUnit } from '../../../../types';
 import styles from './styles.module.css';
+
+// 根据任务类型获取 AI 提示语
+const getAIPlaceholder = (taskType: string | null, taskTitle: string) => {
+  const titleHint = taskTitle ? `「${taskTitle}」` : '这个目标';
+  switch (taskType) {
+    case 'NUMERIC':
+      return `帮我配置${titleHint}的数值目标，比如单位、起始值和目标值...`;
+    case 'CHECKLIST':
+      return `帮我拆解${titleHint}需要完成的清单项目...`;
+    case 'CHECK_IN':
+      return `帮我设置${titleHint}的打卡规则，比如每天几次、每次多长时间...`;
+    default:
+      return '告诉我你想达成什么目标，我来帮你配置...';
+  }
+};
 
 // 图标
 const SPIRIT_JADE_ICON = 'https://gw.alicdn.com/imgextra/i1/O1CN01dUkd0B1UxywsCCzXY_!!6000000002585-2-tps-1080-992.png';
@@ -116,6 +131,46 @@ const ConfigPage: React.FC<ConfigPageProps> = ({
   const [previewTemplate, setPreviewTemplate] = useState<typeof CHECKLIST_TEMPLATES[0] | null>(null);
   // AI 生成清单弹窗状态
   const [aiChatVisible, setAiChatVisible] = useState(false);
+  // AI 配置助手弹窗状态（用于名称输入后的智能配置）
+  const [aiConfigVisible, setAiConfigVisible] = useState(false);
+  // AI 提示显示状态（延迟 500ms 后显示）
+  const [showAiHint, setShowAiHint] = useState(false);
+
+  // 判断配置是否已完成（根据不同类型）
+  const isConfigComplete = (() => {
+    if (!state.taskTitle.trim()) return false;
+
+    switch (state.selectedType) {
+      case 'NUMERIC':
+        return !!(state.numericUnit && state.startValue && state.targetValue);
+      case 'CHECKLIST':
+        const filledItems = state.checklistItems.filter(item => item.trim()).length;
+        return filledItems >= 5;
+      case 'CHECK_IN':
+        if (state.checkInUnit === 'TIMES') {
+          return !!(state.dailyMaxTimes);
+        } else if (state.checkInUnit === 'DURATION') {
+          return !!(state.dailyTargetMinutes);
+        } else if (state.checkInUnit === 'QUANTITY') {
+          return !!(state.valueUnit && state.dailyTargetValue);
+        }
+        return true;
+      default:
+        return false;
+    }
+  })();
+
+  // 输入名称后延迟显示 AI 提示（配置完成后隐藏）
+  useEffect(() => {
+    if (state.taskTitle.trim() && !isConfigComplete) {
+      const timer = setTimeout(() => {
+        setShowAiHint(true);
+      }, 500);
+      return () => clearTimeout(timer);
+    } else {
+      setShowAiHint(false);
+    }
+  }, [state.taskTitle, isConfigComplete]);
 
   // 处理 AI 生成的清单项
   const handleAIChecklistOutput = (output: StructuredOutput) => {
@@ -132,6 +187,64 @@ const ConfigPage: React.FC<ConfigPageProps> = ({
         totalItems: String(data.items.length)
       }));
       setAiChatVisible(false);
+    }
+  };
+
+  // 处理 AI 配置助手的输出（智能填充任务配置）
+  const handleAIConfigOutput = (output: StructuredOutput) => {
+    if (output.type === 'TASK_CONFIG') {
+      const config = output.data as TaskConfigData;
+
+      // 基础配置
+      const updates: Partial<CreateTaskModalState> = {
+        totalDays: config.totalDays || state.totalDays,
+        cycleDays: config.cycleDays || state.cycleDays,
+      };
+
+      // 数值型配置
+      if (config.numericConfig && state.selectedType === 'NUMERIC') {
+        updates.numericDirection = config.numericConfig.direction;
+        updates.numericUnit = config.numericConfig.unit;
+        updates.startValue = String(config.numericConfig.startValue);
+        updates.targetValue = String(config.numericConfig.targetValue);
+      }
+
+      // 清单型配置
+      if (config.checklistItems && state.selectedType === 'CHECKLIST') {
+        const newItems = [...config.checklistItems];
+        while (newItems.length < 6) {
+          newItems.push('');
+        }
+        updates.checklistItems = newItems;
+        updates.totalItems = String(config.checklistItems.length);
+      }
+
+      // 打卡型配置
+      if (config.checkInConfig && state.selectedType === 'CHECK_IN') {
+        updates.checkInUnit = config.checkInConfig.unit;
+        if (config.checkInConfig.unit === 'TIMES' && config.checkInConfig.dailyMax) {
+          updates.dailyMaxTimes = String(config.checkInConfig.dailyMax);
+        }
+        if (config.checkInConfig.unit === 'DURATION' && config.checkInConfig.dailyMax) {
+          updates.dailyTargetMinutes = String(config.checkInConfig.dailyMax);
+        }
+        if (config.checkInConfig.unit === 'QUANTITY') {
+          if (config.checkInConfig.valueUnit) {
+            updates.valueUnit = config.checkInConfig.valueUnit;
+          }
+          if (config.checkInConfig.dailyMax) {
+            updates.dailyTargetValue = String(config.checkInConfig.dailyMax);
+          }
+        }
+      }
+
+      setState(s => ({ ...s, ...updates }));
+      setAiConfigVisible(false);
+    }
+    // 也处理清单类型的输出
+    if (output.type === 'CHECKLIST_ITEMS') {
+      handleAIChecklistOutput(output);
+      setAiConfigVisible(false);
     }
   };
 
@@ -199,7 +312,7 @@ const ConfigPage: React.FC<ConfigPageProps> = ({
               className={styles.aiButton}
               onClick={() => setAiChatVisible(true)}
             >
-              <Bot size={14} />
+              <Sparkles size={14} />
               AI 生成
             </button>
             <button
@@ -617,16 +730,33 @@ const ConfigPage: React.FC<ConfigPageProps> = ({
   return (
     <div className={styles.container}>
       <div className={styles.content}>
-        {/* 任务名称 - 突出显示 */}
+        {/* 任务名称 - 带 AI 辅助按钮 */}
         <div className={styles.nameSection}>
-          <input
-            type="text"
-            placeholder="给任务起个名字"
-            value={state.taskTitle}
-            onChange={(e) => setState(s => ({ ...s, taskTitle: e.target.value }))}
-            className={styles.nameInput}
-            autoFocus
-          />
+          <div className={styles.nameInputWrapper}>
+            <input
+              type="text"
+              placeholder="给任务起个名字"
+              value={state.taskTitle}
+              onChange={(e) => setState(s => ({ ...s, taskTitle: e.target.value }))}
+              className={styles.nameInput}
+              autoFocus
+            />
+            {/* 输入名称后延迟显示 AI 提示，配置完成后隐藏，无名称时隐藏按钮 */}
+            {!isConfigComplete && state.taskTitle.trim() && (
+              <>
+                <span className={`${styles.aiHint} ${showAiHint ? styles.aiHintVisible : ''}`}>
+                  AI 快速生成 →
+                </span>
+                <button
+                  className={styles.nameAiButton}
+                  onClick={() => setAiConfigVisible(true)}
+                  title="AI 智能配置"
+                >
+                  <Sparkles size={14} />
+                </button>
+              </>
+            )}
+          </div>
         </div>
 
         {renderConfig()}
@@ -649,6 +779,19 @@ const ConfigPage: React.FC<ConfigPageProps> = ({
         role="checklistHelper"
         placeholder="告诉我你想完成什么目标，我来帮你拆解成清单..."
         onStructuredOutput={handleAIChecklistOutput}
+      />
+
+      {/* AI 配置助手弹窗 - 智能填充任务配置 */}
+      <AgentChatPopup
+        visible={aiConfigVisible}
+        onClose={() => setAiConfigVisible(false)}
+        role={state.selectedType === 'CHECKLIST' ? 'checklistHelper' : 'taskConfigHelper'}
+        placeholder={"和我说说吧 (๑•̀ㅂ•́)و✧"}
+        onStructuredOutput={handleAIConfigOutput}
+        initialMessage={state.taskTitle ? `我要创建一个${
+          state.selectedType === 'NUMERIC' ? '数值型' :
+          state.selectedType === 'CHECKLIST' ? '清单型' : '打卡型'
+        }任务，名称是「${state.taskTitle}」，请帮我配置合理的参数。` : undefined}
       />
     </div>
   );

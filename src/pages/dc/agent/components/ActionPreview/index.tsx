@@ -37,7 +37,7 @@ export function ActionPreview({ output, onConfirm, onCancel }: ActionPreviewProp
           </button>
           <button type="button" className={styles.confirmBtn} onClick={onConfirm}>
             <Check size={16} />
-            <span>创建任务</span>
+            <span>确定配置</span>
           </button>
         </div>
       </div>

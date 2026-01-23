@@ -20,6 +20,8 @@ interface AgentChatPopupProps {
   onStructuredOutput?: (output: StructuredOutput) => void;
   /** 输入框占位文字 */
   placeholder?: string;
+  /** 初始消息（自动发送） */
+  initialMessage?: string;
 }
 
 export function AgentChatPopup({
@@ -28,6 +30,7 @@ export function AgentChatPopup({
   role,
   onStructuredOutput,
   placeholder = 'message',
+  initialMessage,
 }: AgentChatPopupProps) {
   return (
     <Popup
@@ -43,6 +46,7 @@ export function AgentChatPopup({
           onClose={onClose}
           onStructuredOutput={onStructuredOutput}
           placeholder={placeholder}
+          initialMessage={initialMessage}
         />
         <SafeArea position="bottom" />
       </div>

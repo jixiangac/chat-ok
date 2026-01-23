@@ -7,3 +7,4 @@ export { MessageList } from './MessageList';
 export { ChatInput } from './ChatInput';
 export { ActionPreview } from './ActionPreview';
 export { AgentChatPopup } from './AgentChatPopup';
+export { FollowupQuestion } from './FollowupQuestion';

@@ -884,6 +884,18 @@
     ]
   },
   {
+    "path": "dc/agent/components/FollowupQuestion",
+    "index": true,
+    "id": "dc/agent/components/FollowupQuestion",
+    "file": "dc/agent/components/FollowupQuestion/index.tsx",
+    "componentName": "dc-agent-components-followupquestion-index",
+    "layout": false,
+    "exports": [
+      "FollowupQuestion",
+      "default"
+    ]
+  },
+  {
     "path": "dc/components/SidelineTaskEditModal",
     "index": true,
     "id": "dc/components/SidelineTaskEditModal",
@@ -2130,6 +2142,7 @@
     "componentName": "dc-agent-hooks-usestreamchat",
     "layout": false,
     "exports": [
+      "filterHiddenContent",
       "useStreamChat"
     ]
   },
@@ -2391,6 +2404,7 @@
       "ActionPreview",
       "AgentChatPopup",
       "ChatInput",
+      "FollowupQuestion",
       "MessageBubble",
       "MessageList"
     ]
@@ -2782,6 +2796,7 @@
     "exports": [
       "client",
       "createAgent",
+      "filterHiddenContent",
       "useAgent",
       "useStreamChat"
     ]

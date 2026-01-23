@@ -3,4 +3,4 @@
  */
 
 export { useAgent, createAgent, client } from './useAgent';
-export { useStreamChat } from './useStreamChat';
+export { useStreamChat, filterHiddenContent } from './useStreamChat';

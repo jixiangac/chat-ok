@@ -2,11 +2,12 @@
  * 消息气泡组件
  * 用户消息使用奶油风随机配色，AI 消息使用半透明毛玻璃效果
  * AI 消息使用 ReactMarkdown 渲染 Markdown
+ * AI 消息会过滤掉隐藏的 JSON 配置内容
  */
 
 import { useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { COLOR_PAIRS } from '@/pages/dc/constants/colors';
+import { filterHiddenContent } from '../../hooks';
 import type { MessageBubbleProps } from '../../types';
 import styles from './styles.module.css';
 
@@ -45,6 +46,12 @@ export function MessageBubble({ message }: MessageBubbleProps) {
     };
   }, [isUser, message.id]);
 
+  // AI 消息过滤掉隐藏的配置内容
+  const displayContent = useMemo(() => {
+    if (isUser) return message.content;
+    return filterHiddenContent(message.content);
+  }, [isUser, message.content]);
+
   return (
     <div
       className={`${styles.bubble} ${isUser ? styles.user : styles.assistant}`}
@@ -52,10 +59,10 @@ export function MessageBubble({ message }: MessageBubbleProps) {
     >
       <div className={styles.content} style={userBubbleStyle}>
         {isUser ? (
-          message.content
+          displayContent
         ) : (
           <div className={styles.markdown}>
-            <ReactMarkdown>{message.content}</ReactMarkdown>
+            <ReactMarkdown>{displayContent}</ReactMarkdown>
           </div>
         )}
         {isStreaming && <span className={styles.cursor}>|</span>}

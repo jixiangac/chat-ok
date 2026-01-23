@@ -2130,6 +2130,8 @@
       "calculateCycleCompleteBonus",
       "calculateDailyPointsCap",
       "calculateDailyViewCompleteReward",
+      "calculateTaskCreationCost",
+      "calculateTotalCompletionReward",
       "distributeCheckInPoints",
       "getTaskCheckInUnit",
       "mergeRewards"

@@ -29,6 +29,7 @@ export type {
   MessageBubbleProps,
   MessageListProps,
   ActionPreviewProps,
+  UserBaseInfo,
 } from './types';
 
 // 常量

@@ -208,3 +208,55 @@ export function mergeRewards(rewards: RewardItem[]): {
 export function getTaskCheckInUnit(task: { checkInConfig?: { unit?: CheckInUnit } }): CheckInUnit {
   return task.checkInConfig?.unit || 'TIMES';
 }
+
+/**
+ * 向下取整到指定位数
+ * @param value 数值
+ * @param place 位数（10=十位，100=百位）
+ * @returns 取整后的值
+ */
+function floorToPlace(value: number, place: number): number {
+  return Math.floor(value / place) * place;
+}
+
+/**
+ * 计算创建任务的灵玉消耗
+ * 基于任务完成后可获得的灵玉数量动态计算
+ *
+ * 计算规则：
+ * - 主线任务：完成灵玉 × 0.2，取整到十位，范围 500~1000
+ * - 支线任务：完成灵玉 × 0.15，取整到十位，范围 200~500
+ *
+ * @param totalCompletionReward 100%完成任务可获得的总灵玉
+ * @param isMainline 是否为主线任务
+ * @returns 创建任务需要消耗的灵玉
+ */
+export function calculateTaskCreationCost(
+  totalCompletionReward: number,
+  isMainline: boolean
+): number {
+  if (isMainline) {
+    // 主线任务：× 0.2，取整到十位，范围 500~1000
+    const rawCost = totalCompletionReward * 0.2;
+    const roundedCost = floorToPlace(rawCost, 10);
+    return Math.max(500, Math.min(1000, roundedCost));
+  } else {
+    // 支线任务：× 0.15，取整到十位，范围 200~500
+    const rawCost = totalCompletionReward * 0.15;
+    const roundedCost = floorToPlace(rawCost, 10);
+    return Math.max(200, Math.min(500, roundedCost));
+  }
+}
+
+/**
+ * 计算任务100%完成可获得的总灵玉
+ * @param dailyCap 每日积分上限
+ * @param totalDays 总天数
+ * @returns 总灵玉数
+ */
+export function calculateTotalCompletionReward(
+  dailyCap: DailyPointsCap,
+  totalDays: number
+): number {
+  return dailyCap.spiritJade * totalDays;
+}

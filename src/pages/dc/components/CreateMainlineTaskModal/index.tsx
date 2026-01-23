@@ -46,7 +46,7 @@ export default function CreateMainlineTaskModal({
   
   // 数值型配置
   const [numericDirection, setNumericDirection] = useState<NumericDirection>('DECREASE');
-  const [numericUnit, setNumericUnit] = useState('斤');
+  const [numericUnit, setNumericUnit] = useState('');
   const [startValue, setStartValue] = useState('');
   const [targetValue, setTargetValue] = useState('');
   
@@ -64,7 +64,7 @@ export default function CreateMainlineTaskModal({
   const [cycleTargetMinutes, setCycleTargetMinutes] = useState('');
   const [dailyTargetValue, setDailyTargetValue] = useState('');
   const [cycleTargetValue, setCycleTargetValue] = useState('');
-  const [valueUnit, setValueUnit] = useState('个');
+  const [valueUnit, setValueUnit] = useState('');
   
   // 计算周期信息
   const cycleInfo: CycleInfo = useMemo(() => ({
@@ -93,7 +93,7 @@ export default function CreateMainlineTaskModal({
     setSelectedType(null);
     setTaskTitle('');
     setNumericDirection('DECREASE');
-    setNumericUnit('斤');
+    setNumericUnit('');
     setStartValue('');
     setTargetValue('');
     setTotalItems('10');
@@ -107,7 +107,7 @@ export default function CreateMainlineTaskModal({
     setCycleTargetMinutes('');
     setDailyTargetValue('');
     setCycleTargetValue('');
-    setValueUnit('个');
+    setValueUnit('');
   };
   
   const handleClose = () => {

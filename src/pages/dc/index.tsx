@@ -1,9 +1,12 @@
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useState, useCallback, useMemo } from 'react';
 import { Plus, Archive, Settings as SettingsIcon } from 'lucide-react';
 import { SafeArea } from 'antd-mobile';
 
 // Agent Chat
-import { AgentChatPopup } from './agent';
+import { AgentChatPopup, type UserBaseInfo } from './agent';
+
+// Utils
+import { getCurrentLevelInfo } from './utils/cultivation';
 
 // Panels
 import { HappyPanel, ArchiveList, UnifiedSettingsPanel, MemorialPanel, NormalPanel } from './panels';
@@ -82,7 +85,17 @@ function DCPageContent() {
   
   // 修仙状态（从 CultivationProvider）
   const { data: cultivationData, breakthrough, spiritJadeData } = useCultivation();
-  
+
+  // 构建 AI 对话所需的用户基础信息
+  const userInfo: UserBaseInfo = useMemo(() => {
+    const levelInfo = getCurrentLevelInfo(cultivationData);
+    return {
+      spiritJade: spiritJadeData.balance,
+      cultivation: cultivationData.currentExp,
+      cultivationLevel: levelInfo.displayName,
+    };
+  }, [cultivationData, spiritJadeData.balance]);
+
   // Panel refs
   const normalPanelRef = useRef<NormalPanelRef>(null);
   const happyPanelRef = useRef<HappyPanelRef>(null);
@@ -314,6 +327,7 @@ function DCPageContent() {
         onClose={() => setShowSpriteChat(false)}
         role="general"
         placeholder="和小精灵聊聊天吧..."
+        userInfo={userInfo}
       />
 
       {/* 底部安全区域 */}

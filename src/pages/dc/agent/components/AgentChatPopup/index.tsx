@@ -6,7 +6,7 @@
 import { Popup, SafeArea } from 'antd-mobile';
 import { AgentChat } from '../../AgentChat';
 import type { AgentRole } from '../../constants';
-import type { StructuredOutput } from '../../types';
+import type { StructuredOutput, UserBaseInfo } from '../../types';
 import styles from './styles.module.css';
 
 interface AgentChatPopupProps {
@@ -22,6 +22,8 @@ interface AgentChatPopupProps {
   placeholder?: string;
   /** 初始消息（自动发送） */
   initialMessage?: string;
+  /** 用户基础信息 */
+  userInfo?: UserBaseInfo;
 }
 
 export function AgentChatPopup({
@@ -31,6 +33,7 @@ export function AgentChatPopup({
   onStructuredOutput,
   placeholder = 'message',
   initialMessage,
+  userInfo,
 }: AgentChatPopupProps) {
   return (
     <Popup
@@ -47,6 +50,7 @@ export function AgentChatPopup({
           onStructuredOutput={onStructuredOutput}
           placeholder={placeholder}
           initialMessage={initialMessage}
+          userInfo={userInfo}
         />
         <SafeArea position="bottom" />
       </div>

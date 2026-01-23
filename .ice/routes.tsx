@@ -4746,7 +4746,7 @@ const createRoutes: CreateRoutes = ({
     index: undefined,
     id: 'dc/utils/spiritJadeCalculator',
     exact: true,
-    exports: ["calculateArchiveReward","calculateCycleCompleteBonus","calculateDailyPointsCap","calculateDailyViewCompleteReward","distributeCheckInPoints","getTaskCheckInUnit","mergeRewards"],
+    exports: ["calculateArchiveReward","calculateCycleCompleteBonus","calculateDailyPointsCap","calculateDailyViewCompleteReward","calculateTaskCreationCost","calculateTotalCompletionReward","distributeCheckInPoints","getTaskCheckInUnit","mergeRewards"],
   },{
     path: 'dc/agent/hooks/useStreamChat',
     async lazy() {

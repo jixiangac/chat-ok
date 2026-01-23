@@ -7,6 +7,7 @@
 
 import { useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { filterHiddenContent } from '../../hooks';
 import type { MessageBubbleProps } from '../../types';
 import styles from './styles.module.css';
@@ -52,6 +53,12 @@ export function MessageBubble({ message }: MessageBubbleProps) {
     return filterHiddenContent(message.content);
   }, [isUser, message.content]);
 
+  // 内容为空时不渲染气泡（避免空气泡）
+  // 但流式输出中允许显示空内容（等待内容填充）
+  if (!displayContent.trim() && !isStreaming) {
+    return null;
+  }
+
   return (
     <div
       className={`${styles.bubble} ${isUser ? styles.user : styles.assistant}`}
@@ -62,7 +69,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
           displayContent
         ) : (
           <div className={styles.markdown}>
-            <ReactMarkdown>{displayContent}</ReactMarkdown>
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{displayContent}</ReactMarkdown>
           </div>
         )}
         {isStreaming && <span className={styles.cursor}>|</span>}

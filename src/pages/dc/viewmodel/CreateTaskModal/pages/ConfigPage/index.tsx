@@ -3,14 +3,19 @@
  * 步骤 3：完善任务的详细信息
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Popup, Dialog } from 'antd-mobile';
 import { X, Sparkles } from 'lucide-react';
 import { OptionGrid, BottomNavigation } from '../../components';
 import { DIRECTION_OPTIONS, CHECK_IN_TYPE_OPTIONS, CHECKLIST_TEMPLATES } from '../../constants';
-import { SPIRIT_JADE_COST } from '../../../../constants/spiritJade';
-import { calculateDailyPointsCap } from '../../../../utils/spiritJadeCalculator';
-import { AgentChatPopup, type StructuredOutput, type ChecklistItemsData, type TaskConfigData } from '../../../../agent';
+import {
+  calculateDailyPointsCap,
+  calculateTaskCreationCost,
+  calculateTotalCompletionReward,
+} from '../../../../utils/spiritJadeCalculator';
+import { AgentChatPopup, type StructuredOutput, type ChecklistItemsData, type TaskConfigData, type UserBaseInfo } from '../../../../agent';
+import { useCultivation } from '../../../../contexts';
+import { getCurrentLevelInfo } from '../../../../utils/cultivation';
 import type { CreateTaskModalState } from '../../modalTypes';
 import type { NumericDirection, CheckInUnit } from '../../../../types';
 import styles from './styles.module.css';
@@ -51,14 +56,38 @@ const ConfigPage: React.FC<ConfigPageProps> = ({
   onBack,
   taskCategory,
 }) => {
+  // 修仙数据（用于 AI 对话）
+  const { data: cultivationData, spiritJadeData } = useCultivation();
+
+  // 构建 AI 对话所需的用户基础信息
+  const userInfo: UserBaseInfo = useMemo(() => {
+    const levelInfo = getCurrentLevelInfo(cultivationData);
+    return {
+      spiritJade: spiritJadeData.balance,
+      cultivation: cultivationData.currentExp,
+      cultivationLevel: levelInfo.displayName,
+    };
+  }, [cultivationData, spiritJadeData.balance]);
+
   const cycleInfo = {
     totalCycles: Math.floor(state.totalDays / state.cycleDays),
   };
 
-  // 灵石消耗
-  const spiritJadeCost = taskCategory === 'MAINLINE'
-    ? SPIRIT_JADE_COST.CREATE_MAINLINE_TASK
-    : SPIRIT_JADE_COST.CREATE_SIDELINE_TASK;
+  // 计算每日积分上限
+  const taskType = taskCategory === 'MAINLINE' ? 'mainline' : 'sidelineA';
+  const checkInUnitForCalc: CheckInUnit = state.selectedType === 'CHECK_IN'
+    ? state.checkInUnit
+    : 'TIMES';
+  const dailyCapForCost = calculateDailyPointsCap(taskType, checkInUnitForCalc);
+
+  // 计算100%完成可获得的总灵玉
+  const totalCompletionReward = calculateTotalCompletionReward(dailyCapForCost, state.totalDays);
+
+  // 动态计算灵玉消耗
+  const spiritJadeCost = calculateTaskCreationCost(
+    totalCompletionReward,
+    taskCategory === 'MAINLINE'
+  );
 
   // 方向选项
   const directionOptions = DIRECTION_OPTIONS.map(option => ({
@@ -240,11 +269,15 @@ const ConfigPage: React.FC<ConfigPageProps> = ({
 
       setState(s => ({ ...s, ...updates }));
       setAiConfigVisible(false);
+      // 直接跳转到周期配置页面
+      onNext?.();
     }
     // 也处理清单类型的输出
     if (output.type === 'CHECKLIST_ITEMS') {
       handleAIChecklistOutput(output);
       setAiConfigVisible(false);
+      // 直接跳转到周期配置页面
+      onNext?.();
     }
   };
 
@@ -642,13 +675,8 @@ const ConfigPage: React.FC<ConfigPageProps> = ({
     );
   };
 
-  // 计算预计收益
-  const taskType = taskCategory === 'MAINLINE' ? 'mainline' : 'sidelineA';
-  // 对于打卡型任务使用选择的打卡类型，其他类型默认使用 TIMES
-  const checkInUnit: CheckInUnit = state.selectedType === 'CHECK_IN'
-    ? state.checkInUnit
-    : 'TIMES';
-  const dailyCap = calculateDailyPointsCap(taskType, checkInUnit);
+  // 计算预计收益（复用前面的 dailyCapForCost）
+  const dailyCap = dailyCapForCost;
 
   // 预览信息 - 和 CyclePreview 风格一致
   const renderPreview = () => {
@@ -717,8 +745,6 @@ const ConfigPage: React.FC<ConfigPageProps> = ({
     );
   };
 
-  const isValid = state.taskTitle.trim().length > 0;
-
   // 灵石消耗提示
   const costHint = (
     <span className={styles.costHint}>
@@ -766,7 +792,7 @@ const ConfigPage: React.FC<ConfigPageProps> = ({
         onBack={onBack}
         onNext={onNext || onSubmit}
         nextText="下一步"
-        nextDisabled={!isValid}
+        nextDisabled={!isConfigComplete}
       />
 
       {/* 清单模版弹窗 */}
@@ -779,6 +805,7 @@ const ConfigPage: React.FC<ConfigPageProps> = ({
         role="checklistHelper"
         placeholder="告诉我你想完成什么目标，我来帮你拆解成清单..."
         onStructuredOutput={handleAIChecklistOutput}
+        userInfo={userInfo}
       />
 
       {/* AI 配置助手弹窗 - 智能填充任务配置 */}
@@ -792,6 +819,7 @@ const ConfigPage: React.FC<ConfigPageProps> = ({
           state.selectedType === 'NUMERIC' ? '数值型' :
           state.selectedType === 'CHECKLIST' ? '清单型' : '打卡型'
         }任务，名称是「${state.taskTitle}」，请帮我配置合理的参数。` : undefined}
+        userInfo={userInfo}
       />
     </div>
   );

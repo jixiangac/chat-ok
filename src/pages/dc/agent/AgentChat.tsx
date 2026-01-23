@@ -8,7 +8,7 @@ import { X } from 'lucide-react';
 import { MessageList, ChatInput } from './components';
 import { useStreamChat } from './hooks';
 import { WELCOME_CONFIGS } from './constants';
-import type { AgentChatProps, StructuredOutput } from './types';
+import type { AgentChatProps, StructuredOutput, MultiAnswerResult } from './types';
 import styles from './AgentChat.module.css';
 
 // 角色标题映射
@@ -27,11 +27,13 @@ export function AgentChat({
   onClose,
   hideHeader = false,
   initialMessage,
+  userInfo,
 }: AgentChatProps) {
   const listRef = useRef<HTMLDivElement>(null);
 
   const { messages, sendMessage, stopStreaming, isStreaming } = useStreamChat({
     role,
+    userInfo,
   });
 
   // 自动发送初始消息
@@ -55,9 +57,14 @@ export function AgentChat({
     sendMessage(question);
   }, [sendMessage]);
 
-  // 追问回答处理
-  const handleFollowupAnswer = useCallback((answer: string) => {
-    sendMessage(answer);
+  // 追问回答处理（支持单问题 string 和多问题 MultiAnswerResult）
+  const handleFollowupAnswer = useCallback((answer: string | MultiAnswerResult) => {
+    if (typeof answer === 'string') {
+      sendMessage(answer);
+    } else {
+      // 多问题模式：使用汇总字符串发送
+      sendMessage(answer.summary);
+    }
   }, [sendMessage]);
 
   // ActionPreview 确认处理
@@ -65,10 +72,11 @@ export function AgentChat({
     onStructuredOutput?.(output);
   }, [onStructuredOutput]);
 
-  // ActionPreview 取消处理（目前仅记录，不做额外操作）
+  // ActionPreview 取消处理 - 发送消息让 AI 继续对话
   const handleActionCancel = useCallback((_messageId: string) => {
-    // 可以在这里添加取消后的逻辑，比如从消息列表中移除该消息
-  }, []);
+    // 发送取消反馈，让 AI 继续讨论新的计划
+    sendMessage('我想调整一下方案，请帮我重新规划');
+  }, [sendMessage]);
 
   return (
     <div className={`${styles.container} ${className || ''}`}>

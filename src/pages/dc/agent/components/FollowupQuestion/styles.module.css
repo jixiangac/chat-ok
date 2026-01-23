@@ -1,15 +1,88 @@
-/* 追问组件样式 - 列表卡片式设计 */
+/* 追问组件样式 - Notion 风格 + Soft UI Evolution */
 
+/* ============================================
+   基础容器
+   ============================================ */
 .container {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   border-radius: 16px;
   margin: 12px 16px;
   overflow: hidden;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
 }
 
-/* 标题区域 */
+/* 多问题容器：固定最大高度，内部滚动 */
+.multiContainer {
+  max-height: 60vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 锁定状态（已提交或禁用） */
+.locked {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+/* ============================================
+   多问题头部（包含进度指示器）
+   ============================================ */
+.multiHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px 8px;
+  flex-shrink: 0;
+}
+
+.multiHeaderTitle {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(55, 53, 47, 0.65);
+}
+
+/* 进度指示器 */
+.progressIndicator {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(55, 53, 47, 0.5);
+  background: rgba(55, 53, 47, 0.04);
+  padding: 4px 10px;
+  border-radius: 12px;
+}
+
+/* ============================================
+   问题列表（可滚动区域）
+   ============================================ */
+.questionList {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 16px 14px;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* 问题卡片 */
+.questionCard {
+  margin-bottom: 20px;
+}
+
+.questionCard:last-child {
+  margin-bottom: 0;
+}
+
+/* 问题标题 */
+.questionTitle {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: rgba(55, 53, 47, 0.65);
+  margin-bottom: 10px;
+}
+
+/* ============================================
+   单问题模式标题区域
+   ============================================ */
 .header {
   padding: 14px 16px 10px;
 }
@@ -17,13 +90,20 @@
 .title {
   font-size: 14px;
   font-weight: 500;
-  color: #666;
+  color: rgba(55, 53, 47, 0.65);
+  line-height: 1.4;
 }
 
-/* 选项列表 */
+/* ============================================
+   选项列表
+   ============================================ */
 .optionList {
   display: flex;
   flex-direction: column;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(55, 53, 47, 0.08);
+  background: rgba(255, 255, 255, 0.6);
 }
 
 /* 单个选项 */
@@ -34,9 +114,9 @@
   padding: 14px 16px;
   background: transparent;
   border: none;
-  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  border-top: 1px solid rgba(55, 53, 47, 0.06);
   cursor: pointer;
-  transition: background-color 0.15s;
+  transition: background-color 0.15s ease;
   text-align: left;
 }
 
@@ -44,103 +124,189 @@
   border-top: none;
 }
 
-.optionItem:hover {
-  background: rgba(0, 0, 0, 0.02);
+.optionItem:hover:not(:disabled) {
+  background: rgba(55, 53, 47, 0.03);
 }
 
-.optionItem:active {
-  background: rgba(0, 0, 0, 0.04);
+.optionItem:active:not(:disabled) {
+  transform: scale(0.99);
 }
 
-/* 消息图标 */
-.optionIcon {
-  flex-shrink: 0;
-  color: #999;
-}
-
-/* 选项文字 */
-.optionText {
-  flex: 1;
-  font-size: 15px;
-  color: #333;
-  line-height: 1.4;
-}
-
-/* 右侧箭头 */
-.arrowIcon {
-  flex-shrink: 0;
-  color: #ccc;
-}
-
-/* 自定义选项 */
-.customOption .optionText {
-  color: #888;
-}
-
-/* 自定义输入区域 */
-.customInputWrapper {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 16px;
-  border-top: 1px solid rgba(0, 0, 0, 0.05);
-  background: rgba(0, 0, 0, 0.02);
-}
-
-.customInput {
-  flex: 1;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 20px;
-  padding: 8px 14px;
-  font-size: 14px;
-  outline: none;
-  background: white;
-  transition: border-color 0.2s;
-}
-
-.customInput:focus {
-  border-color: #8b7355;
-}
-
-.customInput::placeholder {
-  color: #aaa;
-}
-
-.sendBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border: none;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #8b7355 0%, #6d5a45 100%);
-  color: white;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.sendBtn:hover:not(:disabled) {
-  transform: scale(1.05);
-}
-
-.sendBtn:disabled {
-  opacity: 0.4;
+.optionItem:disabled {
   cursor: not-allowed;
 }
 
-.cancelBtn {
-  padding: 6px 12px;
-  border: none;
-  border-radius: 16px;
-  background: transparent;
-  color: #888;
-  font-size: 13px;
-  cursor: pointer;
-  transition: all 0.2s;
+/* 选项选中状态 - 今日毕色系渐变背景 */
+.optionSelected {
+  background: linear-gradient(135deg, #F1F1E8 0%, #E8F0E8 100%);
 }
 
-.cancelBtn:hover {
-  background: rgba(0, 0, 0, 0.05);
-  color: #666;
+.optionSelected:hover:not(:disabled) {
+  background: linear-gradient(135deg, #F1F1E8 0%, #E8F0E8 100%);
+}
+
+/* ============================================
+   选项序号徽章
+   ============================================ */
+.optionBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
+  background: rgba(55, 53, 47, 0.06);
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(55, 53, 47, 0.5);
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+/* 选中时的徽章样式 */
+.badgeSelected {
+  background: linear-gradient(135deg, #8B9D83 0%, #7A8C72 100%);
+  color: #FFFFFF;
+}
+
+/* ============================================
+   选项文字
+   ============================================ */
+.optionText {
+  flex: 1;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.4;
+  color: rgb(55, 53, 47);
+}
+
+/* ============================================
+   确认提交按钮
+   ============================================ */
+.submitWrapper {
+  padding: 12px 16px 16px;
+  border-top: 1px solid rgba(55, 53, 47, 0.06);
+  background: rgba(255, 255, 255, 0.98);
+  flex-shrink: 0;
+}
+
+.submitButton {
+  width: 100%;
+  height: 48px;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  /* 禁用状态 */
+  background: rgba(55, 53, 47, 0.08);
+  color: rgba(55, 53, 47, 0.35);
+}
+
+.submitButton:disabled {
+  cursor: not-allowed;
+}
+
+/* 可用状态 */
+.submitEnabled {
+  background: rgb(55, 53, 47);
+  color: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(55, 53, 47, 0.2);
+}
+
+.submitEnabled:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(55, 53, 47, 0.25);
+}
+
+.submitEnabled:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(55, 53, 47, 0.2);
+}
+
+/* ============================================
+   自定义输入
+   ============================================ */
+
+/* 自定义选项的占位文字颜色 */
+.customPlaceholder {
+  color: rgba(55, 53, 47, 0.45);
+}
+
+/* 内嵌输入框 - 替换选项文字位置 */
+.inlineInput {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.4;
+  color: rgb(55, 53, 47);
+  outline: none;
+  padding: 0;
+  margin: 0;
+}
+
+.inlineInput::placeholder {
+  color: rgba(55, 53, 47, 0.35);
+}
+
+/* ============================================
+   已提交状态 - 简洁的问题+答案展示
+   ============================================ */
+.submittedContainer {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 14px 16px;
+}
+
+/* 已提交头部 */
+.submittedHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.submittedIcon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.submittedTitle {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(55, 53, 47, 0.65);
+}
+
+/* 已提交问题列表 */
+.submittedList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* 单个问题项 */
+.submittedItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* 问题文字 */
+.submittedQuestion {
+  font-size: 13px;
+  font-weight: 400;
+  color: rgba(55, 53, 47, 0.65);
+  line-height: 1.4;
+}
+
+/* 答案文字 - 使用品牌色 */
+.submittedAnswer {
+  font-size: 15px;
+  font-weight: 500;
+  color: #7A8C72;
+  line-height: 1.4;
 }

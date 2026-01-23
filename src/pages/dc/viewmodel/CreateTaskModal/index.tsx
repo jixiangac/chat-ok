@@ -8,10 +8,14 @@ import confetti from 'canvas-confetti';
 import { Popup, SafeArea, Toast } from 'antd-mobile';
 import { X, ChevronLeft } from 'lucide-react';
 import { AgentChat, type StructuredOutput, type TaskConfigData } from '../../agent';
-import type { Category } from '../../types';
+import type { Category, CheckInUnit } from '../../types';
 import { useScene, useTaskContext, useCultivation } from '../../contexts';
 import { getNextThemeColor } from '../../constants';
-import { SPIRIT_JADE_COST } from '../../constants/spiritJade';
+import {
+  calculateDailyPointsCap,
+  calculateTaskCreationCost,
+  calculateTotalCompletionReward,
+} from '../../utils/spiritJadeCalculator';
 import { createTask } from '../../utils/migration';
 import { getCurrentDate } from '../../utils';
 import { usePageStack, useSwipeBack } from '../../panels/settings/hooks';
@@ -218,9 +222,15 @@ export default function CreateTaskModal({
     }
 
     const isMainline = taskCategory === 'MAINLINE';
-    const requiredJade = isMainline
-      ? SPIRIT_JADE_COST.CREATE_MAINLINE_TASK
-      : SPIRIT_JADE_COST.CREATE_SIDELINE_TASK;
+
+    // 动态计算灵玉消耗
+    const taskType = isMainline ? 'mainline' : 'sidelineA';
+    const checkInUnit: CheckInUnit = state.selectedType === 'CHECK_IN'
+      ? state.checkInUnit
+      : 'TIMES';
+    const dailyCap = calculateDailyPointsCap(taskType, checkInUnit);
+    const totalReward = calculateTotalCompletionReward(dailyCap, state.totalDays);
+    const requiredJade = calculateTaskCreationCost(totalReward, isMainline);
 
     if (!canSpendSpiritJade(requiredJade)) {
       Toast.show({

@@ -24,8 +24,10 @@ export const MessageList = forwardRef<HTMLDivElement, MessageListProps>(
     }, [messages, actualRef]);
 
     // 渲染单条消息
-    const renderMessage = (message: Message) => {
-      // 追问类型消息
+    const renderMessage = (message: Message, index: number) => {
+      const isLastMessage = index === messages.length - 1;
+
+      // 追问类型消息（只有最后一条才可交互）
       if (message.type === 'followup' && message.followupData) {
         return (
           <FollowupQuestion
@@ -33,10 +35,11 @@ export const MessageList = forwardRef<HTMLDivElement, MessageListProps>(
             data={message.followupData}
             onAnswer={(answer) => onFollowupAnswer?.(answer)}
             onCancel={() => {/* 暂不处理取消 */}}
+            disabled={!isLastMessage}
           />
         );
       }
-      // 操作预览类型消息
+      // 操作预览类型消息（只有最后一条才显示按钮）
       if (message.type === 'action_preview' && message.actionPreviewData) {
         const actionData = message.actionPreviewData;
         return (
@@ -45,6 +48,7 @@ export const MessageList = forwardRef<HTMLDivElement, MessageListProps>(
             output={actionData}
             onConfirm={() => onActionConfirm?.(actionData)}
             onCancel={() => onActionCancel?.(message.id)}
+            showActions={isLastMessage}
           />
         );
       }
@@ -93,7 +97,7 @@ export const MessageList = forwardRef<HTMLDivElement, MessageListProps>(
     return (
       <div ref={actualRef} className={styles.container}>
         <div className={styles.messageList}>
-          {messages.map(message => renderMessage(message))}
+          {messages.map((message, index) => renderMessage(message, index))}
         </div>
       </div>
     );

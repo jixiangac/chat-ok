@@ -23,12 +23,19 @@ export interface FollowupQuestion {
     label: string;
     value: string;
   }>;
-  allowCustom?: boolean;
 }
 
 // 追问数据结构
 export interface FollowupQuestionData {
   questions: FollowupQuestion[];
+}
+
+// 多问题答案结果（用于统一提交回调）
+export interface MultiAnswerResult {
+  /** 每个问题的答案，key 为问题索引 */
+  answers: Record<number, string>;
+  /** 汇总的答案字符串（用于发送给 AI） */
+  summary: string;
 }
 
 // 数值型配置
@@ -90,6 +97,18 @@ export interface Message {
   actionPreviewData?: StructuredOutput;
 }
 
+/** 用户基础信息 */
+export interface UserBaseInfo {
+  /** 当前灵玉值 */
+  spiritJade: number;
+  /** 当前修为值 */
+  cultivation: number;
+  /** 当前修仙等级名称 */
+  cultivationLevel: string;
+  /** 用户昵称 */
+  nickname?: string;
+}
+
 // AgentChat 组件 Props
 export interface AgentChatProps {
   /** AI 角色类型 */
@@ -106,6 +125,8 @@ export interface AgentChatProps {
   hideHeader?: boolean;
   /** 初始消息（自动发送） */
   initialMessage?: string;
+  /** 用户基础信息，用于 AI 了解用户状态 */
+  userInfo?: UserBaseInfo;
 }
 
 // 聊天输入组件 Props
@@ -131,8 +152,8 @@ export interface MessageListProps {
   quickQuestions?: string[];
   /** 点击快捷问话回调 */
   onQuickQuestion?: (question: string) => void;
-  /** 追问选项点击回调 */
-  onFollowupAnswer?: (answer: string) => void;
+  /** 追问选项点击回调（单问题返回 string，多问题返回 MultiAnswerResult） */
+  onFollowupAnswer?: (answer: string | MultiAnswerResult) => void;
   /** ActionPreview 确认回调 */
   onActionConfirm?: (output: StructuredOutput) => void;
   /** ActionPreview 取消回调 */
@@ -144,4 +165,6 @@ export interface ActionPreviewProps {
   output: StructuredOutput;
   onConfirm: () => void;
   onCancel: () => void;
+  /** 是否显示操作按钮（后续有新消息时隐藏） */
+  showActions?: boolean;
 }

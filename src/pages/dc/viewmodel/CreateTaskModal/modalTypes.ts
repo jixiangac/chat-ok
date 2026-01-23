@@ -60,7 +60,7 @@ export const createInitialState = (startDate: string): CreateTaskModalState => (
 
   // 数值型配置
   numericDirection: 'DECREASE',
-  numericUnit: '斤',
+  numericUnit: '',
   startValue: '',
   targetValue: '',
 
@@ -78,5 +78,5 @@ export const createInitialState = (startDate: string): CreateTaskModalState => (
   cycleTargetMinutes: '',
   dailyTargetValue: '',
   cycleTargetValue: '',
-  valueUnit: '个',
+  valueUnit: '',
 });

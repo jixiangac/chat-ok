@@ -13,46 +13,71 @@ const API_URL = 'https://apis.iflow.cn/v1/chat/completions';
 
 /**
  * 定义追问工具 - OpenAI Function Calling 格式
+ * 支持单问题和多问题两种模式
  */
 const FOLLOWUP_TOOL = {
   type: 'function' as const,
   function: {
     name: 'ask_followup_question',
-    description: '当需要用户补充更多信息或从多个选项中做选择时，使用此工具向用户提问。会在界面上展示选项让用户点击选择。',
+    description: '向用户提问收集信息。支持多问题一次性收集。【重要】体重类问题选项必须用「斤」（如100-120斤），禁止用kg/公斤！',
     parameters: {
       type: 'object',
       properties: {
-        question: {
-          type: 'string',
-          description: '向用户提出的问题',
-        },
-        options: {
+        questions: {
           type: 'array',
-          description: '供用户选择的选项列表（2-4个选项）',
+          description: '问题列表。可以是单个问题或多个问题。多问题时用户需要全部回答后才能提交。',
           items: {
             type: 'object',
             properties: {
-              label: {
+              question: {
                 type: 'string',
-                description: '选项显示文字',
+                description: '问题文本',
               },
-              value: {
-                type: 'string',
-                description: '用户选择后发送的内容',
+              options: {
+                type: 'array',
+                description: '供用户选择的选项列表（2-4个选项）',
+                items: {
+                  type: 'object',
+                  properties: {
+                    label: {
+                      type: 'string',
+                      description: '选项显示文字',
+                    },
+                    value: {
+                      type: 'string',
+                      description: '用户选择后发送的内容',
+                    },
+                  },
+                  required: ['label', 'value'],
+                },
+                minItems: 2,
+                maxItems: 4,
               },
+            },
+            required: ['question', 'options'],
+          },
+          minItems: 1,
+          maxItems: 5,
+        },
+        // 兼容旧版单问题格式
+        question: {
+          type: 'string',
+          description: '【兼容旧版】单个问题文本。建议使用 questions 数组代替。',
+        },
+        options: {
+          type: 'array',
+          description: '【兼容旧版】单个问题的选项列表。建议使用 questions 数组代替。',
+          items: {
+            type: 'object',
+            properties: {
+              label: { type: 'string' },
+              value: { type: 'string' },
             },
             required: ['label', 'value'],
           },
-          minItems: 2,
-          maxItems: 4,
-        },
-        allowCustom: {
-          type: 'boolean',
-          description: '是否允许用户自定义输入，默认为 true',
-          default: true,
         },
       },
-      required: ['question', 'options'],
+      required: [],
     },
   },
 };
@@ -74,8 +99,16 @@ const TASK_CONFIG_TOOL = {
           enum: ['NUMERIC', 'CHECKLIST', 'CHECK_IN'],
           description: '任务类型：NUMERIC=数值型, CHECKLIST=清单型, CHECK_IN=打卡型'
         },
-        totalDays: { type: 'number', description: '总天数' },
-        cycleDays: { type: 'number', description: '考核周期天数' },
+        totalDays: {
+          type: 'number',
+          enum: [30, 90, 180, 365],
+          description: '总天数，只能是30/90/180/365之一'
+        },
+        cycleDays: {
+          type: 'number',
+          enum: [10, 15, 30],
+          description: '考核周期天数，只能是10/15/30之一'
+        },
         numericConfig: {
           type: 'object',
           description: '数值型任务配置（仅 category=NUMERIC 时使用）',
@@ -181,40 +214,86 @@ function filterHiddenContent(content: string): string {
 // 导出过滤函数供其他组件使用
 export { filterHiddenContent };
 
+/** 用户基础信息 */
+export interface UserBaseInfo {
+  /** 当前灵玉值 */
+  spiritJade: number;
+  /** 当前修为值 */
+  cultivation: number;
+  /** 当前修仙等级名称 */
+  cultivationLevel: string;
+  /** 用户昵称 */
+  nickname?: string;
+}
+
 interface UseStreamChatOptions {
   role: AgentRole;
   customPrompt?: string;
   onStructuredOutput?: (output: StructuredOutput) => void;
+  /** 用户基础信息，用于 AI 了解用户状态 */
+  userInfo?: UserBaseInfo;
+}
+
+/**
+ * 生成用户信息的系统提示词（使用 XML 格式，便于 AI 理解）
+ */
+function generateUserInfoPrompt(userInfo?: UserBaseInfo): string {
+  if (!userInfo) return '';
+console.log(userInfo,'userInfouserInfo')
+  return `
+
+<user-info>
+  <nickname>${userInfo.nickname || '修仙者'}</nickname>
+  <spirit-jade>${userInfo.spiritJade}</spirit-jade>
+  <cultivation>${userInfo.cultivation}</cultivation>
+  <level>${userInfo.cultivationLevel}</level>
+</user-info>
+
+`;
 }
 
 export function useStreamChat(options: UseStreamChatOptions) {
-  const { role, customPrompt, onStructuredOutput } = options;
+  const { role, customPrompt, onStructuredOutput, userInfo } = options;
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  // 获取当前角色的 system prompt
-  const systemPrompt = customPrompt ?? ROLE_PROMPTS[role];
-
+  // 获取当前角色的 system prompt，并注入用户信息
+  const basePrompt = customPrompt ?? ROLE_PROMPTS[role];
+  const systemPrompt = basePrompt + generateUserInfoPrompt(userInfo);
+  console.log(systemPrompt,userInfo,'systemPrompt')
   /**
    * 处理工具调用结果
    */
   const handleToolCall = useCallback((toolName: string, args: Record<string, unknown>) => {
     if (toolName === 'ask_followup_question') {
-      // 追问工具 - 添加追问消息到列表
-      const followupData: FollowupQuestionData = {
-        questions: [{
+      // 追问工具 - 支持新版多问题格式和旧版单问题格式
+      let questions: Array<{ question: string; options: Array<{ label: string; value: string }> }>;
+
+      if (args.questions && Array.isArray(args.questions)) {
+        // 新版多问题格式
+        questions = args.questions as typeof questions;
+      } else if (args.question && args.options) {
+        // 兼容旧版单问题格式
+        questions = [{
           question: args.question as string,
           options: args.options as Array<{ label: string; value: string }>,
-          allowCustom: args.allowCustom !== false,
-        }],
-      };
-      // 添加追问类型的消息
+        }];
+      } else {
+        console.warn('ask_followup_question: 无效的参数格式', args);
+        return;
+      }
+
+      const followupData: FollowupQuestionData = { questions };
+      // 添加追问类型的消息（使用第一个问题作为内容摘要）
+      const contentSummary = questions.length > 1
+        ? `请回答以下 ${questions.length} 个问题`
+        : questions[0].question;
       const followupMessage: Message = {
         id: `followup_${Date.now()}`,
         role: 'assistant',
-        content: args.question as string,
+        content: contentSummary,
         timestamp: Date.now(),
         status: 'complete',
         type: 'followup',

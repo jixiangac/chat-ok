@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { CheckCircle, FileText, ClipboardList, Calendar, Square, CheckSquare, Sparkles } from 'lucide-react';
 import type { Task, ChecklistItem } from '../../../../types';
 import type { CurrentCycleInfo } from '../../types';
-import { AgentChatPopup, type StructuredOutput, type ChecklistItemsData } from '../../../../agent';
+import { AgentChatPopup, type StructuredOutput, type ChecklistItemsData, type UserBaseInfo } from '../../../../agent';
+import { useCultivation } from '../../../../contexts';
+import { getCurrentLevelInfo } from '../../../../utils/cultivation';
 import styles from '../../../../css/ChecklistCyclePanel.module.css';
 
 interface ChecklistCyclePanelProps {
@@ -19,6 +21,20 @@ export default function ChecklistCyclePanel({
   onAddChecklistItems
 }: ChecklistCyclePanelProps) {
   const [showAIChat, setShowAIChat] = useState(false);
+
+  // 修仙数据（用于 AI 对话）
+  const { data: cultivationData, spiritJadeData } = useCultivation();
+
+  // 构建 AI 对话所需的用户基础信息
+  const userInfo: UserBaseInfo = useMemo(() => {
+    const levelInfo = getCurrentLevelInfo(cultivationData);
+    return {
+      spiritJade: spiritJadeData.balance,
+      cultivation: cultivationData.currentExp,
+      cultivationLevel: levelInfo.displayName,
+    };
+  }, [cultivationData, spiritJadeData.balance]);
+
   const config = goal.checklistConfig;
   
   if (!config) {
@@ -145,6 +161,7 @@ export default function ChecklistCyclePanel({
             setShowAIChat(false);
           }
         }}
+        userInfo={userInfo}
       />
     </div>
   );

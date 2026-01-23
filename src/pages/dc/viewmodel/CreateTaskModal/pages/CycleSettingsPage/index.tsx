@@ -11,7 +11,12 @@ import { DatePicker } from 'antd-mobile';
 import type { DatePickerRef } from 'antd-mobile/es/components/date-picker';
 import { CyclePreview, OptionGrid, BottomNavigation, TaskPreview } from '../../components';
 import { TOTAL_DURATION_OPTIONS, CYCLE_LENGTH_OPTIONS } from '../../constants';
-import { SPIRIT_JADE_COST } from '@/pages/dc/constants/spiritJade';
+import {
+  calculateDailyPointsCap,
+  calculateTaskCreationCost,
+  calculateTotalCompletionReward,
+} from '@/pages/dc/utils/spiritJadeCalculator';
+import type { CheckInUnit } from '@/pages/dc/types';
 import type { CreateTaskModalState } from '../../modalTypes';
 import styles from './styles.module.css';
 
@@ -38,10 +43,21 @@ const CycleSettingsPage: React.FC<CycleSettingsPageProps> = ({
   const [datePickerVisible, setDatePickerVisible] = useState(false);
   const datePickerRef = useRef<DatePickerRef>(null);
 
-  // 灵石消耗
-  const spiritJadeCost = taskCategory === 'MAINLINE'
-    ? SPIRIT_JADE_COST.CREATE_MAINLINE_TASK
-    : SPIRIT_JADE_COST.CREATE_SIDELINE_TASK;
+  // 计算每日积分上限
+  const taskType = taskCategory === 'MAINLINE' ? 'mainline' : 'sidelineA';
+  const checkInUnit: CheckInUnit = state.selectedType === 'CHECK_IN'
+    ? state.checkInUnit
+    : 'TIMES';
+  const dailyCap = calculateDailyPointsCap(taskType, checkInUnit);
+
+  // 计算100%完成可获得的总灵玉
+  const totalCompletionReward = calculateTotalCompletionReward(dailyCap, state.totalDays);
+
+  // 动态计算灵玉消耗
+  const spiritJadeCost = calculateTaskCreationCost(
+    totalCompletionReward,
+    taskCategory === 'MAINLINE'
+  );
 
   const handleTotalDaysChange = (value: number) => {
     setState(s => ({
@@ -80,6 +96,9 @@ const CycleSettingsPage: React.FC<CycleSettingsPageProps> = ({
   const minDate = dayjs().subtract(7, 'day').toDate();
   const maxDate = dayjs().add(1, 'month').toDate();
   const currentDate = dayjs(state.startDate).toDate();
+
+  // 验证周期设置是否有效：总天数 >= 周期天数 且 周期天数 > 0
+  const isCycleValid = state.cycleDays > 0 && state.totalDays >= state.cycleDays;
 
   return (
     <div className={styles.container}>
@@ -126,6 +145,7 @@ const CycleSettingsPage: React.FC<CycleSettingsPageProps> = ({
         onBack={onBack}
         onNext={onSubmit || onNext}
         nextText={onSubmit ? "创建任务" : "下一步"}
+        nextDisabled={!isCycleValid}
         hint={onSubmit ? (
           <span className={styles.costHint}>
             <img src={SPIRIT_JADE_ICON} alt="灵玉" className={styles.costIcon} />

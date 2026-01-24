@@ -4927,7 +4927,7 @@ const createRoutes: CreateRoutes = ({
     index: undefined,
     id: 'dc/agent/hooks/useStreamChat',
     exact: true,
-    exports: ["filterHiddenContent","useStreamChat"],
+    exports: ["filterHiddenContent","parseSuggestedQuestions","useStreamChat"],
   },{
     path: 'dc/contexts/UIProvider/hooks',
     async lazy() {
@@ -5402,7 +5402,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/agent/components',
     exact: true,
-    exports: ["ActionPreview","AgentChatPopup","ChatInput","FollowupQuestion","LoadingText","MessageBubble","MessageList"],
+    exports: ["ActionPreview","AgentChatPopup","ChatInput","FollowupQuestion","LoadingText","MessageBubble","MessageList","SuggestedQuestions"],
   },{
     path: 'dc/utils/dataExportImport',
     async lazy() {
@@ -6077,7 +6077,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/agent/hooks',
     exact: true,
-    exports: ["client","createAgent","filterHiddenContent","useAITokenCost","useAgent","useStreamChat"],
+    exports: ["client","createAgent","filterHiddenContent","parseSuggestedQuestions","useAITokenCost","useAgent","useStreamChat"],
   },{
     path: 'dc/agent/types',
     async lazy() {

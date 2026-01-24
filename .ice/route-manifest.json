@@ -2215,6 +2215,7 @@
     "layout": false,
     "exports": [
       "filterHiddenContent",
+      "parseSuggestedQuestions",
       "useStreamChat"
     ]
   },
@@ -2479,7 +2480,8 @@
       "FollowupQuestion",
       "LoadingText",
       "MessageBubble",
-      "MessageList"
+      "MessageList",
+      "SuggestedQuestions"
     ]
   },
   {
@@ -2870,6 +2872,7 @@
       "client",
       "createAgent",
       "filterHiddenContent",
+      "parseSuggestedQuestions",
       "useAITokenCost",
       "useAgent",
       "useStreamChat"

@@ -70,11 +70,26 @@
   }
 }
 
-/* 错误提示 */
-.errorHint {
-  font-size: 12px;
-  color: #e03e3e;
-  margin-top: 4px;
+/* 错误状态内容样式 */
+.errorContent {
+  background: linear-gradient(135deg, #fff5f5 0%, #ffe4e4 100%) !important;
+  border: 1px solid rgba(224, 62, 62, 0.2) !important;
+}
+
+/* 错误消息容器 */
+.errorMessage {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  color: #c53030;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* 错误图标 */
+.errorIcon {
+  flex-shrink: 0;
+  font-size: 16px;
 }
 
 /* Markdown 渲染样式 - Notion 风格 */

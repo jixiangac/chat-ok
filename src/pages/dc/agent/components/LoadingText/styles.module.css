@@ -1,0 +1,19 @@
+/* Loading 文字样式 */
+
+.loadingText {
+  display: inline-block;
+  font-size: 14px;
+  color: rgba(55, 53, 47, 0.65);
+  letter-spacing: 0.5px;
+  transition: opacity 0.2s ease-in-out;
+}
+
+/* 淡入动画 */
+.fadeIn {
+  opacity: 1;
+}
+
+/* 淡出动画 */
+.fadeOut {
+  opacity: 0;
+}

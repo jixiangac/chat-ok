@@ -6,7 +6,7 @@
 import { Popup, SafeArea } from 'antd-mobile';
 import { AgentChat } from '../../AgentChat';
 import type { AgentRole } from '../../constants';
-import type { StructuredOutput, UserBaseInfo } from '../../types';
+import type { StructuredOutput, UserBaseInfo, UserTaskContext } from '../../types';
 import styles from './styles.module.css';
 
 interface AgentChatPopupProps {
@@ -24,6 +24,8 @@ interface AgentChatPopupProps {
   initialMessage?: string;
   /** 用户基础信息 */
   userInfo?: UserBaseInfo;
+  /** 用户任务上下文（仅 general 角色使用） */
+  taskContext?: UserTaskContext;
 }
 
 export function AgentChatPopup({
@@ -34,6 +36,7 @@ export function AgentChatPopup({
   placeholder = 'message',
   initialMessage,
   userInfo,
+  taskContext,
 }: AgentChatPopupProps) {
   return (
     <Popup
@@ -51,6 +54,7 @@ export function AgentChatPopup({
           placeholder={placeholder}
           initialMessage={initialMessage}
           userInfo={userInfo}
+          taskContext={taskContext}
         />
         <SafeArea position="bottom" />
       </div>

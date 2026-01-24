@@ -12,7 +12,7 @@ import type { MessageListProps, Message } from '../../types';
 import styles from './styles.module.css';
 
 export const MessageList = forwardRef<HTMLDivElement, MessageListProps>(
-  function MessageList({ messages, welcomeImage, quickQuestions, onQuickQuestion, onFollowupAnswer, onActionConfirm, onActionCancel }, ref) {
+  function MessageList({ messages, welcomeImage, quickQuestions, onQuickQuestion, onFollowupAnswer, onActionConfirm, onActionCancel, role }, ref) {
     const containerRef = useRef<HTMLDivElement>(null);
     const actualRef = (ref as React.RefObject<HTMLDivElement>) || containerRef;
 
@@ -53,7 +53,7 @@ export const MessageList = forwardRef<HTMLDivElement, MessageListProps>(
         );
       }
       // 普通文本消息
-      return <MessageBubble key={message.id} message={message} />;
+      return <MessageBubble key={message.id} message={message} role={role} />;
     };
 
     // 空状态 - 显示欢迎界面

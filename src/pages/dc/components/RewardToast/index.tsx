@@ -14,6 +14,12 @@ const SPIRIT_JADE_ICON = 'https://gw.alicdn.com/imgextra/i1/O1CN01dUkd0B1UxywsCC
 const CULTIVATION_ICON = 'https://gw.alicdn.com/imgextra/i3/O1CN01i3fa4U1waRq3yx5Ya_!!6000000006324-2-tps-1080-1034.png';
 const LEVEL_UP_HEADER = 'https://gw.alicdn.com/imgextra/i3/O1CN01hyy6yM1jmjSNr4H2j_!!6000000004591-2-tps-1080-1080.png';
 
+// 奖励头图（随机选择）
+const REWARD_HEADER_IMAGES = [
+  'https://gw.alicdn.com/imgextra/i1/O1CN01XzO7G31iDdUXu3ZLf_!!6000000004379-2-tps-1080-1004.png',
+  'https://gw.alicdn.com/imgextra/i2/O1CN01UPJlbL229K4qqUhj7_!!6000000007077-2-tps-1080-978.png',
+];
+
 export interface RewardToastProps {
   /** 奖励列表 */
   rewards: RewardItem[];
@@ -76,6 +82,12 @@ function RewardToastComponent({
     return levelUpReward?.levelUp || null;
   }, [rewards]);
 
+  // 随机选择奖励头图（每次显示时随机）
+  const randomHeaderImage = useMemo(() => {
+    const randomIndex = Math.floor(Math.random() * REWARD_HEADER_IMAGES.length);
+    return REWARD_HEADER_IMAGES[randomIndex];
+  }, [visible]); // 当 visible 变化时重新随机
+
   // 获取第一个奖励的额外信息
   const firstReward = rewards[0];
   const bonus = firstReward?.bonus;
@@ -114,8 +126,8 @@ function RewardToastComponent({
           <button className={styles.closeButton} onClick={handleClose}>
             <X size={20} />
           </button>
-          <img 
-            src={levelUpInfo ? LEVEL_UP_HEADER : currentLevelImage}
+          <img
+            src={levelUpInfo ? LEVEL_UP_HEADER : randomHeaderImage}
             alt="奖励"
             className={styles.headerImg}
           />

@@ -15,3 +15,6 @@ export type { TodayMustCompletePageProps } from './TodayMustCompletePage';
 
 export { default as DateTestPage } from './DateTestPage';
 export type { DateTestPageProps } from './DateTestPage';
+
+export { default as ArchivePage } from './ArchivePage';
+export type { ArchivePageProps } from './ArchivePage';

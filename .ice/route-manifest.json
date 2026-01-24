@@ -896,11 +896,11 @@
     ]
   },
   {
-    "path": "dc/components/SpiritJadeHistoryPopup",
+    "path": "dc/panels/settings/pages/ArchivePage",
     "index": true,
-    "id": "dc/components/SpiritJadeHistoryPopup",
-    "file": "dc/components/SpiritJadeHistoryPopup/index.tsx",
-    "componentName": "dc-components-spiritjadehistorypopup-index",
+    "id": "dc/panels/settings/pages/ArchivePage",
+    "file": "dc/panels/settings/pages/ArchivePage/index.tsx",
+    "componentName": "dc-panels-settings-pages-archivepage-index",
     "layout": false,
     "exports": [
       "default"
@@ -1294,6 +1294,18 @@
     "componentName": "dc-viewmodel-sidelinetasksection-index",
     "layout": false,
     "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/agent/components/LoadingText",
+    "index": true,
+    "id": "dc/agent/components/LoadingText",
+    "file": "dc/agent/components/LoadingText/index.tsx",
+    "componentName": "dc-agent-components-loadingtext-index",
+    "layout": false,
+    "exports": [
+      "LoadingText",
       "default"
     ]
   },
@@ -1745,6 +1757,17 @@
     ]
   },
   {
+    "path": "dc/viewmodel/SpiritJadePage",
+    "index": true,
+    "id": "dc/viewmodel/SpiritJadePage",
+    "file": "dc/viewmodel/SpiritJadePage/index.tsx",
+    "componentName": "dc-viewmodel-spiritjadepage-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
     "path": "dc/components/ThemedButton",
     "index": true,
     "id": "dc/components/ThemedButton",
@@ -2085,6 +2108,7 @@
     "componentName": "dc-panels-settings-pages-index",
     "layout": false,
     "exports": [
+      "ArchivePage",
       "DataManagementPage",
       "DateTestPage",
       "SettingsMainPage",
@@ -2441,6 +2465,7 @@
       "AgentChatPopup",
       "ChatInput",
       "FollowupQuestion",
+      "LoadingText",
       "MessageBubble",
       "MessageList"
     ]
@@ -2971,7 +2996,6 @@
       "RewardToast",
       "SecondFloorIndicator",
       "SidelineTaskCard",
-      "SpiritJadeHistoryPopup",
       "StatCard",
       "StatCardGrid",
       "ThemedButton"
@@ -3161,6 +3185,7 @@
       "RandomTaskPicker",
       "SidelineTaskGrid",
       "SidelineTaskSection",
+      "SpiritJadePage",
       "TodayMustCompleteModal",
       "TodayProgress"
     ]

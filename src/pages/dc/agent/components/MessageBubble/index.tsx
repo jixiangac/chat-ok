@@ -10,6 +10,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { filterHiddenContent } from '../../hooks';
 import type { MessageBubbleProps } from '../../types';
+import { LoadingText } from '../LoadingText';
 import styles from './styles.module.css';
 
 // 奶油风用户气泡配色（浅色 -> 深色渐变）
@@ -31,7 +32,7 @@ function getColorIndex(id: string): number {
   return Math.abs(hash) % USER_BUBBLE_COLORS.length;
 }
 
-export function MessageBubble({ message }: MessageBubbleProps) {
+export function MessageBubble({ message, role }: MessageBubbleProps) {
   const isUser = message.role === 'user';
   const isStreaming = message.status === 'streaming';
   const isError = message.status === 'error';
@@ -53,9 +54,14 @@ export function MessageBubble({ message }: MessageBubbleProps) {
     return filterHiddenContent(message.content);
   }, [isUser, message.content]);
 
+  // 等待中状态：正在流式输出但可见内容为空
+  // 注意：必须用 displayContent 判断，因为 message.content 可能包含隐藏配置
+  const isWaiting = isStreaming && !displayContent.trim();
+
   // 内容为空时不渲染气泡（避免空气泡）
   // 但流式输出中允许显示空内容（等待内容填充）
-  if (!displayContent.trim() && !isStreaming) {
+  // 错误状态下必须显示，即使内容为空
+  if (!displayContent.trim() && !isStreaming && !isError) {
     return null;
   }
 
@@ -64,17 +70,23 @@ export function MessageBubble({ message }: MessageBubbleProps) {
       className={`${styles.bubble} ${isUser ? styles.user : styles.assistant}`}
       data-status={message.status}
     >
-      <div className={styles.content} style={userBubbleStyle}>
-        {isUser ? (
+      <div className={`${styles.content} ${isError ? styles.errorContent : ''}`} style={userBubbleStyle}>
+        {isError ? (
+          <div className={styles.errorMessage}>
+            <span className={styles.errorIcon}>⚠️</span>
+            <span>{displayContent || '请求失败，请稍后重试'}</span>
+          </div>
+        ) : isUser ? (
           displayContent
+        ) : isWaiting ? (
+          <LoadingText messageId={message.id} role={role} />
         ) : (
           <div className={styles.markdown}>
             <ReactMarkdown remarkPlugins={[remarkGfm]}>{displayContent}</ReactMarkdown>
           </div>
         )}
-        {isStreaming && <span className={styles.cursor}>|</span>}
+        {isStreaming && !isWaiting && <span className={styles.cursor}>|</span>}
       </div>
-      {isError && <div className={styles.errorHint}>发送失败</div>}
     </div>
   );
 }

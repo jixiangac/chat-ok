@@ -1,5 +1,5 @@
 import { useRef, useState, useCallback, useMemo } from 'react';
-import { Plus, Archive, Settings as SettingsIcon } from 'lucide-react';
+import { Plus, Settings as SettingsIcon } from 'lucide-react';
 import { SafeArea } from 'antd-mobile';
 
 // Agent Chat
@@ -9,20 +9,19 @@ import { AgentChatPopup, type UserBaseInfo } from './agent';
 import { getCurrentLevelInfo } from './utils/cultivation';
 
 // Panels
-import { HappyPanel, ArchiveList, UnifiedSettingsPanel, MemorialPanel, NormalPanel } from './panels';
+import { HappyPanel, UnifiedSettingsPanel, MemorialPanel, NormalPanel } from './panels';
 import type { HappyPanelRef } from './panels';
 import type { MemorialPanelRef } from './panels';
 import type { NormalPanelRef } from './panels/normal';
 
 // ViewModel - 直接消费 Provider 的组件
-import { MoonPhase, TodayMustCompleteModal } from './viewmodel';
+import { MoonPhase, TodayMustCompleteModal, SpiritJadePage } from './viewmodel';
 
 // Hooks
 import { usePullToSecondFloor } from './hooks/usePullToSecondFloor';
 
 // Components
 import SecondFloorIndicator from './components/SecondFloorIndicator';
-import { SpiritJadeHistoryPopup } from './components';
 
 // Contexts - 新架构
 import { 
@@ -61,12 +60,9 @@ function DCPageContent() {
   const {
     activeTab,
     setActiveTab,
-    showArchive,
     showSettings,
     showTodayMustCompleteModal,
-    openArchive,
     openSettings,
-    closeArchive,
     closeSettings
   } = useUIState();
   
@@ -119,14 +115,13 @@ function DCPageContent() {
   }, []);
 
   // 判断是否有弹窗打开，有弹窗时禁用下拉进入二楼
-  // 包括：设置面板、归档列表、今日必完成弹窗、任务详情页、创建任务弹窗、度假模式弹窗、纪念日弹窗、一日清单弹窗
-  const hasModalOpen = showSettings || 
-    showArchive || 
-    showTodayMustCompleteModal || 
-    !!selectedTaskId || 
-    showCreateTaskModal || 
-    showVacationCreateTrip || 
-    showVacationAddGoal || 
+  // 包括：设置面板、今日必完成弹窗、任务详情页、创建任务弹窗、度假模式弹窗、纪念日弹窗、一日清单弹窗
+  const hasModalOpen = showSettings ||
+    showTodayMustCompleteModal ||
+    !!selectedTaskId ||
+    showCreateTaskModal ||
+    showVacationCreateTrip ||
+    showVacationAddGoal ||
     showMemorialCreate ||
     showDailyView;
 
@@ -240,21 +235,14 @@ function DCPageContent() {
 
             {/* 右侧按钮 */}
             <div className={styles.headerActions}>
-              <button 
-                onClick={openArchive}
-                className={styles.iconButton}
-                title="归档任务"
-              >
-                <Archive size={18} />
-              </button>
-              <button 
+              <button
                 onClick={handleAddClick}
                 className={styles.iconButton}
                 title="新增"
               >
                 <Plus size={18} />
               </button>
-              <button 
+              <button
                 onClick={openSettings}
                 className={styles.iconButton}
                 title="设置"
@@ -302,16 +290,6 @@ function DCPageContent() {
         </div>
       </div>
 
-      {/* 归档列表 */}
-      {showArchive && (
-        <div className={styles.fullScreenPanel}>
-          <ArchiveList 
-            onBack={closeArchive}
-            onTaskClick={(taskId) => setSelectedTaskId(taskId)}
-          />
-        </div>
-      )}
-
       {/* 设置面板 */}
       <UnifiedSettingsPanel 
         visible={showSettings}
@@ -341,8 +319,8 @@ function DCPageContent() {
       {/* 底部安全区域 */}
       <SafeArea position="bottom" />
 
-      {/* 灵玉历史弹窗 */}
-      <SpiritJadeHistoryPopup
+      {/* 灵玉明细页面 */}
+      <SpiritJadePage
         visible={showJadeHistory}
         onClose={() => setShowJadeHistory(false)}
         balance={spiritJadeData.balance}

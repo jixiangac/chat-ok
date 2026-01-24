@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import { Target, Palette, Tag, Sun, Umbrella, Heart, Flag, Database, CheckCircle2, Circle, Calendar } from 'lucide-react';
+import { Target, Palette, Tag, Sun, Umbrella, Heart, Flag, Database, CheckCircle2, Circle, Calendar, Archive } from 'lucide-react';
 import { SettingsSection, SettingsListItem } from '../../components';
 import { useUser, useApp } from '@/pages/dc/contexts';
 import { getCurrentDate } from '@/pages/dc/utils';
@@ -162,6 +162,15 @@ const SettingsMainPage: React.FC<SettingsMainPageProps> = ({
       {/* 开发者 */}
       <SettingsSection title="开发者">
         <SettingsListItem
+          icon={<Archive size={18} />}
+          title="归档历史"
+          description="查看已归档的任务"
+          animated
+          animationIndex={animationIndex++}
+          onClick={() => onNavigate('archive', '归档历史')}
+        />
+
+        <SettingsListItem
           icon={<Database size={18} />}
           title="数据管理"
           description="导入导出应用数据"
@@ -169,7 +178,7 @@ const SettingsMainPage: React.FC<SettingsMainPageProps> = ({
           animationIndex={animationIndex++}
           onClick={() => onNavigate('data', '数据管理')}
         />
-        
+
         <SettingsListItem
           icon={<Calendar size={18} />}
           title="日期测试"

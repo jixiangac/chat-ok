@@ -16,6 +16,7 @@ import {
   DataManagementPage,
   TodayMustCompletePage,
   DateTestPage,
+  ArchivePage,
 } from '../pages';
 import { useUser } from '@/pages/dc/contexts';
 import styles from './styles.module.css';
@@ -150,7 +151,9 @@ const UnifiedSettingsPanel: React.FC<UnifiedSettingsPanelProps> = ({
         );
       case 'dateTest':
         return <DateTestPage onBack={handleBack} />;
-      case 'main':  
+      case 'archive':
+        return <ArchivePage onBack={handleBack} />;
+      case 'main':
       default:
         return (
           <SettingsMainPage

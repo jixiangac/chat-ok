@@ -30,6 +30,8 @@ export type {
   MessageListProps,
   ActionPreviewProps,
   UserBaseInfo,
+  TaskSummary,
+  UserTaskContext,
 } from './types';
 
 // 常量

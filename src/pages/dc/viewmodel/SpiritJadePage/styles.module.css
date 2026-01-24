@@ -1,0 +1,259 @@
+/* 灵玉明细全屏页面样式 */
+.page {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: #f7f7f5;
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.page.visible {
+  animation: slideIn 0.4s ease-out forwards;
+}
+
+.page.exiting {
+  animation: slideOut 0.4s ease-in forwards;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* 头图区域 */
+.headerImage {
+  width: 100%;
+  height: 140px;
+  overflow: hidden;
+  position: relative;
+  background: linear-gradient(135deg, #F0E6D8 0%, #E8DCD0 100%);
+  flex-shrink: 0;
+}
+
+.headerImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 返回按钮 */
+.backButton {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: rgb(55, 53, 47);
+  transition: all 0.2s;
+  z-index: 10;
+  border: 1px solid rgba(55, 53, 47, 0.08);
+}
+
+.backButton:hover {
+  background: white;
+  transform: scale(1.05);
+}
+
+.backButton:active {
+  transform: scale(0.95);
+}
+
+/* 标题区域 */
+.titleSection {
+  padding: 16px 20px 12px;
+  background: white;
+  border-bottom: 1px solid rgba(55, 53, 47, 0.06);
+  flex-shrink: 0;
+}
+
+.title {
+  font-size: 17px;
+  font-weight: 600;
+  color: rgb(55, 53, 47);
+  margin: 0 0 4px;
+}
+
+.description {
+  font-size: 13px;
+  color: rgba(55, 53, 47, 0.5);
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* 内容区域 */
+.content {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 余额概览 */
+.overview {
+  padding: 20px;
+  background: white;
+  margin: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(55, 53, 47, 0.06);
+}
+
+.balanceSection {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.balanceIcon {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+}
+
+.balanceValue {
+  font-size: 32px;
+  font-weight: 600;
+  color: rgb(55, 53, 47);
+}
+
+.statsRow {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+}
+
+.statItem {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: rgba(55, 53, 47, 0.7);
+}
+
+.statIconEarn {
+  color: #27AE60;
+}
+
+.statIconSpend {
+  color: #E74C3C;
+}
+
+.statLabel {
+  color: rgba(55, 53, 47, 0.5);
+}
+
+.statValueEarn {
+  font-weight: 500;
+  color: #27AE60;
+}
+
+.statValueSpend {
+  font-weight: 500;
+  color: #E74C3C;
+}
+
+/* 历史记录区域 */
+.historySection {
+  flex: 1;
+  padding: 0 16px 16px;
+}
+
+.sectionTitle {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(55, 53, 47, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+  padding: 0 4px;
+}
+
+.historyList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.historyItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 14px 16px;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid rgba(55, 53, 47, 0.06);
+}
+
+.itemLeft {
+  flex: 1;
+  min-width: 0;
+}
+
+.itemTitle {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgb(55, 53, 47);
+  margin-bottom: 4px;
+}
+
+.itemDesc {
+  font-size: 12px;
+  color: rgba(55, 53, 47, 0.6);
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.itemTime {
+  font-size: 11px;
+  color: rgba(55, 53, 47, 0.4);
+}
+
+.itemAmount {
+  font-size: 16px;
+  font-weight: 600;
+  flex-shrink: 0;
+  margin-left: 12px;
+}
+
+.itemAmount.earn {
+  color: #27AE60;
+}
+
+.itemAmount.spend {
+  color: #E74C3C;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 60px 20px;
+  color: rgba(55, 53, 47, 0.4);
+  font-size: 14px;
+}

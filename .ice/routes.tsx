@@ -80,7 +80,7 @@ import * as dc_components_CreateMainlineTaskModal_types from '@/pages/dc/compone
 import * as dc_panels_detail_components_CycleInfo from '@/pages/dc/panels/detail/components/CycleInfo/index';
 import * as dc_panels_settings_pages_DateTestPage from '@/pages/dc/panels/settings/pages/DateTestPage/index';
 import * as dc_agent_components_FollowupQuestion from '@/pages/dc/agent/components/FollowupQuestion/index';
-import * as dc_components_SpiritJadeHistoryPopup from '@/pages/dc/components/SpiritJadeHistoryPopup/index';
+import * as dc_panels_settings_pages_ArchivePage from '@/pages/dc/panels/settings/pages/ArchivePage/index';
 import * as dc_components_InsufficientJadePopup from '@/pages/dc/components/InsufficientJadePopup/index';
 import * as dc_components_SidelineTaskEditModal from '@/pages/dc/components/SidelineTaskEditModal/index';
 import * as dc_components_shared_CircleProgress from '@/pages/dc/components/shared/CircleProgress/index';
@@ -112,6 +112,7 @@ import * as dc_panels_settings_ThemeSettings from '@/pages/dc/panels/settings/Th
 import * as dc_viewmodel_CreateTaskModal_constants from '@/pages/dc/viewmodel/CreateTaskModal/constants';
 import * as dc_viewmodel_MainlineTaskSection from '@/pages/dc/viewmodel/MainlineTaskSection/index';
 import * as dc_viewmodel_SidelineTaskSection from '@/pages/dc/viewmodel/SidelineTaskSection/index';
+import * as dc_agent_components_LoadingText from '@/pages/dc/agent/components/LoadingText/index';
 import * as dc_agent_components_MessageList from '@/pages/dc/agent/components/MessageList/index';
 import * as dc_contexts_CultivationProvider from '@/pages/dc/contexts/CultivationProvider/index';
 import * as dc_contexts_CultivationProvider_types from '@/pages/dc/contexts/CultivationProvider/types';
@@ -148,6 +149,7 @@ import * as dc_panels_detail_components from '@/pages/dc/panels/detail/component
 import * as dc_panels_happy_hooks_useSchedule from '@/pages/dc/panels/happy/hooks/useSchedule';
 import * as dc_utils_todayMustCompleteStorage from '@/pages/dc/utils/todayMustCompleteStorage';
 import * as dc_viewmodel_DailyViewPopup from '@/pages/dc/viewmodel/DailyViewPopup/index';
+import * as dc_viewmodel_SpiritJadePage from '@/pages/dc/viewmodel/SpiritJadePage/index';
 import * as dc_components_ThemedButton from '@/pages/dc/components/ThemedButton/index';
 import * as dc_contexts_UserProvider_storage from '@/pages/dc/contexts/UserProvider/storage';
 import * as dc_panels_detail_constants from '@/pages/dc/panels/detail/constants/index';
@@ -2276,28 +2278,28 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["FollowupQuestion","default"],
   },{
-    path: 'dc/components/SpiritJadeHistoryPopup',
+    path: 'dc/panels/settings/pages/ArchivePage',
     async lazy() {
       ;
       return {
-        ...dc_components_SpiritJadeHistoryPopup,
+        ...dc_panels_settings_pages_ArchivePage,
         Component: () => WrapRouteComponent({
-          routeId: 'dc/components/SpiritJadeHistoryPopup',
+          routeId: 'dc/panels/settings/pages/ArchivePage',
           isLayout: false,
-          routeExports: dc_components_SpiritJadeHistoryPopup,
+          routeExports: dc_panels_settings_pages_ArchivePage,
         }),
         loader: createRouteLoader({
-          routeId: 'dc/components/SpiritJadeHistoryPopup',
+          routeId: 'dc/panels/settings/pages/ArchivePage',
           requestContext,
           renderMode,
-          module: dc_components_SpiritJadeHistoryPopup,
+          module: dc_panels_settings_pages_ArchivePage,
         }),
       };
     },
     errorElement: <RouteErrorComponent />,
-    componentName: 'dc-components-spiritjadehistorypopup-index',
+    componentName: 'dc-panels-settings-pages-archivepage-index',
     index: true,
-    id: 'dc/components/SpiritJadeHistoryPopup',
+    id: 'dc/panels/settings/pages/ArchivePage',
     exact: true,
     exports: ["default"],
   },{
@@ -3075,6 +3077,31 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/viewmodel/SidelineTaskSection',
     exact: true,
     exports: ["default"],
+  },{
+    path: 'dc/agent/components/LoadingText',
+    async lazy() {
+      ;
+      return {
+        ...dc_agent_components_LoadingText,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/agent/components/LoadingText',
+          isLayout: false,
+          routeExports: dc_agent_components_LoadingText,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/agent/components/LoadingText',
+          requestContext,
+          renderMode,
+          module: dc_agent_components_LoadingText,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-agent-components-loadingtext-index',
+    index: true,
+    id: 'dc/agent/components/LoadingText',
+    exact: true,
+    exports: ["LoadingText","default"],
   },{
     path: 'dc/agent/components/MessageList',
     async lazy() {
@@ -3976,6 +4003,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["default"],
   },{
+    path: 'dc/viewmodel/SpiritJadePage',
+    async lazy() {
+      ;
+      return {
+        ...dc_viewmodel_SpiritJadePage,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/viewmodel/SpiritJadePage',
+          isLayout: false,
+          routeExports: dc_viewmodel_SpiritJadePage,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/viewmodel/SpiritJadePage',
+          requestContext,
+          renderMode,
+          module: dc_viewmodel_SpiritJadePage,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-viewmodel-spiritjadepage-index',
+    index: true,
+    id: 'dc/viewmodel/SpiritJadePage',
+    exact: true,
+    exports: ["default"],
+  },{
     path: 'dc/components/ThemedButton',
     async lazy() {
       ;
@@ -4674,7 +4726,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/panels/settings/pages',
     exact: true,
-    exports: ["DataManagementPage","DateTestPage","SettingsMainPage","TagSettingsPage","ThemeSettingsPage","TodayMustCompletePage"],
+    exports: ["ArchivePage","DataManagementPage","DateTestPage","SettingsMainPage","TagSettingsPage","ThemeSettingsPage","TodayMustCompletePage"],
   },{
     path: 'dc/agent/hooks/useAITokenCost',
     async lazy() {
@@ -5324,7 +5376,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/agent/components',
     exact: true,
-    exports: ["ActionPreview","AgentChatPopup","ChatInput","FollowupQuestion","MessageBubble","MessageList"],
+    exports: ["ActionPreview","AgentChatPopup","ChatInput","FollowupQuestion","LoadingText","MessageBubble","MessageList"],
   },{
     path: 'dc/utils/dataExportImport',
     async lazy() {
@@ -6224,7 +6276,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/components',
     exact: true,
-    exports: ["CircleProgress","CreateGoalModal","CreateMainlineTaskModal","CultivationEntry","DailyProgress","InsufficientJadePopup","LocationFilter","MainlineTaskCard","MigrationModal","ProgressBar","PullIndicator","QuickActionButtons","RewardToast","SecondFloorIndicator","SidelineTaskCard","SpiritJadeHistoryPopup","StatCard","StatCardGrid","ThemedButton"],
+    exports: ["CircleProgress","CreateGoalModal","CreateMainlineTaskModal","CultivationEntry","DailyProgress","InsufficientJadePopup","LocationFilter","MainlineTaskCard","MigrationModal","ProgressBar","PullIndicator","QuickActionButtons","RewardToast","SecondFloorIndicator","SidelineTaskCard","StatCard","StatCardGrid","ThemedButton"],
   },{
     path: 'dc/constants/colors',
     async lazy() {
@@ -6499,7 +6551,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/viewmodel',
     exact: true,
-    exports: ["AllSidelineTasksList","AllSidelineTasksPopup","CreateTaskModal","DailyViewPopup","GroupCard","GroupModeGrid","MainlineTaskSection","MoonPhase","RandomTaskPicker","SidelineTaskGrid","SidelineTaskSection","TodayMustCompleteModal","TodayProgress"],
+    exports: ["AllSidelineTasksList","AllSidelineTasksPopup","CreateTaskModal","DailyViewPopup","GroupCard","GroupModeGrid","MainlineTaskSection","MoonPhase","RandomTaskPicker","SidelineTaskGrid","SidelineTaskSection","SpiritJadePage","TodayMustCompleteModal","TodayProgress"],
   },{
     path: 'dc/contexts',
     async lazy() {

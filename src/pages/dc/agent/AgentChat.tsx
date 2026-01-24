@@ -4,14 +4,15 @@
  * 集成 token 消耗和灵玉扣减机制
  */
 
-import { useRef, useCallback, useEffect, useState } from 'react';
+import { useRef, useCallback, useEffect, useState, useMemo } from 'react';
 import { X } from 'lucide-react';
 import { MessageList, ChatInput } from './components';
 import { useStreamChat, useAITokenCost } from './hooks';
 import { WELCOME_CONFIGS } from './constants';
-import { useCultivation } from '../contexts';
+import { useCultivation, useScene } from '../contexts';
 import { InsufficientJadePopup } from '../components';
-import type { AgentChatProps, StructuredOutput, MultiAnswerResult } from './types';
+import type { AgentChatProps, StructuredOutput, MultiAnswerResult, UserTaskContext, TaskSummary } from './types';
+import type { Task } from '../types';
 import styles from './AgentChat.module.css';
 
 // 角色标题映射
@@ -22,6 +23,65 @@ const ROLE_TITLES: Record<string, string> = {
   taskConfigHelper: '配置助手',
 };
 
+/**
+ * 将 Task 转换为 TaskSummary（用于 AI 上下文）
+ */
+function taskToSummary(task: Task, isTodayCompleted: (t: Task) => boolean): TaskSummary {
+  const todayCompleted = isTodayCompleted(task);
+
+  // 构建今日进度描述
+  let todayProgressDesc = '';
+  if (task.todayProgress) {
+    if (task.category === 'CHECK_IN' && task.todayProgress.checkInCount !== undefined) {
+      todayProgressDesc = `已打卡 ${task.todayProgress.checkInCount} 次`;
+    } else if (task.category === 'CHECKLIST' && task.todayProgress.completedItems !== undefined) {
+      todayProgressDesc = `已完成 ${task.todayProgress.completedItems} 项`;
+    } else if (task.category === 'NUMERIC' && task.todayProgress.value !== undefined) {
+      const unit = task.numericConfig?.unit || '';
+      todayProgressDesc = `当前 ${task.todayProgress.value}${unit}`;
+    }
+  }
+
+  // 构建数值型进度描述
+  let numericProgress = '';
+  if (task.category === 'NUMERIC' && task.numericConfig) {
+    const { startValue, targetValue, unit, direction } = task.numericConfig;
+    const currentValue = task.progress?.currentValue ?? startValue;
+    const arrow = direction === 'DECREASE' ? '→' : '→';
+    numericProgress = `${currentValue}${unit} ${arrow} ${targetValue}${unit}`;
+  }
+
+  // 计算总体进度百分比
+  let overallProgressPercent: number | undefined;
+  if (task.progress?.percentage !== undefined) {
+    overallProgressPercent = Math.round(task.progress.percentage);
+  }
+
+  // 当前周期信息
+  let currentCycleInfo = '';
+  if (task.cycle) {
+    const currentCycle = task.progress?.currentCycle ?? 1;
+    const cycleDay = task.progress?.cycleDay ?? 1;
+    currentCycleInfo = `第${currentCycle}周期 第${cycleDay}天`;
+  }
+
+  return {
+    id: task.id,
+    title: task.title,
+    type: task.type,
+    category: task.category,
+    status: task.status,
+    totalDays: task.cycle?.totalDays ?? 30,
+    cycleDays: task.cycle?.cycleDays ?? 10,
+    startDate: task.time?.startDate ?? '',
+    currentCycleInfo,
+    todayCompleted,
+    todayProgressDesc,
+    overallProgressPercent,
+    numericProgress,
+  };
+}
+
 export function AgentChat({
   role,
   className,
@@ -31,19 +91,65 @@ export function AgentChat({
   hideHeader = false,
   initialMessage,
   userInfo,
+  taskContext: externalTaskContext,
 }: AgentChatProps) {
   const listRef = useRef<HTMLDivElement>(null);
 
   // 灵玉系统
   const { spiritJadeData, spendSpiritJade } = useCultivation();
 
+  // 场景数据（用于获取任务列表）
+  const { normal, getTasksByIds } = useScene();
+
+  // 构建任务上下文（自动从 SceneProvider 获取）
+  const autoTaskContext = useMemo<UserTaskContext>(() => {
+    const { mainlineTasks, sidelineTasks, todayProgress, dailyViewTaskIds, isTodayCompleted } = normal;
+
+    // 转换主线任务为摘要
+    const mainlineTaskSummaries: TaskSummary[] = mainlineTasks.map(task =>
+      taskToSummary(task, isTodayCompleted)
+    );
+
+    // 转换支线任务为摘要
+    const sidelineTaskSummaries: TaskSummary[] = sidelineTasks.map(task =>
+      taskToSummary(task, isTodayCompleted)
+    );
+
+    // 合并所有任务摘要
+    const allTaskSummaries = [...mainlineTaskSummaries, ...sidelineTaskSummaries];
+
+    // 获取今日一日清单中的任务摘要
+    const dailyTasks = getTasksByIds(dailyViewTaskIds);
+    const dailyTaskSummaries: TaskSummary[] = dailyTasks.map(task =>
+      taskToSummary(task, isTodayCompleted)
+    );
+
+    // 计算今日完成/待完成数量（基于一日清单）
+    const todayCompletedCount = dailyTaskSummaries.filter(t => t.todayCompleted).length;
+    const todayPendingCount = dailyTaskSummaries.filter(t => !t.todayCompleted).length;
+
+    return {
+      activeTasks: allTaskSummaries,
+      mainlineTasks: mainlineTaskSummaries,
+      sidelineTasks: sidelineTaskSummaries,
+      dailyTasks: dailyTaskSummaries,
+      todayCompletedCount,
+      todayPendingCount,
+      todayProgressPercentage: todayProgress.percentage,
+    };
+  }, [normal, getTasksByIds]);
+
+  // 优先使用外部传入的 taskContext，否则使用自动获取的
+  const taskContext = externalTaskContext ?? autoTaskContext;
+
   // 灵玉不足弹窗
   const [insufficientJadeVisible, setInsufficientJadeVisible] = useState(false);
 
-  // 流式对话
+  // 流式对话（general 角色时注入任务上下文）
   const { messages, sendMessage, stopStreaming, isStreaming, tokenUsage } = useStreamChat({
     role,
     userInfo,
+    taskContext: role === 'general' ? taskContext : undefined,
   });
 
   // Token 消耗管理
@@ -138,6 +244,7 @@ export function AgentChat({
         onFollowupAnswer={handleFollowupAnswer}
         onActionConfirm={handleActionConfirm}
         onActionCancel={handleActionCancel}
+        role={role}
       />
 
       {/* 输入框 */}

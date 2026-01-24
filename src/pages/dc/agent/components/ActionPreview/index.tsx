@@ -71,10 +71,10 @@ export function ActionPreview({ output, onConfirm, onCancel, showActions = true 
       }
     }
 
-    // 清单型显示项目数量
-    if (data.category === 'CHECKLIST' && data.checklistItems) {
-      configDetails.push({ label: '清单项数', value: `${data.checklistItems.length} 项` });
-    }
+    // 清单型：检查是否有清单项目
+    const isChecklist = data.category === 'CHECKLIST';
+    const hasChecklistItems = isChecklist && data.checklistItems && data.checklistItems.length > 0;
+    const needsChecklistItems = isChecklist && !hasChecklistItems;
 
     return (
       <div className={styles.container}>
@@ -92,6 +92,35 @@ export function ActionPreview({ output, onConfirm, onCancel, showActions = true 
               </div>
             ))}
           </div>
+          {/* 清单型任务：展示具体的清单项目列表 */}
+          {hasChecklistItems && (
+            <div className={styles.checklistSection}>
+              <div className={styles.checklistHeader}>
+                <span>清单项目</span>
+                <span className={styles.checklistCount}>共 {data.checklistItems!.length} 项</span>
+              </div>
+              <div className={styles.list}>
+                {data.checklistItems!.map((item, index) => (
+                  <div key={index} className={styles.listItem}>
+                    <span className={styles.bullet}>{index + 1}.</span>
+                    <span>{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {/* 清单型任务但没有清单项：显示提示 */}
+          {needsChecklistItems && (
+            <div className={styles.checklistSection}>
+              <div className={styles.checklistHeader}>
+                <span>清单项目</span>
+              </div>
+              <div className={styles.emptyChecklist}>
+                <span>📝</span>
+                <span>确认后可添加具体清单项目</span>
+              </div>
+            </div>
+          )}
         </div>
         {showActions && (
           <div className={styles.actions}>

@@ -3,8 +3,8 @@
  * 步骤 3：完善任务的详细信息
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
-import { Popup, Dialog } from 'antd-mobile';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { Popup, Dialog, Toast } from 'antd-mobile';
 import { X, Sparkles } from 'lucide-react';
 import { OptionGrid, BottomNavigation } from '../../components';
 import { DIRECTION_OPTIONS, CHECK_IN_TYPE_OPTIONS, CHECKLIST_TEMPLATES } from '../../constants';
@@ -763,6 +763,36 @@ const ConfigPage: React.FC<ConfigPageProps> = ({
     );
   };
 
+  // 处理下一步按钮点击 - 包含校验逻辑
+  const handleNext = useCallback(() => {
+    // 数值型任务校验：增减方向与起始/目标值关系
+    if (state.selectedType === 'NUMERIC') {
+      const start = parseFloat(state.startValue);
+      const target = parseFloat(state.targetValue);
+
+      if (!isNaN(start) && !isNaN(target)) {
+        // 注意：方向值是大写的 INCREASE / DECREASE
+        if (state.numericDirection === 'INCREASE' && target <= start) {
+          Toast.show({
+            icon: 'fail',
+            content: '增加方向时，目标值需要大于起始值',
+          });
+          return;
+        }
+        if (state.numericDirection === 'DECREASE' && target >= start) {
+          Toast.show({
+            icon: 'fail',
+            content: '减少方向时，目标值需要小于起始值',
+          });
+          return;
+        }
+      }
+    }
+
+    // 校验通过，继续下一步
+    onNext?.();
+  }, [state.selectedType, state.numericDirection, state.startValue, state.targetValue, onNext]);
+
   // 灵石消耗提示
   const costHint = (
     <span className={styles.costHint}>
@@ -817,7 +847,7 @@ const ConfigPage: React.FC<ConfigPageProps> = ({
 
       <BottomNavigation
         onBack={onBack}
-        onNext={onNext || onSubmit}
+        onNext={onNext ? handleNext : onSubmit!}
         nextText="下一步"
         nextDisabled={!isConfigComplete}
       />

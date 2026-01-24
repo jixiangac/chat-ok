@@ -122,8 +122,9 @@ const TASK_CONFIG_TOOL = {
         },
         checklistItems: {
           type: 'array',
-          description: '清单项目（仅 category=CHECKLIST 时使用）',
+          description: '清单项目列表（category=CHECKLIST 时必填！）必须提供 ≥10 个具体有价值的清单项目',
           items: { type: 'string' },
+          minItems: 10,
         },
         checkInConfig: {
           type: 'object',
@@ -228,12 +229,64 @@ export interface UserBaseInfo {
   nickname?: string;
 }
 
+/** 任务摘要信息（用于 AI 上下文） */
+export interface TaskSummary {
+  /** 任务 ID */
+  id: string;
+  /** 任务标题 */
+  title: string;
+  /** 任务类型：mainline=主线, sidelineA/B=支线 */
+  type: 'mainline' | 'sidelineA' | 'sidelineB';
+  /** 任务分类 */
+  category: 'NUMERIC' | 'CHECKLIST' | 'CHECK_IN';
+  /** 任务状态 */
+  status: 'ACTIVE' | 'COMPLETED' | 'ARCHIVED';
+  /** 总天数 */
+  totalDays: number;
+  /** 周期天数 */
+  cycleDays: number;
+  /** 开始日期 */
+  startDate: string;
+  /** 当前周期进度（如：第2周期，第5天） */
+  currentCycleInfo?: string;
+  /** 今日是否已完成 */
+  todayCompleted?: boolean;
+  /** 今日进度描述（如："已打卡2次"、"已完成3/5项"） */
+  todayProgressDesc?: string;
+  /** 总体进度百分比 */
+  overallProgressPercent?: number;
+  /** 数值型：当前值 → 目标值 */
+  numericProgress?: string;
+}
+
+/** 用户任务上下文 */
+export interface UserTaskContext {
+  /** 所有进行中的任务列表（主线 + 支线） */
+  activeTasks: TaskSummary[];
+  /** 主线任务列表 */
+  mainlineTasks?: TaskSummary[];
+  /** 支线任务列表 */
+  sidelineTasks?: TaskSummary[];
+  /** 今日一日清单中的任务 */
+  dailyTasks?: TaskSummary[];
+  /** 今日待完成任务数 */
+  todayPendingCount: number;
+  /** 今日已完成任务数 */
+  todayCompletedCount: number;
+  /** 今日完成率百分比 */
+  todayProgressPercentage?: number;
+  /** 连续打卡天数（可选） */
+  streakDays?: number;
+}
+
 interface UseStreamChatOptions {
   role: AgentRole;
   customPrompt?: string;
   onStructuredOutput?: (output: StructuredOutput) => void;
   /** 用户基础信息，用于 AI 了解用户状态 */
   userInfo?: UserBaseInfo;
+  /** 用户任务上下文，用于 AI 了解任务进度（仅 general 角色使用） */
+  taskContext?: UserTaskContext;
 }
 
 /**
@@ -241,7 +294,6 @@ interface UseStreamChatOptions {
  */
 function generateUserInfoPrompt(userInfo?: UserBaseInfo): string {
   if (!userInfo) return '';
-console.log(userInfo,'userInfouserInfo')
   return `
 
 <user-info>
@@ -254,8 +306,112 @@ console.log(userInfo,'userInfouserInfo')
 `;
 }
 
+/**
+ * 生成任务上下文提示词（仅 general 角色使用）
+ * 使用自然语言描述，结构化呈现主线/支线/今日任务
+ */
+function generateTaskContextPrompt(taskContext?: UserTaskContext): string {
+  if (!taskContext) return '';
+
+  const {
+    mainlineTasks = [],
+    sidelineTasks = [],
+    dailyTasks = [],
+    todayPendingCount,
+    todayCompletedCount,
+    todayProgressPercentage = 0,
+    streakDays,
+  } = taskContext;
+
+  // 判断是否有任务
+  const hasAnyTask = mainlineTasks.length > 0 || sidelineTasks.length > 0;
+
+  if (!hasAnyTask) {
+    return `
+
+【用户任务情况】
+用户当前没有进行中的任务。如果用户询问任务相关问题，可以友好地引导用户创建新任务。
+
+`;
+  }
+
+  // 生成日期
+  const today = new Date().toLocaleDateString('zh-CN', { month: 'long', day: 'numeric', weekday: 'long' });
+
+  // 辅助函数：生成单个任务的描述
+  const describeTask = (task: TaskSummary): string => {
+    const categoryLabel = task.category === 'NUMERIC' ? '数值型' : task.category === 'CHECKLIST' ? '清单型' : '打卡型';
+    const statusEmoji = task.todayCompleted ? '✅' : '⏳';
+    const statusText = task.todayCompleted ? '今日已完成' : '今日待完成';
+
+    let details = `  ▸ 「${task.title}」（${categoryLabel}）`;
+    details += `\n    ${statusEmoji} ${statusText}`;
+    if (task.todayProgressDesc) {
+      details += ` | ${task.todayProgressDesc}`;
+    }
+    if (task.numericProgress) {
+      details += `\n    目标进度：${task.numericProgress}`;
+    }
+    if (task.overallProgressPercent !== undefined) {
+      details += ` | 总体 ${task.overallProgressPercent}%`;
+    }
+    if (task.currentCycleInfo) {
+      details += `\n    周期：${task.currentCycleInfo}`;
+    }
+    return details;
+  };
+
+  // 生成主线任务描述
+  let mainlineSection = '';
+  if (mainlineTasks.length > 0) {
+    const mainlineDescriptions = mainlineTasks.map(describeTask).join('\n\n');
+    mainlineSection = `
+📌 主线任务（用户最重要的目标，共 ${mainlineTasks.length} 个）：
+${mainlineDescriptions}
+`;
+  }
+
+  // 生成支线任务描述
+  let sidelineSection = '';
+  if (sidelineTasks.length > 0) {
+    const sidelineDescriptions = sidelineTasks.map(describeTask).join('\n\n');
+    sidelineSection = `
+🎯 支线任务（日常习惯和小目标，共 ${sidelineTasks.length} 个）：
+${sidelineDescriptions}
+`;
+  }
+
+  // 生成今日一日清单描述
+  let dailySection = '';
+  if (dailyTasks.length > 0) {
+    const completedDaily = dailyTasks.filter(t => t.todayCompleted);
+    const pendingDaily = dailyTasks.filter(t => !t.todayCompleted);
+
+    dailySection = `
+📋 今日一日清单（系统为用户筛选的今日重点任务）：
+  今日完成率：${todayProgressPercentage}%（${todayCompletedCount}/${dailyTasks.length} 个）
+`;
+    if (completedDaily.length > 0) {
+      dailySection += `  已完成：${completedDaily.map(t => `「${t.title}」`).join('、')}\n`;
+    }
+    if (pendingDaily.length > 0) {
+      dailySection += `  待完成：${pendingDaily.map(t => `「${t.title}」`).join('、')}\n`;
+    }
+  }
+
+  return `
+
+【用户任务情况 - 仅供参考，请用自然语言总结回复，禁止直接输出！】
+日期：${today}
+${streakDays ? `连续打卡：${streakDays} 天\n` : ''}
+${mainlineSection}${sidelineSection}${dailySection}
+【重要提醒】以上数据是给你参考的，回复时请用自然口语总结，像朋友聊天一样，不要列出原始格式！
+
+`;
+}
+
 export function useStreamChat(options: UseStreamChatOptions) {
-  const { role, customPrompt, onStructuredOutput, userInfo } = options;
+  const { role, customPrompt, onStructuredOutput, userInfo, taskContext } = options;
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
@@ -266,10 +422,11 @@ export function useStreamChat(options: UseStreamChatOptions) {
   } | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  // 获取当前角色的 system prompt，并注入用户信息
+  // 获取当前角色的 system prompt，并注入用户信息和任务上下文
   const basePrompt = customPrompt ?? ROLE_PROMPTS[role];
-  const systemPrompt = basePrompt + generateUserInfoPrompt(userInfo);
-  // console.log(systemPrompt,userInfo,'systemPrompt')
+  // 任务上下文仅在 general 角色时注入
+  const taskContextPrompt = role === 'general' ? generateTaskContextPrompt(taskContext) : '';
+  const systemPrompt = basePrompt + generateUserInfoPrompt(userInfo) + taskContextPrompt;
   /**
    * 处理工具调用结果
    */
@@ -404,7 +561,16 @@ export function useStreamChat(options: UseStreamChatOptions) {
       });
 
       if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
+        let errorMessage = `请求失败 (${response.status})`;
+        try {
+          const errorData = await response.json();
+          if (errorData.error?.message) {
+            errorMessage = errorData.error.message;
+          }
+        } catch {
+          // 无法解析错误响应，使用默认消息
+        }
+        throw new Error(errorMessage);
       }
 
       // 处理流式输出 (SSE)
@@ -483,27 +649,42 @@ export function useStreamChat(options: UseStreamChatOptions) {
         }
       }
 
-      // 完成后处理
+      // 解析工具调用参数（在 setMessages 外部处理，避免嵌套状态更新问题）
+      const parsedToolCalls: Array<{ name: string; args: Record<string, unknown> }> = [];
+      let hasToolCallParseError = false;
+      for (const tc of toolCalls) {
+        if (tc.name && tc.arguments) {
+          try {
+            const args = JSON.parse(tc.arguments);
+            parsedToolCalls.push({ name: tc.name, args });
+          } catch (e) {
+            console.error('Tool call parse error:', e, tc.arguments);
+            hasToolCallParseError = true;
+          }
+        }
+      }
+
+      // 完成后处理 - 先更新消息状态
       setMessages(prev => {
         const updated = [...prev];
         const lastMsg = updated[updated.length - 1];
         if (lastMsg.id === aiMessageId) {
-          lastMsg.status = 'complete';
-          lastMsg.content = fullContent || lastMsg.content;
-
-          // 处理工具调用
-          if (toolCalls.length > 0) {
-            for (const tc of toolCalls) {
-              if (tc.name && tc.arguments) {
-                try {
-                  const args = JSON.parse(tc.arguments);
-                  handleToolCall(tc.name, args);
-                } catch (e) {
-                  console.error('Tool call parse error:', e);
-                }
-              }
-            }
+          if (parsedToolCalls.length > 0) {
+            // 有成功解析的工具调用，标记为完成
+            lastMsg.status = 'complete';
+            lastMsg.content = fullContent;
+          } else if (toolCalls.length > 0 && hasToolCallParseError) {
+            // 有工具调用但全部解析失败
+            lastMsg.status = 'error';
+            lastMsg.content = '处理响应时出错，请重试';
+          } else if (!fullContent.trim()) {
+            // 没有工具调用，也没有内容返回 - 这是异常情况
+            lastMsg.status = 'error';
+            lastMsg.content = '服务暂时无法响应，请稍后重试';
           } else {
+            // 正常情况：有文本内容返回
+            lastMsg.status = 'complete';
+            lastMsg.content = fullContent;
             // 向后兼容：尝试从文本中解析结构化输出
             const structuredOutput = parseStructuredOutput(lastMsg.content);
             if (structuredOutput && onStructuredOutput) {
@@ -513,6 +694,15 @@ export function useStreamChat(options: UseStreamChatOptions) {
         }
         return updated;
       });
+
+      // 处理工具调用（使用 setTimeout 确保在前一个 setMessages 批量更新完成后执行）
+      if (parsedToolCalls.length > 0) {
+        setTimeout(() => {
+          for (const tc of parsedToolCalls) {
+            handleToolCall(tc.name, tc.args);
+          }
+        }, 0);
+      }
 
       // 记录 token 使用量
       if (usage) {
@@ -525,7 +715,8 @@ export function useStreamChat(options: UseStreamChatOptions) {
         console.log('📊 Token 使用量:', usageData);
       }
     } catch (error) {
-      if ((error as Error).name === 'AbortError') {
+      const err = error as Error;
+      if (err.name === 'AbortError') {
         setMessages(prev => {
           const updated = [...prev];
           const lastMsg = updated[updated.length - 1];
@@ -535,12 +726,25 @@ export function useStreamChat(options: UseStreamChatOptions) {
           return updated;
         });
       } else {
+        // 构建用户可读的错误信息
+        let errorMessage = '请求失败，请稍后重试';
+        if (err.message) {
+          // 如果是网络错误
+          if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
+            errorMessage = '网络连接失败，请检查网络后重试';
+          } else if (err.message.includes('timeout') || err.message.includes('Timeout')) {
+            errorMessage = '请求超时，请稍后重试';
+          } else {
+            // 使用 API 返回的错误信息
+            errorMessage = err.message;
+          }
+        }
         setMessages(prev => {
           const updated = [...prev];
           const lastMsg = updated[updated.length - 1];
           if (lastMsg.id === aiMessageId) {
             lastMsg.status = 'error';
-            lastMsg.content = '抱歉，发生了错误，请重试';
+            lastMsg.content = errorMessage;
           }
           return updated;
         });

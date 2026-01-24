@@ -9,3 +9,4 @@ export { ActionPreview } from './ActionPreview';
 export { AgentChatPopup } from './AgentChatPopup';
 export { FollowupQuestion } from './FollowupQuestion';
 export { LoadingText } from './LoadingText';
+export { SuggestedQuestions } from './SuggestedQuestions';

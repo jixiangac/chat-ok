@@ -195,6 +195,10 @@ export interface MessageBubbleProps {
   message: Message;
   /** AI 角色，用于决定 loading 文字风格 */
   role?: import('../constants').AgentRole;
+  /** 是否为最新的 AI 消息（用于控制推荐追问是否可点击） */
+  isLatest?: boolean;
+  /** 推荐问题点击回调 */
+  onSuggestedQuestion?: (question: string) => void;
 }
 
 // 消息列表组件 Props

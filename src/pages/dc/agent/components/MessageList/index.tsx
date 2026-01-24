@@ -23,9 +23,15 @@ export const MessageList = forwardRef<HTMLDivElement, MessageListProps>(
       }
     }, [messages, actualRef]);
 
+    // 找到最后一条 AI 消息的索引（用于判断是否显示可交互的推荐追问）
+    const lastAiMessageIndex = messages.reduce((lastIdx, msg, idx) => {
+      return msg.role === 'assistant' ? idx : lastIdx;
+    }, -1);
+
     // 渲染单条消息
     const renderMessage = (message: Message, index: number) => {
       const isLastMessage = index === messages.length - 1;
+      const isLatestAiMessage = index === lastAiMessageIndex;
 
       // 追问类型消息（只有最后一条才可交互）
       if (message.type === 'followup' && message.followupData) {
@@ -53,7 +59,15 @@ export const MessageList = forwardRef<HTMLDivElement, MessageListProps>(
         );
       }
       // 普通文本消息
-      return <MessageBubble key={message.id} message={message} role={role} />;
+      return (
+        <MessageBubble
+          key={message.id}
+          message={message}
+          role={role}
+          isLatest={isLatestAiMessage}
+          onSuggestedQuestion={onQuickQuestion}
+        />
+      );
     };
 
     // 空状态 - 显示欢迎界面

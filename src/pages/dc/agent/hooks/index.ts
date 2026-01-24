@@ -3,5 +3,5 @@
  */
 
 export { useAgent, createAgent, client } from './useAgent';
-export { useStreamChat, filterHiddenContent, type UserBaseInfo, type TaskSummary, type UserTaskContext } from './useStreamChat';
+export { useStreamChat, filterHiddenContent, parseSuggestedQuestions, type UserBaseInfo, type TaskSummary, type UserTaskContext } from './useStreamChat';
 export { useAITokenCost } from './useAITokenCost';

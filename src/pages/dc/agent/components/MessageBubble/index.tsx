@@ -3,14 +3,16 @@
  * 用户消息使用奶油风随机配色，AI 消息使用半透明毛玻璃效果
  * AI 消息使用 ReactMarkdown 渲染 Markdown
  * AI 消息会过滤掉隐藏的 JSON 配置内容
+ * AI 消息支持显示推荐追问问题
  */
 
 import { useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { filterHiddenContent } from '../../hooks';
+import { filterHiddenContent, parseSuggestedQuestions } from '../../hooks';
 import type { MessageBubbleProps } from '../../types';
 import { LoadingText } from '../LoadingText';
+import { SuggestedQuestions } from '../SuggestedQuestions';
 import styles from './styles.module.css';
 
 // 奶油风用户气泡配色（浅色 -> 深色渐变）
@@ -32,10 +34,11 @@ function getColorIndex(id: string): number {
   return Math.abs(hash) % USER_BUBBLE_COLORS.length;
 }
 
-export function MessageBubble({ message, role }: MessageBubbleProps) {
+export function MessageBubble({ message, role, isLatest, onSuggestedQuestion }: MessageBubbleProps) {
   const isUser = message.role === 'user';
   const isStreaming = message.status === 'streaming';
   const isError = message.status === 'error';
+  const isComplete = message.status === 'complete';
 
   // 用户消息使用基于 ID 的稳定随机颜色
   const userBubbleStyle = useMemo(() => {
@@ -53,6 +56,12 @@ export function MessageBubble({ message, role }: MessageBubbleProps) {
     if (isUser) return message.content;
     return filterHiddenContent(message.content);
   }, [isUser, message.content]);
+
+  // AI 消息解析推荐追问问题（仅完成状态时解析）
+  const suggestedQuestions = useMemo(() => {
+    if (isUser || !isComplete) return [];
+    return parseSuggestedQuestions(message.content);
+  }, [isUser, isComplete, message.content]);
 
   // 等待中状态：正在流式输出但可见内容为空
   // 注意：必须用 displayContent 判断，因为 message.content 可能包含隐藏配置
@@ -81,9 +90,18 @@ export function MessageBubble({ message, role }: MessageBubbleProps) {
         ) : isWaiting ? (
           <LoadingText messageId={message.id} role={role} />
         ) : (
-          <div className={styles.markdown}>
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>{displayContent}</ReactMarkdown>
-          </div>
+          <>
+            <div className={styles.markdown}>
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{displayContent}</ReactMarkdown>
+            </div>
+            {/* 推荐追问（仅最后一条 AI 消息时显示） */}
+            {suggestedQuestions.length > 0 && isLatest && (
+              <SuggestedQuestions
+                questions={suggestedQuestions}
+                onQuestionClick={(q) => onSuggestedQuestion?.(q)}
+              />
+            )}
+          </>
         )}
         {isStreaming && !isWaiting && <span className={styles.cursor}>|</span>}
       </div>

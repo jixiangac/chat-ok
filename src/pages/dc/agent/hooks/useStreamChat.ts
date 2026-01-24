@@ -208,14 +208,81 @@ function parseStructuredOutput(content: string): StructuredOutput | null {
 }
 
 /**
- * 过滤掉消息中的隐藏内容（用于显示）
+ * 过滤掉消息中的隐藏内容和推荐问题标签（用于显示）
  */
 function filterHiddenContent(content: string): string {
-  return content.replace(/<hidden>[\s\S]*?<\/hidden>/g, '').trim();
+  return content
+    .replace(/<hidden>[\s\S]*?<\/hidden>/g, '')
+    .replace(/<suggested-questions>[\s\S]*?<\/suggested-questions>/g, '')
+    .trim();
 }
 
-// 导出过滤函数供其他组件使用
-export { filterHiddenContent };
+/**
+ * 从消息内容中解析推荐追问问题
+ * 格式：<suggested-questions>问题1|问题2</suggested-questions>
+ */
+function parseSuggestedQuestions(content: string): string[] {
+  const match = content.match(/<suggested-questions>([\s\S]*?)<\/suggested-questions>/);
+  if (!match) return [];
+
+  const questionsText = match[1].trim();
+  if (!questionsText) return [];
+
+  // 支持 | 或换行分隔
+  const questions = questionsText
+    .split(/[|\n]/)
+    .map(q => q.trim())
+    .filter(q => q.length > 0)
+    .slice(0, 3); // 最多 3 个推荐问题
+
+  return questions;
+}
+
+// 导出过滤函数和解析函数供其他组件使用
+export { filterHiddenContent, parseSuggestedQuestions };
+
+/**
+ * 尝试修复常见的 JSON 格式错误
+ * 例如：{"numericConfig": , "direction": ...} 这种空值情况
+ */
+function tryFixMalformedJson(jsonStr: string): Record<string, unknown> | null {
+  try {
+    // 1. 修复 `: ,` 空值问题 - 替换为 null 或移除该字段
+    let fixed = jsonStr.replace(/:\s*,/g, ': null,');
+
+    // 2. 修复末尾 `: }` 空值问题
+    fixed = fixed.replace(/:\s*}/g, ': null}');
+
+    // 3. 修复嵌套对象结构错误（如 numericConfig 应该包含其他字段但被拆散了）
+    // 检测到 numericConfig 后面紧跟着应该属于它的字段
+    const numericConfigMatch = fixed.match(/"numericConfig"\s*:\s*null\s*,\s*"direction"/);
+    if (numericConfigMatch) {
+      // 重构 numericConfig 对象
+      fixed = fixed.replace(
+        /"numericConfig"\s*:\s*null\s*,\s*"direction"\s*:\s*"([^"]+)"\s*,\s*"unit"\s*:\s*"([^"]+)"\s*,\s*"startValue"\s*:\s*"?(\d+)"?\s*,\s*"targetValue"\s*:\s*"?(\d+)"?/,
+        '"numericConfig": {"direction": "$1", "unit": "$2", "startValue": $3, "targetValue": $4}'
+      );
+    }
+
+    // 4. 尝试解析修复后的 JSON
+    const parsed = JSON.parse(fixed);
+    return parsed;
+  } catch {
+    // 尝试更激进的修复策略
+    try {
+      // 移除导致问题的字段
+      let fixed = jsonStr.replace(/"numericConfig"\s*:\s*,/g, '');
+      fixed = fixed.replace(/,\s*,/g, ','); // 移除连续逗号
+      fixed = fixed.replace(/,\s*}/g, '}'); // 移除末尾多余逗号
+      fixed = fixed.replace(/{\s*,/g, '{'); // 移除开头多余逗号
+
+      const parsed = JSON.parse(fixed);
+      return parsed;
+    } catch {
+      return null;
+    }
+  }
+}
 
 /** 用户基础信息 */
 export interface UserBaseInfo {
@@ -421,6 +488,8 @@ export function useStreamChat(options: UseStreamChatOptions) {
     totalTokens: number;
   } | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+  // 用于存储重试函数引用，避免闭包问题
+  const sendMessageWithRetryRef = useRef<((content: string, retryCount: number) => Promise<void>) | null>(null);
 
   // 获取当前角色的 system prompt，并注入用户信息和任务上下文
   const basePrompt = customPrompt ?? ROLE_PROMPTS[role];
@@ -499,15 +568,18 @@ export function useStreamChat(options: UseStreamChatOptions) {
     }
   }, []);
 
-  const sendMessage = useCallback(async (content: string) => {
-    // 添加用户消息
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      role: 'user',
-      content,
-      timestamp: Date.now(),
-    };
-    setMessages(prev => [...prev, userMessage]);
+  // 内部函数：支持重试的消息发送
+  const sendMessageWithRetry = useCallback(async (content: string, retryCount: number = 0) => {
+    // 仅首次发送时添加用户消息
+    if (retryCount === 0) {
+      const userMessage: Message = {
+        id: Date.now().toString(),
+        role: 'user',
+        content,
+        timestamp: Date.now(),
+      };
+      setMessages(prev => [...prev, userMessage]);
+    }
 
     // 创建 AI 消息占位
     const aiMessageId = (Date.now() + 1).toString();
@@ -658,10 +730,30 @@ export function useStreamChat(options: UseStreamChatOptions) {
             const args = JSON.parse(tc.arguments);
             parsedToolCalls.push({ name: tc.name, args });
           } catch (e) {
-            console.error('Tool call parse error:', e, tc.arguments);
-            hasToolCallParseError = true;
+            // 尝试修复常见的 JSON 格式问题
+            const fixedArgs = tryFixMalformedJson(tc.arguments);
+            if (fixedArgs) {
+              console.log('Tool call JSON fixed:', fixedArgs);
+              parsedToolCalls.push({ name: tc.name, args: fixedArgs });
+            } else {
+              console.error('Tool call parse error:', e, tc.arguments);
+              hasToolCallParseError = true;
+            }
           }
         }
+      }
+
+      // 有工具调用但全部解析失败时，自动重试（最多重试一次）
+      if (toolCalls.length > 0 && hasToolCallParseError && parsedToolCalls.length === 0 && retryCount < 1) {
+        console.log('🔄 Tool call parse failed, auto retrying...', retryCount + 1);
+        // 移除当前的 AI 消息占位，重新发送
+        setMessages(prev => prev.filter(m => m.id !== aiMessageId));
+        setIsStreaming(false);
+        // 延迟后重试，使用 ref 调用避免闭包问题
+        setTimeout(() => {
+          sendMessageWithRetryRef.current?.(content, retryCount + 1);
+        }, 500);
+        return;
       }
 
       // 完成后处理 - 先更新消息状态
@@ -674,7 +766,7 @@ export function useStreamChat(options: UseStreamChatOptions) {
             lastMsg.status = 'complete';
             lastMsg.content = fullContent;
           } else if (toolCalls.length > 0 && hasToolCallParseError) {
-            // 有工具调用但全部解析失败
+            // 有工具调用但全部解析失败（重试后仍失败）
             lastMsg.status = 'error';
             lastMsg.content = '处理响应时出错，请重试';
           } else if (!fullContent.trim()) {
@@ -755,6 +847,14 @@ export function useStreamChat(options: UseStreamChatOptions) {
       abortControllerRef.current = null;
     }
   }, [messages, systemPrompt, onStructuredOutput, handleToolCall]);
+
+  // 将函数保存到 ref，供重试时调用
+  sendMessageWithRetryRef.current = sendMessageWithRetry;
+
+  // 对外暴露的发送消息函数（无重试计数参数）
+  const sendMessage = useCallback((content: string) => {
+    return sendMessageWithRetry(content, 0);
+  }, [sendMessageWithRetry]);
 
   const stopStreaming = useCallback(() => {
     abortControllerRef.current?.abort();

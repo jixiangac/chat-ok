@@ -74,6 +74,7 @@ import * as dc_panels_settings_pages_TagSettingsPage from '@/pages/dc/panels/set
 import * as dc_panels_happy_components_AddGoalModal from '@/pages/dc/panels/happy/components/AddGoalModal/index';
 import * as dc_panels_settings_UnifiedSettingsPanel from '@/pages/dc/panels/settings/UnifiedSettingsPanel/index';
 import * as dc_viewmodel_CreateTaskModal_components from '@/pages/dc/viewmodel/CreateTaskModal/components/index';
+import * as dc_agent_components_SuggestedQuestions from '@/pages/dc/agent/components/SuggestedQuestions/index';
 import * as dc_panels_happy_components_TripList_TripCard from '@/pages/dc/panels/happy/components/TripList/TripCard';
 import * as dc_components_CreateMainlineTaskModal from '@/pages/dc/components/CreateMainlineTaskModal/index';
 import * as dc_components_CreateMainlineTaskModal_types from '@/pages/dc/components/CreateMainlineTaskModal/types';
@@ -2127,6 +2128,31 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/viewmodel/CreateTaskModal/components',
     exact: true,
     exports: ["BottomNavigation","CyclePreview","OptionGrid","StepProgressBar","TaskPreview","TaskTypeCard"],
+  },{
+    path: 'dc/agent/components/SuggestedQuestions',
+    async lazy() {
+      ;
+      return {
+        ...dc_agent_components_SuggestedQuestions,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/agent/components/SuggestedQuestions',
+          isLayout: false,
+          routeExports: dc_agent_components_SuggestedQuestions,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/agent/components/SuggestedQuestions',
+          requestContext,
+          renderMode,
+          module: dc_agent_components_SuggestedQuestions,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-agent-components-suggestedquestions-index',
+    index: true,
+    id: 'dc/agent/components/SuggestedQuestions',
+    exact: true,
+    exports: ["SuggestedQuestions","default"],
   },{
     path: 'dc/panels/happy/components/TripList/TripCard',
     async lazy() {

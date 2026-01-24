@@ -1,7 +1,7 @@
 import { useMemo, useState, useEffect } from 'react';
 import dayjs from 'dayjs';
-import { CheckCircle, Circle, Calendar, Info, Clock, Hash, TrendingUp, TrendingDown } from 'lucide-react';
-import type { Task, CheckInUnit, CheckInEntry, ValueUpdateLog } from '../../../../types';
+import { CheckCircle, Circle, Calendar, Info, Clock, Hash, TrendingUp, TrendingDown, CheckSquare } from 'lucide-react';
+import type { Task, CheckInUnit, CheckInEntry, ValueUpdateLog, ChecklistItem } from '../../../../types';
 import { getSimulatedToday } from '../../hooks';
 import styles from '../../../../css/CalendarViewPanel.module.css';
 
@@ -16,9 +16,10 @@ export default function CalendarViewPanel({ goal }: CalendarViewPanelProps) {
   const records = config?.records || [];
   const unit: CheckInUnit | undefined = config?.unit;
   const valueUnit = config?.valueUnit || '个';
-  
-  // 判断是否为数值型任务
+
+  // 判断任务类型
   const isNumericTask = goal.category === 'NUMERIC';
+  const isChecklistTask = goal.category === 'CHECKLIST';
   
   // 默认选中今天
   const [selectedDate, setSelectedDate] = useState<string | null>(simulatedToday);
@@ -112,6 +113,30 @@ export default function CalendarViewPanel({ goal }: CalendarViewPanelProps) {
     });
     return map;
   }, [records]);
+
+  // 按日期分组清单完成记录
+  const checklistRecordsByDate = useMemo(() => {
+    if (!isChecklistTask) return new Map();
+
+    const map = new Map<string, { items: ChecklistItem[]; count: number }>();
+    const items = goal.checklistConfig?.items || [];
+
+    // 筛选已完成的清单项
+    const completedItems = items.filter(
+      (item): item is ChecklistItem & { completedAt: string } =>
+        item.status === 'COMPLETED' && !!item.completedAt
+    );
+
+    completedItems.forEach(item => {
+      const dateKey = dayjs(item.completedAt).format('YYYY-MM-DD');
+      const existing = map.get(dateKey) || { items: [], count: 0 };
+      existing.items.push(item);
+      existing.count = existing.items.length;
+      map.set(dateKey, existing);
+    });
+
+    return map;
+  }, [isChecklistTask, goal.checklistConfig?.items]);
   
   // 获取某天的数值型任务汇总
   const getNumericDaySummary = (date: string) => {
@@ -128,23 +153,34 @@ export default function CalendarViewPanel({ goal }: CalendarViewPanelProps) {
   const getDaySummary = (date: string) => {
     const dayData = recordsByDate.get(date);
     if (!dayData) return null;
-    
+
     return {
       count: dayData.entries.length,
       totalValue: dayData.totalValue,
       entries: dayData.entries
     };
   };
-  
+
+  // 获取某天的清单完成汇总
+  const getChecklistDaySummary = (date: string) => {
+    const dayData = checklistRecordsByDate.get(date);
+    if (!dayData) return null;
+    return {
+      count: dayData.count,
+      items: dayData.items
+    };
+  };
+
   // 获取选中日期的打卡详情
   const selectedDayData = useMemo(() => {
-    if (!selectedDate) return { checkIn: null, numeric: null };
+    if (!selectedDate) return { checkIn: null, numeric: null, checklist: null };
     return {
       checkIn: getDaySummary(selectedDate),
-      numeric: getNumericDaySummary(selectedDate)
+      numeric: getNumericDaySummary(selectedDate),
+      checklist: getChecklistDaySummary(selectedDate)
     };
-  }, [selectedDate, recordsByDate]);
-  
+  }, [selectedDate, recordsByDate, numericRecordsByDate, checklistRecordsByDate]);
+
   const weekDays = ['日', '一', '二', '三', '四', '五', '六'];
   
   // 数值型任务的单位和方向
@@ -158,13 +194,20 @@ export default function CalendarViewPanel({ goal }: CalendarViewPanelProps) {
     return `${value}${valueUnit}`;
   };
   
+  // 获取日历标题
+  const getCalendarTitle = () => {
+    if (isNumericTask) return `${calendarData.month}记录日历`;
+    if (isChecklistTask) return `${calendarData.month}完成日历`;
+    return `${calendarData.month}打卡日历`;
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
         <Calendar size={16} className={styles.headerIcon} />
-        <span className={styles.headerTitle}>{calendarData.month}{isNumericTask ? '记录' : '打卡'}日历</span>
+        <span className={styles.headerTitle}>{getCalendarTitle()}</span>
       </div>
-      
+
       <div className={styles.calendar}>
         {/* 星期头 */}
         <div className={styles.weekHeader}>
@@ -172,16 +215,17 @@ export default function CalendarViewPanel({ goal }: CalendarViewPanelProps) {
             <div key={day} className={styles.weekDay}>{day}</div>
           ))}
         </div>
-        
+
         {/* 日期格子 */}
         <div className={styles.daysGrid}>
           {calendarData.days.map((day, index) => {
             const numericSummary = isNumericTask ? getNumericDaySummary(day.date) : null;
-            const checkInSummary = !isNumericTask ? getDaySummary(day.date) : null;
-            const daySummary = numericSummary || checkInSummary;
+            const checklistSummary = isChecklistTask ? getChecklistDaySummary(day.date) : null;
+            const checkInSummary = (!isNumericTask && !isChecklistTask) ? getDaySummary(day.date) : null;
+            const daySummary = numericSummary || checklistSummary || checkInSummary;
             const isChecked = !!daySummary;
             const isSelected = selectedDate === day.date;
-            
+
             return (
               <div
                 key={index}
@@ -201,6 +245,11 @@ export default function CalendarViewPanel({ goal }: CalendarViewPanelProps) {
                       <span className={styles.valueText}>
                         {numericSummary.totalDelta > 0 ? '+' : ''}
                         {formatNumberPrecision(numericSummary.totalDelta)}
+                      </span>
+                    ) : isChecklistTask && checklistSummary ? (
+                      // 清单型任务显示完成数量
+                      <span className={styles.valueText}>
+                        {checklistSummary.count}
                       </span>
                     ) : unit === 'TIMES' ? (
                       // 打卡次数型显示勾选
@@ -235,7 +284,7 @@ export default function CalendarViewPanel({ goal }: CalendarViewPanelProps) {
           <div className={styles.detailHeader}>
             {dayjs(selectedDate).format('MM/DD')} 详情
           </div>
-          {(selectedDayData.checkIn || selectedDayData.numeric) ? (
+          {(selectedDayData.checkIn || selectedDayData.numeric || selectedDayData.checklist) ? (
             <div className={styles.detailContent}>
               <div className={styles.detailSummary}>
                 {isNumericTask && selectedDayData.numeric ? (
@@ -251,6 +300,12 @@ export default function CalendarViewPanel({ goal }: CalendarViewPanelProps) {
                       {formatNumberPrecision(selectedDayData.numeric.totalDelta)} {numericUnit}
                       （{selectedDayData.numeric.count}次记录）
                     </span>
+                  </>
+                ) : isChecklistTask && selectedDayData.checklist ? (
+                  // 清单型任务汇总
+                  <>
+                    <CheckSquare size={16} color="#000" />
+                    <span>完成 {selectedDayData.checklist.count} 项清单</span>
                   </>
                 ) : selectedDayData.checkIn && unit === 'TIMES' ? (
                   <>
@@ -269,7 +324,7 @@ export default function CalendarViewPanel({ goal }: CalendarViewPanelProps) {
                   </>
                 ) : null}
               </div>
-              
+
               {/* 每次打卡记录 */}
               <div className={styles.detailEntries}>
                 {isNumericTask && selectedDayData.numeric ? (
@@ -282,7 +337,7 @@ export default function CalendarViewPanel({ goal }: CalendarViewPanelProps) {
                       </span>
                       <span className={styles.entryValue}>
                         {formatNumberPrecision(entry.oldValue)} → {formatNumberPrecision(entry.newValue)}
-                        <span style={{ 
+                        <span style={{
                           color: entry.delta > 0 ? '#22c55e' : entry.delta < 0 ? '#ef4444' : '#666',
                           marginLeft: 4
                         }}>
@@ -292,6 +347,18 @@ export default function CalendarViewPanel({ goal }: CalendarViewPanelProps) {
                       {entry.note && (
                         <span className={styles.entryNote}>{entry.note}</span>
                       )}
+                    </div>
+                  ))
+                ) : isChecklistTask && selectedDayData.checklist ? (
+                  // 清单型任务的每次完成记录（倒序显示，最新的在前）
+                  [...selectedDayData.checklist.items].reverse().map((item) => (
+                    <div key={item.id} className={styles.entryItem}>
+                      <span className={styles.entryTime}>
+                        {dayjs(item.completedAt).format('HH:mm')}
+                      </span>
+                      <span className={styles.entryValue}>
+                        {item.title}
+                      </span>
                     </div>
                   ))
                 ) : selectedDayData.checkIn ? (
@@ -316,7 +383,9 @@ export default function CalendarViewPanel({ goal }: CalendarViewPanelProps) {
             </div>
           ) : (
             <div className={styles.detailContent}>
-              <div className={styles.detailEmpty}>该日期无{isNumericTask ? '记录' : '打卡'}</div>
+              <div className={styles.detailEmpty}>
+                该日期无{isNumericTask ? '记录' : isChecklistTask ? '完成' : '打卡'}
+              </div>
             </div>
           )}
         </div>

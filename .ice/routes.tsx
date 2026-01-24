@@ -1,10 +1,14 @@
 import { createRouteLoader, WrapRouteComponent, RouteErrorComponent } from '@ice/runtime';
 import type { CreateRoutes } from '@ice/runtime';
+import * as dc_panels_memorial_components_CreateMemorialModal_pages_BackgroundPage from '@/pages/dc/panels/memorial/components/CreateMemorialModal/pages/BackgroundPage';
+import * as dc_panels_memorial_components_CreateMemorialModal_pages_BasicInfoPage from '@/pages/dc/panels/memorial/components/CreateMemorialModal/pages/BasicInfoPage';
 import * as dc_components_CreateMainlineTaskModal_steps_configs_ChecklistConfig from '@/pages/dc/components/CreateMainlineTaskModal/steps/configs/ChecklistConfig';
+import * as dc_panels_memorial_components_CreateMemorialModal_pages_PreviewPage from '@/pages/dc/panels/memorial/components/CreateMemorialModal/pages/PreviewPage';
 import * as dc_components_CreateMainlineTaskModal_steps_configs_CheckInConfig from '@/pages/dc/components/CreateMainlineTaskModal/steps/configs/CheckInConfig';
 import * as dc_components_CreateMainlineTaskModal_steps_configs_NumericConfig from '@/pages/dc/components/CreateMainlineTaskModal/steps/configs/NumericConfig';
 import * as dc_panels_memorial_components_CreateMemorialModal_LoadingSkeleton from '@/pages/dc/panels/memorial/components/CreateMemorialModal/LoadingSkeleton';
 import * as dc_viewmodel_CreateTaskModal_components_BottomNavigation from '@/pages/dc/viewmodel/CreateTaskModal/components/BottomNavigation/index';
+import * as dc_panels_memorial_components_CreateMemorialModal_pages from '@/pages/dc/panels/memorial/components/CreateMemorialModal/pages/index';
 import * as dc_viewmodel_CreateTaskModal_components_StepProgressBar from '@/pages/dc/viewmodel/CreateTaskModal/components/StepProgressBar/index';
 import * as dc_components_CreateGoalModal_components_EncouragementInput from '@/pages/dc/components/CreateGoalModal/components/EncouragementInput';
 import * as dc_viewmodel_CreateTaskModal_components_CyclePreview from '@/pages/dc/viewmodel/CreateTaskModal/components/CyclePreview/index';
@@ -23,6 +27,7 @@ import * as dc_panels_memorial_components_VirtualMemorialList from '@/pages/dc/p
 import * as dc_viewmodel_CreateTaskModal_pages_TypeSelectPage from '@/pages/dc/viewmodel/CreateTaskModal/pages/TypeSelectPage/index';
 import * as dc_components_CreateGoalModal_components_CycleSelector from '@/pages/dc/components/CreateGoalModal/components/CycleSelector';
 import * as dc_components_CreateMainlineTaskModal_steps_ConfigStep from '@/pages/dc/components/CreateMainlineTaskModal/steps/ConfigStep';
+import * as dc_panels_detail_components_ChecklistRecordModal from '@/pages/dc/panels/detail/components/ChecklistRecordModal/index';
 import * as dc_components_CreateGoalModal_components_CyclePreview from '@/pages/dc/components/CreateGoalModal/components/CyclePreview';
 import * as dc_components_CreateGoalModal_components_DateSelector from '@/pages/dc/components/CreateGoalModal/components/DateSelector';
 import * as dc_components_CreateGoalModal_components_IconSelector from '@/pages/dc/components/CreateGoalModal/components/IconSelector';
@@ -81,6 +86,7 @@ import * as dc_components_CreateMainlineTaskModal_types from '@/pages/dc/compone
 import * as dc_panels_detail_components_CycleInfo from '@/pages/dc/panels/detail/components/CycleInfo/index';
 import * as dc_panels_settings_pages_DateTestPage from '@/pages/dc/panels/settings/pages/DateTestPage/index';
 import * as dc_agent_components_FollowupQuestion from '@/pages/dc/agent/components/FollowupQuestion/index';
+import * as dc_components_ConvertToSidelinePopup from '@/pages/dc/components/ConvertToSidelinePopup/index';
 import * as dc_panels_settings_pages_ArchivePage from '@/pages/dc/panels/settings/pages/ArchivePage/index';
 import * as dc_components_InsufficientJadePopup from '@/pages/dc/components/InsufficientJadePopup/index';
 import * as dc_components_SidelineTaskEditModal from '@/pages/dc/components/SidelineTaskEditModal/index';
@@ -200,6 +206,7 @@ import * as dc_panels_cultivation from '@/pages/dc/panels/cultivation/index';
 import * as dc_panels_happy_hooks from '@/pages/dc/panels/happy/hooks/index';
 import * as dc_panels_happy_utils from '@/pages/dc/panels/happy/utils/index';
 import * as dc_utils_cycleRewardStorage from '@/pages/dc/utils/cycleRewardStorage';
+import * as dc_utils_dailyRewardTracker from '@/pages/dc/utils/dailyRewardTracker';
 import * as dc_utils_mainlineTaskHelper from '@/pages/dc/utils/mainlineTaskHelper';
 import * as dc_utils_progressCalculator from '@/pages/dc/utils/progressCalculator';
 import * as dc_components_shared from '@/pages/dc/components/shared/index';
@@ -279,6 +286,56 @@ const createRoutes: CreateRoutes = ({
   renderMode,
 }) => ([
   {
+    path: 'dc/panels/memorial/components/CreateMemorialModal/pages/BackgroundPage',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_memorial_components_CreateMemorialModal_pages_BackgroundPage,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/memorial/components/CreateMemorialModal/pages/BackgroundPage',
+          isLayout: false,
+          routeExports: dc_panels_memorial_components_CreateMemorialModal_pages_BackgroundPage,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/memorial/components/CreateMemorialModal/pages/BackgroundPage',
+          requestContext,
+          renderMode,
+          module: dc_panels_memorial_components_CreateMemorialModal_pages_BackgroundPage,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-memorial-components-creatememorialmodal-pages-backgroundpage',
+    index: undefined,
+    id: 'dc/panels/memorial/components/CreateMemorialModal/pages/BackgroundPage',
+    exact: true,
+    exports: ["BackgroundPage","default"],
+  },{
+    path: 'dc/panels/memorial/components/CreateMemorialModal/pages/BasicInfoPage',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_memorial_components_CreateMemorialModal_pages_BasicInfoPage,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/memorial/components/CreateMemorialModal/pages/BasicInfoPage',
+          isLayout: false,
+          routeExports: dc_panels_memorial_components_CreateMemorialModal_pages_BasicInfoPage,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/memorial/components/CreateMemorialModal/pages/BasicInfoPage',
+          requestContext,
+          renderMode,
+          module: dc_panels_memorial_components_CreateMemorialModal_pages_BasicInfoPage,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-memorial-components-creatememorialmodal-pages-basicinfopage',
+    index: undefined,
+    id: 'dc/panels/memorial/components/CreateMemorialModal/pages/BasicInfoPage',
+    exact: true,
+    exports: ["BasicInfoPage","default"],
+  },{
     path: 'dc/components/CreateMainlineTaskModal/steps/configs/ChecklistConfig',
     async lazy() {
       ;
@@ -303,6 +360,31 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/components/CreateMainlineTaskModal/steps/configs/ChecklistConfig',
     exact: true,
     exports: ["default"],
+  },{
+    path: 'dc/panels/memorial/components/CreateMemorialModal/pages/PreviewPage',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_memorial_components_CreateMemorialModal_pages_PreviewPage,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/memorial/components/CreateMemorialModal/pages/PreviewPage',
+          isLayout: false,
+          routeExports: dc_panels_memorial_components_CreateMemorialModal_pages_PreviewPage,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/memorial/components/CreateMemorialModal/pages/PreviewPage',
+          requestContext,
+          renderMode,
+          module: dc_panels_memorial_components_CreateMemorialModal_pages_PreviewPage,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-memorial-components-creatememorialmodal-pages-previewpage',
+    index: undefined,
+    id: 'dc/panels/memorial/components/CreateMemorialModal/pages/PreviewPage',
+    exact: true,
+    exports: ["PreviewPage","default"],
   },{
     path: 'dc/components/CreateMainlineTaskModal/steps/configs/CheckInConfig',
     async lazy() {
@@ -403,6 +485,31 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/viewmodel/CreateTaskModal/components/BottomNavigation',
     exact: true,
     exports: ["default"],
+  },{
+    path: 'dc/panels/memorial/components/CreateMemorialModal/pages',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_memorial_components_CreateMemorialModal_pages,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/memorial/components/CreateMemorialModal/pages',
+          isLayout: false,
+          routeExports: dc_panels_memorial_components_CreateMemorialModal_pages,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/memorial/components/CreateMemorialModal/pages',
+          requestContext,
+          renderMode,
+          module: dc_panels_memorial_components_CreateMemorialModal_pages,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-memorial-components-creatememorialmodal-pages-index',
+    index: true,
+    id: 'dc/panels/memorial/components/CreateMemorialModal/pages',
+    exact: true,
+    exports: ["BackgroundPage","BasicInfoPage"],
   },{
     path: 'dc/viewmodel/CreateTaskModal/components/StepProgressBar',
     async lazy() {
@@ -851,6 +958,31 @@ const createRoutes: CreateRoutes = ({
     componentName: 'dc-components-createmainlinetaskmodal-steps-configstep',
     index: undefined,
     id: 'dc/components/CreateMainlineTaskModal/steps/ConfigStep',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/panels/detail/components/ChecklistRecordModal',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_detail_components_ChecklistRecordModal,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/detail/components/ChecklistRecordModal',
+          isLayout: false,
+          routeExports: dc_panels_detail_components_ChecklistRecordModal,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/detail/components/ChecklistRecordModal',
+          requestContext,
+          renderMode,
+          module: dc_panels_detail_components_ChecklistRecordModal,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-detail-components-checklistrecordmodal-index',
+    index: true,
+    id: 'dc/panels/detail/components/ChecklistRecordModal',
     exact: true,
     exports: ["default"],
   },{
@@ -2303,6 +2435,31 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/agent/components/FollowupQuestion',
     exact: true,
     exports: ["FollowupQuestion","default"],
+  },{
+    path: 'dc/components/ConvertToSidelinePopup',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_ConvertToSidelinePopup,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/ConvertToSidelinePopup',
+          isLayout: false,
+          routeExports: dc_components_ConvertToSidelinePopup,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/ConvertToSidelinePopup',
+          requestContext,
+          renderMode,
+          module: dc_components_ConvertToSidelinePopup,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-converttosidelinepopup-index',
+    index: true,
+    id: 'dc/components/ConvertToSidelinePopup',
+    exact: true,
+    exports: ["default"],
   },{
     path: 'dc/panels/settings/pages/ArchivePage',
     async lazy() {
@@ -3952,7 +4109,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/panels/detail/components',
     exact: true,
-    exports: ["ActivityRecordPanel","CalendarViewPanel","CheckInCyclePanel","CheckInHistoryPanel","CheckInModal","CheckInRecordPanel","ChecklistCyclePanel","CoffeeCupProgress","CycleInfo","DetailHeader","HistoryCyclePanel","HistoryRecordPanel","NumericCyclePanel","ProgressSection","RecordDataModal","SecondaryNav","TabBar","TodayProgressBar","WaterCupProgress","showCycleSummaryDialog"],
+    exports: ["ActivityRecordPanel","CalendarViewPanel","CheckInCyclePanel","CheckInHistoryPanel","CheckInModal","CheckInRecordPanel","ChecklistCyclePanel","ChecklistRecordModal","CoffeeCupProgress","CycleInfo","DetailHeader","HistoryCyclePanel","HistoryRecordPanel","NumericCyclePanel","ProgressSection","RecordDataModal","SecondaryNav","TabBar","TodayProgressBar","WaterCupProgress","showCycleSummaryDialog"],
   },{
     path: 'dc/panels/happy/hooks/useSchedule',
     async lazy() {
@@ -5279,6 +5436,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["cleanExpiredCycleRewards","clearTaskCycleRewards","getClaimedCycles","hasCycleRewardClaimed","markCycleRewardClaimed"],
   },{
+    path: 'dc/utils/dailyRewardTracker',
+    async lazy() {
+      ;
+      return {
+        ...dc_utils_dailyRewardTracker,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/utils/dailyRewardTracker',
+          isLayout: false,
+          routeExports: dc_utils_dailyRewardTracker,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/utils/dailyRewardTracker',
+          requestContext,
+          renderMode,
+          module: dc_utils_dailyRewardTracker,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-utils-dailyrewardtracker',
+    index: undefined,
+    id: 'dc/utils/dailyRewardTracker',
+    exact: true,
+    exports: ["addTodayTaskReward","calculateAllowedReward","getDailyRewardTracker","getTodayRemainingReward","getTodayTaskReward"],
+  },{
     path: 'dc/utils/mainlineTaskHelper',
     async lazy() {
       ;
@@ -6302,7 +6484,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/components',
     exact: true,
-    exports: ["CircleProgress","CreateGoalModal","CreateMainlineTaskModal","CultivationEntry","DailyProgress","InsufficientJadePopup","LocationFilter","MainlineTaskCard","MigrationModal","ProgressBar","PullIndicator","QuickActionButtons","RewardToast","SecondFloorIndicator","SidelineTaskCard","StatCard","StatCardGrid","ThemedButton"],
+    exports: ["CircleProgress","ConvertToSidelinePopup","CreateGoalModal","CreateMainlineTaskModal","CultivationEntry","DailyProgress","InsufficientJadePopup","LocationFilter","MainlineTaskCard","MigrationModal","ProgressBar","PullIndicator","QuickActionButtons","RewardToast","SecondFloorIndicator","SidelineTaskCard","StatCard","StatCardGrid","ThemedButton"],
   },{
     path: 'dc/constants/colors',
     async lazy() {

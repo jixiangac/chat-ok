@@ -149,20 +149,16 @@ function RewardToastComponent({
           {/* 基础获取 */}
           <div className={styles.baseSection}>
             <div className={styles.sectionTitle}>基础获取</div>
-            {firstReward.spiritJade > 0 && (
-              <div className={styles.rewardLine}>
-                <img src={SPIRIT_JADE_ICON} alt="灵玉" className={styles.rewardIcon} />
-                <span className={styles.rewardLabel}>灵玉：</span>
-                <AnimatedNumber value={firstReward.spiritJade} />
-              </div>
-            )}
-            {firstReward.cultivation > 0 && (
-              <div className={styles.rewardLine}>
-                <img src={CULTIVATION_ICON} alt="修为" className={styles.rewardIcon} />
-                <span className={styles.rewardLabel}>修为：</span>
-                <AnimatedNumber value={firstReward.cultivation} />
-              </div>
-            )}
+            <div className={styles.rewardLine}>
+              <img src={SPIRIT_JADE_ICON} alt="灵玉" className={styles.rewardIcon} />
+              <span className={styles.rewardLabel}>灵玉：</span>
+              <AnimatedNumber value={firstReward.spiritJade} />
+            </div>
+            <div className={styles.rewardLine}>
+              <img src={CULTIVATION_ICON} alt="修为" className={styles.rewardIcon} />
+              <span className={styles.rewardLabel}>修为：</span>
+              <AnimatedNumber value={firstReward.cultivation} />
+            </div>
           </div>
 
           {/* 额外加成 */}

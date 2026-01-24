@@ -228,6 +228,58 @@ const calculateCheckInTodayProgress = (
   };
 };
 
+/**
+ * 计算 CHECKLIST 类型任务的今日进度
+ * 每日目标 = Math.ceil(周期清单数量 / 周期天数)
+ */
+const calculateChecklistTodayProgress = (
+  task: Task | any,
+  effectiveToday: string,
+  options?: TodayProgressOptions
+): TodayProgressResult => {
+  const checklistConfig = task.checklistConfig;
+  if (!checklistConfig) {
+    return {
+      canCheckIn: false,
+      todayCount: 0,
+      todayValue: 0,
+      isCompleted: false,
+      lastUpdatedAt: dayjs().toISOString()
+    };
+  }
+
+  const items = checklistConfig.items || [];
+  const cycleDays = task.cycle?.cycleDays || 7;
+  const currentCycle = task.cycle?.currentCycle || 1;
+
+  // 当前周期的清单项数量
+  const cycleItems = items.filter((item: any) => item.cycle === currentCycle);
+  const cycleItemCount = cycleItems.length;
+
+  // 计算每日目标：向上取整(周期清单数 / 周期天数)
+  const dailyTarget = cycleItemCount > 0 ? Math.ceil(cycleItemCount / cycleDays) : 1;
+
+  // 今日已完成的清单项数量
+  const todayCompletedItems = items.filter((item: any) =>
+    item.status === 'COMPLETED' &&
+    item.completedAt &&
+    dayjs(item.completedAt).format('YYYY-MM-DD') === effectiveToday
+  );
+  const todayValue = todayCompletedItems.length;
+
+  // 是否已完成今日目标
+  const isCompleted = todayValue >= dailyTarget;
+
+  return {
+    canCheckIn: !isCompleted,
+    todayCount: todayValue,
+    todayValue,
+    isCompleted,
+    dailyTarget,
+    lastUpdatedAt: dayjs().toISOString()
+  };
+};
+
 // ============ 主导出函数 ============
 
 /**
@@ -275,7 +327,12 @@ export function calculateTodayProgress(
     return calculateNumericTodayProgress(task, effectiveToday, options);
   }
 
-  // CHECK_IN 类型任务（包括 CHECKLIST 降级为打卡的情况）
+  // CHECKLIST 类型任务：使用 周期清单数/周期天数 作为每日目标
+  if (category === 'CHECKLIST' && task.checklistConfig) {
+    return calculateChecklistTodayProgress(task, effectiveToday, options);
+  }
+
+  // CHECK_IN 类型任务
   return calculateCheckInTodayProgress(task, effectiveToday, todayCheckIns, options);
 }
 

@@ -46,15 +46,18 @@ body {
   overflow: hidden;
 }
 
-/* antd-mobile Toast z-index 设置 */
+/* antd-mobile Toast z-index 设置 - 始终最顶层 */
 .adm-toast {
-  z-index: 1300 !important;
+  z-index: 10000 !important;
 }
 
-/* antd-mobile Toast 的遮罩层 z-index 设置 */
 .adm-toast-mask {
-  z-index: 1299 !important;
+  z-index: 9999 !important;
 }
 
-
-
+/* antd-mobile Dialog z-index 设置 - 确保在所有弹窗之上 */
+/* Dialog 组件将 adm-dialog 类名添加到 CenterPopup 容器上 */
+/* 详情页 Popup z-index 为 1200，Dialog 需要更高才能显示在上面 */
+.adm-center-popup.adm-dialog {
+  z-index: 9000 !important;
+}

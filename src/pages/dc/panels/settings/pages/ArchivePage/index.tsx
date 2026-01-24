@@ -7,6 +7,7 @@ import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { ChevronDown, Check, ListFilter, CircleCheck } from 'lucide-react';
 import { SubPageLayout } from '../../components';
 import { useScene, useTaskContext } from '@/pages/dc/contexts';
+import GoalDetailModal from '@/pages/dc/panels/detail';
 import styles from './styles.module.css';
 
 // 归档页面头图
@@ -54,6 +55,9 @@ const ArchivePage: React.FC<ArchivePageProps> = ({ onBack }) => {
 
   const [taskTypeFilter, setTaskTypeFilter] = useState<TaskTypeFilter>('all');
   const [completionFilter, setCompletionFilter] = useState<CompletionFilter>('all');
+
+  // 归档任务详情弹窗状态
+  const [selectedArchivedTaskId, setSelectedArchivedTaskId] = useState<string | null>(null);
 
   // 下拉菜单状态
   const [isTypeFilterOpen, setIsTypeFilterOpen] = useState(false);
@@ -103,9 +107,9 @@ const ArchivePage: React.FC<ArchivePageProps> = ({ onBack }) => {
     });
   }, [archivedTasks, taskTypeFilter, completionFilter]);
 
-  // 处理任务点击
+  // 处理任务点击 - 打开只读详情弹窗
   const handleTaskClick = (taskId: string) => {
-    setSelectedTaskId(taskId);
+    setSelectedArchivedTaskId(taskId);
   };
 
   // 获取当前选中的标签文本
@@ -276,6 +280,14 @@ const ArchivePage: React.FC<ArchivePageProps> = ({ onBack }) => {
           )}
         </div>
       </div>
+
+      {/* 归档任务详情弹窗 - 只读模式 */}
+      <GoalDetailModal
+        visible={!!selectedArchivedTaskId}
+        taskId={selectedArchivedTaskId || undefined}
+        onClose={() => setSelectedArchivedTaskId(null)}
+        isReadOnly
+      />
     </SubPageLayout>
   );
 };

@@ -34,6 +34,25 @@ export interface CreateMainlineTaskModalProps {
 export interface CreateTaskModalProps {
   visible: boolean;
   onClose: () => void;
+  /** AI 预填数据（来自 general 角色的 TASK_CONFIG 输出） */
+  initialData?: {
+    title?: string;
+    category?: 'NUMERIC' | 'CHECKLIST' | 'CHECK_IN';
+    totalDays?: number;
+    cycleDays?: number;
+    numericConfig?: {
+      direction: 'INCREASE' | 'DECREASE';
+      unit: string;
+      startValue: number;
+      targetValue: number;
+    };
+    checklistItems?: string[];
+    checkInConfig?: {
+      unit: 'TIMES' | 'DURATION' | 'QUANTITY';
+      dailyMax?: number;
+      valueUnit?: string;
+    };
+  };
 }
 
 // 周期步骤 Props

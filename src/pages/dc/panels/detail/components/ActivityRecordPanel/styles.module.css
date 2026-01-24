@@ -135,3 +135,53 @@
   text-align: center;
 }
 
+/* ========== 今日奖励样式 ========== */
+
+.rewardProgress {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(55, 53, 47, 0.04);
+  border-radius: 12px;
+  padding: 10px 14px;
+  margin-bottom: 10px;
+}
+
+.rewardLabel {
+  font-size: 13px;
+  color: rgba(55, 53, 47, 0.5);
+}
+
+.rewardItems {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.rewardItem {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 13px;
+  color: rgb(55, 53, 47);
+}
+
+.rewardIcon {
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
+  margin-right: 2px;
+}
+
+.rewardSeparator {
+  color: rgba(55, 53, 47, 0.3);
+}
+
+.rewardMax {
+  color: rgba(55, 53, 47, 0.4);
+}
+
+.rewardComplete {
+  color: #52c41a;
+}
+

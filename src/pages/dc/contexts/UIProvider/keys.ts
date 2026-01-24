@@ -24,6 +24,8 @@ export const UI_KEYS = {
   // 纪念日模式弹窗
   MODAL_MEMORIAL_CREATE_VISIBLE: 'modal.memorial.create.visible',
   MODAL_MEMORIAL_DETAIL_VISIBLE: 'modal.memorial.detail.visible',
+  // 支线任务弹窗
+  MODAL_ALL_SIDELINE_VISIBLE: 'modal.allSideline.visible',
   
   // 滚动位置
   SCROLL_NORMAL: 'scroll.normal',

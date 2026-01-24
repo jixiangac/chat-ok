@@ -3,11 +3,12 @@
  * 使用与设置子页面一致的全屏右滑布局风格
  */
 
-import React, { useMemo, useState, useEffect, useRef, useCallback } from 'react';
+import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { ChevronLeft, TrendingUp, TrendingDown } from 'lucide-react';
 import dayjs from 'dayjs';
 import type { PointsHistory, PointsRecord } from '../../types/spiritJade';
+import { useSwipeBack } from '../../panels/settings/hooks';
 import styles from './styles.module.css';
 
 // 灵玉图标
@@ -47,12 +48,6 @@ const SpiritJadePage: React.FC<SpiritJadePageProps> = ({
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  // 手势返回状态
-  const [touchStartX, setTouchStartX] = useState(0);
-  const [touchCurrentX, setTouchCurrentX] = useState(0);
-  const [isSwiping, setIsSwiping] = useState(false);
 
   // 处理显示/隐藏动画
   useEffect(() => {
@@ -77,37 +72,11 @@ const SpiritJadePage: React.FC<SpiritJadePageProps> = ({
     }
   }, [onClose]);
 
-  // 手势返回支持
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    const touch = e.touches[0];
-    // 只有从左边缘开始的滑动才触发
-    if (touch.clientX < 50) {
-      setTouchStartX(touch.clientX);
-      setTouchCurrentX(touch.clientX);
-      setIsSwiping(true);
-    }
-  }, []);
-
-  const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    if (!isSwiping) return;
-    const touch = e.touches[0];
-    setTouchCurrentX(touch.clientX);
-  }, [isSwiping]);
-
-  const handleTouchEnd = useCallback(() => {
-    if (!isSwiping) return;
-    const distance = touchCurrentX - touchStartX;
-    if (distance > 100) {
-      // 滑动距离超过阈值，触发关闭
-      handleClose(true);
-    }
-    setIsSwiping(false);
-    setTouchStartX(0);
-    setTouchCurrentX(0);
-  }, [isSwiping, touchCurrentX, touchStartX, handleClose]);
-
-  // 计算滑动时的位移
-  const swipeOffset = isSwiping ? Math.max(0, touchCurrentX - touchStartX) : 0;
+  // 使用 useSwipeBack hook 统一手势行为
+  const { pageRef } = useSwipeBack({
+    onBack: () => handleClose(true),
+    enabled: isVisible && !isExiting,
+  });
 
   // 将历史记录按时间倒序排列
   const sortedRecords = useMemo(() => {
@@ -127,23 +96,10 @@ const SpiritJadePage: React.FC<SpiritJadePageProps> = ({
 
   if (!isVisible) return null;
 
-  const pageStyle: React.CSSProperties = {
-    transform: isSwiping
-      ? `translateX(${swipeOffset}px)`
-      : isExiting
-        ? 'translateX(100%)'
-        : 'translateX(0)',
-    transition: isSwiping ? 'none' : 'transform 0.4s ease-out',
-  };
-
   return createPortal(
     <div
-      ref={containerRef}
+      ref={pageRef}
       className={`${styles.page} ${isExiting ? styles.exiting : styles.visible}`}
-      style={pageStyle}
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
     >
       {/* 头图区域 */}
       <div className={styles.headerImage} style={{ background: JADE_HEADER_BACKGROUND }}>

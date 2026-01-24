@@ -1,20 +1,37 @@
 /**
- * 创建/编辑纪念日弹窗
+ * 创建/编辑纪念日弹窗 - 步骤式设计
+ * 步骤1：基本信息（名称+日期）
+ * 步骤2：背景选择（图标+背景+备注）
+ * 步骤3：预览确认（灵玉消耗）
  */
 
-import React, { useState, useCallback, useEffect, Suspense, lazy } from 'react';
-import { createPortal } from 'react-dom';
-import { X } from 'lucide-react';
-import { DatePicker, SafeArea } from 'antd-mobile';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { X, ChevronLeft } from 'lucide-react';
+import { Toast, SafeArea, Popup } from 'antd-mobile';
 import dayjs from 'dayjs';
 import type { Memorial, CreateMemorialInput, MemorialBackground } from '../../types';
 import { getDefaultIcon, getDefaultColor, getDefaultBackground } from '../../constants';
-import { LoadingSkeleton } from './LoadingSkeleton';
+import { usePageStack, useSwipeBack } from '../../../../panels/settings/hooks';
+import { useCultivation } from '../../../../contexts';
+import { InsufficientJadePopup } from '../../../../components';
+import { StepProgressBar } from '../../../../viewmodel/CreateTaskModal/components';
+import { BasicInfoPage, BackgroundPage } from './pages';
 import styles from './styles.module.css';
 
-// 懒加载组件
-const IconPicker = lazy(() => import('../IconPicker'));
-const BackgroundPicker = lazy(() => import('../BackgroundPicker'));
+// 创建纪念日固定消耗 50 灵玉
+const MEMORIAL_CREATION_COST = 50;
+
+// 初始页面
+const INITIAL_PAGE = { id: 'basic', title: '基本信息' };
+
+// 页面步骤映射（2步流程）
+const PAGE_STEP_MAP: Record<string, number> = {
+  basic: 1,
+  background: 2,
+};
+
+// 总步骤数
+const TOTAL_STEPS = 2;
 
 interface CreateMemorialModalProps {
   visible: boolean;
@@ -29,41 +46,118 @@ export function CreateMemorialModal({
   onSubmit,
   editingMemorial,
 }: CreateMemorialModalProps) {
+  const { canSpendSpiritJade, spendSpiritJade, spiritJadeData } = useCultivation();
+
   // 表单状态
   const [name, setName] = useState('');
   const [date, setDate] = useState<Date>(new Date());
-  const [calendarVisible, setCalendarVisible] = useState(false);
   const [icon, setIcon] = useState(getDefaultIcon().name);
   const [iconColor, setIconColor] = useState(getDefaultColor());
   const [note, setNote] = useState('');
   const [background, setBackground] = useState<MemorialBackground>(getDefaultBackground());
 
+  // 页面栈管理
+  const { stack, push, pop, canGoBack, reset } = usePageStack(INITIAL_PAGE);
+
+  // 页面动画状态
+  const [pageAnimationState, setPageAnimationState] = useState<'idle' | 'entering' | 'exiting'>('idle');
+  const [animationKey, setAnimationKey] = useState(0);
+
+  // 灵玉不足弹窗状态
+  const [insufficientJadePopup, setInsufficientJadePopup] = useState<{
+    visible: boolean;
+    requiredAmount: number;
+  }>({ visible: false, requiredAmount: 0 });
+
+  // 记录需要执行入场动画的新页面 ID
+  const pendingEnterPageId = useRef<string | null>(null);
+  const pageRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+
   // 编辑模式时填充数据
   useEffect(() => {
-    if (editingMemorial) {
-      setName(editingMemorial.name);
-      setDate(new Date(editingMemorial.date));
-      setIcon(editingMemorial.icon);
-      setIconColor(editingMemorial.iconColor);
-      setNote(editingMemorial.note || '');
-      setBackground(editingMemorial.background);
-    } else {
-      // 重置表单
-      setName('');
-      setDate(new Date());
-      setIcon(getDefaultIcon().name);
-      setIconColor(getDefaultColor());
-      setNote('');
-      setBackground(getDefaultBackground());
+    if (visible) {
+      if (editingMemorial) {
+        setName(editingMemorial.name);
+        setDate(new Date(editingMemorial.date));
+        setIcon(editingMemorial.icon);
+        setIconColor(editingMemorial.iconColor);
+        setNote(editingMemorial.note || '');
+        setBackground(editingMemorial.background);
+      } else {
+        // 重置表单
+        setName('');
+        setDate(new Date());
+        setIcon(getDefaultIcon().name);
+        setIconColor(getDefaultColor());
+        setNote('');
+        setBackground(getDefaultBackground());
+      }
+      reset();
+      setPageAnimationState('idle');
     }
-  }, [editingMemorial, visible]);
+  }, [editingMemorial, visible, reset]);
 
   // 表单验证
   const isValid = name.trim().length > 0 && date !== null;
 
+  // 导航到下一页
+  const handleNavigate = useCallback((pageId: string, title: string) => {
+    pendingEnterPageId.current = pageId;
+    setAnimationKey(k => k + 1);
+    setPageAnimationState('entering');
+    push({ id: pageId, title });
+    setTimeout(() => setPageAnimationState('idle'), 300);
+  }, [push]);
+
+  // 返回上一页
+  const handleBack = useCallback((skipAnimation?: boolean) => {
+    if (canGoBack) {
+      if (skipAnimation) {
+        pop();
+        setPageAnimationState('idle');
+      } else {
+        setPageAnimationState('exiting');
+        setTimeout(() => {
+          pop();
+          setPageAnimationState('idle');
+        }, 300);
+      }
+    } else {
+      onClose();
+    }
+  }, [canGoBack, pop, onClose]);
+
+  // 手势返回支持
+  const { pageRef: subPageRef } = useSwipeBack({
+    onBack: () => handleBack(true),
+    enabled: canGoBack,
+  });
+
+  const { pageRef: mainPageRef } = useSwipeBack({
+    onBack: () => onClose(),
+    enabled: !canGoBack && visible,
+  });
+
+  // 获取页面 ref
+  const getPageRef = (index: number, pageId: string) => {
+    if (index !== stack.length - 1) return undefined;
+    return pageId === 'basic' ? mainPageRef : subPageRef;
+  };
+
   // 提交表单
   const handleSubmit = useCallback(() => {
     if (!isValid) return;
+
+    // 编辑模式不消耗灵玉
+    if (!editingMemorial) {
+      if (!canSpendSpiritJade(MEMORIAL_CREATION_COST)) {
+        setInsufficientJadePopup({
+          visible: true,
+          requiredAmount: MEMORIAL_CREATION_COST,
+        });
+        return;
+      }
+    }
 
     const dateStr = dayjs(date).format('YYYY-MM-DD');
     onSubmit({
@@ -75,139 +169,197 @@ export function CreateMemorialModal({
       background,
     });
 
+    // 创建模式扣除灵玉
+    if (!editingMemorial) {
+      spendSpiritJade({
+        amount: MEMORIAL_CREATION_COST,
+        source: 'CREATE_MEMORIAL',
+        description: `创建纪念日「${name.trim()}」`,
+      });
+      Toast.show({ icon: 'success', content: '纪念日创建成功' });
+    } else {
+      Toast.show({ icon: 'success', content: '保存成功' });
+    }
+
     onClose();
-  }, [isValid, name, date, icon, iconColor, note, background, onSubmit, onClose]);
+  }, [isValid, name, date, icon, iconColor, note, background, onSubmit, onClose, editingMemorial, canSpendSpiritJade, spendSpiritJade]);
+
+  // 获取页面层级样式
+  const getPageLayerClass = (index: number) => {
+    const isCurrentPage = index === stack.length - 1;
+    const isBackgroundPage = index === stack.length - 2;
+
+    if (pageAnimationState === 'entering') {
+      if (isCurrentPage) return styles.pageLayerEntering;
+      if (isBackgroundPage) return styles.pageLayerShrinking;
+    }
+
+    if (pageAnimationState === 'exiting') {
+      if (isCurrentPage) return styles.pageLayerExiting;
+      if (isBackgroundPage) return styles.pageLayerExpanding;
+    }
+
+    if (isCurrentPage) return styles.pageLayerActive;
+    if (isBackgroundPage) return styles.pageLayerBackground;
+
+    return styles.pageLayerHidden;
+  };
+
+  // 获取当前页面标题
+  const getCurrentTitle = () => {
+    const currentPage = stack[stack.length - 1];
+    if (editingMemorial) {
+      return currentPage.id === 'basic' ? '编辑纪念日' : '预览效果';
+    }
+    switch (currentPage.id) {
+      case 'basic':
+        return '创建纪念日';
+      case 'background':
+        return '预览效果';
+      default:
+        return currentPage.title;
+    }
+  };
+
+  // 获取当前步骤
+  const getCurrentStep = () => {
+    const currentPage = stack[stack.length - 1];
+    return PAGE_STEP_MAP[currentPage.id] || 1;
+  };
+
+  // 渲染页面内容（2步流程）
+  const renderPageContent = (pageId: string) => {
+    switch (pageId) {
+      case 'basic':
+        // 第一步：名称、日期、图标、背景、备注
+        return (
+          <BasicInfoPage
+            name={name}
+            date={date}
+            icon={icon}
+            iconColor={iconColor}
+            background={background}
+            note={note}
+            onNameChange={setName}
+            onDateChange={setDate}
+            onIconChange={setIcon}
+            onIconColorChange={setIconColor}
+            onBackgroundChange={setBackground}
+            onNoteChange={setNote}
+            onNext={() => handleNavigate('background', '预览效果')}
+          />
+        );
+      case 'background':
+        // 第二步：预览效果、灵玉消耗
+        return (
+          <BackgroundPage
+            name={name}
+            date={date}
+            icon={icon}
+            iconColor={iconColor}
+            background={background}
+            note={note}
+            isEditing={!!editingMemorial}
+            onSubmit={handleSubmit}
+            onBack={() => handleBack()}
+          />
+        );
+      default:
+        return null;
+    }
+  };
 
   // 阻止背景点击关闭
   const handleModalClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
   }, []);
 
-  // 处理日期选择
-  const handleDateConfirm = useCallback((val: Date | null) => {
-    if (val) {
-      setDate(val);
-    }
-    setCalendarVisible(false);
-  }, []);
-
-  // 格式化日期显示
-  const dateDisplayText = dayjs(date).format('YYYY年M月D日');
-
-  if (!visible) return null;
-
-  // 使用 Portal 渲染到 body 下，避免被父容器的 overflow 影响
-  return createPortal(
-    <div className={styles.overlay} onClick={onClose}>
-      <div className={styles.modal} onClick={handleModalClick}>
-        {/* 拖拽手柄 */}
-        <div className={styles.handle}>
-          <div className={styles.handleBar} />
-        </div>
-
+  // 使用 Popup 组件渲染
+  return (
+    <>
+      <Popup
+        visible={visible}
+        onMaskClick={onClose}
+        position="bottom"
+        bodyClassName={styles.popupBody}
+      >
         {/* 头部 */}
         <div className={styles.header}>
-          <h2 className={styles.title}>
-            {editingMemorial ? '编辑纪念日' : '创建纪念日'}
-          </h2>
-          <button className={styles.closeButton} onClick={onClose} type="button">
-            <X size={20} />
-          </button>
-        </div>
-
-        {/* 内容 */}
-        <div className={styles.content}>
-          {/* 名称 */}
-          <div className={styles.formGroup}>
-            <label className={styles.label}>纪念日名称</label>
-            <input
-              type="text"
-              className={styles.input}
-              placeholder="例如：结婚纪念日"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              maxLength={50}
-            />
-          </div>
-
-          {/* 日期 */}
-          <div className={styles.formGroup}>
-            <label className={styles.label}>日期</label>
-            <div
-              className={styles.dateButton}
-              onClick={() => setCalendarVisible(true)}
-            >
-              {dateDisplayText}
-            </div>
-            <DatePicker
-              visible={calendarVisible}
-              onClose={() => setCalendarVisible(false)}
-              precision="day"
-              value={date}
-              min={new Date(1900, 0, 1)}
-              max={new Date(2100, 11, 31)}
-              onConfirm={handleDateConfirm}
-            />
-          </div>
-
-          {/* 图标选择 */}
-          <div className={styles.section}>
-            <div className={styles.sectionTitle}>图标</div>
-            <Suspense fallback={<LoadingSkeleton />}>
-              <IconPicker
-                selectedIcon={icon}
-                selectedColor={iconColor}
-                onIconChange={setIcon}
-                onColorChange={setIconColor}
-              />
-            </Suspense>
-          </div>
-
-          {/* 背景选择 */}
-          <div className={styles.section}>
-            <div className={styles.sectionTitle}>详情页背景</div>
-            <Suspense fallback={<LoadingSkeleton />}>
-              <BackgroundPicker value={background} onChange={setBackground} />
-            </Suspense>
-          </div>
-
-          {/* 备注 */}
-          <div className={styles.formGroup}>
-            <label className={styles.label}>备注（可选）</label>
-            <textarea
-              className={`${styles.input} ${styles.textarea}`}
-              placeholder="添加一些备注..."
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              maxLength={200}
-            />
-          </div>
-        </div>
-
-        {/* 底部按钮 */}
-        <div className={styles.footer}>
-          <button className={styles.cancelButton} onClick={onClose} type="button">
-            取消
-          </button>
           <button
-            className={styles.submitButton}
-            onClick={handleSubmit}
-            disabled={!isValid}
+            className={styles.headerButton}
+            onClick={() => {
+              if (canGoBack) {
+                handleBack();
+              } else {
+                onClose();
+              }
+            }}
             type="button"
           >
-            {editingMemorial ? '保存' : '创建'}
+            {canGoBack ? <ChevronLeft size={24} /> : <X size={20} />}
           </button>
+          <h2 className={styles.title}>
+            {getCurrentTitle()}
+          </h2>
+          <div className={styles.headerSpacer} />
         </div>
+
+        {/* 分段进度条 */}
+        <StepProgressBar currentStep={getCurrentStep()} totalSteps={TOTAL_STEPS} />
+
+        {/* 内容区域包裹容器 */}
+        <div className={styles.contentWrapper}>
+          {/* 页面栈容器 */}
+          <div className={styles.pageStack}>
+            {stack.map((page, index) => {
+              const isCurrentPage = index === stack.length - 1;
+              const needsAnimationKey = isCurrentPage && pageAnimationState === 'entering';
+              const pageKey = needsAnimationKey ? `${page.id}-anim-${animationKey}` : page.id;
+
+              const setPageRef = (el: HTMLDivElement | null) => {
+                if (el) {
+                  pageRefs.current.set(page.id, el);
+
+                  if (pendingEnterPageId.current === page.id) {
+                    el.style.transition = 'none';
+                    el.style.transform = 'translateX(100%)';
+                    void el.offsetHeight;
+                    el.style.transition = '';
+                    el.style.transform = '';
+                    pendingEnterPageId.current = null;
+                  }
+                }
+                const originalRef = getPageRef(index, page.id);
+                if (originalRef && typeof originalRef === 'object' && 'current' in originalRef) {
+                  (originalRef as React.MutableRefObject<HTMLDivElement | null>).current = el;
+                }
+              };
+
+              return (
+                <div
+                  key={pageKey}
+                  ref={setPageRef}
+                  className={`${styles.pageLayer} ${getPageLayerClass(index)}`}
+                >
+                  {renderPageContent(page.id)}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
         <SafeArea position="bottom" />
-      </div>
-    </div>,
-    document.body
+      </Popup>
+
+      {/* 灵玉不足弹窗 */}
+      <InsufficientJadePopup
+        visible={insufficientJadePopup.visible}
+        currentBalance={spiritJadeData.balance}
+        requiredAmount={insufficientJadePopup.requiredAmount}
+        onClose={() => setInsufficientJadePopup({ visible: false, requiredAmount: 0 })}
+      />
+    </>
   );
 }
 
 export default CreateMemorialModal;
-
-
-
-
-

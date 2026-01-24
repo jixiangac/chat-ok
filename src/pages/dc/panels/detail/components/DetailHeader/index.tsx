@@ -1,6 +1,6 @@
-import { X, MoreHorizontal, Edit2, Archive, FastForward, SkipForward, Zap, Copy, StopCircle } from 'lucide-react';
+import { X, MoreHorizontal, Edit2, Archive, FastForward, SkipForward, Zap, Copy, StopCircle, ArrowRightLeft } from 'lucide-react';
 import { Toast } from 'antd-mobile';
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { exportSingleTask, copyToClipboard, getDeveloperMode } from '../../../../utils';
 import styles from './styles.module.css';
 
@@ -23,6 +23,8 @@ export interface DetailHeaderProps {
   onDebugNextCycle?: () => void;
   /** 提前结束 */
   onEndPlanEarly?: () => void;
+  /** 转为支线任务（仅主线任务可用） */
+  onConvertToSideline?: () => void;
   /** 是否已结束 */
   isPlanEnded?: boolean;
   /** 是否显示 Debug 选项 */
@@ -43,10 +45,28 @@ export default function DetailHeader({
   onDebugNextDay,
   onDebugNextCycle,
   onEndPlanEarly,
+  onConvertToSideline,
   isPlanEnded = false,
   showDebug = true
 }: DetailHeaderProps) {
   const [showActions, setShowActions] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  // 点击外部关闭菜单
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showActions &&
+          menuRef.current && !menuRef.current.contains(event.target as Node) &&
+          buttonRef.current && !buttonRef.current.contains(event.target as Node)) {
+        setShowActions(false);
+      }
+    };
+    if (showActions) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showActions]);
   
   // 获取开发者模式状态
   const isDeveloperMode = useMemo(() => getDeveloperMode(), []);
@@ -97,6 +117,11 @@ export default function DetailHeader({
     onDebugNextCycle?.();
   }, [onDebugNextCycle]);
 
+  const handleConvertToSideline = useCallback(() => {
+    setShowActions(false);
+    onConvertToSideline?.();
+  }, [onConvertToSideline]);
+
   return (
     <div className={styles.container}>
       <button className={styles.closeButton} onClick={onClose}>
@@ -109,12 +134,12 @@ export default function DetailHeader({
       </div>
       
       <div className={styles.rightActions}>
-        <button className={styles.moreButton} onClick={() => setShowActions(!showActions)}>
+        <button ref={buttonRef} className={styles.moreButton} onClick={() => setShowActions(!showActions)}>
           <MoreHorizontal size={20} />
         </button>
         
         {showActions && (
-          <div className={styles.menuDropdown}>
+          <div ref={menuRef} className={styles.menuDropdown}>
             {onEdit && (
               <div className={styles.menuItem} onClick={handleEdit}>
                 <Edit2 size={14} style={{ marginRight: 6 }} />
@@ -127,7 +152,13 @@ export default function DetailHeader({
                 提前结束
               </div>
             )}
-            {isPlanEnded && (
+            {onConvertToSideline && !isPlanEnded && (
+              <div className={styles.menuItem} onClick={handleConvertToSideline}>
+                <ArrowRightLeft size={14} style={{ marginRight: 6 }} />
+                转为支线
+              </div>
+            )}
+            {isPlanEnded && onArchive && (
               <div className={styles.menuItem} onClick={handleArchive}>
                 <Archive size={14} style={{ marginRight: 6 }} />
                 归档任务

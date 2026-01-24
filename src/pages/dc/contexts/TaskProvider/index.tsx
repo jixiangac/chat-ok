@@ -10,7 +10,7 @@ import type { TaskContextValue, HistoryRecord, CycleInfo, TodayCheckInStatus, Go
 import type { SceneType } from '../SceneProvider/types';
 import { createTask as createNewFormatTask } from '../../utils/migration';
 import { useScene } from '../SceneProvider';
-import { archiveTask as archiveTaskToStorage } from '../../utils/archiveStorage';
+import { archiveTask as archiveTaskToStorage, getArchivedTasks } from '../../utils/archiveStorage';
 import { getEffectiveMainlineType, getCurrentDate } from '../../utils';
 
 // 导入重构后的辅助函数
@@ -166,8 +166,18 @@ export function TaskProvider({ children }: TaskProviderProps) {
     scene.refreshScene('normal');
   }, [scene]);
 
-  const getTaskById = useCallback((taskId: string): Task | undefined => {
-    return scene.getTaskById(taskId, 'normal');
+  const getTaskById = useCallback((taskId: string, includeArchived: boolean = true): Task | undefined => {
+    // 先在活跃任务中查找
+    const activeTask = scene.getTaskById(taskId, 'normal');
+    if (activeTask) return activeTask;
+
+    // 如果允许且未找到，在归档任务中查找
+    if (includeArchived) {
+      const archivedTasks = getArchivedTasks();
+      return archivedTasks.find(t => t.id === taskId);
+    }
+
+    return undefined;
   }, [scene]);
 
   // ========== 进度管理 ==========
@@ -630,7 +640,7 @@ export function TaskProvider({ children }: TaskProviderProps) {
   const updateChecklistItem = useCallback(async (
     taskId: string,
     itemId: string,
-    updates: { status?: string; subProgress?: { current: number; total: number } },
+    updates: { status?: string; subProgress?: { current: number; total: number }; cycle?: number },
     sceneType?: SceneType
   ): Promise<boolean> => {
     const targetScene = sceneType || detectScene(taskId);
@@ -664,6 +674,13 @@ export function TaskProvider({ children }: TaskProviderProps) {
               current: updates.subProgress.current,
               total: updates.subProgress.total,
             } as any,
+          };
+        }
+        // 更新清单项所属周期
+        if (updates.cycle !== undefined) {
+          items[itemIndex] = {
+            ...items[itemIndex],
+            cycle: updates.cycle,
           };
         }
 
@@ -719,6 +736,91 @@ export function TaskProvider({ children }: TaskProviderProps) {
       return true;
     } catch (error) {
       console.error('更新清单项失败:', error);
+      return false;
+    }
+  }, [scene, detectScene]);
+
+  // 批量更新清单项周期（一次性更新多个，避免并发问题）
+  const batchUpdateChecklistItemsCycle = useCallback(async (
+    taskId: string,
+    itemIds: string[],
+    cycle: number,
+    sceneType?: SceneType
+  ): Promise<boolean> => {
+    if (itemIds.length === 0) return true;
+
+    const targetScene = sceneType || detectScene(taskId);
+    if (!targetScene) return false;
+
+    const task = scene.getTaskById(taskId, targetScene);
+    if (!task) return false;
+
+    try {
+      const config = task.checklistConfig;
+      if (!config) return false;
+
+      // 一次性更新所有清单项的周期
+      const items = [...(config.items || [])];
+      const itemIdSet = new Set(itemIds);
+
+      items.forEach((item, index) => {
+        if (itemIdSet.has(item.id)) {
+          items[index] = { ...item, cycle };
+        }
+      });
+
+      // 计算更新后的进度
+      const completedCount = items.filter(item => item.status === 'COMPLETED').length;
+      let progressUpdate: Partial<Task> = {};
+
+      if (task.category === 'CHECKLIST') {
+        const totalItems = config.totalItems;
+        const perCycleTarget = config.perCycleTarget;
+        const currentCycle = task.cycle.currentCycle;
+
+        const currentCycleCompleted = items.filter(
+          item => item.status === 'COMPLETED' && item.cycle === currentCycle
+        ).length;
+
+        const cyclePercentage = Math.min(100, Math.round((currentCycleCompleted / perCycleTarget) * 100));
+        const totalPercentage = Math.round((completedCount / totalItems) * 100);
+
+        const cycleAchieved = currentCycleCompleted;
+        const cycleRemaining = Math.max(0, perCycleTarget - currentCycleCompleted);
+
+        progressUpdate = {
+          progress: {
+            ...task.progress,
+            cyclePercentage,
+            totalPercentage,
+            cycleAchieved,
+            cycleRemaining,
+            lastUpdatedAt: dayjs().toISOString()
+          }
+        };
+      }
+
+      // 一次性更新任务
+      scene.updateTask(targetScene, taskId, {
+        checklistConfig: {
+          ...config,
+          items,
+          completedItems: completedCount
+        },
+        ...progressUpdate
+      });
+
+      // 更新今日进度
+      const updatedTask = scene.getTaskById(taskId, targetScene);
+      if (updatedTask) {
+        scene.updateTask(targetScene, taskId, {
+          todayProgress: calculateTodayProgress(updatedTask)
+        });
+      }
+
+      return true;
+    } catch (error) {
+      console.error('批量更新清单项周期失败:', error);
       return false;
     }
   }, [scene, detectScene]);
@@ -1188,6 +1290,28 @@ export function TaskProvider({ children }: TaskProviderProps) {
       // 计算新周期的日期信息
       const newCycleEndDate = startDate.add(newCycleNumber * cycleDays - 1, 'day').format('YYYY-MM-DD');
 
+      // 处理清单类型任务：将未完成的清单项迁移到新周期
+      let updatedChecklistConfig = task.checklistConfig;
+      if (task.category === 'CHECKLIST' && task.checklistConfig) {
+        const items = task.checklistConfig.items || [];
+        const updatedItems = items.map(item => {
+          // 只处理当前周期未完成的项
+          if (item.cycle === currentCycle && item.status !== 'COMPLETED') {
+            return {
+              ...item,
+              cycle: newCycleNumber,
+              // 保留原始周期（如果还没有的话）
+              originalCycle: item.originalCycle ?? currentCycle,
+            };
+          }
+          return item;
+        });
+        updatedChecklistConfig = {
+          ...task.checklistConfig,
+          items: updatedItems,
+        };
+      }
+
       // 构建更新对象
       const updates: Partial<Task> & { debugDayOffset?: number } = {
         cycle: {
@@ -1211,12 +1335,14 @@ export function TaskProvider({ children }: TaskProviderProps) {
           lastUpdatedAt: dayjs().toISOString()
         },
         activities: [...task.activities, cycleAdvanceLog],
-        todayProgress: calculateTodayProgress({ 
-          ...task, 
-          cycle: { ...task.cycle, currentCycle: newCycleNumber }, 
-          debugDayOffset: newDebugDayOffset 
+        todayProgress: calculateTodayProgress({
+          ...task,
+          cycle: { ...task.cycle, currentCycle: newCycleNumber },
+          debugDayOffset: newDebugDayOffset
         } as Task),
-        debugDayOffset: newDebugDayOffset + 1
+        debugDayOffset: newDebugDayOffset + 1,
+        // 清单类型：更新清单配置（包含迁移后的清单项）
+        ...(updatedChecklistConfig && { checklistConfig: updatedChecklistConfig }),
       };
 
       scene.updateTask(targetScene, taskId, updates as Partial<Task>);
@@ -1299,6 +1425,7 @@ export function TaskProvider({ children }: TaskProviderProps) {
     getTodayCheckInStatus,
     recordNumericData,
     updateChecklistItem,
+    batchUpdateChecklistItemsCycle,
     endPlanEarly,
     getGoalDetailData,
     updateTodayProgress,

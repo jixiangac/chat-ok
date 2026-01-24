@@ -64,15 +64,18 @@ export const saveLocationFilter = (locationTagId: string | null): void => {
  */
 export const exportAllTasks = (): string => {
   try {
-    const tasksData = localStorage.getItem('dc_tasks');
-    if (!tasksData) {
+    // 从新的场景化存储中读取任务
+    const sceneKey = 'dc_scene_normal';
+    const sceneData = localStorage.getItem(sceneKey);
+    if (!sceneData) {
       return JSON.stringify({ tasks: [], exportTime: new Date().toISOString() });
     }
-    const tasks = JSON.parse(tasksData);
+    const parsed = JSON.parse(sceneData);
+    const tasks = parsed.tasks || [];
     return JSON.stringify({
       tasks,
       exportTime: new Date().toISOString(),
-      version: '1.0'
+      version: '2.0'
     }, null, 2);
   } catch (error) {
     console.error('Failed to export tasks:', error);
@@ -85,18 +88,22 @@ export const exportAllTasks = (): string => {
  */
 export const exportSingleTask = (taskId: string): string | null => {
   try {
-    const tasksData = localStorage.getItem('dc_tasks');
-    if (!tasksData) return null;
-    
-    const tasks = JSON.parse(tasksData);
+    // 从新的场景化存储中读取任务
+    const sceneKey = 'dc_scene_normal';
+    const sceneData = localStorage.getItem(sceneKey);
+
+    if (!sceneData) return null;
+
+    const parsed = JSON.parse(sceneData);
+    const tasks = parsed.tasks || [];
     const task = tasks.find((t: any) => t.id === taskId);
-    
+
     if (!task) return null;
-    
+
     return JSON.stringify({
       task,
       exportTime: new Date().toISOString(),
-      version: '1.0'
+      version: '2.0'
     }, null, 2);
   } catch (error) {
     console.error('Failed to export single task:', error);
@@ -110,24 +117,31 @@ export const exportSingleTask = (taskId: string): string | null => {
 export const importAllTasks = (jsonData: string): { success: boolean; message: string; count?: number } => {
   try {
     const data = JSON.parse(jsonData);
-    
+
     // 验证数据格式
     if (!data.tasks || !Array.isArray(data.tasks)) {
       return { success: false, message: '数据格式错误：缺少 tasks 数组' };
     }
-    
+
     // 验证每个任务的基本结构
     for (const task of data.tasks) {
       if (!task.id || !task.title) {
         return { success: false, message: '数据格式错误：任务缺少必要字段 (id, title)' };
       }
     }
-    
-    // 保存到 localStorage
-    localStorage.setItem('dc_tasks', JSON.stringify(data.tasks));
-    
-    return { 
-      success: true, 
+
+    // 保存到新的场景化存储
+    const sceneKey = 'dc_scene_normal';
+    const existingData = localStorage.getItem(sceneKey);
+    const meta = existingData ? JSON.parse(existingData).meta : { lastUpdate: Date.now(), version: 1 };
+
+    localStorage.setItem(sceneKey, JSON.stringify({
+      tasks: data.tasks,
+      meta: { ...meta, lastUpdate: Date.now() }
+    }));
+
+    return {
+      success: true,
       message: `成功导入 ${data.tasks.length} 个任务`,
       count: data.tasks.length
     };
@@ -143,22 +157,24 @@ export const importAllTasks = (jsonData: string): { success: boolean; message: s
 export const importSingleTask = (jsonData: string): { success: boolean; message: string } => {
   try {
     const data = JSON.parse(jsonData);
-    
+
     // 支持两种格式：{ task: {...} } 或直接 {...}
     const task = data.task || data;
-    
+
     // 验证任务的基本结构
     if (!task.id || !task.title) {
       return { success: false, message: '数据格式错误：任务缺少必要字段 (id, title)' };
     }
-    
-    // 获取现有任务
-    const tasksData = localStorage.getItem('dc_tasks');
-    const tasks = tasksData ? JSON.parse(tasksData) : [];
-    
+
+    // 从新的场景化存储中获取现有任务
+    const sceneKey = 'dc_scene_normal';
+    const sceneData = localStorage.getItem(sceneKey);
+    const parsed = sceneData ? JSON.parse(sceneData) : { tasks: [], meta: { lastUpdate: Date.now(), version: 1 } };
+    const tasks = parsed.tasks || [];
+
     // 检查是否已存在相同 ID 的任务
     const existingIndex = tasks.findIndex((t: any) => t.id === task.id);
-    
+
     if (existingIndex >= 0) {
       // 更新现有任务
       tasks[existingIndex] = task;
@@ -166,12 +182,15 @@ export const importSingleTask = (jsonData: string): { success: boolean; message:
       // 添加新任务
       tasks.push(task);
     }
-    
-    // 保存到 localStorage
-    localStorage.setItem('dc_tasks', JSON.stringify(tasks));
-    
-    return { 
-      success: true, 
+
+    // 保存到新的场景化存储
+    localStorage.setItem(sceneKey, JSON.stringify({
+      tasks,
+      meta: { ...parsed.meta, lastUpdate: Date.now() }
+    }));
+
+    return {
+      success: true,
       message: existingIndex >= 0 ? '任务已更新' : '任务已添加'
     };
   } catch (error) {

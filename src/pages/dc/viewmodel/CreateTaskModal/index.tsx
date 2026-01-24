@@ -39,7 +39,8 @@ const PAGE_STEP_MAP: Record<string, number> = {
 
 export default function CreateTaskModal({
   visible,
-  onClose
+  onClose,
+  initialData
 }: CreateTaskModalProps) {
   const { normal } = useScene();
   const { addTask } = useTaskContext();
@@ -109,11 +110,60 @@ export default function CreateTaskModal({
     if (visible) {
       setPageAnimationState('idle');
       setTaskCategory(hasMainlineTask ? 'SIDELINE' : 'MAINLINE');
-      setState(createInitialState(getCurrentDate()));
-      setIsAIMode(false);
-      reset();
+
+      // 如果有 initialData，应用预填数据并直接跳转到最后一步
+      if (initialData) {
+        const baseState = createInitialState(getCurrentDate());
+        const newState = {
+          ...baseState,
+          taskTitle: initialData.title || '',
+          selectedType: initialData.category || null,
+          totalDays: initialData.totalDays || baseState.totalDays,
+          cycleDays: initialData.cycleDays || baseState.cycleDays,
+        };
+
+        // 应用数值型配置
+        if (initialData.numericConfig) {
+          newState.numericDirection = initialData.numericConfig.direction;
+          newState.numericUnit = initialData.numericConfig.unit;
+          newState.startValue = String(initialData.numericConfig.startValue);
+          newState.targetValue = String(initialData.numericConfig.targetValue);
+        }
+
+        // 应用清单型配置
+        if (initialData.checklistItems && initialData.checklistItems.length > 0) {
+          newState.totalItems = String(initialData.checklistItems.length);
+          newState.checklistItems = initialData.checklistItems;
+        }
+
+        // 应用打卡型配置
+        if (initialData.checkInConfig) {
+          newState.checkInUnit = initialData.checkInConfig.unit;
+          if (initialData.checkInConfig.dailyMax) {
+            if (initialData.checkInConfig.unit === 'DURATION') {
+              newState.dailyTargetMinutes = String(initialData.checkInConfig.dailyMax);
+            } else if (initialData.checkInConfig.unit === 'TIMES') {
+              newState.dailyMaxTimes = String(initialData.checkInConfig.dailyMax);
+            } else if (initialData.checkInConfig.unit === 'QUANTITY' && initialData.checkInConfig.valueUnit) {
+              newState.dailyTargetValue = String(initialData.checkInConfig.dailyMax);
+              newState.valueUnit = initialData.checkInConfig.valueUnit;
+            }
+          }
+        }
+
+        setState(newState);
+        setIsAIMode(false);
+        reset();
+        // 直接跳转到最后一步（周期确认页）
+        push({ id: 'cycle', title: '确认创建' });
+        Toast.show({ content: 'AI 已生成配置，确认后即可创建', icon: 'success' });
+      } else {
+        setState(createInitialState(getCurrentDate()));
+        setIsAIMode(false);
+        reset();
+      }
     }
-  }, [visible, hasMainlineTask, reset]);
+  }, [visible, hasMainlineTask, reset, initialData, push]);
 
   // 处理 AI 生成的任务配置
   const handleAIStructuredOutput = useCallback((output: StructuredOutput) => {

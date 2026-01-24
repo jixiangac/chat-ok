@@ -42,6 +42,7 @@ export { default as CheckInHistoryPanel } from './CheckInHistoryPanel';
 // 弹窗组件
 export { default as RecordDataModal } from './RecordDataModal';
 export { default as CheckInModal } from './CheckInModal';
+export { default as ChecklistRecordModal } from './ChecklistRecordModal';
 export { showCycleSummaryDialog } from './CycleSummaryDialog';
 
 // 其他组件

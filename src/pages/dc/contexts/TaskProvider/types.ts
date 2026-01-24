@@ -113,12 +113,20 @@ export interface TaskContextValue {
   
   // 更新清单项
   updateChecklistItem: (
-    taskId: string, 
-    itemId: string, 
-    updates: { status?: string; subProgress?: { current: number; total: number } },
+    taskId: string,
+    itemId: string,
+    updates?: { status?: string; subProgress?: { current: number; total: number }; cycle?: number },
     scene?: SceneType
   ) => Promise<boolean>;
-  
+
+  // 批量更新清单项周期（避免并发问题）
+  batchUpdateChecklistItemsCycle: (
+    taskId: string,
+    itemIds: string[],
+    cycle: number,
+    scene?: SceneType
+  ) => Promise<boolean>;
+
   // 提前结束任务
   endPlanEarly: (taskId: string, scene?: SceneType) => Promise<boolean>;
   

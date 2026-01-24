@@ -16,6 +16,7 @@ import { AllSidelineTasksPopup } from '../AllSidelineTasksList';
 import type { Task, TaskTag, ViewMode } from '../../types';
 import { getUsedLocationTags } from '../../utils/tagStorage';
 import { getSavedLocationFilter, saveLocationFilter } from '@/pages/dc/utils/developerStorage';
+import { useModal, UI_KEYS } from '../../contexts';
 import styles from './styles.module.css';
 
 // 地点图标映射
@@ -67,8 +68,8 @@ const SidelineTaskSection: React.FC<SidelineTaskSectionProps> = ({
   isTodayCompleted,
   isCycleCompleted,
 }) => {
-  // 显示全部支线任务弹窗状态
-  const [showAllSidelineTasks, setShowAllSidelineTasks] = useState(false);
+  // 显示全部支线任务弹窗状态（使用全局 UI 状态）
+  const { visible: showAllSidelineTasks, open: openAllSideline, close: closeAllSideline } = useModal(UI_KEYS.MODAL_ALL_SIDELINE_VISIBLE);
 
   // 从本地存储读取初始地点筛选状态
   const [selectedLocationTagId, setSelectedLocationTagId] = useState<string | null>(() => getSavedLocationFilter());
@@ -204,21 +205,21 @@ const SidelineTaskSection: React.FC<SidelineTaskSectionProps> = ({
             tasks={tasks}
             onGroupClick={onGroupClick}
             onRandomOpen={onRandomOpen}
-            onShowAll={() => setShowAllSidelineTasks(true)}
+            onShowAll={openAllSideline}
           />
         ) : (
-          <SidelineTaskGrid 
+          <SidelineTaskGrid
             tasks={filteredTasks}
             onTaskClick={onTaskClick}
             onRandomOpen={onRandomOpen}
-            onShowAll={() => setShowAllSidelineTasks(true)}
+            onShowAll={openAllSideline}
           />
         )}
 
         {/* 所有支线任务抽屉 */}
         <AllSidelineTasksPopup
           visible={showAllSidelineTasks}
-          onClose={() => setShowAllSidelineTasks(false)}
+          onClose={closeAllSideline}
           tasks={tasks}
           onTaskClick={onTaskClick}
           isTodayCompleted={isTodayCompleted}

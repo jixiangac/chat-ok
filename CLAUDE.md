@@ -16,3 +16,8 @@ Use `@/openspec/AGENTS.md` to learn:
 Keep this managed block so 'openspec update' can refresh the instructions.
 
 <!-- OPENSPEC:END -->
+
+## 非常重要的事项
+
+1. 当遇到Context limit reached的请自动执行/compact完成后请自动继续任务
+2. 当在执行 openspec的changes任务的时候，当前的task.md除了测试类任务，只要没完成你必须全部完成才行

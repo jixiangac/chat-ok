@@ -56,10 +56,12 @@ const TabButton = memo(function TabButton({ label, isActive, onClick }: TabButto
 interface BackgroundPickerProps {
   value: MemorialBackground;
   onChange: (background: MemorialBackground) => void;
+  /** 仅显示纯色选项（隐藏渐变和图片选项卡） */
+  solidOnly?: boolean;
 }
 
-export function BackgroundPicker({ value, onChange }: BackgroundPickerProps) {
-  const [activeTab, setActiveTab] = useState<TabType>(value.type === 'image' ? 'image' : value.type);
+export function BackgroundPicker({ value, onChange, solidOnly = false }: BackgroundPickerProps) {
+  const [activeTab, setActiveTab] = useState<TabType>(solidOnly ? 'color' : (value.type === 'image' ? 'image' : value.type));
   const [isCompressing, setIsCompressing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -246,32 +248,34 @@ export function BackgroundPicker({ value, onChange }: BackgroundPickerProps) {
 
   return (
     <div className={styles.container}>
-      {/* 预览 */}
-      {renderPreview()}
+      {/* 预览 - solidOnly 模式下不显示预览 */}
+      {!solidOnly && renderPreview()}
 
-      {/* 标签页 */}
-      <div className={styles.tabs}>
-        <TabButton
-          label="纯色"
-          isActive={activeTab === 'color'}
-          onClick={() => handleTabChange('color')}
-        />
-        <TabButton
-          label="渐变"
-          isActive={activeTab === 'gradient'}
-          onClick={() => handleTabChange('gradient')}
-        />
-        <TabButton
-          label="图片"
-          isActive={activeTab === 'image'}
-          onClick={() => handleTabChange('image')}
-        />
-      </div>
+      {/* 标签页 - solidOnly 模式下不显示标签页 */}
+      {!solidOnly && (
+        <div className={styles.tabs}>
+          <TabButton
+            label="纯色"
+            isActive={activeTab === 'color'}
+            onClick={() => handleTabChange('color')}
+          />
+          <TabButton
+            label="渐变"
+            isActive={activeTab === 'gradient'}
+            onClick={() => handleTabChange('gradient')}
+          />
+          <TabButton
+            label="图片"
+            isActive={activeTab === 'image'}
+            onClick={() => handleTabChange('image')}
+          />
+        </div>
+      )}
 
       {/* 内容 */}
       {activeTab === 'color' && renderColorPicker()}
-      {activeTab === 'gradient' && renderGradientPicker()}
-      {activeTab === 'image' && renderImagePicker()}
+      {!solidOnly && activeTab === 'gradient' && renderGradientPicker()}
+      {!solidOnly && activeTab === 'image' && renderImagePicker()}
     </div>
   );
 }

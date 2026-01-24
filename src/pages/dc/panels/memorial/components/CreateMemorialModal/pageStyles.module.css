@@ -1,0 +1,413 @@
+/*
+ * 纪念日创建步骤页面样式
+ * 参考 CreateTaskModal 的 ConfigPage 设计风格
+ */
+
+/* ==================== 页面容器 ==================== */
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-top: 8px;
+  padding-bottom: 120px;
+}
+
+/* ==================== 名称输入区域 ==================== */
+.nameSection {
+  padding: 0 16px 16px;
+}
+
+.nameInputWrapper {
+  display: flex;
+  align-items: center;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.nameInput {
+  flex: 1;
+  padding: 16px;
+  border: none;
+  font-size: 17px;
+  font-weight: 500;
+  color: rgb(55, 53, 47);
+  background: transparent;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.nameInput::placeholder {
+  color: rgba(55, 53, 47, 0.4);
+  font-weight: 400;
+}
+
+/* ==================== 输入组 ==================== */
+.inputGroup {
+  padding: 0 16px;
+  margin-bottom: 16px;
+}
+
+.sectionTitle {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(55, 53, 47, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+  padding-left: 4px;
+}
+
+/* ==================== 选择器入口（二级选择） ==================== */
+.selectorEntry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: white;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-sizing: border-box;
+}
+
+.selectorEntry:active {
+  transform: scale(0.99);
+  background: rgba(55, 53, 47, 0.02);
+}
+
+.selectorLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.selectorPreview {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.selectorLabel {
+  font-size: 15px;
+  color: rgb(55, 53, 47);
+}
+
+.selectorRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(55, 53, 47, 0.4);
+}
+
+.selectorValue {
+  font-size: 14px;
+  color: rgba(55, 53, 47, 0.6);
+}
+
+/* ==================== 日期选择按钮 ==================== */
+.dateButton {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  color: rgb(55, 53, 47);
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-sizing: border-box;
+}
+
+.dateButton:active {
+  transform: scale(0.99);
+  background: rgba(55, 53, 47, 0.02);
+}
+
+.dateRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(55, 53, 47, 0.4);
+}
+
+.dateHint {
+  font-size: 13px;
+  color: rgba(55, 53, 47, 0.4);
+}
+
+/* ==================== 输入框（备注等） ==================== */
+.input {
+  width: 100%;
+  padding: 12px 14px;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  color: rgb(55, 53, 47);
+  background: white;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.input::placeholder {
+  color: rgba(55, 53, 47, 0.35);
+}
+
+.textarea {
+  min-height: 80px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+/* ==================== 预览区域 ==================== */
+.previewSection {
+  margin: 0 16px 16px;
+}
+
+/* 列表预览卡片 */
+.previewCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: white;
+  border-radius: 12px;
+}
+
+.previewIconWrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.previewContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.previewName {
+  font-size: 16px;
+  font-weight: 600;
+  color: rgb(55, 53, 47);
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.previewDate {
+  font-size: 13px;
+  color: rgba(55, 53, 47, 0.5);
+  margin-top: 4px;
+}
+
+.previewDays {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(55, 53, 47, 0.65);
+  flex-shrink: 0;
+}
+
+/* ==================== 详情预览（真实详情页缩小版） ==================== */
+.detailPreview {
+  position: relative;
+  height: 280px;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 16px 20px;
+}
+
+/* 左上角信息 */
+.detailTopInfo {
+  position: relative;
+  z-index: 2;
+}
+
+.detailDateText {
+  font-size: 18px;
+  font-weight: 300;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+  color: rgba(55, 53, 47, 0.8);
+}
+
+.detailNameText {
+  font-size: 14px;
+  font-weight: 400;
+  color: rgba(55, 53, 47, 0.7);
+}
+
+/* 左下角天数 */
+.detailBottomInfo {
+  position: absolute;
+  bottom: 20px;
+  left: 16px;
+  z-index: 2;
+}
+
+.detailDaysContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.detailDaysRow {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  line-height: 1.05;
+}
+
+.detailDaysNumber {
+  font-size: 48px;
+  font-weight: 200;
+  letter-spacing: -1px;
+  color: rgb(55, 53, 47);
+}
+
+.detailDaysUnit {
+  font-size: 26px;
+  font-weight: 200;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(55, 53, 47, 0.85);
+}
+
+.detailTodayText {
+  font-size: 48px;
+  font-weight: 200;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgb(55, 53, 47);
+}
+
+/* 右下角备注 */
+.detailNoteWrapper {
+  position: absolute;
+  bottom: 20px;
+  right: 16px;
+  max-width: 140px;
+  z-index: 2;
+}
+
+.detailNote {
+  font-size: 12px;
+  font-style: italic;
+  text-align: right;
+  line-height: 1.4;
+  color: rgba(55, 53, 47, 0.6);
+  margin: 0;
+}
+
+/* ==================== 二级弹窗样式 ==================== */
+.pickerPopup {
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  height: 70vh;
+  display: flex;
+  flex-direction: column;
+  background: #f7f7f5;
+  overflow: hidden;
+}
+
+.pickerHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  flex-shrink: 0;
+}
+
+.pickerCloseBtn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  color: rgb(55, 53, 47);
+}
+
+.pickerCloseBtn:active {
+  background: rgba(55, 53, 47, 0.06);
+}
+
+.pickerTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: rgb(55, 53, 47);
+}
+
+.pickerSpacer {
+  width: 36px;
+}
+
+.pickerContent {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 8px 16px 24px;
+}
+
+.pickerFooter {
+  padding: 16px;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom));
+  background: #f7f7f5;
+  border-top: 1px solid rgba(55, 53, 47, 0.06);
+  flex-shrink: 0;
+}
+
+.pickerConfirmBtn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  color: white;
+  background: rgb(55, 53, 47);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pickerConfirmBtn:active {
+  transform: scale(0.98);
+  opacity: 0.9;
+}
+
+/* ==================== 底部导航提示样式 ==================== */
+.costHint {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: rgb(55, 53, 47);
+  font-weight: 500;
+}
+
+.costIcon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}

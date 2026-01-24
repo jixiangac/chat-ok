@@ -68,6 +68,7 @@ import {
 import { isTaskTodayMustComplete } from '../../utils/todayMustCompleteStorage';
 import { hasCycleRewardClaimed, markCycleRewardClaimed } from '../../utils/cycleRewardStorage';
 import { hasTodayDailyCompleteRewardClaimed, markTodayDailyCompleteRewardClaimed } from '../../utils/dailyCompleteRewardStorage';
+import { calculateAllowedReward, addTodayTaskReward } from '../../utils/dailyRewardTracker';
 import { RewardToast } from '../../components';
 
 // ============ Context ============
@@ -492,7 +493,7 @@ export function CultivationProvider({ children }: CultivationProviderProps) {
   // 发放打卡奖励
   const dispatchCheckInReward = useCallback((params: CheckInRewardParams): RewardItem | null => {
     const { task, completionRatio, isCycleComplete = false, cycleNumber } = params;
-    
+
     if (completionRatio <= 0) return null;
 
     const taskType = task.type as TaskType;
@@ -504,29 +505,54 @@ export function CultivationProvider({ children }: CultivationProviderProps) {
 
     // 计算每日上限
     const dailyCap = calculateDailyPointsCap(taskType, checkInUnit);
-    
+
     // 计算积分分配（包含基础和加成明细）
     const pointsResult = distributeCheckInPoints(completionRatio, dailyCap, isTodayMustComplete, shouldGiveCycleBonus);
 
-    // 发放奖励（使用最终总计）
-    addSpiritJade({
-      spiritJade: pointsResult.total.spiritJade,
-      cultivation: pointsResult.total.cultivation,
-      source: 'CHECK_IN',
-      taskId: task.id,
-      taskTitle: task.title,
-      description: `任务「${task.title}」打卡`,
-    });
+    // ===== 每日奖励上限检查 =====
+    const allowedReward = calculateAllowedReward(
+      task.id,
+      pointsResult.total.spiritJade,
+      pointsResult.total.cultivation,
+      dailyCap.spiritJade,
+      dailyCap.cultivation
+    );
+
+    // 如果已达到上限，不弹奖励弹窗，返回 null 让调用方显示 Toast
+    if (allowedReward.alreadyAtCap) {
+      return null;
+    }
+
+    // 计算实际发放的奖励（可能被上限截断）
+    const actualJade = allowedReward.allowedJade;
+    const actualCultivation = allowedReward.allowedCultivation;
+
+    // 发放奖励（使用上限检查后的值）
+    if (actualJade > 0) {
+      addSpiritJade({
+        spiritJade: actualJade,
+        cultivation: actualCultivation,
+        source: 'CHECK_IN',
+        taskId: task.id,
+        taskTitle: task.title,
+        description: `任务「${task.title}」打卡`,
+      });
+    }
 
     // 增加修为
-    if (pointsResult.total.cultivation > 0) {
+    if (actualCultivation > 0) {
       addExp({
-        amount: pointsResult.total.cultivation,
+        amount: actualCultivation,
         type: 'CHECK_IN',
         taskId: task.id,
         taskTitle: task.title,
         description: `任务「${task.title}」打卡`,
       });
+    }
+
+    // 记录今日已发放的奖励
+    if (actualJade > 0 || actualCultivation > 0) {
+      addTodayTaskReward(task.id, actualJade, actualCultivation);
     }
 
     // 标记周期奖励已领取
@@ -537,10 +563,14 @@ export function CultivationProvider({ children }: CultivationProviderProps) {
     // 检查是否有等级提升
     const levelUpInfo = lastLevelUpRef.current;
 
-    // 构建奖励显示对象
+    // 计算实际基础奖励比例（如果被上限截断，按比例缩减）
+    const jadeRatio = pointsResult.total.spiritJade > 0 ? actualJade / pointsResult.total.spiritJade : 0;
+    const cultivationRatio = pointsResult.total.cultivation > 0 ? actualCultivation / pointsResult.total.cultivation : 0;
+
+    // 构建奖励显示对象（显示实际发放的值）
     const reward: RewardItem = {
-      spiritJade: pointsResult.baseSpiritJade,
-      cultivation: pointsResult.baseCultivation,
+      spiritJade: Math.floor(pointsResult.baseSpiritJade * jadeRatio),
+      cultivation: Math.floor(pointsResult.baseCultivation * cultivationRatio),
       source: `任务「${task.title}」打卡`,
       levelUp: levelUpInfo ? { newLevelName: levelUpInfo.newLevelName } : undefined,
     };
@@ -552,24 +582,32 @@ export function CultivationProvider({ children }: CultivationProviderProps) {
 
     if (pointsResult.mustCompleteBonus) {
       bonuses.push('必完成任务');
-      bonusSpiritJade += pointsResult.mustCompleteBonus.spiritJade;
-      bonusCultivation += pointsResult.mustCompleteBonus.cultivation;
+      bonusSpiritJade += Math.floor(pointsResult.mustCompleteBonus.spiritJade * jadeRatio);
+      bonusCultivation += Math.floor(pointsResult.mustCompleteBonus.cultivation * cultivationRatio);
     }
 
     if (pointsResult.cycleCompleteBonus) {
       bonuses.push('周期完成');
-      bonusSpiritJade += pointsResult.cycleCompleteBonus.spiritJade;
-      bonusCultivation += pointsResult.cycleCompleteBonus.cultivation;
+      bonusSpiritJade += Math.floor(pointsResult.cycleCompleteBonus.spiritJade * jadeRatio);
+      bonusCultivation += Math.floor(pointsResult.cycleCompleteBonus.cultivation * cultivationRatio);
     }
 
-    if (bonuses.length > 0) {
+    if (bonuses.length > 0 && (bonusSpiritJade > 0 || bonusCultivation > 0)) {
       reward.bonus = {
         reason: bonuses.join('、'),
-        percentage: bonuses.length === 1 
+        percentage: bonuses.length === 1
           ? (pointsResult.mustCompleteBonus?.percentage || pointsResult.cycleCompleteBonus?.percentage || 0)
           : 0,  // 多个加成时不显示单一比例
         spiritJade: bonusSpiritJade,
         cultivation: bonusCultivation,
+      };
+    }
+
+    // 如果奖励被部分截断，添加上限提示信息
+    if (allowedReward.reachedJadeCap || allowedReward.reachedCultivationCap) {
+      reward.todayRemaining = {
+        spiritJade: { earned: dailyCap.spiritJade, cap: dailyCap.spiritJade },
+        cultivation: { earned: dailyCap.cultivation, cap: dailyCap.cultivation },
       };
     }
 

@@ -1,156 +1,902 @@
+/* 清单周期面板样式 - 参考设置页风格 */
+
 .container {
-  padding: 16px 20px;
-  background: #ffffff;
+  padding: 0;
+  width: 100%;
 }
 
 /* 区块 */
 .section {
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
+/* 区块标题 - 设置页风格 */
 .sectionHeader {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
+  gap: 6px;
+  margin-bottom: 8px;
+  padding: 0;
 }
 
 .sectionIcon {
-  font-size: 16px;
+  font-size: 14px;
+  color: rgba(55, 53, 47, 0.5);
 }
 
 .sectionTitle {
-  font-size: 14px;
+  font-size: 12px;
+  color: rgba(55, 53, 47, 0.5);
   font-weight: 500;
-  color: #333;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 /* 清单容器 */
 .listContainer {
-  background: #f5f5f5;
-  border-radius: 12px;
-  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-/* 清单项 */
+/* 清单项 - 独立卡片风格 */
 .listItem {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 12px;
-  padding: 16px;
-  border-bottom: 1px solid #e8e8e8;
+  padding: 14px 16px;
+  min-height: 48px;
+  box-sizing: border-box;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.2s ease;
+  background: white;
+  border-radius: 12px;
 }
 
-.listItem:last-child {
-  border-bottom: none;
+.listItem:hover {
+  background: rgba(55, 53, 47, 0.04);
 }
 
 .listItem:active {
-  background: #ebebeb;
+  transform: scale(0.99);
 }
 
+/* 已完成的清单项 */
 .listItem.completed {
-  opacity: 0.7;
+  background: rgba(55, 53, 47, 0.02);
 }
 
+.listItem.completed:hover {
+  background: rgba(55, 53, 47, 0.04);
+}
+
+/* 勾选框 - 设置页图标风格 */
 .itemCheckbox {
-  font-size: 18px;
-  color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 1.5px solid rgba(55, 53, 47, 0.25);
+  background: transparent;
   flex-shrink: 0;
-  margin-top: 2px;
+  transition: all 0.2s ease;
+  color: transparent;
 }
 
-.completed .itemCheckbox {
-  color: #16a34a;
+/* 已勾选状态 */
+.itemCheckbox.checked {
+  background: rgb(55, 53, 47);
+  border-color: rgb(55, 53, 47);
+  color: #fff;
 }
 
 .itemContent {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .itemTitle {
   font-size: 15px;
   font-weight: 500;
-  color: #333;
-  margin-bottom: 4px;
+  color: rgb(55, 53, 47);
+  line-height: 1.4;
+  word-break: break-word;
 }
 
+/* 已完成的标题样式 */
 .completed .itemTitle {
   text-decoration: line-through;
-  color: #999;
-}
-
-.itemProgress {
-  font-size: 13px;
-  color: #666;
-  margin-bottom: 2px;
+  color: rgba(55, 53, 47, 0.45);
 }
 
 .itemMeta {
   font-size: 12px;
-  color: #999;
+  color: rgba(55, 53, 47, 0.5);
 }
 
-.itemAction {
-  font-size: 12px;
-  color: #999;
-  padding: 4px 8px;
-  background: #fff;
-  border-radius: 4px;
+.itemTime {
   flex-shrink: 0;
+  font-size: 12px;
+  color: rgba(55, 53, 47, 0.45);
+  margin-left: auto;
 }
 
 /* 空状态 */
 .emptyHint {
-  padding: 24px;
+  padding: 24px 16px;
   text-align: center;
   font-size: 14px;
+  color: rgba(55, 53, 47, 0.5);
+}
+
+/* 加入更多清单入口 - 设置页列表项风格 */
+.addMoreEntry {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 16px;
+  margin-top: 8px;
+  background: white;
+  border-radius: 12px;
+  font-size: 14px;
+  color: rgba(55, 53, 47, 0.65);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.addMoreEntry:hover {
+  background: rgba(55, 53, 47, 0.04);
+}
+
+.addMoreEntry:active {
+  transform: scale(0.99);
+}
+
+.addMoreCost {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: auto;
+  margin-right: 4px;
+  font-size: 12px;
+  color: rgba(55, 53, 47, 0.45);
+}
+
+.addMoreCount {
+  margin-left: auto;
+  font-size: 14px;
+  color: rgba(55, 53, 47, 0.5);
+}
+
+.addMoreJadeIcon {
+  width: 12px;
+  height: 12px;
+  object-fit: contain;
+}
+
+/* 加入更多清单弹窗 */
+.addMorePopup {
+  padding: 16px 0;
+}
+
+.popupHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px 16px;
+  font-size: 16px;
+  font-weight: 600;
+  color: rgb(55, 53, 47);
+}
+
+.popupClose {
+  font-size: 24px;
+  color: rgba(55, 53, 47, 0.35);
+  cursor: pointer;
+  padding: 4px 8px;
+  line-height: 1;
+  transition: color 0.2s;
+}
+
+.popupClose:hover {
+  color: rgba(55, 53, 47, 0.65);
+}
+
+.popupContent {
+  padding: 0 16px 16px;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+/* 其他周期清单项 - 设置页列表项风格 */
+.otherItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  margin-bottom: 8px;
+  background: white;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.otherItem:hover {
+  background: rgba(55, 53, 47, 0.04);
+}
+
+.otherItem:active {
+  transform: scale(0.99);
+}
+
+.otherItem:last-child {
+  margin-bottom: 0;
+}
+
+.otherItem .itemContent {
+  flex: 1;
+}
+
+.otherItem .itemTitle {
+  font-size: 15px;
+  font-weight: 500;
+  color: rgb(55, 53, 47);
+}
+
+.otherItem .itemMeta {
+  font-size: 12px;
+  color: rgba(55, 53, 47, 0.5);
+  margin-top: 2px;
+}
+
+.addButton {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 10px;
+  background: rgba(55, 53, 47, 0.04);
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  color: rgba(55, 53, 47, 0.5);
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.addButton:hover {
+  background: rgba(55, 53, 47, 0.08);
+  color: rgba(55, 53, 47, 0.7);
+}
+
+.addButton:active {
+  transform: scale(0.96);
+}
+
+/* 消耗文字 */
+.costLabel {
+  font-size: 11px;
+  color: rgba(55, 53, 47, 0.4);
+}
+
+/* 灵玉图标 */
+.jadeIcon {
+  width: 12px;
+  height: 12px;
+  object-fit: contain;
+}
+
+/* ========== 多选模式样式 ========== */
+
+/* 可选择的清单项 */
+.selectableItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  margin-bottom: 8px;
+  background: rgba(55, 53, 47, 0.02);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1.5px solid transparent;
+}
+
+.selectableItem:hover {
+  background: rgba(55, 53, 47, 0.04);
+}
+
+.selectableItem:active {
+  transform: scale(0.99);
+}
+
+.selectableItem:last-child {
+  margin-bottom: 0;
+}
+
+.selectableItem.selected {
+  background: rgba(55, 53, 47, 0.06);
+  border-color: rgba(55, 53, 47, 0.2);
+}
+
+/* 选择框 */
+.selectCheckbox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1.5px solid rgba(55, 53, 47, 0.25);
+  background: transparent;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+  color: transparent;
+}
+
+.selectCheckbox.checked {
+  background: rgb(55, 53, 47);
+  border-color: rgb(55, 53, 47);
+  color: #fff;
+}
+
+/* 底部提交栏 */
+.popupFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: white;
+  border-top: 1px solid rgba(55, 53, 47, 0.08);
+}
+
+.footerInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.footerCount {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgb(55, 53, 47);
+}
+
+.footerCost {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 12px;
+  color: rgba(55, 53, 47, 0.5);
+}
+
+.footerJadeIcon {
+  width: 12px;
+  height: 12px;
+  object-fit: contain;
+}
+
+.footerSubmitBtn {
+  padding: 10px 20px;
+  background: rgb(55, 53, 47);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.footerSubmitBtn:hover {
+  background: rgba(55, 53, 47, 0.85);
+}
+
+.footerSubmitBtn:active {
+  transform: scale(0.98);
+}
+
+.footerSubmitBtn.disabled {
+  background: rgba(55, 53, 47, 0.2);
+  cursor: not-allowed;
+}
+
+.footerSubmitBtn.disabled:hover {
+  background: rgba(55, 53, 47, 0.2);
+}
+
+.footerSubmitBtn.disabled:active {
+  transform: none;
+}
+
+/* ========== 确认弹窗样式（类似奖励弹窗） ========== */
+
+.confirmOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: confirmFadeIn 0.2s ease-out;
+}
+
+.confirmModal {
+  background: white;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 320px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: confirmSlideUp 0.3s ease-out;
+}
+
+/* 头图 */
+.confirmHeader {
+  width: 100%;
+  height: 100px;
+  overflow: hidden;
+  position: relative;
+  background: linear-gradient(135deg, #f8f4e8 0%, #e8d4a8 100%);
+}
+
+.confirmCloseBtn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: rgba(55, 53, 47, 0.65);
+  transition: all 0.2s;
+  z-index: 1;
+}
+
+.confirmCloseBtn:hover {
+  background: rgba(255, 255, 255, 1);
+  color: rgb(55, 53, 47);
+}
+
+.confirmHeaderImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 内容区 */
+.confirmContent {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.confirmTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: rgb(55, 53, 47);
+  text-align: center;
+}
+
+/* 消耗信息区块 */
+.confirmCostSection {
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.confirmCostRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.confirmCostLabel {
+  font-size: 14px;
+  color: rgba(55, 53, 47, 0.65);
+}
+
+.confirmCostValue {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 15px;
+  font-weight: 500;
+  color: rgb(55, 53, 47);
+}
+
+.confirmCostValue.insufficient {
+  color: #ff4d4f;
+}
+
+.confirmJadeIcon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
+
+.confirmDivider {
+  height: 1px;
+  background: rgba(55, 53, 47, 0.08);
+  margin: 4px 0;
+}
+
+.confirmWarning {
+  font-size: 13px;
+  color: #ff4d4f;
+  text-align: center;
+  padding: 8px;
+  background: rgba(255, 77, 79, 0.08);
+  border-radius: 6px;
+}
+
+/* 按钮区 */
+.confirmButtons {
+  display: flex;
+  gap: 12px;
+}
+
+.confirmCancelBtn {
+  flex: 1;
+  padding: 12px;
+  background: rgba(55, 53, 47, 0.06);
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  color: rgba(55, 53, 47, 0.65);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.confirmCancelBtn:hover {
+  background: rgba(55, 53, 47, 0.1);
+}
+
+.confirmSubmitBtn {
+  flex: 1;
+  padding: 12px;
+  background: rgb(55, 53, 47);
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.confirmSubmitBtn:hover {
+  background: rgba(55, 53, 47, 0.85);
+}
+
+.confirmSubmitBtn.disabled {
+  background: rgba(55, 53, 47, 0.3);
+  cursor: not-allowed;
+}
+
+/* 动画 */
+@keyframes confirmFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes confirmSlideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* 清单项名称（在确认弹窗中显示） */
+.confirmItemName {
+  font-size: 15px;
+  font-weight: 500;
+  color: rgb(55, 53, 47);
+  text-align: center;
+  padding: 8px 16px;
+  background: rgba(55, 53, 47, 0.04);
+  border-radius: 8px;
+  word-break: break-word;
+}
+
+/* ========== 滑动按钮样式 ========== */
+
+.swipeActionContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.swipeActionTitle {
+  font-size: 14px;
+  font-weight: 500;
+  color: white;
+}
+
+.swipeActionCost {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.swipeActionIcon {
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
+}
+
+/* ========== 计划结束总结视图样式 ========== */
+
+.summaryContainer {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 总结信息卡片 - 参考 CycleInfo 样式 */
+.summaryWrapper {
+  padding: 16px 20px;
+  background: white;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+
+.infoRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.infoItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.label {
+  font-size: 12px;
+  color: #999;
+  margin-bottom: 4px;
+}
+
+.value {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.value strong {
+  font-size: 20px;
+  font-weight: 200;
+  color: rgb(55, 53, 47);
+}
+
+.separator {
+  font-size: 14px;
+  color: #ccc;
+  margin: 0 1px;
+}
+
+.total {
+  font-size: 14px;
+  color: rgba(55, 53, 47, 0.65);
+}
+
+.divider {
+  width: 1px;
+  height: 32px;
+  background: #eee;
+}
+
+.dateRangeSummary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed rgba(55, 53, 47, 0.1);
+  font-size: 13px;
+  color: rgba(55, 53, 47, 0.5);
+}
+
+.dateLeft {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.iconSummary {
+  color: rgba(55, 53, 47, 0.35);
+}
+
+/* 结果值样式 */
+.resultValue {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.resultLabel {
+  font-size: 12px;
   color: #999;
 }
 
-/* 时间范围 */
-.timeRange {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 12px 16px;
-  background: #f5f5f5;
-  border-radius: 12px;
-  font-size: 14px;
-  color: #666;
-}
-
-.timeIcon {
+.resultCurrent {
   font-size: 16px;
+  font-weight: 600;
+  color: rgb(173, 169, 156);
 }
 
-/* AI 辅助按钮 */
-.aiButton {
+/* 状态文字颜色 */
+.successText {
+  color: #1890ff !important;
+}
+
+.warningText {
+  color: #ff9500 !important;
+}
+
+/* 总结清单列表区域 */
+.summaryListSection {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.summaryListContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+/* 总结清单项（只读） */
+.summaryListItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  background: rgba(55, 53, 47, 0.02);
+  border-radius: 10px;
+}
+
+.summaryListItem.completed {
+  background: rgba(55, 53, 47, 0.04);
+}
+
+/* 总结清单勾选框 */
+.summaryCheckbox {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  width: 100%;
-  margin-top: 16px;
-  padding: 14px 16px;
-  background: #000000;
-  color: #ffffff;
-  border: none;
-  border-radius: 12px;
-  font-size: 15px;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1.5px solid rgba(55, 53, 47, 0.2);
+  background: transparent;
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: transparent;
+}
+
+.summaryCheckbox.checked {
+  background: rgb(55, 53, 47);
+  border-color: rgb(55, 53, 47);
+  color: white;
+}
+
+.summaryItemContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.summaryItemTitle {
+  font-size: 14px;
   font-weight: 500;
+  color: rgb(55, 53, 47);
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.summaryListItem.completed .summaryItemTitle {
+  text-decoration: line-through;
+  color: rgba(55, 53, 47, 0.45);
+}
+
+.summaryItemMeta {
+  font-size: 12px;
+  color: rgba(55, 53, 47, 0.4);
+  margin-top: 2px;
+}
+
+/* ========== 展开/收起按钮样式 ========== */
+
+.expandButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  background: rgba(55, 53, 47, 0.04);
+  border-radius: 10px;
+  font-size: 13px;
+  color: rgba(55, 53, 47, 0.5);
   cursor: pointer;
-  transition: background 0.2s, transform 0.1s;
+  transition: all 0.2s ease;
 }
 
-.aiButton:hover {
-  background: #333333;
+.expandButton:hover {
+  background: rgba(55, 53, 47, 0.08);
+  color: rgba(55, 53, 47, 0.7);
 }
 
-.aiButton:active {
-  transform: scale(0.98);
+.expandButton:active {
+  transform: scale(0.99);
+}
+
+.collapseButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  font-size: 13px;
+  color: rgba(55, 53, 47, 0.45);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.collapseButton:hover {
+  color: rgba(55, 53, 47, 0.65);
+}
+
+/* ========== 遗留清单项样式（从其他周期迁移过来的） ========== */
+
+.carryoverItem {
+  border-left: 3px solid #FF9500;
+  background: rgba(255, 149, 0, 0.04);
+}
+
+.itemCarryoverHint {
+  font-size: 11px;
+  color: #FF9500;
+  margin-top: 2px;
 }

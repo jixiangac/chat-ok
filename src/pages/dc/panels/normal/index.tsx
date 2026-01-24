@@ -2,13 +2,14 @@
  * 常规模式面板
  */
 
-import React, { useState, useImperativeHandle, forwardRef } from 'react';
+import React, { useState, useImperativeHandle, forwardRef, useEffect } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import GroupDetailPopup from '../../components/GroupDetailPopup';
 import { TodayProgress, SidelineTaskSection, MainlineTaskSection, CreateTaskModal } from '../../viewmodel';
 import GoalDetailModal from '../detail';
 import { useTaskContext, useScene, useModal, UI_KEYS } from '../../contexts';
 import type { Task, TaskTag, ViewMode } from '../../types';
+import type { TaskConfigData } from '../../agent';
 
 export interface NormalPanelRef {
   triggerAdd: () => void;
@@ -16,9 +17,14 @@ export interface NormalPanelRef {
   openTodayMustComplete: (readOnly?: boolean) => void;
 }
 
-interface NormalPanelProps {}
+interface NormalPanelProps {
+  /** AI 预填任务配置（来自 general 角色） */
+  aiTaskConfig?: TaskConfigData | null;
+  /** 清除 AI 配置的回调 */
+  onClearAiConfig?: () => void;
+}
 
-const NormalPanel = forwardRef<NormalPanelRef, NormalPanelProps>((props, ref) => {
+const NormalPanel = forwardRef<NormalPanelRef, NormalPanelProps>(({ aiTaskConfig, onClearAiConfig }, ref) => {
   const { refreshTasks, selectedTaskId, setSelectedTaskId } = useTaskContext();
   const { normal } = useScene();
   
@@ -97,7 +103,20 @@ const NormalPanel = forwardRef<NormalPanelRef, NormalPanelProps>((props, ref) =>
       {/* 创建任务弹窗 */}
       <CreateTaskModal
         visible={mainlineModalVisible}
-        onClose={closeMainlineModal}
+        onClose={() => {
+          closeMainlineModal();
+          // 关闭时清除 AI 配置
+          onClearAiConfig?.();
+        }}
+        initialData={aiTaskConfig ? {
+          title: aiTaskConfig.title,
+          category: aiTaskConfig.category,
+          totalDays: aiTaskConfig.totalDays,
+          cycleDays: aiTaskConfig.cycleDays,
+          numericConfig: aiTaskConfig.numericConfig,
+          checklistItems: aiTaskConfig.checklistItems,
+          checkInConfig: aiTaskConfig.checkInConfig,
+        } : undefined}
       />
 
       {/* 任务详情弹窗 */}

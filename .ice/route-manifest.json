@@ -1,11 +1,44 @@
 [
   {
+    "path": "dc/panels/memorial/components/CreateMemorialModal/pages/BackgroundPage",
+    "id": "dc/panels/memorial/components/CreateMemorialModal/pages/BackgroundPage",
+    "file": "dc/panels/memorial/components/CreateMemorialModal/pages/BackgroundPage.tsx",
+    "componentName": "dc-panels-memorial-components-creatememorialmodal-pages-backgroundpage",
+    "layout": false,
+    "exports": [
+      "BackgroundPage",
+      "default"
+    ]
+  },
+  {
+    "path": "dc/panels/memorial/components/CreateMemorialModal/pages/BasicInfoPage",
+    "id": "dc/panels/memorial/components/CreateMemorialModal/pages/BasicInfoPage",
+    "file": "dc/panels/memorial/components/CreateMemorialModal/pages/BasicInfoPage.tsx",
+    "componentName": "dc-panels-memorial-components-creatememorialmodal-pages-basicinfopage",
+    "layout": false,
+    "exports": [
+      "BasicInfoPage",
+      "default"
+    ]
+  },
+  {
     "path": "dc/components/CreateMainlineTaskModal/steps/configs/ChecklistConfig",
     "id": "dc/components/CreateMainlineTaskModal/steps/configs/ChecklistConfig",
     "file": "dc/components/CreateMainlineTaskModal/steps/configs/ChecklistConfig.tsx",
     "componentName": "dc-components-createmainlinetaskmodal-steps-configs-checklistconfig",
     "layout": false,
     "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/panels/memorial/components/CreateMemorialModal/pages/PreviewPage",
+    "id": "dc/panels/memorial/components/CreateMemorialModal/pages/PreviewPage",
+    "file": "dc/panels/memorial/components/CreateMemorialModal/pages/PreviewPage.tsx",
+    "componentName": "dc-panels-memorial-components-creatememorialmodal-pages-previewpage",
+    "layout": false,
+    "exports": [
+      "PreviewPage",
       "default"
     ]
   },
@@ -48,6 +81,18 @@
     "layout": false,
     "exports": [
       "default"
+    ]
+  },
+  {
+    "path": "dc/panels/memorial/components/CreateMemorialModal/pages",
+    "index": true,
+    "id": "dc/panels/memorial/components/CreateMemorialModal/pages",
+    "file": "dc/panels/memorial/components/CreateMemorialModal/pages/index.ts",
+    "componentName": "dc-panels-memorial-components-creatememorialmodal-pages-index",
+    "layout": false,
+    "exports": [
+      "BackgroundPage",
+      "BasicInfoPage"
     ]
   },
   {
@@ -240,6 +285,17 @@
     "id": "dc/components/CreateMainlineTaskModal/steps/ConfigStep",
     "file": "dc/components/CreateMainlineTaskModal/steps/ConfigStep.tsx",
     "componentName": "dc-components-createmainlinetaskmodal-steps-configstep",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/panels/detail/components/ChecklistRecordModal",
+    "index": true,
+    "id": "dc/panels/detail/components/ChecklistRecordModal",
+    "file": "dc/panels/detail/components/ChecklistRecordModal/index.tsx",
+    "componentName": "dc-panels-detail-components-checklistrecordmodal-index",
     "layout": false,
     "exports": [
       "default"
@@ -904,6 +960,17 @@
     "layout": false,
     "exports": [
       "FollowupQuestion",
+      "default"
+    ]
+  },
+  {
+    "path": "dc/components/ConvertToSidelinePopup",
+    "index": true,
+    "id": "dc/components/ConvertToSidelinePopup",
+    "file": "dc/components/ConvertToSidelinePopup/index.tsx",
+    "componentName": "dc-components-converttosidelinepopup-index",
+    "layout": false,
+    "exports": [
       "default"
     ]
   },
@@ -1707,6 +1774,7 @@
       "CheckInModal",
       "CheckInRecordPanel",
       "ChecklistCyclePanel",
+      "ChecklistRecordModal",
       "CoffeeCupProgress",
       "CycleInfo",
       "DetailHeader",
@@ -2400,6 +2468,20 @@
     ]
   },
   {
+    "path": "dc/utils/dailyRewardTracker",
+    "id": "dc/utils/dailyRewardTracker",
+    "file": "dc/utils/dailyRewardTracker.ts",
+    "componentName": "dc-utils-dailyrewardtracker",
+    "layout": false,
+    "exports": [
+      "addTodayTaskReward",
+      "calculateAllowedReward",
+      "getDailyRewardTracker",
+      "getTodayRemainingReward",
+      "getTodayTaskReward"
+    ]
+  },
+  {
     "path": "dc/utils/mainlineTaskHelper",
     "id": "dc/utils/mainlineTaskHelper",
     "file": "dc/utils/mainlineTaskHelper.ts",
@@ -2997,6 +3079,7 @@
     "layout": false,
     "exports": [
       "CircleProgress",
+      "ConvertToSidelinePopup",
       "CreateGoalModal",
       "CreateMainlineTaskModal",
       "CultivationEntry",

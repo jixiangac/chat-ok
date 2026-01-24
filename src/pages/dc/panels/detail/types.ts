@@ -5,6 +5,7 @@ export interface GoalDetailModalProps {
   taskId?: string; // 可选，不传则从 TaskProvider 的 selectedTaskId 获取
   onClose: () => void;
   onDataChange?: () => void; // 数据变化时的回调，用于刷新卡片列表
+  isReadOnly?: boolean; // 只读模式（归档任务使用）
 }
 
 export interface CheckIn {

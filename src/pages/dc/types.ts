@@ -182,6 +182,8 @@ export interface ChecklistItem {
   status: ChecklistItemStatus;
   /** 所属周期 */
   cycle: number;
+  /** 原始周期（用于记录清单项最初所属的周期，周期切换后遗留项会有此字段） */
+  originalCycle?: number;
   /** 子进度（可选） */
   subProgress?: {
     type: 'PAGES' | 'PERCENTAGE' | 'CUSTOM';

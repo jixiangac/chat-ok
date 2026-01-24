@@ -3,7 +3,7 @@ import { Plus, Settings as SettingsIcon } from 'lucide-react';
 import { SafeArea } from 'antd-mobile';
 
 // Agent Chat
-import { AgentChatPopup, type UserBaseInfo } from './agent';
+import { AgentChatPopup, type UserBaseInfo, type StructuredOutput, type TaskConfigData } from './agent';
 
 // Utils
 import { getCurrentLevelInfo } from './utils/cultivation';
@@ -79,12 +79,16 @@ function DCPageContent() {
   const { visible: showMemorialCreate } = useModal(UI_KEYS.MODAL_MEMORIAL_CREATE_VISIBLE);
   // 一日清单弹窗状态
   const { visible: showDailyView } = useModal(UI_KEYS.MODAL_DAILY_VIEW_VISIBLE);
+  const { visible: showAllSideline } = useModal(UI_KEYS.MODAL_ALL_SIDELINE_VISIBLE);
   
   // 修仙状态（从 CultivationProvider）
   const { data: cultivationData, breakthrough, spiritJadeData, pointsHistory } = useCultivation();
 
   // 灵玉历史弹窗状态
   const [showJadeHistory, setShowJadeHistory] = useState(false);
+
+  // AI 任务配置数据（来自 general 角色的 TASK_CONFIG 输出）
+  const [aiTaskConfig, setAiTaskConfig] = useState<TaskConfigData | null>(null);
 
   // 构建 AI 对话所需的用户基础信息
   const userInfo: UserBaseInfo = useMemo(() => {
@@ -114,6 +118,26 @@ function DCPageContent() {
     setPullStage(stage);
   }, []);
 
+  // 获取创建任务弹窗控制
+  const { open: openCreateTaskModal } = useModal(UI_KEYS.MODAL_CREATE_TASK_VISIBLE);
+
+  // 处理 general 角色的结构化输出（TASK_CONFIG）
+  const handleGeneralStructuredOutput = useCallback((output: StructuredOutput) => {
+    if (output.type === 'TASK_CONFIG') {
+      const config = output.data as TaskConfigData;
+      // 存储 AI 配置数据
+      setAiTaskConfig(config);
+      // 关闭小精灵对话
+      setShowSpriteChat(false);
+      // 切换到 normal tab（如果不在的话）
+      if (activeTab !== 'normal') {
+        setActiveTab('normal');
+      }
+      // 打开创建任务弹窗
+      openCreateTaskModal();
+    }
+  }, [activeTab, setActiveTab, openCreateTaskModal]);
+
   // 判断是否有弹窗打开，有弹窗时禁用下拉进入二楼
   // 包括：设置面板、今日必完成弹窗、任务详情页、创建任务弹窗、度假模式弹窗、纪念日弹窗、一日清单弹窗
   const hasModalOpen = showSettings ||
@@ -123,7 +147,9 @@ function DCPageContent() {
     showVacationCreateTrip ||
     showVacationAddGoal ||
     showMemorialCreate ||
-    showDailyView;
+    showDailyView ||
+    showSpriteChat ||
+    showAllSideline;
 
   // 下拉进入二楼 Hook
   const {
@@ -170,6 +196,11 @@ function DCPageContent() {
     console.log(result.message);
   }, [breakthrough]);
 
+  // 清除 AI 配置的回调
+  const handleClearAiConfig = useCallback(() => {
+    setAiTaskConfig(null);
+  }, []);
+
   // 渲染 tab 对应的内容区域（小精灵下方的部分）
   const renderTabContent = () => {
     switch (activeTab) {
@@ -178,9 +209,21 @@ function DCPageContent() {
       case 'memorial':
         return <MemorialPanel ref={memorialPanelRef} />;
       case 'normal':
-        return <NormalPanel ref={normalPanelRef} />;
+        return (
+          <NormalPanel
+            ref={normalPanelRef}
+            aiTaskConfig={aiTaskConfig}
+            onClearAiConfig={handleClearAiConfig}
+          />
+        );
       default:
-        return <NormalPanel ref={normalPanelRef} />;
+        return (
+          <NormalPanel
+            ref={normalPanelRef}
+            aiTaskConfig={aiTaskConfig}
+            onClearAiConfig={handleClearAiConfig}
+          />
+        );
     }
   };
 
@@ -314,6 +357,7 @@ function DCPageContent() {
         role="general"
         placeholder="和小精灵聊聊天吧..."
         userInfo={userInfo}
+        onStructuredOutput={handleGeneralStructuredOutput}
       />
 
       {/* 底部安全区域 */}

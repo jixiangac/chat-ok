@@ -27,6 +27,14 @@
   gap: 4px;
 }
 
+/* 分隔线 */
+.divider {
+  width: 100%;
+  height: 1px;
+  background: rgba(55, 53, 47, 0.1);
+  margin: 8px 0;
+}
+
 /* 预计收益区域 */
 .rewardSection {
   margin-top: 16px;

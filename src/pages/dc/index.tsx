@@ -22,6 +22,7 @@ import { usePullToSecondFloor } from './hooks/usePullToSecondFloor';
 
 // Components
 import SecondFloorIndicator from './components/SecondFloorIndicator';
+import { SpiritJadeHistoryPopup } from './components';
 
 // Contexts - 新架构
 import { 
@@ -84,7 +85,10 @@ function DCPageContent() {
   const { visible: showDailyView } = useModal(UI_KEYS.MODAL_DAILY_VIEW_VISIBLE);
   
   // 修仙状态（从 CultivationProvider）
-  const { data: cultivationData, breakthrough, spiritJadeData } = useCultivation();
+  const { data: cultivationData, breakthrough, spiritJadeData, pointsHistory } = useCultivation();
+
+  // 灵玉历史弹窗状态
+  const [showJadeHistory, setShowJadeHistory] = useState(false);
 
   // 构建 AI 对话所需的用户基础信息
   const userInfo: UserBaseInfo = useMemo(() => {
@@ -265,9 +269,13 @@ function DCPageContent() {
         <div className={`${styles.content} ${activeTab === 'normal' ? styles.contentWithBottomBar : ''}`}>
           {/* 小精灵区域 - 固定不滚动 */}
           <div className={styles.spriteSection}>
-            {/* 右上角灵玉 */}
-            <div className={styles.coinWrapper}>
-              <img 
+            {/* 右上角灵玉 - 点击查看历史 */}
+            <div
+              className={styles.coinWrapper}
+              onClick={() => setShowJadeHistory(true)}
+              style={{ cursor: 'pointer' }}
+            >
+              <img
                 src="https://gw.alicdn.com/imgextra/i1/O1CN01dUkd0B1UxywsCCzXY_!!6000000002585-2-tps-1080-992.png"
                 alt="灵玉"
                 style={{ width: 30, height: 25 }}
@@ -332,6 +340,16 @@ function DCPageContent() {
 
       {/* 底部安全区域 */}
       <SafeArea position="bottom" />
+
+      {/* 灵玉历史弹窗 */}
+      <SpiritJadeHistoryPopup
+        visible={showJadeHistory}
+        onClose={() => setShowJadeHistory(false)}
+        balance={spiritJadeData.balance}
+        totalEarned={spiritJadeData.totalEarned}
+        totalSpent={spiritJadeData.totalSpent}
+        pointsHistory={pointsHistory}
+      />
     </div>
   );
 }

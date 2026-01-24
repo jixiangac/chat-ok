@@ -14,9 +14,10 @@ export type PointsEarnSource =
   | 'ARCHIVE';           // 归档总结
 
 /** 积分消耗来源 */
-export type PointsSpendSource = 
+export type PointsSpendSource =
   | 'CREATE_TASK'        // 创建任务
-  | 'REFRESH_DAILY';     // 刷新一日清单
+  | 'REFRESH_DAILY'      // 刷新一日清单
+  | 'AI_CHAT';           // AI 对话消耗
 
 /** 积分来源（所有） */
 export type PointsSource = PointsEarnSource | PointsSpendSource;

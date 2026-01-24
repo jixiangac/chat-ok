@@ -80,6 +80,8 @@ import * as dc_components_CreateMainlineTaskModal_types from '@/pages/dc/compone
 import * as dc_panels_detail_components_CycleInfo from '@/pages/dc/panels/detail/components/CycleInfo/index';
 import * as dc_panels_settings_pages_DateTestPage from '@/pages/dc/panels/settings/pages/DateTestPage/index';
 import * as dc_agent_components_FollowupQuestion from '@/pages/dc/agent/components/FollowupQuestion/index';
+import * as dc_components_SpiritJadeHistoryPopup from '@/pages/dc/components/SpiritJadeHistoryPopup/index';
+import * as dc_components_InsufficientJadePopup from '@/pages/dc/components/InsufficientJadePopup/index';
 import * as dc_components_SidelineTaskEditModal from '@/pages/dc/components/SidelineTaskEditModal/index';
 import * as dc_components_shared_CircleProgress from '@/pages/dc/components/shared/CircleProgress/index';
 import * as dc_panels_happy_components_GoalCard from '@/pages/dc/panels/happy/components/GoalCard/index';
@@ -174,6 +176,7 @@ import * as dc_panels_memorial_hooks from '@/pages/dc/panels/memorial/hooks/inde
 import * as dc_panels_memorial_utils from '@/pages/dc/panels/memorial/utils/index';
 import * as dc_panels_settings_hooks from '@/pages/dc/panels/settings/hooks/index';
 import * as dc_panels_settings_pages from '@/pages/dc/panels/settings/pages/index';
+import * as dc_agent_hooks_useAITokenCost from '@/pages/dc/agent/hooks/useAITokenCost';
 import * as dc_contexts_AppProvider from '@/pages/dc/contexts/AppProvider/index';
 import * as dc_contexts_AppProvider_types from '@/pages/dc/contexts/AppProvider/types';
 import * as dc_hooks_usePullToSecondFloor from '@/pages/dc/hooks/usePullToSecondFloor';
@@ -2272,6 +2275,56 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/agent/components/FollowupQuestion',
     exact: true,
     exports: ["FollowupQuestion","default"],
+  },{
+    path: 'dc/components/SpiritJadeHistoryPopup',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_SpiritJadeHistoryPopup,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/SpiritJadeHistoryPopup',
+          isLayout: false,
+          routeExports: dc_components_SpiritJadeHistoryPopup,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/SpiritJadeHistoryPopup',
+          requestContext,
+          renderMode,
+          module: dc_components_SpiritJadeHistoryPopup,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-spiritjadehistorypopup-index',
+    index: true,
+    id: 'dc/components/SpiritJadeHistoryPopup',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/components/InsufficientJadePopup',
+    async lazy() {
+      ;
+      return {
+        ...dc_components_InsufficientJadePopup,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/components/InsufficientJadePopup',
+          isLayout: false,
+          routeExports: dc_components_InsufficientJadePopup,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/components/InsufficientJadePopup',
+          requestContext,
+          renderMode,
+          module: dc_components_InsufficientJadePopup,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-components-insufficientjadepopup-index',
+    index: true,
+    id: 'dc/components/InsufficientJadePopup',
+    exact: true,
+    exports: ["default"],
   },{
     path: 'dc/components/SidelineTaskEditModal',
     async lazy() {
@@ -4623,6 +4676,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["DataManagementPage","DateTestPage","SettingsMainPage","TagSettingsPage","ThemeSettingsPage","TodayMustCompletePage"],
   },{
+    path: 'dc/agent/hooks/useAITokenCost',
+    async lazy() {
+      ;
+      return {
+        ...dc_agent_hooks_useAITokenCost,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/agent/hooks/useAITokenCost',
+          isLayout: false,
+          routeExports: dc_agent_hooks_useAITokenCost,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/agent/hooks/useAITokenCost',
+          requestContext,
+          renderMode,
+          module: dc_agent_hooks_useAITokenCost,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-agent-hooks-useaitokencost',
+    index: undefined,
+    id: 'dc/agent/hooks/useAITokenCost',
+    exact: true,
+    exports: ["default","useAITokenCost"],
+  },{
     path: 'dc/contexts/AppProvider',
     async lazy() {
       ;
@@ -4746,7 +4824,7 @@ const createRoutes: CreateRoutes = ({
     index: undefined,
     id: 'dc/utils/spiritJadeCalculator',
     exact: true,
-    exports: ["calculateArchiveReward","calculateCycleCompleteBonus","calculateDailyPointsCap","calculateDailyViewCompleteReward","calculateTaskCreationCost","calculateTotalCompletionReward","distributeCheckInPoints","getTaskCheckInUnit","mergeRewards"],
+    exports: ["calculateArchiveReward","calculateCycleCompleteBonus","calculateDailyPointsCap","calculateDailyViewCompleteReward","calculateTaskCreationCost","calculateTaskCreationCostWithDiscount","calculateTotalCompletionReward","distributeCheckInPoints","getTaskCheckInUnit","mergeRewards"],
   },{
     path: 'dc/agent/hooks/useStreamChat',
     async lazy() {
@@ -5921,7 +5999,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/agent/hooks',
     exact: true,
-    exports: ["client","createAgent","filterHiddenContent","useAgent","useStreamChat"],
+    exports: ["client","createAgent","filterHiddenContent","useAITokenCost","useAgent","useStreamChat"],
   },{
     path: 'dc/agent/types',
     async lazy() {
@@ -6146,7 +6224,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/components',
     exact: true,
-    exports: ["CircleProgress","CreateGoalModal","CreateMainlineTaskModal","CultivationEntry","DailyProgress","LocationFilter","MainlineTaskCard","MigrationModal","ProgressBar","PullIndicator","QuickActionButtons","RewardToast","SecondFloorIndicator","SidelineTaskCard","StatCard","StatCardGrid","ThemedButton"],
+    exports: ["CircleProgress","CreateGoalModal","CreateMainlineTaskModal","CultivationEntry","DailyProgress","InsufficientJadePopup","LocationFilter","MainlineTaskCard","MigrationModal","ProgressBar","PullIndicator","QuickActionButtons","RewardToast","SecondFloorIndicator","SidelineTaskCard","SpiritJadeHistoryPopup","StatCard","StatCardGrid","ThemedButton"],
   },{
     path: 'dc/constants/colors',
     async lazy() {

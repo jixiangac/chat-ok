@@ -136,12 +136,17 @@ export function useRewardDispatcher(): UseRewardDispatcherReturn {
   // 发放一日清单完成奖励
   const dispatchDailyCompleteReward = useCallback((params: DailyCompleteParams): RewardItem | null => {
     const { taskCount } = params;
-    
+
+    // 至少需要3个任务才能获得奖励
+    if (taskCount < 3) {
+      return null;
+    }
+
     // 检查今日是否已领取
     if (hasTodayDailyCompleteRewardClaimed()) {
       return null;
     }
-    
+
     // 计算一日清单完成奖励
     const bonus = calculateDailyViewCompleteReward(taskCount);
 

@@ -111,13 +111,14 @@ const TASK_CONFIG_TOOL = {
         },
         numericConfig: {
           type: 'object',
-          description: '数值型任务配置（仅 category=NUMERIC 时使用）',
+          description: '数值型任务配置（category=NUMERIC 时必填！）必须包含完整的 direction/unit/startValue/targetValue',
           properties: {
-            direction: { type: 'string', enum: ['INCREASE', 'DECREASE'] },
-            unit: { type: 'string' },
-            startValue: { type: 'number' },
-            targetValue: { type: 'number' },
+            direction: { type: 'string', enum: ['INCREASE', 'DECREASE'], description: '增减方向：INCREASE=增加, DECREASE=减少' },
+            unit: { type: 'string', description: '单位，如：斤、元、公里、本' },
+            startValue: { type: 'number', description: '起始值' },
+            targetValue: { type: 'number', description: '目标值' },
           },
+          required: ['direction', 'unit', 'startValue', 'targetValue'],
         },
         checklistItems: {
           type: 'array',
@@ -126,12 +127,13 @@ const TASK_CONFIG_TOOL = {
         },
         checkInConfig: {
           type: 'object',
-          description: '打卡型任务配置（仅 category=CHECK_IN 时使用）',
+          description: '打卡型任务配置（category=CHECK_IN 时必填！）',
           properties: {
-            unit: { type: 'string', enum: ['TIMES', 'DURATION', 'QUANTITY'] },
-            dailyMax: { type: 'number' },
-            valueUnit: { type: 'string' },
+            unit: { type: 'string', enum: ['TIMES', 'DURATION', 'QUANTITY'], description: '打卡类型：TIMES=次数, DURATION=时长(分钟), QUANTITY=数量' },
+            dailyMax: { type: 'number', description: '每日目标值' },
+            valueUnit: { type: 'string', description: '单位（QUANTITY类型时使用，如：个、篇、km）' },
           },
+          required: ['unit', 'dailyMax'],
         },
       },
       required: ['title', 'category', 'totalDays', 'cycleDays'],
@@ -257,12 +259,17 @@ export function useStreamChat(options: UseStreamChatOptions) {
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
+  const [tokenUsage, setTokenUsage] = useState<{
+    promptTokens: number;
+    completionTokens: number;
+    totalTokens: number;
+  } | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
 
   // 获取当前角色的 system prompt，并注入用户信息
   const basePrompt = customPrompt ?? ROLE_PROMPTS[role];
   const systemPrompt = basePrompt + generateUserInfoPrompt(userInfo);
-  console.log(systemPrompt,userInfo,'systemPrompt')
+  // console.log(systemPrompt,userInfo,'systemPrompt')
   /**
    * 处理工具调用结果
    */
@@ -406,6 +413,7 @@ export function useStreamChat(options: UseStreamChatOptions) {
       let fullContent = '';
       let buffer = '';
       const toolCalls: Array<{ id: string; name: string; arguments: string }> = [];
+      let usage: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number } | null = null;
 
       if (!reader) {
         throw new Error('No response body');
@@ -464,6 +472,11 @@ export function useStreamChat(options: UseStreamChatOptions) {
                 }
               }
             }
+
+            // 捕获 usage 信息（通常在最后一个 chunk）
+            if (parsed.usage) {
+              usage = parsed.usage;
+            }
           } catch (e) {
             console.log('SSE parse error:', data, e);
           }
@@ -500,6 +513,17 @@ export function useStreamChat(options: UseStreamChatOptions) {
         }
         return updated;
       });
+
+      // 记录 token 使用量
+      if (usage) {
+        const usageData = {
+          promptTokens: usage.prompt_tokens || 0,
+          completionTokens: usage.completion_tokens || 0,
+          totalTokens: usage.total_tokens || 0,
+        };
+        setTokenUsage(usageData);
+        console.log('📊 Token 使用量:', usageData);
+      }
     } catch (error) {
       if ((error as Error).name === 'AbortError') {
         setMessages(prev => {
@@ -543,5 +567,6 @@ export function useStreamChat(options: UseStreamChatOptions) {
     stopStreaming,
     clearMessages,
     isStreaming,
+    tokenUsage,
   };
 }

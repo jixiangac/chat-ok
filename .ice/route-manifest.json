@@ -896,6 +896,28 @@
     ]
   },
   {
+    "path": "dc/components/SpiritJadeHistoryPopup",
+    "index": true,
+    "id": "dc/components/SpiritJadeHistoryPopup",
+    "file": "dc/components/SpiritJadeHistoryPopup/index.tsx",
+    "componentName": "dc-components-spiritjadehistorypopup-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/components/InsufficientJadePopup",
+    "index": true,
+    "id": "dc/components/InsufficientJadePopup",
+    "file": "dc/components/InsufficientJadePopup/index.tsx",
+    "componentName": "dc-components-insufficientjadepopup-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
     "path": "dc/components/SidelineTaskEditModal",
     "index": true,
     "id": "dc/components/SidelineTaskEditModal",
@@ -2072,6 +2094,17 @@
     ]
   },
   {
+    "path": "dc/agent/hooks/useAITokenCost",
+    "id": "dc/agent/hooks/useAITokenCost",
+    "file": "dc/agent/hooks/useAITokenCost.ts",
+    "componentName": "dc-agent-hooks-useaitokencost",
+    "layout": false,
+    "exports": [
+      "default",
+      "useAITokenCost"
+    ]
+  },
+  {
     "path": "dc/contexts/AppProvider",
     "index": true,
     "id": "dc/contexts/AppProvider",
@@ -2131,6 +2164,7 @@
       "calculateDailyPointsCap",
       "calculateDailyViewCompleteReward",
       "calculateTaskCreationCost",
+      "calculateTaskCreationCostWithDiscount",
       "calculateTotalCompletionReward",
       "distributeCheckInPoints",
       "getTaskCheckInUnit",
@@ -2799,6 +2833,7 @@
       "client",
       "createAgent",
       "filterHiddenContent",
+      "useAITokenCost",
       "useAgent",
       "useStreamChat"
     ]
@@ -2926,6 +2961,7 @@
       "CreateMainlineTaskModal",
       "CultivationEntry",
       "DailyProgress",
+      "InsufficientJadePopup",
       "LocationFilter",
       "MainlineTaskCard",
       "MigrationModal",
@@ -2935,6 +2971,7 @@
       "RewardToast",
       "SecondFloorIndicator",
       "SidelineTaskCard",
+      "SpiritJadeHistoryPopup",
       "StatCard",
       "StatCardGrid",
       "ThemedButton"

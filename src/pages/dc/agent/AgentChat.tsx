@@ -1,13 +1,16 @@
 /**
  * AgentChat 主组件
  * 支持多角色切换、流式输出、结构化输出回调
+ * 集成 token 消耗和灵玉扣减机制
  */
 
-import { useRef, useCallback, useEffect } from 'react';
+import { useRef, useCallback, useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { MessageList, ChatInput } from './components';
-import { useStreamChat } from './hooks';
+import { useStreamChat, useAITokenCost } from './hooks';
 import { WELCOME_CONFIGS } from './constants';
+import { useCultivation } from '../contexts';
+import { InsufficientJadePopup } from '../components';
 import type { AgentChatProps, StructuredOutput, MultiAnswerResult } from './types';
 import styles from './AgentChat.module.css';
 
@@ -31,10 +34,30 @@ export function AgentChat({
 }: AgentChatProps) {
   const listRef = useRef<HTMLDivElement>(null);
 
-  const { messages, sendMessage, stopStreaming, isStreaming } = useStreamChat({
+  // 灵玉系统
+  const { spiritJadeData, spendSpiritJade } = useCultivation();
+
+  // 灵玉不足弹窗
+  const [insufficientJadeVisible, setInsufficientJadeVisible] = useState(false);
+
+  // 流式对话
+  const { messages, sendMessage, stopStreaming, isStreaming, tokenUsage } = useStreamChat({
     role,
     userInfo,
   });
+
+  // Token 消耗管理
+  const { canChat, addCompletionTokens, accumulatedTokens } = useAITokenCost({
+    spiritJadeBalance: spiritJadeData.balance,
+    spendSpiritJade,
+  });
+
+  // 监听 tokenUsage 变化，累计 completionTokens
+  useEffect(() => {
+    if (tokenUsage && tokenUsage.completionTokens > 0) {
+      addCompletionTokens(tokenUsage.completionTokens);
+    }
+  }, [tokenUsage, addCompletionTokens]);
 
   // 自动发送初始消息
   const initialMessageSentRef = useRef(false);
@@ -52,20 +75,33 @@ export function AgentChat({
   // 获取当前角色的欢迎配置
   const welcomeConfig = WELCOME_CONFIGS[role];
 
+  // 包装发送消息，检查灵玉是否充足
+  const handleSendMessage = useCallback((content: string) => {
+    if (!canChat) {
+      setInsufficientJadeVisible(true);
+      return;
+    }
+    sendMessage(content);
+  }, [canChat, sendMessage]);
+
   // 快捷问话点击处理
   const handleQuickQuestion = useCallback((question: string) => {
-    sendMessage(question);
-  }, [sendMessage]);
+    handleSendMessage(question);
+  }, [handleSendMessage]);
 
   // 追问回答处理（支持单问题 string 和多问题 MultiAnswerResult）
   const handleFollowupAnswer = useCallback((answer: string | MultiAnswerResult) => {
+    if (!canChat) {
+      setInsufficientJadeVisible(true);
+      return;
+    }
     if (typeof answer === 'string') {
       sendMessage(answer);
     } else {
       // 多问题模式：使用汇总字符串发送
       sendMessage(answer.summary);
     }
-  }, [sendMessage]);
+  }, [canChat, sendMessage]);
 
   // ActionPreview 确认处理
   const handleActionConfirm = useCallback((output: StructuredOutput) => {
@@ -106,11 +142,19 @@ export function AgentChat({
 
       {/* 输入框 */}
       <ChatInput
-        onSend={sendMessage}
+        onSend={handleSendMessage}
         onStop={stopStreaming}
         isStreaming={isStreaming}
-        placeholder={placeholder}
-        disabled={false}
+        placeholder={canChat ? placeholder : '灵玉不足，无法发起对话'}
+        disabled={!canChat}
+      />
+
+      {/* 灵玉不足弹窗 */}
+      <InsufficientJadePopup
+        visible={insufficientJadeVisible}
+        currentBalance={spiritJadeData.balance}
+        requiredAmount={5}
+        onClose={() => setInsufficientJadeVisible(false)}
       />
     </div>
   );

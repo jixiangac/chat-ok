@@ -77,3 +77,17 @@
   height: 18px;
   object-fit: contain;
 }
+
+/* 原价（有折扣时显示删除线） */
+.originalCost {
+  text-decoration: line-through;
+  color: rgba(55, 53, 47, 0.45);
+  font-weight: 400;
+  margin-right: 4px;
+}
+
+/* 折后价（高亮显示） */
+.discountedCost {
+  color: #e74c3c;
+  font-weight: 600;
+}

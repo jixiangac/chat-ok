@@ -13,9 +13,10 @@ import { CyclePreview, OptionGrid, BottomNavigation, TaskPreview } from '../../c
 import { TOTAL_DURATION_OPTIONS, CYCLE_LENGTH_OPTIONS } from '../../constants';
 import {
   calculateDailyPointsCap,
-  calculateTaskCreationCost,
+  calculateTaskCreationCostWithDiscount,
   calculateTotalCompletionReward,
 } from '@/pages/dc/utils/spiritJadeCalculator';
+import { useScene } from '@/pages/dc/contexts';
 import type { CheckInUnit } from '@/pages/dc/types';
 import type { CreateTaskModalState } from '../../modalTypes';
 import styles from './styles.module.css';
@@ -43,8 +44,14 @@ const CycleSettingsPage: React.FC<CycleSettingsPageProps> = ({
   const [datePickerVisible, setDatePickerVisible] = useState(false);
   const datePickerRef = useRef<DatePickerRef>(null);
 
+  // 获取任务数据用于折扣计算
+  const { normal } = useScene();
+  const { hasMainlineTask, sidelineTasks, archivedTasks } = normal;
+  const hasSideline = sidelineTasks.length > 0;
+
   // 计算每日积分上限
-  const taskType = taskCategory === 'MAINLINE' ? 'mainline' : 'sidelineA';
+  const isMainline = taskCategory === 'MAINLINE';
+  const taskType = isMainline ? 'mainline' : 'sidelineA';
   const checkInUnit: CheckInUnit = state.selectedType === 'CHECK_IN'
     ? state.checkInUnit
     : 'TIMES';
@@ -53,10 +60,13 @@ const CycleSettingsPage: React.FC<CycleSettingsPageProps> = ({
   // 计算100%完成可获得的总灵玉
   const totalCompletionReward = calculateTotalCompletionReward(dailyCap, state.totalDays);
 
-  // 动态计算灵玉消耗
-  const spiritJadeCost = calculateTaskCreationCost(
+  // 动态计算灵玉消耗（含折扣）
+  const discount = calculateTaskCreationCostWithDiscount(
     totalCompletionReward,
-    taskCategory === 'MAINLINE'
+    isMainline,
+    hasMainlineTask,
+    hasSideline,
+    archivedTasks
   );
 
   const handleTotalDaysChange = (value: number) => {
@@ -149,7 +159,16 @@ const CycleSettingsPage: React.FC<CycleSettingsPageProps> = ({
         hint={onSubmit ? (
           <span className={styles.costHint}>
             <img src={SPIRIT_JADE_ICON} alt="灵玉" className={styles.costIcon} />
-            创建需消耗 {spiritJadeCost} 灵玉
+            创建需消耗{' '}
+            {discount.hasDiscount ? (
+              <>
+                <span className={styles.originalCost}>{discount.originalCost}</span>
+                <span className={styles.discountedCost}>{discount.discountedCost}</span>
+              </>
+            ) : (
+              <span>{discount.discountedCost}</span>
+            )}
+            {' '}灵玉
           </span>
         ) : undefined}
       />

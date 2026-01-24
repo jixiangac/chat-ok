@@ -151,9 +151,9 @@ const DailyViewPopup: React.FC<DailyViewPopupProps> = ({
     
     // 检测从非100%变到100%
     if (prevPercentage < 100 && currentPercentage >= 100) {
-      // 获取一日清单任务数量
+      // 获取一日清单任务数量（至少需要3个任务才能获得奖励）
       const taskCount = normal.dailyViewTaskIds.length;
-      if (taskCount > 0) {
+      if (taskCount >= 3) {
         dispatchDailyCompleteReward({ taskCount });
       }
     }

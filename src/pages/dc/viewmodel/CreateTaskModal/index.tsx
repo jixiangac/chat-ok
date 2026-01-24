@@ -13,7 +13,7 @@ import { useScene, useTaskContext, useCultivation } from '../../contexts';
 import { getNextThemeColor } from '../../constants';
 import {
   calculateDailyPointsCap,
-  calculateTaskCreationCost,
+  calculateTaskCreationCostWithDiscount,
   calculateTotalCompletionReward,
 } from '../../utils/spiritJadeCalculator';
 import { createTask } from '../../utils/migration';
@@ -21,6 +21,7 @@ import { getCurrentDate } from '../../utils';
 import { usePageStack, useSwipeBack } from '../../panels/settings/hooks';
 import { CycleSettingsPage, TypeSelectPage, ConfigPage } from './pages';
 import { StepProgressBar } from './components';
+import { InsufficientJadePopup } from '../../components';
 import type { CreateTaskModalProps } from './types';
 import type { CreateTaskModalState } from './modalTypes';
 import { createInitialState } from './modalTypes';
@@ -44,7 +45,7 @@ export default function CreateTaskModal({
   const { addTask } = useTaskContext();
   const { canSpendSpiritJade, spendSpiritJade, spiritJadeData } = useCultivation();
 
-  const { hasMainlineTask, sidelineTasks } = normal;
+  const { hasMainlineTask, sidelineTasks, archivedTasks } = normal;
 
   // 任务类别
   const [taskCategory, setTaskCategory] = useState<'MAINLINE' | 'SIDELINE'>('MAINLINE');
@@ -61,6 +62,11 @@ export default function CreateTaskModal({
   const [animationKey, setAnimationKey] = useState(0);
   // AI 模式状态
   const [isAIMode, setIsAIMode] = useState(false);
+  // 灵玉不足弹窗状态
+  const [insufficientJadePopup, setInsufficientJadePopup] = useState<{
+    visible: boolean;
+    requiredAmount: number;
+  }>({ visible: false, requiredAmount: 0 });
   // AI 模式下滑关闭的拖拽状态
   const [aiDragY, setAiDragY] = useState(0);
   const [isDraggingAI, setIsDraggingAI] = useState(false);
@@ -223,19 +229,27 @@ export default function CreateTaskModal({
 
     const isMainline = taskCategory === 'MAINLINE';
 
-    // 动态计算灵玉消耗
+    // 动态计算灵玉消耗（含折扣）
     const taskType = isMainline ? 'mainline' : 'sidelineA';
     const checkInUnit: CheckInUnit = state.selectedType === 'CHECK_IN'
       ? state.checkInUnit
       : 'TIMES';
     const dailyCap = calculateDailyPointsCap(taskType, checkInUnit);
     const totalReward = calculateTotalCompletionReward(dailyCap, state.totalDays);
-    const requiredJade = calculateTaskCreationCost(totalReward, isMainline);
+    const hasSideline = sidelineTasks.length > 0;
+    const discount = calculateTaskCreationCostWithDiscount(
+      totalReward,
+      isMainline,
+      hasMainlineTask,
+      hasSideline,
+      archivedTasks
+    );
+    const requiredJade = discount.discountedCost;
 
     if (!canSpendSpiritJade(requiredJade)) {
-      Toast.show({
-        icon: 'fail',
-        content: `灵玉不足！创建${isMainline ? '主线' : '支线'}任务需要 ${requiredJade} 灵玉，当前余额 ${spiritJadeData.balance}`,
+      setInsufficientJadePopup({
+        visible: true,
+        requiredAmount: requiredJade,
       });
       return;
     }
@@ -578,6 +592,14 @@ export default function CreateTaskModal({
       </div>
 
       <SafeArea position="bottom" />
+
+      {/* 灵玉不足弹窗 */}
+      <InsufficientJadePopup
+        visible={insufficientJadePopup.visible}
+        currentBalance={spiritJadeData.balance}
+        requiredAmount={insufficientJadePopup.requiredAmount}
+        onClose={() => setInsufficientJadePopup({ visible: false, requiredAmount: 0 })}
+      />
     </Popup>
   );
 }

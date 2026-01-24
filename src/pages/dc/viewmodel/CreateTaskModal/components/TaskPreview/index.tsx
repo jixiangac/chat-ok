@@ -40,6 +40,44 @@ const TaskPreview: React.FC<TaskPreviewProps> = ({ state }) => {
         <div>任务类型：{taskTypeName}</div>
         <div>总时长：{state.totalDays} 天</div>
         <div>周期：{state.cycleDays} 天 × {cycleCount} 周期</div>
+        {/* 数值型任务显示目标变化 */}
+        {state.selectedType === 'NUMERIC' && state.numericUnit && (
+          <>
+            <div className={styles.divider} />
+            <div>
+              目标方向：{state.numericDirection === 'DECREASE' ? '减少' : '增加'}
+            </div>
+            <div>
+              目标变化：{state.startValue}{state.numericUnit} → {state.targetValue}{state.numericUnit}
+              （{state.numericDirection === 'DECREASE' ? '减少' : '增加'} {Math.abs(Number(state.targetValue) - Number(state.startValue))}{state.numericUnit}）
+            </div>
+          </>
+        )}
+        {/* 打卡型任务显示打卡类型和每日目标 */}
+        {state.selectedType === 'CHECK_IN' && (
+          <>
+            <div className={styles.divider} />
+            <div>
+              打卡类型：{state.checkInUnit === 'TIMES' ? '次数' : state.checkInUnit === 'DURATION' ? '时长' : '数量'}
+            </div>
+            <div>
+              每日目标：{
+                state.checkInUnit === 'TIMES' ? `${state.dailyMaxTimes || 1}次` :
+                state.checkInUnit === 'DURATION' ? `${state.dailyTargetMinutes || 15}分钟` :
+                `${state.dailyTargetValue || 0}${state.valueUnit || '个'}`
+              }
+            </div>
+          </>
+        )}
+        {/* 清单型任务显示项目数量 */}
+        {state.selectedType === 'CHECKLIST' && (
+          <>
+            <div className={styles.divider} />
+            <div>
+              清单项数：{state.checklistItems.filter(item => item.trim()).length} 项
+            </div>
+          </>
+        )}
       </div>
 
       {/* 预计收益 - 卡片式布局 */}

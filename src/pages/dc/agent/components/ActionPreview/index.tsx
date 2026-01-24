@@ -45,14 +45,21 @@ export function ActionPreview({ output, onConfirm, onCancel, showActions = true 
     configDetails.push({ label: '周期', value: `${data.cycleDays} 天 × ${totalCycles} 周期` });
 
     // 数值型配置 - 直观展示增减变化
-    if (data.category === 'NUMERIC' && numericConfig) {
-      const { startValue, targetValue, unit, direction } = numericConfig;
-      const diff = Math.abs(targetValue - startValue);
-      const changeText = direction === 'DECREASE'
-        ? `${startValue}${unit} → ${targetValue}${unit}（减少 ${diff}${unit}）`
-        : `${startValue}${unit} → ${targetValue}${unit}（增加 ${diff}${unit}）`;
-
-      configDetails.push({ label: '目标变化', value: changeText });
+    if (data.category === 'NUMERIC') {
+      if (numericConfig) {
+        const { startValue, targetValue, unit, direction } = numericConfig;
+        // 显示目标方向
+        configDetails.push({ label: '目标方向', value: DIRECTION_LABELS[direction] || direction });
+        // 显示完整的目标变化
+        const diff = Math.abs(targetValue - startValue);
+        const changeText = direction === 'DECREASE'
+          ? `${startValue}${unit} → ${targetValue}${unit}（减少 ${diff}${unit}）`
+          : `${startValue}${unit} → ${targetValue}${unit}（增加 ${diff}${unit}）`;
+        configDetails.push({ label: '目标变化', value: changeText });
+      } else {
+        // 备用：如果没有详细配置，至少提示用户这是数值型
+        configDetails.push({ label: '目标方向', value: '待配置' });
+      }
     }
 
     // 打卡型配置

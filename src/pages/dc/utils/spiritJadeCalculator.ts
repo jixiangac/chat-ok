@@ -260,3 +260,111 @@ export function calculateTotalCompletionReward(
 ): number {
   return dailyCap.spiritJade * totalDays;
 }
+
+/**
+ * 创建任务折扣信息
+ */
+export interface TaskCreationDiscount {
+  /** 原价 */
+  originalCost: number;
+  /** 折后价 */
+  discountedCost: number;
+  /** 折扣率 (0-1)，0 表示免费，0.5 表示 50% 折扣 */
+  discountRate: number;
+  /** 是否有折扣 */
+  hasDiscount: boolean;
+  /** 折扣原因描述 */
+  discountReason?: string;
+}
+
+/**
+ * 检查归档任务中是否有指定类型的任务
+ */
+function hasArchivedTaskOfType(
+  archivedTasks: Array<{ type?: string }>,
+  isMainline: boolean
+): boolean {
+  if (isMainline) {
+    return archivedTasks.some(t => t.type === 'mainline');
+  } else {
+    return archivedTasks.some(t =>
+      t.type === 'sidelineA' || t.type === 'sidelineB'
+    );
+  }
+}
+
+/**
+ * 计算创建任务的灵玉消耗（含折扣）
+ *
+ * 折扣规则：
+ * 1. 主线任务：
+ *    - 归档无主线 && 当前无主线 → 免费（新手优惠）
+ *    - 归档有主线 && 当前无主线 && 当前无支线 → 50% 折扣（回归优惠）
+ * 2. 支线任务：
+ *    - 归档无支线 && 当前无支线 → 免费（新手优惠）
+ *    - 归档有支线 && 当前无支线 → 80% 折扣（支线回归优惠）
+ *    - 归档有任务（无支线） && 当前无支线 → 20% 折扣（首个支线优惠）
+ *
+ * @param totalCompletionReward 100%完成任务可获得的总灵玉
+ * @param isMainline 是否为主线任务
+ * @param hasCurrentMainline 当前是否有主线任务
+ * @param hasCurrentSideline 当前是否有支线任务
+ * @param archivedTasks 归档任务列表
+ * @returns 折扣信息
+ */
+export function calculateTaskCreationCostWithDiscount(
+  totalCompletionReward: number,
+  isMainline: boolean,
+  hasCurrentMainline: boolean,
+  hasCurrentSideline: boolean,
+  archivedTasks: Array<{ type?: string }>
+): TaskCreationDiscount {
+  // 计算原价
+  const originalCost = calculateTaskCreationCost(totalCompletionReward, isMainline);
+
+  // 检查归档任务情况
+  const hasArchivedMainline = hasArchivedTaskOfType(archivedTasks, true);
+  const hasArchivedSideline = hasArchivedTaskOfType(archivedTasks, false);
+  const hasAnyArchivedTask = archivedTasks.length > 0;
+
+  let discountRate = 0; // 0 表示无折扣
+  let discountReason: string | undefined;
+
+  if (isMainline) {
+    // 主线任务折扣规则
+    if (!hasCurrentMainline) {
+      if (!hasArchivedMainline) {
+        // 归档无主线 && 当前无主线 → 免费
+        discountRate = 1; // 100% 折扣
+        discountReason = '新手首个主线任务免费';
+      } else if (!hasCurrentSideline) {
+        // 归档有主线 && 当前无主线 && 当前无支线 → 50% 折扣
+        discountRate = 0.5;
+        discountReason = '回归用户主线任务 50% 折扣';
+      }
+    }
+  } else {
+    // 支线任务折扣规则
+    if (!hasCurrentSideline) {
+      if (!hasArchivedSideline) {
+        // 归档无支线 && 当前无支线 → 免费
+        discountRate = 1; // 100% 折扣
+        discountReason = '新手首个支线任务免费';
+      } else {
+        // 归档有支线 && 当前无支线 → 80% 折扣
+        discountRate = 0.8;
+        discountReason = '回归用户支线任务 80% 折扣';
+      }
+    }
+  }
+
+  const discountedCost = Math.floor(originalCost * (1 - discountRate));
+
+  return {
+    originalCost,
+    discountedCost,
+    discountRate,
+    hasDiscount: discountRate > 0,
+    discountReason,
+  };
+}

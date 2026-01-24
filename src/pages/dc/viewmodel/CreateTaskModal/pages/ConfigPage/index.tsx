@@ -10,14 +10,15 @@ import { OptionGrid, BottomNavigation } from '../../components';
 import { DIRECTION_OPTIONS, CHECK_IN_TYPE_OPTIONS, CHECKLIST_TEMPLATES } from '../../constants';
 import {
   calculateDailyPointsCap,
-  calculateTaskCreationCost,
+  calculateTaskCreationCostWithDiscount,
   calculateTotalCompletionReward,
 } from '../../../../utils/spiritJadeCalculator';
+import { useScene } from '../../../../contexts';
 import { AgentChatPopup, type StructuredOutput, type ChecklistItemsData, type TaskConfigData, type UserBaseInfo } from '../../../../agent';
 import { useCultivation } from '../../../../contexts';
 import { getCurrentLevelInfo } from '../../../../utils/cultivation';
 import type { CreateTaskModalState } from '../../modalTypes';
-import type { NumericDirection, CheckInUnit } from '../../../../types';
+import type { NumericDirection, CheckInUnit, Category } from '../../../../types';
 import styles from './styles.module.css';
 
 // 根据任务类型获取 AI 提示语
@@ -59,6 +60,11 @@ const ConfigPage: React.FC<ConfigPageProps> = ({
   // 修仙数据（用于 AI 对话）
   const { data: cultivationData, spiritJadeData } = useCultivation();
 
+  // 获取任务数据用于折扣计算
+  const { normal } = useScene();
+  const { hasMainlineTask, sidelineTasks, archivedTasks } = normal;
+  const hasSideline = sidelineTasks.length > 0;
+
   // 构建 AI 对话所需的用户基础信息
   const userInfo: UserBaseInfo = useMemo(() => {
     const levelInfo = getCurrentLevelInfo(cultivationData);
@@ -74,7 +80,8 @@ const ConfigPage: React.FC<ConfigPageProps> = ({
   };
 
   // 计算每日积分上限
-  const taskType = taskCategory === 'MAINLINE' ? 'mainline' : 'sidelineA';
+  const isMainline = taskCategory === 'MAINLINE';
+  const taskType = isMainline ? 'mainline' : 'sidelineA';
   const checkInUnitForCalc: CheckInUnit = state.selectedType === 'CHECK_IN'
     ? state.checkInUnit
     : 'TIMES';
@@ -83,10 +90,13 @@ const ConfigPage: React.FC<ConfigPageProps> = ({
   // 计算100%完成可获得的总灵玉
   const totalCompletionReward = calculateTotalCompletionReward(dailyCapForCost, state.totalDays);
 
-  // 动态计算灵玉消耗
-  const spiritJadeCost = calculateTaskCreationCost(
+  // 动态计算灵玉消耗（含折扣）
+  const discount = calculateTaskCreationCostWithDiscount(
     totalCompletionReward,
-    taskCategory === 'MAINLINE'
+    isMainline,
+    hasMainlineTask,
+    hasSideline,
+    archivedTasks
   );
 
   // 方向选项
@@ -224,14 +234,22 @@ const ConfigPage: React.FC<ConfigPageProps> = ({
     if (output.type === 'TASK_CONFIG') {
       const config = output.data as TaskConfigData;
 
-      // 基础配置
+      // 基础配置 - 根据 AI 推荐的类型覆盖当前选择
       const updates: Partial<CreateTaskModalState> = {
         totalDays: config.totalDays || state.totalDays,
         cycleDays: config.cycleDays || state.cycleDays,
       };
 
+      // 如果 AI 推荐的类型与当前不同，更新任务类型
+      if (config.category && config.category !== state.selectedType) {
+        updates.selectedType = config.category as Category;
+      }
+
+      // 根据 AI 推荐的 category 来应用对应配置（而非当前选择的类型）
+      const targetType = (config.category || state.selectedType) as Category | null;
+
       // 数值型配置
-      if (config.numericConfig && state.selectedType === 'NUMERIC') {
+      if (config.numericConfig && targetType === 'NUMERIC') {
         updates.numericDirection = config.numericConfig.direction;
         updates.numericUnit = config.numericConfig.unit;
         updates.startValue = String(config.numericConfig.startValue);
@@ -239,7 +257,7 @@ const ConfigPage: React.FC<ConfigPageProps> = ({
       }
 
       // 清单型配置
-      if (config.checklistItems && state.selectedType === 'CHECKLIST') {
+      if (config.checklistItems && targetType === 'CHECKLIST') {
         const newItems = [...config.checklistItems];
         while (newItems.length < 6) {
           newItems.push('');
@@ -249,7 +267,7 @@ const ConfigPage: React.FC<ConfigPageProps> = ({
       }
 
       // 打卡型配置
-      if (config.checkInConfig && state.selectedType === 'CHECK_IN') {
+      if (config.checkInConfig && targetType === 'CHECK_IN') {
         updates.checkInUnit = config.checkInConfig.unit;
         if (config.checkInConfig.unit === 'TIMES' && config.checkInConfig.dailyMax) {
           updates.dailyMaxTimes = String(config.checkInConfig.dailyMax);
@@ -749,7 +767,16 @@ const ConfigPage: React.FC<ConfigPageProps> = ({
   const costHint = (
     <span className={styles.costHint}>
       <img src={SPIRIT_JADE_ICON} alt="灵玉" className={styles.costIcon} />
-      创建需消耗 {spiritJadeCost} 灵玉
+      创建需消耗{' '}
+      {discount.hasDiscount ? (
+        <>
+          <span className={styles.originalCost}>{discount.originalCost}</span>
+          <span className={styles.discountedCost}>{discount.discountedCost}</span>
+        </>
+      ) : (
+        <span>{discount.discountedCost}</span>
+      )}
+      {' '}灵玉
     </span>
   );
 

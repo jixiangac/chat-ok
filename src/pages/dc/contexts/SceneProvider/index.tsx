@@ -53,6 +53,9 @@ export function SceneProvider({ children }: SceneProviderProps) {
     okr: createEmptySceneData(),
   });
 
+  // 归档版本计数器（用于触发归档任务列表重新读取）
+  const [archiveVersion, setArchiveVersion] = useState(0);
+
   // 缓存管理器
   const cacheManager = useMemo(() => new CacheManager(), []);
 
@@ -392,6 +395,8 @@ export function SceneProvider({ children }: SceneProviderProps) {
     const loaded = loadSceneData(scene);
     setScenes(prev => ({ ...prev, [scene]: loaded }));
     cacheManager.clearScene(scene);
+    // 同时刷新归档任务（因为归档操作会调用 refreshScene）
+    setArchiveVersion(v => v + 1);
   }, [cacheManager]);
 
   const rebuildIndex = useCallback((scene: SceneType) => {
@@ -602,7 +607,7 @@ export function SceneProvider({ children }: SceneProviderProps) {
   // 归档任务（从独立存储获取）
   const archivedTasks = useMemo(() => {
     return getArchivedTasks();
-  }, [scenes.normal.meta.version]);
+  }, [archiveVersion]);
 
   // 常规场景快捷访问
   const normal: NormalSceneAccess = useMemo(() => ({

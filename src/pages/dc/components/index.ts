@@ -33,6 +33,12 @@ export { default as QuickActionButtons } from './QuickActionButtons';
 // Reward Toast - 奖励提示组件
 export { default as RewardToast } from './RewardToast';
 
+// Insufficient Jade Popup - 灵玉不足弹窗
+export { default as InsufficientJadePopup } from './InsufficientJadePopup';
+
+// Spirit Jade History Popup - 灵玉历史记录弹窗
+export { default as SpiritJadeHistoryPopup } from './SpiritJadeHistoryPopup';
+
 // 注意：以下组件已迁移到 viewmodel 目录，因为它们直接消费 Provider 数据
 // - MoonPhase
 // - TodayProgress

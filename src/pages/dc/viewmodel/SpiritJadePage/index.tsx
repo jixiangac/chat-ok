@@ -22,6 +22,7 @@ const JADE_HEADER_BACKGROUND = 'linear-gradient(135deg, #F0E6D8 0%, #E8DCD0 100%
 const SOURCE_LABELS: Record<string, string> = {
   // 获取来源
   CHECK_IN: '任务打卡',
+  MUST_COMPLETE_BONUS: '今日毕加成',
   CYCLE_COMPLETE: '周期完成奖励',
   DAILY_COMPLETE: '一日清单完成',
   ARCHIVE: '归档总结',

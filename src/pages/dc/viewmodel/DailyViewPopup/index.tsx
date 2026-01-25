@@ -3,16 +3,16 @@
  * 展示今日任务的时段分布 - 小票风格
  */
 
-import React, { useMemo, useState, useEffect, useRef } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Popup, SafeArea, Toast } from 'antd-mobile';
-import { 
-  Check, Sun, Sunset, Moon, X, RefreshCw
+import {
+  Check, Sun, Sunset, Moon, X, RefreshCw, ListChecks
 } from 'lucide-react';
 import dayjs from 'dayjs';
 import type { Task, TagType } from '../../types';
 import { getUsedLocationTags } from '../../utils/tagStorage';
-import { clearDailyViewCache, hasTodayRefreshed, markTodayRefreshed } from '../../utils';
-import { useTaskContext, useScene, useCultivation } from '../../contexts';
+import { clearDailyViewCache, hasTodayRefreshed, markTodayRefreshed, calculateTodayProgress, getCurrentDate } from '../../utils';
+import { useTaskContext, useScene, useCultivation, useApp } from '../../contexts';
 import { LocationFilter } from '../../components';
 import { SPIRIT_JADE_COST } from '../../constants/spiritJade';
 import styles from './styles.module.css';
@@ -101,10 +101,12 @@ const ALMANAC_QUOTES = [
   '宜：持之以恒，忌：三天打鱼',
 ];
 
-// 获取今日老黄历（基于日期的伪随机）
+// 获取今日老黄历（基于日期的伪随机，使用测试日期）
 const getTodayAlmanac = () => {
-  const day = dayjs().date();
-  const month = dayjs().month();
+  const effectiveToday = getCurrentDate();
+  const todayDate = dayjs(effectiveToday);
+  const day = todayDate.date();
+  const month = todayDate.month();
   return ALMANAC_QUOTES[(day + month) % ALMANAC_QUOTES.length];
 };
 
@@ -114,6 +116,10 @@ interface TaskWithPeriod extends Task {
   isCompleted: boolean;
   hasProgress: boolean;
   dailyProgress: number;
+  /** 显示标题（带目标信息） */
+  displayTitle: string;
+  /** 是否是清单类型 */
+  isChecklist: boolean;
 }
 
 const DailyViewPopup: React.FC<DailyViewPopupProps> = ({
@@ -122,44 +128,26 @@ const DailyViewPopup: React.FC<DailyViewPopupProps> = ({
 }) => {
   const { setSelectedTaskId } = useTaskContext();
   const { normal, refreshScene } = useScene();
-  const { 
-    canSpendSpiritJade, 
-    spendSpiritJade, 
-    spiritJadeData, 
-    dispatchDailyCompleteReward 
+  const { systemDate } = useApp();
+  const {
+    canSpendSpiritJade,
+    spendSpiritJade,
+    spiritJadeData
   } = useCultivation();
-  
+
   // 检查今日是否已刷新
   const [hasRefreshed, setHasRefreshed] = useState(() => hasTodayRefreshed());
   const [isRefreshing, setIsRefreshing] = useState(false);
-  
+
   // 检查今日是否有进度（进度大于0时也禁止刷新）
   const hasTodayProgress = useMemo(() => {
     return normal.todayProgress.percentage > 0;
   }, [normal.todayProgress.percentage]);
-  
+
   // 是否禁用刷新按钮：已刷新过 或 今日有进度
   const isRefreshDisabled = hasRefreshed || hasTodayProgress;
 
-  // 记录上一次的进度比例，用于检测是否刚达到100%
-  const prevPercentageRef = useRef<number>(normal.todayProgress.percentage);
-
-  // 监听一日清单完成进度，达到100%时发放奖励
-  useEffect(() => {
-    const prevPercentage = prevPercentageRef.current;
-    const currentPercentage = normal.todayProgress.percentage;
-    
-    // 检测从非100%变到100%
-    if (prevPercentage < 100 && currentPercentage >= 100) {
-      // 获取一日清单任务数量（至少需要3个任务才能获得奖励）
-      const taskCount = normal.dailyViewTaskIds.length;
-      if (taskCount >= 3) {
-        dispatchDailyCompleteReward({ taskCount });
-      }
-    }
-    
-    prevPercentageRef.current = currentPercentage;
-  }, [normal.todayProgress.percentage, normal.dailyViewTaskIds.length, dispatchDailyCompleteReward]);
+  // 注意：一日清单完成100%的奖励监听已移至 SceneProvider，无需在此重复监听
 
   // 处理刷新一日清单
   const handleRefresh = async () => {
@@ -218,30 +206,90 @@ const DailyViewPopup: React.FC<DailyViewPopupProps> = ({
     return getUsedLocationTags(tasks);
   }, [tasks]);
 
-  // 筛选后的任务（使用新的智能筛选逻辑）
+  // 筛选后的任务（使用缓存的任务ID列表）
   const filteredTasks = useMemo(() => {
     // 从 SceneProvider 获取缓存的一日清单任务ID
     const dailyViewTaskIds = normal.dailyViewTaskIds;
-    console.log(dailyViewTaskIds,'dailyViewTaskIds')
-    
+
     // 按照缓存的ID顺序获取任务（保持顺序不变）
-    // 支持 CHECK_IN 和 NUMERIC 类型任务
+    // 支持所有类型任务：CHECK_IN、NUMERIC、CHECKLIST
+    // 同时从活跃任务和归档任务中查找（今日归档的任务仍然显示）
     const dailyTasks = dailyViewTaskIds
-      .map(id => normal.getById(id))
-      .filter((task): task is Task => 
-        task !== undefined && 
-        (task.category === 'CHECK_IN' || task.category === 'NUMERIC')
-      );
-    
+      .map(id => {
+        // 先从活跃任务中查找
+        const activeTask = normal.getById(id);
+        if (activeTask) return activeTask;
+        // 如果找不到，从归档任务中查找
+        return normal.archivedTasks.find(t => t.id === id);
+      })
+      .filter((task): task is Task => task !== undefined);
+
     // 应用地点筛选
     if (!selectedLocationTagId) {
       return dailyTasks;
     }
-    
-    return dailyTasks.filter(task => 
+
+    return dailyTasks.filter(task =>
       task.tags?.locationTagId === selectedLocationTagId
     );
-  }, [normal.dailyViewTaskIds, normal.getById, selectedLocationTagId]);
+  }, [normal.dailyViewTaskIds, normal.getById, normal.archivedTasks, selectedLocationTagId]);
+
+  // 生成任务显示标题
+  const getDisplayTitle = (task: Task): string => {
+    const title = task.title;
+
+    // CHECKLIST 类型：显示名称[当日目标数量]
+    if (task.category === 'CHECKLIST') {
+      const dailyTarget = task.todayProgress?.dailyTarget ?? 0;
+      return dailyTarget > 0 ? `${title}[${dailyTarget}项]` : title;
+    }
+
+    // 优先使用 todayProgress.dailyTarget（今日目标）
+    const dailyTarget = task.todayProgress?.dailyTarget;
+    if (dailyTarget && dailyTarget > 0) {
+      // CHECK_IN 类型
+      if (task.category === 'CHECK_IN' && task.checkInConfig) {
+        const config = task.checkInConfig;
+        if (config.unit === 'DURATION') {
+          return `${title}[${dailyTarget}分钟]`;
+        }
+        if (config.unit === 'QUANTITY') {
+          const unit = config.valueUnit || '';
+          return `${title}[${dailyTarget}${unit}]`;
+        }
+        if (config.unit === 'TIMES') {
+          return `${title}[${dailyTarget}次]`;
+        }
+      }
+      // NUMERIC 类型
+      if (task.category === 'NUMERIC' && task.numericConfig) {
+        const unit = task.numericConfig.unit || '';
+        return `${title}[${dailyTarget}${unit}]`;
+      }
+    }
+
+    // 回退到配置中的目标值
+    if (task.category === 'CHECK_IN' && task.checkInConfig) {
+      const config = task.checkInConfig;
+      if (config.unit === 'DURATION' && config.dailyTargetMinutes) {
+        return `${title}[${config.dailyTargetMinutes}分钟]`;
+      }
+      if (config.unit === 'QUANTITY' && config.dailyTargetValue) {
+        const unit = config.valueUnit || '';
+        return `${title}[${config.dailyTargetValue}${unit}]`;
+      }
+      if (config.unit === 'TIMES' && config.dailyMaxTimes) {
+        return `${title}[${config.dailyMaxTimes}次]`;
+      }
+    }
+
+    if (task.category === 'NUMERIC' && task.numericConfig?.perDayAverage) {
+      const unit = task.numericConfig.unit || '';
+      return `${title}[${task.numericConfig.perDayAverage}${unit}]`;
+    }
+
+    return title;
+  };
 
   // 将任务分配到时段
   const tasksWithPeriods = useMemo((): TaskWithPeriod[] => {
@@ -252,15 +300,18 @@ const DailyViewPopup: React.FC<DailyViewPopupProps> = ({
       const periodIndex = Math.min(Math.floor(index / tasksPerPeriod), 2);
       const period = periods[periodIndex];
       const positionInPeriod = index % tasksPerPeriod;
-      
+
       // 生成示意时间（整点）
       const baseHour = TIME_PERIODS[period].start;
       const hoursInPeriod = TIME_PERIODS[period].end - TIME_PERIODS[period].start;
       const hour = baseHour + Math.min(positionInPeriod * 2, hoursInPeriod - 1);
-      // 计算今日进度百分比
-      const todayValue = task.todayProgress?.todayValue ?? 0;
-      const dailyTarget = task.todayProgress?.dailyTarget ?? 0;
-      const isCompleted = task.todayProgress?.isCompleted ?? false;
+
+      // 重新计算今日进度（确保使用最新数据）
+      const freshTodayProgress = calculateTodayProgress(task);
+      const todayValue = freshTodayProgress.todayValue ?? 0;
+      const dailyTarget = freshTodayProgress.dailyTarget ?? 0;
+      const isCompleted = freshTodayProgress.isCompleted ?? false;
+
       // 使用绝对值处理减少型任务（NUMERIC 类型的 todayValue 可能为负数）
       const dailyProgress = dailyTarget > 0 ? Math.min(100, Math.max(0, (Math.abs(todayValue) / dailyTarget) * 100)) : 0;
       // 只有有每日目标且未完成时才显示进度图标
@@ -270,9 +321,11 @@ const DailyViewPopup: React.FC<DailyViewPopupProps> = ({
         ...task,
         period,
         displayTime: `${hour.toString().padStart(2, '0')}:00`,
-        isCompleted: task.todayProgress?.isCompleted ?? false,
+        isCompleted,
         hasProgress,
         dailyProgress,
+        displayTitle: getDisplayTitle(task),
+        isChecklist: task.category === 'CHECKLIST',
       };
     });
   }, [filteredTasks, normal.isTodayCompleted]);
@@ -286,22 +339,30 @@ const DailyViewPopup: React.FC<DailyViewPopupProps> = ({
     };
   }, [tasksWithPeriods]);
 
-  // 今日日期信息
+  // 今日日期信息（使用测试日期，依赖 systemDate 以响应日期变化）
   const dateInfo = useMemo(() => {
-    const now = dayjs();
+    const effectiveToday = getCurrentDate();
+    const todayDate = dayjs(effectiveToday);
     return {
-      date: now.format('MM/DD'),
-      weekday: ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'][now.day()],
+      date: todayDate.format('MM/DD'),
+      weekday: ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'][todayDate.day()],
     };
-  }, []);
+  }, [systemDate]);
 
-  // 当前时间
+  // 当前时间（使用测试日期 + 实际时间，依赖 systemDate 以响应日期变化）
   const currentTime = useMemo(() => {
-    return dayjs().format('YYYY/MM/DD HH:mm:ss');
-  }, [visible]);
+    const effectiveToday = getCurrentDate();
+    const now = dayjs();
+    // 使用有效日期 + 当前时分秒
+    return dayjs(effectiveToday)
+      .hour(now.hour())
+      .minute(now.minute())
+      .second(now.second())
+      .format('YYYY/MM/DD HH:mm:ss');
+  }, [visible, systemDate]);
 
-  // 老黄历
-  const almanac = useMemo(() => getTodayAlmanac(), []);
+  // 老黄历（依赖 systemDate 以响应日期变化）
+  const almanac = useMemo(() => getTodayAlmanac(), [systemDate]);
 
   // 计算全局索引（包括时段标题和任务项）
   const getGlobalIndex = (periodKey: 'morning' | 'afternoon' | 'evening', localIndex: number, isHeader: boolean): number => {
@@ -324,22 +385,25 @@ const DailyViewPopup: React.FC<DailyViewPopupProps> = ({
     periodTasks: TaskWithPeriod[],
     isLast: boolean = false
   ) => {
+    // 如果该时段没有任务，不渲染该时段
+    if (periodTasks.length === 0) {
+      return null;
+    }
+
     const period = TIME_PERIODS[periodKey];
     const Icon = period.icon;
-    
+
     // 计算时段标题的动画延迟
     const headerIndex = getGlobalIndex(periodKey, 0, true);
     const headerAnimationDelay = `${headerIndex * 60}ms`;
-    
+
     // 计算虚线的动画延迟（在该时段所有任务之后）
-    const lastTaskIndex = periodTasks.length > 0 
-      ? getGlobalIndex(periodKey, periodTasks.length - 1, false)
-      : headerIndex;
+    const lastTaskIndex = getGlobalIndex(periodKey, periodTasks.length - 1, false);
     const dashedLineAnimationDelay = `${(lastTaskIndex + 1) * 60}ms`;
 
     return (
       <div className={styles.periodSection} key={periodKey}>
-        <div 
+        <div
           className={styles.periodHeader}
           style={{ animationDelay: headerAnimationDelay }}
         >
@@ -347,36 +411,35 @@ const DailyViewPopup: React.FC<DailyViewPopupProps> = ({
           <span className={styles.periodLabel}>{period.label}</span>
         </div>
         <div className={styles.periodTasks}>
-          {periodTasks.length === 0 ? (
-            <div className={styles.emptyPeriod}>- - -</div>
-          ) : (
-            periodTasks.map((task, index) => {
-              const globalIndex = getGlobalIndex(periodKey, index, false);
-              const animationDelay = `${globalIndex * 60}ms`;
-              
-              return (
-                <div
-                  key={task.id}
-                  className={`${styles.taskItem} ${task.isCompleted ? styles.taskCompleted : ''}`}
-                  style={{ animationDelay }}
-                  onClick={() => setSelectedTaskId(task.id)}
-                >
-                  <div className={styles.taskLeft}>
-                    <span className={styles.taskTitle}>{task.title}</span>
-                    {task.hasProgress && (
-                      <CircleProgress
-                        progress={task.dailyProgress}
-                        isCompleted={task.isCompleted}
-                        size={16}
-                        strokeWidth={2}
-                      />
-                    )}
-                  </div>
-                  <span className={styles.taskTime}>{task.displayTime}</span>
+          {periodTasks.map((task, index) => {
+            const globalIndex = getGlobalIndex(periodKey, index, false);
+            const animationDelay = `${globalIndex * 60}ms`;
+
+            return (
+              <div
+                key={task.id}
+                className={`${styles.taskItem} ${task.isCompleted ? styles.taskCompleted : ''}`}
+                style={{ animationDelay }}
+                onClick={() => setSelectedTaskId(task.id)}
+              >
+                <div className={styles.taskLeft}>
+                  {task.isChecklist && (
+                    <ListChecks size={14} className={styles.checklistIcon} />
+                  )}
+                  <span className={styles.taskTitle}>{task.displayTitle}</span>
+                  {task.hasProgress && (
+                    <CircleProgress
+                      progress={task.dailyProgress}
+                      isCompleted={task.isCompleted}
+                      size={16}
+                      strokeWidth={2}
+                    />
+                  )}
                 </div>
-              );
-            })
-          )}
+                <span className={styles.taskTime}>{task.displayTime}</span>
+              </div>
+            );
+          })}
         </div>
         {!isLast && (
           <div 
@@ -453,9 +516,18 @@ const DailyViewPopup: React.FC<DailyViewPopupProps> = ({
 
         {/* 时段列表 */}
         <div className={styles.periodList}>
-          {renderPeriodSection('morning', tasksByPeriod.morning, false)}
-          {renderPeriodSection('afternoon', tasksByPeriod.afternoon, false)}
-          {renderPeriodSection('evening', tasksByPeriod.evening, true)}
+          {(() => {
+            // 计算哪些时段有任务
+            const periods: Array<{ key: 'morning' | 'afternoon' | 'evening'; tasks: TaskWithPeriod[] }> = [
+              { key: 'morning', tasks: tasksByPeriod.morning },
+              { key: 'afternoon', tasks: tasksByPeriod.afternoon },
+              { key: 'evening', tasks: tasksByPeriod.evening },
+            ].filter(p => p.tasks.length > 0);
+
+            return periods.map((p, index) =>
+              renderPeriodSection(p.key, p.tasks, index === periods.length - 1)
+            );
+          })()}
         </div>
 
         <div className={styles.dashedLine} style={{margin: '5px 0'}}></div>

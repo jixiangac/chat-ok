@@ -7,25 +7,27 @@ import type { Task, ChecklistItem } from '../../../../types';
 import type { CurrentCycleInfo } from '../../types';
 import { useCultivation, useTheme } from '../../../../contexts';
 import { InsufficientJadePopup } from '../../../../components';
+import { getCurrentDate } from '../../../../utils/dateTracker';
 import styles from '../../../../css/ChecklistCyclePanel.module.css';
 
-// 格式化完成时间
-const formatCompletedTime = (isoTime: string): string => {
+// 格式化完成时间（考虑测试日期）
+const formatCompletedTime = (isoTime: string, task?: Task): string => {
   const time = dayjs(isoTime);
-  const today = dayjs();
-  if (time.isSame(today, 'day')) {
+  const effectiveToday = dayjs(getCurrentDate(task));
+  if (time.isSame(effectiveToday, 'day')) {
     return `今天 ${time.format('HH:mm')}`;
   }
-  if (time.isSame(today.subtract(1, 'day'), 'day')) {
+  if (time.isSame(effectiveToday.subtract(1, 'day'), 'day')) {
     return `昨天 ${time.format('HH:mm')}`;
   }
   return time.format('M月D日 HH:mm');
 };
 
-// 判断是否今天完成
-const isCompletedToday = (item: ChecklistItem): boolean => {
+// 判断是否今天完成（考虑测试日期）
+const isCompletedToday = (item: ChecklistItem, task?: Task): boolean => {
   if (!item.completedAt || item.status !== 'COMPLETED') return false;
-  return dayjs(item.completedAt).isSame(dayjs(), 'day');
+  const effectiveToday = getCurrentDate(task);
+  return dayjs(item.completedAt).format('YYYY-MM-DD') === effectiveToday;
 };
 
 // 灵玉消耗常量
@@ -216,7 +218,7 @@ export default function ChecklistCyclePanel({
 
   // 今日已完成的清单项（本周期内），按完成时间升序排列（最早完成的在前，最新完成的在后）
   const todayCompletedItems = cycleItems
-    .filter(isCompletedToday)
+    .filter(item => isCompletedToday(item, goal))
     .sort((a, b) => {
       const timeA = a.completedAt ? dayjs(a.completedAt).valueOf() : 0;
       const timeB = b.completedAt ? dayjs(b.completedAt).valueOf() : 0;
@@ -444,7 +446,7 @@ export default function ChecklistCyclePanel({
         </div>
         {item.completedAt && (
           <div className={styles.itemTime}>
-            {formatCompletedTime(item.completedAt)}
+            {formatCompletedTime(item.completedAt, goal)}
           </div>
         )}
       </div>

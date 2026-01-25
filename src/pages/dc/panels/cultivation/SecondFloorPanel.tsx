@@ -4,31 +4,14 @@
  */
 
 import { memo, useMemo, useRef, useCallback, useState, useEffect } from 'react';
-import { ChevronLeft, Bug, Zap, Clock } from 'lucide-react';
+import { ChevronLeft, Zap, Clock } from 'lucide-react';
 import { Toast } from 'antd-mobile';
 import { REALM_CONFIG, LIANQI_LAYER_NAMES, STAGE_CONFIG } from '../../constants/cultivation';
 import type { LianqiLayer, StageType, RealmType } from '../../constants/cultivation';
 import type { CultivationData } from '../../types/cultivation';
-import { getCurrentLevelInfo, formatExp, getCultivationImageFromData, getCultivationImage, getSeclusionInfo } from '../../utils/cultivation';
+import { getCurrentLevelInfo, formatExp, getCultivationImageFromData, getSeclusionInfo } from '../../utils/cultivation';
 import { useModal, UI_KEYS, useCultivation } from '../../contexts';
 import styles from './SecondFloorPanel.module.css';
-
-// ============ DEBUG 配置 ============
-
-/** DEBUG 模式预设等级配置 */
-const DEBUG_LEVELS: Array<{
-  name: string;
-  realm: RealmType;
-  stage: StageType | null;
-  layer: LianqiLayer | null;
-}> = [
-  { name: '炼气期 第一层', realm: 'LIANQI', stage: null, layer: 1 },
-  { name: '炼气期 第二层+', realm: 'LIANQI', stage: null, layer: 5 },
-  { name: '筑基期', realm: 'ZHUJI', stage: 'MIDDLE', layer: null },
-  { name: '结丹期', realm: 'JIEDAN', stage: 'MIDDLE', layer: null },
-  { name: '元婴初期', realm: 'YUANYING', stage: 'EARLY', layer: null },
-  { name: '元婴中期+', realm: 'YUANYING', stage: 'MIDDLE', layer: null },
-];
 
 // ============ 类型定义 ============
 
@@ -79,32 +62,19 @@ function SecondFloorPanelComponent({
   const currentY = useRef(0);
   const isDragging = useRef(false);
 
-  // DEBUG 模式状态
-  const [debugMode, setDebugMode] = useState(false);
-  const [debugLevelIndex, setDebugLevelIndex] = useState(0);
-  
   // 图片切换动画状态
   const [isImageTransitioning, setIsImageTransitioning] = useState(false);
   const [displayedImage, setDisplayedImage] = useState('');
 
-  // 获取当前显示的等级信息（DEBUG 模式或真实数据）
+  // 获取当前显示的等级信息
   const displayLevel = useMemo(() => {
-    if (debugMode) {
-      const debugLevel = DEBUG_LEVELS[debugLevelIndex];
-      return {
-        realm: debugLevel.realm,
-        stage: debugLevel.stage,
-        layer: debugLevel.layer,
-        name: debugLevel.name,
-      };
-    }
     return {
       realm: levelInfo.realm,
       stage: levelInfo.stage,
       layer: levelInfo.layer,
       name: levelInfo.displayName,
     };
-  }, [debugMode, debugLevelIndex, levelInfo]);
+  }, [levelInfo]);
 
   // 获取境界和层级显示（合并为完整名称）
   const realmInfo = REALM_CONFIG[displayLevel.realm];
@@ -121,12 +91,8 @@ function SecondFloorPanelComponent({
 
   // 获取当前应该显示的图片 URL
   const targetImage = useMemo(() => {
-    if (debugMode) {
-      const debugLevel = DEBUG_LEVELS[debugLevelIndex];
-      return getCultivationImage(debugLevel.realm, debugLevel.stage, debugLevel.layer);
-    }
     return getCultivationImageFromData(data);
-  }, [debugMode, debugLevelIndex, data]);
+  }, [data]);
 
   // 图片切换动画效果
   useEffect(() => {
@@ -156,22 +122,6 @@ function SecondFloorPanelComponent({
     
     return undefined;
   }, [targetImage, displayedImage]);
-
-  // 切换 DEBUG 模式
-  const toggleDebugMode = useCallback(() => {
-    setDebugMode(prev => !prev);
-    setDebugLevelIndex(0);
-  }, []);
-
-  // 切换到下一个 DEBUG 等级
-  const nextDebugLevel = useCallback(() => {
-    setDebugLevelIndex(prev => (prev + 1) % DEBUG_LEVELS.length);
-  }, []);
-
-  // 切换到上一个 DEBUG 等级
-  const prevDebugLevel = useCallback(() => {
-    setDebugLevelIndex(prev => (prev - 1 + DEBUG_LEVELS.length) % DEBUG_LEVELS.length);
-  }, []);
 
   // 处理突破
   const handleBreakthrough = useCallback(() => {
@@ -286,12 +236,7 @@ function SecondFloorPanelComponent({
           <ChevronLeft size={24} />
         </button>
         <span className={styles.headerTitle}>修炼</span>
-        <button
-          className={`${styles.debugButton} ${debugMode ? styles.debugActive : ''}`}
-          onClick={toggleDebugMode}
-        >
-          <Bug size={20} />
-        </button>
+        <div className={styles.headerPlaceholder} />
       </header>
 
       {/* 主内容区域 */}
@@ -308,29 +253,6 @@ function SecondFloorPanelComponent({
             alt="修仙角色"
             className={`${styles.characterImage} ${isImageTransitioning ? styles.imageTransitioning : ''}`}
           />
-          
-          {/* DEBUG 模式控制面板 */}
-          {debugMode && (
-            <div className={styles.debugPanel}>
-              <div className={styles.debugInfo}>
-                <span className={styles.debugLabel}>DEBUG 模式</span>
-                <span className={styles.debugLevelName}>
-                  {DEBUG_LEVELS[debugLevelIndex].name}
-                </span>
-                <span className={styles.debugIndex}>
-                  {debugLevelIndex + 1} / {DEBUG_LEVELS.length}
-                </span>
-              </div>
-              <div className={styles.debugControls}>
-                <button className={styles.debugNavButton} onClick={prevDebugLevel}>
-                  ◀ 上一个
-                </button>
-                <button className={styles.debugNavButton} onClick={nextDebugLevel}>
-                  下一个 ▶
-                </button>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* 底部 - 进度条 */}

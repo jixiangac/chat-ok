@@ -4,15 +4,19 @@
  */
 
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import type { 
-  UserContextValue, 
-  UserData, 
-  UserProfile, 
-  TodayMustComplete, 
-  DailyChecklist 
+import type {
+  UserContextValue,
+  UserData,
+  UserProfile,
+  TodayMustComplete,
+  DailyChecklist
 } from './types';
 import { defaultUserData, LEVEL_CONFIG } from './types';
 import { loadUserData, saveUserData, getTodayDateString, isYesterday } from './storage';
+import { DATE_CHANGE_EVENT } from '../AppProvider';
+import {
+  saveTodayMustCompleteState as saveTodayMustCompleteToLegacy,
+} from '../../utils/todayMustCompleteStorage';
 
 // 创建 Context
 const UserContext = createContext<UserContextValue | null>(null);
@@ -48,7 +52,7 @@ export function UserProvider({ children }: UserProviderProps) {
   // 初始化时从 localStorage 加载数据
   useEffect(() => {
     const loaded = loadUserData();
-    
+
     // 检查并重置过期的今日必完成
     const today = getTodayDateString();
     if (loaded.todayMustComplete.date !== today) {
@@ -60,7 +64,7 @@ export function UserProvider({ children }: UserProviderProps) {
         readOnly: false,
       };
     }
-    
+
     // 检查并重置过期的一日清单
     if (loaded.dailyChecklist.date !== today) {
       loaded.dailyChecklist = {
@@ -69,7 +73,7 @@ export function UserProvider({ children }: UserProviderProps) {
         completedIds: [],
       };
     }
-    
+
     // 检查连续打卡
     if (loaded.stats.lastActiveDate && !isYesterday(loaded.stats.lastActiveDate)) {
       // 如果上次活跃不是昨天，重置连续天数
@@ -77,9 +81,65 @@ export function UserProvider({ children }: UserProviderProps) {
         loaded.stats.currentStreak = 0;
       }
     }
-    
+
     setUserData(loaded);
     saveUserData(loaded);
+
+    // 同步写入 legacy 存储，确保奖励计算能正确读取
+    saveTodayMustCompleteToLegacy({
+      date: loaded.todayMustComplete.date,
+      taskIds: loaded.todayMustComplete.taskIds,
+      skipped: loaded.todayMustComplete.skipped,
+      hasShownModal: loaded.todayMustComplete.hasShownModal,
+    });
+  }, []);
+
+  // 监听日期变化事件（包括测试日期变化）
+  useEffect(() => {
+    const handleDateChange = () => {
+      const today = getTodayDateString();
+
+      setUserData(prev => {
+        // 检查今日必完成的日期是否过期
+        if (prev.todayMustComplete.date !== today) {
+          const newTodayMustComplete = {
+            date: today,
+            taskIds: [],
+            skipped: false,
+            hasShownModal: false,
+            readOnly: false,
+          };
+
+          const newData = {
+            ...prev,
+            todayMustComplete: newTodayMustComplete,
+            // 同时重置一日清单
+            dailyChecklist: prev.dailyChecklist.date !== today ? {
+              date: today,
+              taskIds: [],
+              completedIds: [],
+            } : prev.dailyChecklist,
+          };
+          saveUserData(newData);
+
+          // 同步重置 legacy 存储
+          saveTodayMustCompleteToLegacy({
+            date: today,
+            taskIds: [],
+            skipped: false,
+            hasShownModal: false,
+          });
+
+          return newData;
+        }
+        return prev;
+      });
+    };
+
+    window.addEventListener(DATE_CHANGE_EVENT, handleDateChange);
+    return () => {
+      window.removeEventListener(DATE_CHANGE_EVENT, handleDateChange);
+    };
   }, []);
 
   // 更新用户信息
@@ -109,19 +169,29 @@ export function UserProvider({ children }: UserProviderProps) {
   // 设置今日必完成任务
   const setTodayMustCompleteTasks = useCallback((taskIds: string[]) => {
     const today = getTodayDateString();
+    const newTodayMustComplete = {
+      date: today,
+      taskIds: taskIds.slice(0, 3), // 最多3个
+      skipped: false,
+      hasShownModal: true,
+      readOnly: true, // 设置任务后进入只读模式
+    };
+
     setUserData(prev => {
       const newData = {
         ...prev,
-        todayMustComplete: {
-          date: today,
-          taskIds: taskIds.slice(0, 3), // 最多3个
-          skipped: false,
-          hasShownModal: true,
-          readOnly: true, // 设置任务后进入只读模式
-        },
+        todayMustComplete: newTodayMustComplete,
       };
       saveUserData(newData);
       return newData;
+    });
+
+    // 同步写入 legacy 存储 (dc_today_must_complete)，供奖励计算使用
+    saveTodayMustCompleteToLegacy({
+      date: today,
+      taskIds: taskIds.slice(0, 3),
+      skipped: false,
+      hasShownModal: true,
     });
   }, []);
 
@@ -141,6 +211,14 @@ export function UserProvider({ children }: UserProviderProps) {
       };
       saveUserData(newData);
       return newData;
+    });
+
+    // 同步写入 legacy 存储
+    saveTodayMustCompleteToLegacy({
+      date: today,
+      taskIds: [],
+      skipped: true,
+      hasShownModal: true,
     });
   }, []);
 

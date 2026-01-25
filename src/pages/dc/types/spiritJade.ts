@@ -7,8 +7,9 @@ import type { TaskType, CheckInUnit } from '../types';
 // ============ 积分来源类型 ============
 
 /** 积分获取来源 */
-export type PointsEarnSource = 
+export type PointsEarnSource =
   | 'CHECK_IN'           // 任务打卡
+  | 'MUST_COMPLETE_BONUS' // 今日必完成加成
   | 'CYCLE_COMPLETE'     // 周期完成100%
   | 'DAILY_COMPLETE'     // 一日清单完成100%
   | 'ARCHIVE';           // 归档总结

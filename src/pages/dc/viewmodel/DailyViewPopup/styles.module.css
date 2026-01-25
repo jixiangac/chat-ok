@@ -418,6 +418,12 @@
   flex-shrink: 0;
 }
 
+/* 清单图标 */
+.checklistIcon {
+  color: #8B8680;
+  flex-shrink: 0;
+}
+
 /* 老黄历区域 */
 .almanacSection {
   margin: 4px 0;

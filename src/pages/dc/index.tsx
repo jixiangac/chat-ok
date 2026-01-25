@@ -141,7 +141,7 @@ function DCPageContent() {
   }, [activeTab, setActiveTab, openCreateTaskModal]);
 
   // 判断是否有弹窗打开，有弹窗时禁用下拉进入二楼
-  // 包括：设置面板、今日必完成弹窗、任务详情页、创建任务弹窗、度假模式弹窗、纪念日弹窗、一日清单弹窗
+  // 包括：设置面板、今日必完成弹窗、任务详情页、创建任务弹窗、度假模式弹窗、纪念日弹窗、一日清单弹窗、灵玉明细
   const hasModalOpen = showSettings ||
     showTodayMustCompleteModal ||
     !!selectedTaskId ||
@@ -151,7 +151,8 @@ function DCPageContent() {
     showMemorialCreate ||
     showDailyView ||
     showSpriteChat ||
-    showAllSideline;
+    showAllSideline ||
+    showJadeHistory;
 
   // 下拉进入二楼 Hook
   const {

@@ -8,11 +8,23 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { SafeArea } from 'antd-mobile';
+import dayjs from 'dayjs';
 import type { Task } from '../../types';
 import { SidelineTaskCard } from '../../components/card';
-import { getTodayCheckInStatusForTask } from '../../panels/detail/hooks';
-import { useScene, useUser, useUIState } from '../../contexts';
+import { useScene, useUser, useUIState, useApp } from '../../contexts';
+import { getCurrentDate } from '../../utils';
 import styles from './styles.module.css';
+
+/**
+ * 判断任务是否超期
+ * 如果任务的结束日期已过，则视为超期
+ * @param task 任务对象
+ * @param currentDate 当前日期（支持测试日期）
+ */
+const isTaskExpired = (task: Task, currentDate: string): boolean => {
+  if (!task.time?.endDate) return false;
+  return dayjs(currentDate).isAfter(dayjs(task.time.endDate), 'day');
+};
 
 // IP 图片地址
 const HEADER_IMAGE_URL = 'https://img.alicdn.com/imgextra/i3/O1CN010etw8y22Bc3SeGWsQ_!!6000000007082-2-tps-1080-944.png';
@@ -21,22 +33,48 @@ const MAX_SELECTIONS = 3;
 
 const TodayMustCompleteModal: React.FC = () => {
   // 从 Provider 获取数据
-  const { sidelineTasks } = useScene();
-  const { 
-    todayMustComplete, 
+  const { normal } = useScene();
+  const {
+    todayMustComplete,
     checkAndShowTodayMustComplete,
-    setTodayMustCompleteTasks, 
+    setTodayMustCompleteTasks,
     skipTodayMustComplete,
     markTodayMustCompleteShown
   } = useUser();
-  const { 
-    showTodayMustCompleteModal: visible, 
+  const {
+    showTodayMustCompleteModal: visible,
     closeTodayMustCompleteModal: onClose,
     openTodayMustCompleteModal
   } = useUIState();
-  
+  // 订阅 systemDate 以响应测试日期变化（变量用于触发重新渲染）
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { systemDate } = useApp();
+
   const readOnly = todayMustComplete.readOnly;
-  const tasks = sidelineTasks;
+
+  // 获取当前日期（支持测试日期）
+  const currentDate = getCurrentDate();
+
+  // 获取所有任务（主线 + 支线），并过滤掉不符合条件的任务
+  // 条件：总完成率 < 100%，非归档，非超期
+  const tasks = useMemo(() => {
+    const allTasks = [...normal.mainlineTasks, ...normal.sidelineTasks];
+    return allTasks.filter(task => {
+      // 排除归档的任务
+      if (task.status === 'ARCHIVED' || task.status === 'ARCHIVED_HISTORY') {
+        return false;
+      }
+      // 排除超期的任务（使用当前日期）
+      if (isTaskExpired(task, currentDate)) {
+        return false;
+      }
+      // 排除总完成率已达100%的任务
+      if ((task.progress?.totalPercentage ?? 0) >= 100) {
+        return false;
+      }
+      return true;
+    });
+  }, [normal.mainlineTasks, normal.sidelineTasks, currentDate]);
   
   const [selectedTaskIds, setSelectedTaskIds] = useState<string[]>([]);
 
@@ -57,14 +95,8 @@ const TodayMustCompleteModal: React.FC = () => {
     }
   }, [visible, readOnly, todayMustComplete.taskIds]);
 
-  // 过滤掉今日已完成打卡的任务（仅编辑模式）
-  const availableTasks = useMemo(() => {
-    if (readOnly) return tasks;
-    return tasks.filter(task => {
-      const status = getTodayCheckInStatusForTask(task);
-      return !status.isCompleted;
-    });
-  }, [tasks, readOnly]);
+  // 直接使用过滤后的任务列表（不再额外过滤今日已完成的任务）
+  const availableTasks = tasks;
 
   // 处理任务选择（仅编辑模式）
   const handleTaskSelect = (taskId: string) => {

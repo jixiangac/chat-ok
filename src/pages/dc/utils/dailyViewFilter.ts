@@ -52,10 +52,9 @@ export function filterDailyViewTasks(tasks: Task[]): Task[] {
   );
   result.push(...mainlineTasks);
   
-  // 3. 筛选支线任务（CHECK_IN 和 NUMERIC 类型）
-  const sidelineTasks = tasks.filter(task => 
-    task.type !== 'mainline' && 
-    (task.category === 'CHECK_IN' || task.category === 'NUMERIC')
+  // 3. 筛选支线任务（所有类型：CHECK_IN、NUMERIC、CHECKLIST）
+  const sidelineTasks = tasks.filter(task =>
+    task.type !== 'mainline'
   );
   
   // 4. 暂存周期N次任务
@@ -92,7 +91,21 @@ export function filterDailyViewTasks(tasks: Task[]): Task[] {
     if (task.category === 'NUMERIC' && task.numericConfig) {
       return true;
     }
-    
+
+    // CHECKLIST 类型任务：当周期有未完成的清单项时显示
+    if (task.category === 'CHECKLIST' && task.checklistConfig) {
+      const currentCycle = task.cycle?.currentCycle ?? 1;
+      const items = task.checklistConfig.items || [];
+      // 检查当前周期是否有未完成的清单项
+      const hasUncompletedItems = items.some(item =>
+        item.cycle === currentCycle && item.status !== 'COMPLETED'
+      );
+      if (hasUncompletedItems) {
+        return true;
+      }
+      return false;
+    }
+
     // CHECK_IN 类型任务的筛选逻辑
     const config = task.checkInConfig;
     if (!config) return false;

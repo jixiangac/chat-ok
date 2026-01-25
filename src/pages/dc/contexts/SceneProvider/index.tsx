@@ -3,7 +3,7 @@
  * 管理不同场景的数据、索引、缓存
  */
 
-import { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef, ReactNode } from 'react';
 import dayjs from 'dayjs';
 import type { Task, TaskType } from '../../types';
 import type { 
@@ -21,13 +21,14 @@ import { buildIndex, addToIndex, removeFromIndex, updateInIndex } from './indexB
 import { CacheManager } from './cacheManager';
 import { loadSceneData, saveSceneData, needsMigration, performMigration } from './storage';
 import { useSpriteImage } from '../../hooks';
-import { filterDailyViewTasks, getCachedDailyTaskIds, saveDailyTaskIdsCache, clearDailyViewCache, clearRefreshStatus, getCurrentDate } from '../../utils';
+import { filterDailyViewTasks, getCachedDailyTaskIds, saveDailyTaskIdsCache, clearDailyViewCache, clearRefreshStatus, getCurrentDate, calculateTodayProgress } from '../../utils';
 import { calculateRemainingDays } from '../../utils/mainlineTaskHelper';
 import { getTodayMustCompleteTaskIds } from '../../utils/todayMustCompleteStorage';
 import { getArchivedTasks } from '../../utils/archiveStorage';
 import { performDailyReset } from '../../utils/dailyDataReset';
 import { DATE_CHANGE_EVENT } from '../AppProvider';
 import type { DateChangeInfo } from '../AppProvider/types';
+import { useCultivation } from '../CultivationProvider';
 
 // 创建 Context
 const SceneContext = createContext<SceneContextValue | null>(null);
@@ -45,6 +46,9 @@ const TABS: TabConfig[] = [
 ];
 
 export function SceneProvider({ children }: SceneProviderProps) {
+  // 从 CultivationProvider 获取奖励发放函数
+  const { dispatchDailyCompleteReward } = useCultivation();
+
   // 各场景数据
   const [scenes, setScenes] = useState<Record<SceneType, SceneData>>({
     normal: createEmptySceneData(),
@@ -55,6 +59,9 @@ export function SceneProvider({ children }: SceneProviderProps) {
 
   // 归档版本计数器（用于触发归档任务列表重新读取）
   const [archiveVersion, setArchiveVersion] = useState(0);
+
+  // 一日清单进度追踪（用于检测完成100%）
+  const prevProgressRef = useRef<number>(0);
 
   // 缓存管理器
   const cacheManager = useMemo(() => new CacheManager(), []);
@@ -566,43 +573,74 @@ export function SceneProvider({ children }: SceneProviderProps) {
   }, [normalMainlineTasks, normalSidelineTasks, scenes.normal.meta.version]);
 
   // 计算今日完成率（基于一日清单）
-  // 每个任务按 todayProgress 计算进度比例：完成=100%，否则按 todayValue/dailyTarget 计算
-  // 最终完成率 = 所有任务进度比例之和 / 任务数量
+  // 分母：任务个数
+  // 分子：完成量累加（完成=1，未完成按进度比例计算，如50%=0.5）
+  // 最终完成率 = (分子 / 分母) * 100，保留两位小数
   const todayProgress = useMemo(() => {
     // 基于一日清单的任务ID来计算
     if (dailyViewTaskIds.length === 0) {
       return { completed: 0, total: 0, percentage: 0 };
     }
 
-    // 获取一日清单中的任务
+    // 获取一日清单中的任务（包括归档任务）
+    const archivedTasksList = getArchivedTasks();
     const dailyTasks = dailyViewTaskIds
-      .map(id => scenes.normal.index.byId.get(id))
+      .map(id => {
+        const activeTask = scenes.normal.index.byId.get(id);
+        if (activeTask) return activeTask;
+        return archivedTasksList.find(t => t.id === id);
+      })
       .filter((task): task is Task => task !== undefined);
 
-    const totalCount = dailyTasks.length;
+    const totalCount = dailyTasks.length; // 分母：任务个数
     let completedCount = 0;
-    let totalProgressRatio = 0;
+    let totalProgressRatio = 0; // 分子：完成量累加
 
     dailyTasks.forEach(task => {
-      const tp = task.todayProgress;
-      
-      if (tp?.isCompleted) {
-        // 已完成的任务算 100%
+      // 重新计算今日进度（确保使用最新数据）
+      const tp = calculateTodayProgress(task);
+
+      if (tp.isCompleted) {
+        // 已完成的任务算 1
         completedCount++;
         totalProgressRatio += 1;
-      } else if (tp && (tp.dailyTarget ?? 0) > 0) {
+      } else if ((tp.dailyTarget ?? 0) > 0) {
         // 未完成但有进度的任务，按比例计算
         // 使用绝对值处理减少型任务（todayValue 可能为负数）
         const ratio = Math.min(1, Math.max(0, Math.abs(tp.todayValue ?? 0) / (tp.dailyTarget ?? 1)));
         totalProgressRatio += ratio;
       }
-      // 没有 todayProgress 或 dailyTarget 为 0 的任务，进度算 0
+      // 没有 dailyTarget 为 0 的任务，进度算 0
     });
 
-    const percentage = totalCount > 0 ? Math.round((totalProgressRatio / totalCount) * 100) : 0;
-    
+    // 计算百分比，保留两位小数
+    let percentage = 0;
+    if (totalCount > 0) {
+      const rawPercentage = (totalProgressRatio / totalCount) * 100;
+      // 如果是整数就不保留小数，否则保留两位
+      percentage = rawPercentage % 1 === 0 ? rawPercentage : Math.round(rawPercentage * 100) / 100;
+    }
+
     return { completed: completedCount, total: totalCount, percentage };
-  }, [dailyViewTaskIds, scenes.normal.index.byId]);
+  }, [dailyViewTaskIds, scenes.normal.index.byId, scenes.normal.meta.version]);
+
+  // 监听一日清单完成进度，达到100%时发放奖励
+  useEffect(() => {
+    const prevPercentage = prevProgressRef.current;
+    const currentPercentage = todayProgress.percentage;
+
+    // 检测从非100%变到100%（首次完成）
+    if (prevPercentage < 100 && currentPercentage >= 100) {
+      // 获取一日清单任务数量（至少需要3个任务才能获得奖励）
+      const taskCount = dailyViewTaskIds.length;
+      if (taskCount >= 3) {
+        console.log('[SceneProvider] 一日清单完成100%，发放奖励，任务数:', taskCount);
+        dispatchDailyCompleteReward({ taskCount });
+      }
+    }
+
+    prevProgressRef.current = currentPercentage;
+  }, [todayProgress.percentage, dailyViewTaskIds.length, dispatchDailyCompleteReward]);
 
   // 归档任务（从独立存储获取）
   const archivedTasks = useMemo(() => {

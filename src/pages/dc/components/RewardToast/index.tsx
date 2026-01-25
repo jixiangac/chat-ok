@@ -209,7 +209,7 @@ function RewardToastComponent({
           {/* 今日奖励剩余 */}
           {todayRemaining && (
             <div className={styles.remainingSection}>
-              <div className={styles.remainingTitle}>今日奖励剩余</div>
+              <div className={styles.remainingTitle}>该任务奖励今日已达上限</div>
               <div className={styles.remainingItems}>
                 <span className={styles.remainingItem}>
                   <img src={SPIRIT_JADE_ICON} alt="灵玉" className={styles.remainingIcon} />

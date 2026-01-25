@@ -168,10 +168,20 @@ export function AppProvider({ children }: AppProviderProps) {
 
   // 清除测试日期
   const clearTestDate = useCallback(() => {
+    const oldDate = testDate || systemDate;
     clearTestDateStorage();
     setTestDateState(null);
-    setSystemDate(getCurrentDate());
-  }, []);
+    const newDate = getCurrentDate();
+    setSystemDate(newDate);
+
+    // 触发日期变更事件，让所有监听器知道日期已恢复
+    const dateChange: DateChangeInfo = {
+      oldDate,
+      newDate,
+      daysDiff: 0, // 简化处理
+    };
+    window.dispatchEvent(new CustomEvent(DATE_CHANGE_EVENT, { detail: dateChange }));
+  }, [testDate, systemDate]);
 
   // 检查日期变更
   const checkDate = useCallback((): DateChangeInfo | null => {

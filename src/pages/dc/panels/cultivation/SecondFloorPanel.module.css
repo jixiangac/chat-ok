@@ -77,34 +77,10 @@
   margin-right: -8px;
 }
 
-/* ============ DEBUG 按钮 ============ */
-.debugButton {
+/* 头部占位符（保持布局平衡） */
+.headerPlaceholder {
   width: 40px;
   height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  background-color: transparent;
-  color: rgba(55, 53, 47, 0.4);
-  cursor: pointer;
-  border-radius: 12px;
-  transition: all 0.2s;
-  margin-right: -8px;
-}
-
-.debugButton:hover {
-  background-color: rgba(55, 53, 47, 0.06);
-  color: rgba(55, 53, 47, 0.6);
-}
-
-.debugButton:active {
-  transform: scale(0.95);
-}
-
-.debugButton.debugActive {
-  color: #FF6B35;
-  background-color: rgba(255, 107, 53, 0.1);
 }
 
 /* ============ 主内容区域 ============ */
@@ -245,86 +221,6 @@ font-size: 18px;
     opacity: 1;
     transform: scale(1);
   }
-}
-
-/* ============ DEBUG 控制面板 ============ */
-.debugPanel {
-  position: absolute;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  padding: 16px 24px;
-  background: rgba(255, 107, 53, 0.95);
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(255, 107, 53, 0.3);
-  z-index: 10;
-  animation: fadeInUp 0.3s ease-out;
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateX(-50%) translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
-}
-
-.debugInfo {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-}
-
-.debugLabel {
-  font-size: 11px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.7);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.debugLevelName {
-  font-size: 16px;
-  font-weight: 700;
-  color: #fff;
-}
-
-.debugIndex {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.debugControls {
-  display: flex;
-  gap: 12px;
-}
-
-.debugNavButton {
-  padding: 8px 16px;
-  border: none;
-  background: rgba(255, 255, 255, 0.2);
-  color: #fff;
-  font-size: 13px;
-  font-weight: 600;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.debugNavButton:hover {
-  background: rgba(255, 255, 255, 0.3);
-}
-
-.debugNavButton:active {
-  transform: scale(0.95);
 }
 
 /* ============ 底部 - 进度条区域 ============ */

@@ -4,6 +4,7 @@
 
 import type { UserData } from './types';
 import { defaultUserData } from './types';
+import { getCurrentDate } from '../../utils/dateTracker';
 
 const STORAGE_KEY = 'dc_user_data';
 
@@ -55,10 +56,10 @@ export const clearUserData = (): void => {
 
 /**
  * 获取今天的日期字符串 (YYYY-MM-DD)
+ * 支持测试日期：优先使用测试日期，否则使用真实日期
  */
 export const getTodayDateString = (): string => {
-  const now = new Date();
-  return now.toISOString().split('T')[0];
+  return getCurrentDate();
 };
 
 /**

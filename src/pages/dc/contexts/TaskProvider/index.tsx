@@ -668,24 +668,16 @@ export function TaskProvider({ children }: TaskProviderProps) {
             status: updates.status as any,
           };
           if (updates.status === 'COMPLETED') {
-            // 使用模拟日期（考虑调试偏移量），保留当前时间
-            const debugDayOffset = (task as any).debugDayOffset || 0;
-            if (debugDayOffset === 0) {
-              // 没有偏移量，使用当前真实时间
-              items[itemIndex].completedAt = dayjs().toISOString();
-            } else {
-              // 有偏移量，用当前时间的时分秒 + 模拟的日期
-              const now = dayjs();
-              const baseDate = getCurrentDate();
-              const simulatedDate = dayjs(baseDate).add(debugDayOffset, 'day');
-              // 保留当前时分秒，替换日期部分
-              const completedAt = simulatedDate
-                .hour(now.hour())
-                .minute(now.minute())
-                .second(now.second())
-                .millisecond(now.millisecond());
-              items[itemIndex].completedAt = completedAt.toISOString();
-            }
+            // 使用有效日期（考虑全局测试日期和调试偏移量），保留当前时间
+            const now = dayjs();
+            const effectiveDate = getCurrentDate(task); // 获取有效日期（考虑测试日期和debugDayOffset）
+            // 使用有效日期 + 当前时分秒
+            const completedAt = dayjs(effectiveDate)
+              .hour(now.hour())
+              .minute(now.minute())
+              .second(now.second())
+              .millisecond(now.millisecond());
+            items[itemIndex].completedAt = completedAt.toISOString();
           }
         }
         if (updates.subProgress) {

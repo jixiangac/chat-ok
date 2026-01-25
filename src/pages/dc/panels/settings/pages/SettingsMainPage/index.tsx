@@ -7,7 +7,7 @@
 import React, { useState, useCallback } from 'react';
 import { Target, Palette, Tag, Sun, Umbrella, Heart, Flag, Database, CheckCircle2, Circle, Calendar, Archive, Bug, Power } from 'lucide-react';
 import { SettingsSection, SettingsListItem } from '../../components';
-import { useUser } from '@/pages/dc/contexts';
+import { useUser, useApp } from '@/pages/dc/contexts';
 import { getCurrentDate, getDeveloperMode, setDeveloperMode } from '@/pages/dc/utils';
 import styles from './styles.module.css';
 
@@ -23,6 +23,9 @@ const SettingsMainPage: React.FC<SettingsMainPageProps> = ({
   onOpenTodayMustComplete,
 }) => {
   const { todayMustComplete } = useUser();
+  // 订阅 systemDate 以响应测试日期变化（变量用于触发重新渲染）
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { systemDate } = useApp();
 
   // 开发者模式状态
   const [isDeveloperMode, setIsDeveloperMode] = useState(() => getDeveloperMode());
@@ -32,8 +35,8 @@ const SettingsMainPage: React.FC<SettingsMainPageProps> = ({
     setDeveloperMode(false);
     setIsDeveloperMode(false);
   }, []);
-  
-  // 判断是否是今天的数据
+
+  // 判断是否是今天的数据（systemDate 变化时会重新计算）
   const today = getCurrentDate();
   const isToday = todayMustComplete.date === today;
   
@@ -123,10 +126,20 @@ const SettingsMainPage: React.FC<SettingsMainPageProps> = ({
           animationIndex={animationIndex++}
           onClick={() => onNavigate('tags', '标签管理')}
         />
+
+        <SettingsListItem
+          icon={<Archive size={18} />}
+          title="归档历史"
+          description="查看已归档的任务"
+          animated
+          animationIndex={animationIndex++}
+          onClick={() => onNavigate('archive', '归档历史')}
+        />
+
       </SettingsSection>
 
       {/* 场景管理 */}
-      <SettingsSection title="场景管理">
+      {/* <SettingsSection title="场景管理">
         <SettingsListItem
           icon={<Sun size={18} />}
           title="常规模式"
@@ -166,18 +179,11 @@ const SettingsMainPage: React.FC<SettingsMainPageProps> = ({
           animated
           animationIndex={animationIndex++}
         />
-      </SettingsSection>
+      </SettingsSection> */}
 
       {/* 开发者 */}
       <SettingsSection title="开发者">
-        <SettingsListItem
-          icon={<Archive size={18} />}
-          title="归档历史"
-          description="查看已归档的任务"
-          animated
-          animationIndex={animationIndex++}
-          onClick={() => onNavigate('archive', '归档历史')}
-        />
+        
 
         <SettingsListItem
           icon={<Database size={18} />}
@@ -204,7 +210,7 @@ const SettingsMainPage: React.FC<SettingsMainPageProps> = ({
         {isDeveloperMode && (
           <SettingsListItem
             icon={<Bug size={18} />}
-            title="调试"
+            title="数值调试"
             description="灵玉和修为调试"
             animated
             animationIndex={animationIndex++}

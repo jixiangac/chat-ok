@@ -11,15 +11,24 @@ export interface SettingsSectionProps {
   title: string;
   /** 子元素 */
   children: React.ReactNode;
+  /** 标题点击事件 */
+  onTitleClick?: () => void;
 }
 
 const SettingsSection: React.FC<SettingsSectionProps> = ({
   title,
   children,
+  onTitleClick,
 }) => {
   return (
     <div className={styles.section}>
-      <div className={styles.sectionTitle}>{title}</div>
+      <div
+        className={styles.sectionTitle}
+        onClick={onTitleClick}
+        style={onTitleClick ? { cursor: 'pointer', userSelect: 'none' } : undefined}
+      >
+        {title}
+      </div>
       <div className={styles.sectionContent}>{children}</div>
     </div>
   );

@@ -29,16 +29,38 @@ export function getLevelDisplayName(
   layer: LianqiLayer | null
 ): string {
   const realmInfo = REALM_CONFIG[realm];
-  
+
   if (realm === 'LIANQI' && layer !== null) {
     return `${realmInfo.name} ${LIANQI_LAYER_NAMES[layer]}`;
   }
-  
+
   if (stage !== null) {
     return `${realmInfo.name} ${STAGE_CONFIG[stage].name}`;
   }
-  
+
   return realmInfo.name;
+}
+
+/**
+ * 获取等级短名称（如"元婴中期"、"炼气第一层"）
+ */
+export function getLevelShortName(
+  realm: RealmType,
+  stage: StageType | null,
+  layer: LianqiLayer | null
+): string {
+  const realmInfo = REALM_CONFIG[realm];
+  const shortName = realmInfo.shortName;
+
+  if (realm === 'LIANQI' && layer !== null) {
+    return `${shortName}${LIANQI_LAYER_NAMES[layer]}`;
+  }
+
+  if (stage !== null) {
+    return `${shortName}${STAGE_CONFIG[stage].name}`;
+  }
+
+  return shortName;
 }
 
 /**
@@ -260,6 +282,64 @@ export function getWeekKey(date: Date = new Date()): string {
   const days = Math.floor((date.getTime() - startOfYear.getTime()) / (1000 * 60 * 60 * 24));
   const week = Math.ceil((days + startOfYear.getDay() + 1) / 7);
   return `${year}-W${week.toString().padStart(2, '0')}`;
+}
+
+/**
+ * 根据修为值反推等级
+ * 遍历所有等级，累加每个等级的 expCap，找到 exp 所属的区间
+ * @param exp 修为值
+ * @returns 对应的等级信息
+ */
+export function calculateLevelFromExp(exp: number): {
+  realm: RealmType;
+  stage: StageType | null;
+  layer: LianqiLayer | null;
+  currentExp: number;
+  displayName: string;
+} {
+  const levels = getAllLevelExpCaps();
+  let accumulatedExp = 0;
+
+  // 处理负数或零的情况
+  if (exp <= 0) {
+    const firstLevel = levels[0];
+    return {
+      realm: firstLevel.realm,
+      stage: firstLevel.stage,
+      layer: firstLevel.layer,
+      currentExp: 0,
+      displayName: firstLevel.displayName,
+    };
+  }
+
+  // 遍历所有等级，找到 exp 所属的等级
+  for (let i = 0; i < levels.length; i++) {
+    const level = levels[i];
+    const nextAccumulated = accumulatedExp + level.expCap;
+
+    // 如果 exp 在当前等级范围内
+    if (exp < nextAccumulated) {
+      return {
+        realm: level.realm,
+        stage: level.stage,
+        layer: level.layer,
+        currentExp: exp - accumulatedExp, // 当前等级内的修为
+        displayName: level.displayName,
+      };
+    }
+
+    accumulatedExp = nextAccumulated;
+  }
+
+  // exp 超过所有等级上限，返回最高等级
+  const lastLevel = levels[levels.length - 1];
+  return {
+    realm: lastLevel.realm,
+    stage: lastLevel.stage,
+    layer: lastLevel.layer,
+    currentExp: exp - (accumulatedExp - lastLevel.expCap),
+    displayName: lastLevel.displayName,
+  };
 }
 
 /**

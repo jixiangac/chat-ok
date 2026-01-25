@@ -1,0 +1,199 @@
+/**
+ * 调试页面样式
+ */
+
+.container {
+  padding: 16px;
+  padding-bottom: 32px;
+}
+
+/* 警告卡片 */
+.warningCard {
+  display: flex;
+  gap: 12px;
+  padding: 12px 16px;
+  background: #fff3cd;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.warningIcon {
+  color: #856404;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.warningText {
+  flex: 1;
+}
+
+.warningTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: #856404;
+  margin: 0 0 4px 0;
+}
+
+.warningDesc {
+  font-size: 12px;
+  color: #856404;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* 区块 */
+.section {
+  margin-bottom: 24px;
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 12px 0;
+}
+
+.titleIcon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+/* 信息卡片 */
+.infoCard {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+}
+
+.infoRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.infoRow:not(:last-child) {
+  border-bottom: 1px solid #e9ecef;
+}
+
+.infoLabel {
+  font-size: 14px;
+  color: #666;
+}
+
+.infoValue {
+  font-size: 14px;
+  color: #333;
+  font-weight: 500;
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+}
+
+/* 输入卡片 */
+.inputCard {
+  background: #fff;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.inputRow {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  font-size: 15px;
+  background: #f8f9fa;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--theme-primary, #000);
+}
+
+.setButton {
+  padding: 10px 20px;
+  background: var(--theme-primary, #000);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  white-space: nowrap;
+}
+
+.setButton:active {
+  opacity: 0.8;
+}
+
+/* 快捷按钮 */
+.quickButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.quickButton {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.quickButton:active {
+  background: #e9ecef;
+}
+
+.resetButton {
+  color: #dc3545;
+  border-color: #f5c6cb;
+  background: #fff5f5;
+}
+
+.resetButton:active {
+  background: #f8d7da;
+}
+
+/* 帮助卡片 */
+.helpCard {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.helpList {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 13px;
+  color: #666;
+  line-height: 1.8;
+}
+
+.helpList li {
+  margin-bottom: 4px;
+}
+
+.helpList li:last-child {
+  margin-bottom: 0;
+}

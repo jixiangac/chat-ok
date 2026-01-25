@@ -509,13 +509,15 @@ export function CultivationProvider({ children }: CultivationProviderProps) {
     // 计算积分分配（包含基础和加成明细）
     const pointsResult = distributeCheckInPoints(completionRatio, dailyCap, isTodayMustComplete, shouldGiveCycleBonus);
 
-    // ===== 每日奖励上限检查 =====
+    // ===== 每日奖励上限检查（考虑调试日期偏移量）=====
+    const debugDayOffset = (task as any).debugDayOffset;
     const allowedReward = calculateAllowedReward(
       task.id,
       pointsResult.total.spiritJade,
       pointsResult.total.cultivation,
       dailyCap.spiritJade,
-      dailyCap.cultivation
+      dailyCap.cultivation,
+      debugDayOffset
     );
 
     // 如果已达到上限，不弹奖励弹窗，返回 null 让调用方显示 Toast
@@ -550,9 +552,9 @@ export function CultivationProvider({ children }: CultivationProviderProps) {
       });
     }
 
-    // 记录今日已发放的奖励
+    // 记录今日已发放的奖励（考虑调试日期偏移量）
     if (actualJade > 0 || actualCultivation > 0) {
-      addTodayTaskReward(task.id, actualJade, actualCultivation);
+      addTodayTaskReward(task.id, actualJade, actualCultivation, debugDayOffset);
     }
 
     // 标记周期奖励已领取
@@ -905,6 +907,72 @@ export function CultivationProvider({ children }: CultivationProviderProps) {
     return success;
   }, []);
 
+  // ========== 调试功能 ==========
+
+  // 调试：直接设置灵玉数量
+  const debugSetSpiritJade = useCallback((amount: number) => {
+    const diff = amount - spiritJadeData.balance;
+    const newSpiritJadeData: SpiritJadeData = {
+      ...spiritJadeData,
+      balance: amount,
+      // 根据差值正负决定更新 totalEarned 或 totalSpent
+      totalEarned: diff > 0 ? spiritJadeData.totalEarned + diff : spiritJadeData.totalEarned,
+      totalSpent: diff < 0 ? spiritJadeData.totalSpent + Math.abs(diff) : spiritJadeData.totalSpent,
+      lastUpdatedAt: new Date().toISOString(),
+    };
+    saveSpiritJade(newSpiritJadeData);
+
+    // 记录调试操作到历史
+    const record: PointsRecord = {
+      id: generateCultivationId(),
+      timestamp: new Date().toISOString(),
+      type: diff >= 0 ? 'EARN' : 'SPEND',
+      source: 'DEBUG_SET' as any,
+      spiritJade: diff,
+      cultivation: 0,
+      description: `[调试] 设置灵玉为 ${amount}`,
+    };
+    addPointsHistoryRecord(record);
+  }, [spiritJadeData, saveSpiritJade, addPointsHistoryRecord]);
+
+  // 调试：直接设置修为数值（自动更新等级）
+  const debugSetExp = useCallback((amount: number) => {
+    // 确保修为值不为负
+    const safeAmount = Math.max(0, amount);
+
+    // 根据新修为值计算应该处于的等级
+    const { calculateLevelFromExp } = require('../../utils/cultivation');
+    const targetLevel = calculateLevelFromExp(safeAmount);
+
+    // 更新数据（直接设置，清除闭关状态）
+    const newData: CultivationData = {
+      ...data,
+      currentExp: targetLevel.currentExp,
+      realm: targetLevel.realm,
+      stage: targetLevel.stage,
+      layer: targetLevel.layer,
+      seclusion: null, // 清除闭关状态
+      lastUpdatedAt: new Date().toISOString(),
+    };
+
+    saveData(newData);
+
+    // 记录历史
+    const expDiff = safeAmount - data.currentExp;
+    const record: CultivationRecord = {
+      id: generateCultivationId(),
+      timestamp: new Date().toISOString(),
+      type: 'DEBUG' as any,
+      amount: expDiff,
+      expBefore: data.currentExp,
+      expAfter: targetLevel.currentExp,
+      realmBefore: data.realm,
+      realmAfter: targetLevel.realm,
+      description: `[调试] 设置修为为 ${safeAmount}，等级: ${targetLevel.displayName}`,
+    };
+    addHistoryRecord(record);
+  }, [data, saveData, addHistoryRecord]);
+
   // ========== Context Value ==========
 
   const contextValue: CultivationContextValue = useMemo(() => ({
@@ -940,6 +1008,9 @@ export function CultivationProvider({ children }: CultivationProviderProps) {
     resetData,
     exportData: exportDataFn,
     importData: importDataFn,
+    // 调试功能
+    debugSetSpiritJade,
+    debugSetExp,
   }), [
     data,
     levelInfo,
@@ -971,6 +1042,8 @@ export function CultivationProvider({ children }: CultivationProviderProps) {
     resetData,
     exportDataFn,
     importDataFn,
+    debugSetSpiritJade,
+    debugSetExp,
   ]);
 
   // 计算当前等级形象图

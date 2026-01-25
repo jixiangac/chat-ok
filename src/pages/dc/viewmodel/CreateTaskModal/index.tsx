@@ -355,6 +355,9 @@ export default function CreateTaskModal({
         cycleTargetTimes: undefined as number | undefined,
         dailyTargetMinutes: undefined as number | undefined,
         cycleTargetMinutes: undefined as number | undefined,
+        dailyTargetValue: undefined as number | undefined,
+        cycleTargetValue: undefined as number | undefined,
+        valueUnit: undefined as string | undefined,
       };
 
       if (state.checkInUnit === 'TIMES') {
@@ -382,6 +385,9 @@ export default function CreateTaskModal({
         const cycleValue = state.cycleTargetValue
           ? parseFloat(state.cycleTargetValue)
           : state.cycleDays * dailyValue;
+        checkInConfig.dailyTargetValue = dailyValue;
+        checkInConfig.cycleTargetValue = cycleValue;
+        checkInConfig.valueUnit = state.valueUnit;
         checkInConfig.perCycleTarget = cycleValue;
       }
     }

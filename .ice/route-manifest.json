@@ -1126,6 +1126,17 @@
     ]
   },
   {
+    "path": "dc/panels/settings/pages/DebugPage",
+    "index": true,
+    "id": "dc/panels/settings/pages/DebugPage",
+    "file": "dc/panels/settings/pages/DebugPage/index.tsx",
+    "componentName": "dc-panels-settings-pages-debugpage-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
     "path": "dc/viewmodel/CreateTaskModal/pages",
     "index": true,
     "id": "dc/viewmodel/CreateTaskModal/pages",
@@ -2191,6 +2202,7 @@
       "ArchivePage",
       "DataManagementPage",
       "DateTestPage",
+      "DebugPage",
       "SettingsMainPage",
       "TagSettingsPage",
       "ThemeSettingsPage",
@@ -2598,7 +2610,8 @@
       "importAllTasks",
       "importSingleTask",
       "saveLocationFilter",
-      "setDeveloperMode"
+      "setDeveloperMode",
+      "toggleDeveloperMode"
     ]
   },
   {
@@ -3034,6 +3047,7 @@
     "layout": false,
     "exports": [
       "CULTIVATION_IMAGES",
+      "calculateLevelFromExp",
       "compareLevels",
       "formatExp",
       "generateCultivationId",
@@ -3424,6 +3438,7 @@
       "calculateDailyViewCompleteReward",
       "calculateFlexibleTaskLimit",
       "calculateGridColumns",
+      "calculateLevelFromExp",
       "calculateModalMaxHeight",
       "calculateNewCycle",
       "calculateNumericCycleProgress",
@@ -3555,6 +3570,7 @@
       "shouldAdvanceCycle",
       "shouldShowTodayMustCompleteModal",
       "skipTodayMustComplete",
+      "toggleDeveloperMode",
       "updateCheckInRecords",
       "updateMainlineTaskProgress",
       "updateTag",

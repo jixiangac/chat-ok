@@ -100,6 +100,7 @@ import * as dc_panels_detail_components_TabBar from '@/pages/dc/panels/detail/co
 import * as dc_panels_happy_components_DayTabs from '@/pages/dc/panels/happy/components/DayTabs/index';
 import * as dc_panels_happy_contexts_VacationContext from '@/pages/dc/panels/happy/contexts/VacationContext';
 import * as dc_panels_memorial_constants_backgrounds from '@/pages/dc/panels/memorial/constants/backgrounds';
+import * as dc_panels_settings_pages_DebugPage from '@/pages/dc/panels/settings/pages/DebugPage/index';
 import * as dc_viewmodel_CreateTaskModal_pages from '@/pages/dc/viewmodel/CreateTaskModal/pages/index';
 import * as dc_agent_components_ActionPreview from '@/pages/dc/agent/components/ActionPreview/index';
 import * as dc_agent_components_MessageBubble from '@/pages/dc/agent/components/MessageBubble/index';
@@ -2786,6 +2787,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["ALL_BACKGROUNDS","COLOR_BACKGROUNDS","GRADIENT_BACKGROUNDS","getBackgroundStyle","getDefaultBackground","isDarkBackground"],
   },{
+    path: 'dc/panels/settings/pages/DebugPage',
+    async lazy() {
+      ;
+      return {
+        ...dc_panels_settings_pages_DebugPage,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/panels/settings/pages/DebugPage',
+          isLayout: false,
+          routeExports: dc_panels_settings_pages_DebugPage,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/panels/settings/pages/DebugPage',
+          requestContext,
+          renderMode,
+          module: dc_panels_settings_pages_DebugPage,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-panels-settings-pages-debugpage-index',
+    index: true,
+    id: 'dc/panels/settings/pages/DebugPage',
+    exact: true,
+    exports: ["default"],
+  },{
     path: 'dc/viewmodel/CreateTaskModal/pages',
     async lazy() {
       ;
@@ -4909,7 +4935,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/panels/settings/pages',
     exact: true,
-    exports: ["ArchivePage","DataManagementPage","DateTestPage","SettingsMainPage","TagSettingsPage","ThemeSettingsPage","TodayMustCompletePage"],
+    exports: ["ArchivePage","DataManagementPage","DateTestPage","DebugPage","SettingsMainPage","TagSettingsPage","ThemeSettingsPage","TodayMustCompletePage"],
   },{
     path: 'dc/agent/hooks/useAITokenCost',
     async lazy() {
@@ -5634,7 +5660,7 @@ const createRoutes: CreateRoutes = ({
     index: undefined,
     id: 'dc/utils/developerStorage',
     exact: true,
-    exports: ["copyToClipboard","exportAllTasks","exportSingleTask","getDeveloperMode","getSavedLocationFilter","importAllTasks","importSingleTask","saveLocationFilter","setDeveloperMode"],
+    exports: ["copyToClipboard","exportAllTasks","exportSingleTask","getDeveloperMode","getSavedLocationFilter","importAllTasks","importSingleTask","saveLocationFilter","setDeveloperMode","toggleDeveloperMode"],
   },{
     path: 'dc/agent/constants',
     async lazy() {
@@ -6434,7 +6460,7 @@ const createRoutes: CreateRoutes = ({
     index: undefined,
     id: 'dc/utils/cultivation',
     exact: true,
-    exports: ["CULTIVATION_IMAGES","compareLevels","formatExp","generateCultivationId","getCultivationImage","getCultivationImageFromData","getCurrentExpCap","getCurrentLevelInfo","getLevelDisplayName","getLevelIndex","getNextLevel","getPreviousLevel","getRealmIconPath","getSeclusionInfo","getWeekKey","isCrossRealmDemotion"],
+    exports: ["CULTIVATION_IMAGES","calculateLevelFromExp","compareLevels","formatExp","generateCultivationId","getCultivationImage","getCultivationImageFromData","getCurrentExpCap","getCurrentLevelInfo","getLevelDisplayName","getLevelIndex","getNextLevel","getPreviousLevel","getRealmIconPath","getSeclusionInfo","getWeekKey","isCrossRealmDemotion"],
   },{
     path: 'dc/utils/dateTracker',
     async lazy() {
@@ -6909,7 +6935,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/utils',
     exact: true,
-    exports: ["CycleCalculator","DATA_TYPE_CONFIG","LAYOUT_CONSTANTS","MigrationTool","ProgressCalculator","TAG_COLORS","TaskMigration","advanceTaskCycle","archiveTask","calculateArchiveReward","calculateCheckInCycleProgress","calculateCheckInProgress","calculateCheckInProgressV2","calculateChecklistProgress","calculateChecklistProgressV2","calculateCompensationTarget","calculateCurrentCycleNumber","calculateCycleCompleteBonus","calculateCycleTimeInfo","calculateDailyPointsCap","calculateDailyViewCompleteReward","calculateFlexibleTaskLimit","calculateGridColumns","calculateModalMaxHeight","calculateNewCycle","calculateNumericCycleProgress","calculateNumericProgress","calculateNumericProgressV2","calculateNumericTotalProgress","calculateOriginalCycleTargetValue","calculateRemainingDays","calculateStreak","calculateTodayProgress","calculateVisibleSidelineTasks","canOpenModalForEdit","canOpenModalForView","checkDateChange","cleanExpiredCycleRewards","clearAllArchivedTasks","clearDailyCompleteReward","clearDailyViewCache","clearData","clearRefreshStatus","clearTaskCycleRewards","clearTestDate","compareLevels","copyToClipboard","createCheckInActivity","createCheckInEntry","createDebtSnapshot","createTag","createTask","createTodayState","createValueUpdateActivity","deleteArchivedTask","deleteTag","detectCycleCompletion","distributeCheckInPoints","exportAllTasks","exportData","exportSingleTask","exportToClipboard","filterDailyViewTasks","filterDailyViewTasksEnhanced","forceCheckDateChange","formatDisplayNumber","formatExp","formatLargeNumber","formatNumber","formatNumberPrecision","generateCultivationId","getAllTags","getArchiveStats","getArchivedTasks","getCachedDailyTaskIds","getClaimedCycles","getCurrentDate","getCurrentExpCap","getCurrentLevelInfo","getDataStats","getDeveloperMode","getEffectiveCategory","getEffectiveMainlineType","getLastVisitedDate","getLevelDisplayName","getLevelIndex","getNextLevel","getNextTagColor","getPreviousLevel","getRandomColorScheme","getRealSystemDate","getRealmIconPath","getSafeAreaInsets","getSavedLocationFilter","getScreenSize","getSeclusionInfo","getSimulatedToday","getTagById","getTaskCheckInUnit","getTestDate","getTodayCheckInStatusForTask","getTodayCheckIns","getTodayCheckInsFromRecords","getTodayDateString","getTodayMustCompleteTaskIds","getWeekKey","handleLegacyDebtSnapshot","hasCycleRewardClaimed","hasDailyTargetTask","hasReachedFinalTarget","hasTestDate","hasTodayBeenSet","hasTodayDailyCompleteRewardClaimed","hasTodayRefreshed","hasTodaySetTasks","importAllTasks","importData","importSingleTask","isCrossRealmDemotion","isMobileDevice","isNearDeadline","isSmallScreen","isTaskTodayMustComplete","isTodayCheckedIn","loadTagsFromStorage","loadTodayMustCompleteState","markCycleRewardClaimed","markModalShown","markTodayDailyCompleteRewardClaimed","markTodayRefreshed","mergeCheckInProgressUpdate","mergeRewards","migrateOldArchivedTasks","migrateToNewFormat","needsProgressReset","performDailyReset","prefersReducedMotion","removeFromTodayMustComplete","repairTaskProgressData","resetTodayProgress","restoreFromArchive","saveArchivedTasks","saveDailyTaskIdsCache","saveLocationFilter","saveTagsToStorage","saveTodayMustCompleteState","selectFlexibleTasks","setDeveloperMode","setLastVisitedDate","setTestDate","setTodayMustCompleteTasks","shouldAdvanceCycle","shouldShowTodayMustCompleteModal","skipTodayMustComplete","updateCheckInRecords","updateMainlineTaskProgress","updateTag","validateCheckIn"],
+    exports: ["CycleCalculator","DATA_TYPE_CONFIG","LAYOUT_CONSTANTS","MigrationTool","ProgressCalculator","TAG_COLORS","TaskMigration","advanceTaskCycle","archiveTask","calculateArchiveReward","calculateCheckInCycleProgress","calculateCheckInProgress","calculateCheckInProgressV2","calculateChecklistProgress","calculateChecklistProgressV2","calculateCompensationTarget","calculateCurrentCycleNumber","calculateCycleCompleteBonus","calculateCycleTimeInfo","calculateDailyPointsCap","calculateDailyViewCompleteReward","calculateFlexibleTaskLimit","calculateGridColumns","calculateLevelFromExp","calculateModalMaxHeight","calculateNewCycle","calculateNumericCycleProgress","calculateNumericProgress","calculateNumericProgressV2","calculateNumericTotalProgress","calculateOriginalCycleTargetValue","calculateRemainingDays","calculateStreak","calculateTodayProgress","calculateVisibleSidelineTasks","canOpenModalForEdit","canOpenModalForView","checkDateChange","cleanExpiredCycleRewards","clearAllArchivedTasks","clearDailyCompleteReward","clearDailyViewCache","clearData","clearRefreshStatus","clearTaskCycleRewards","clearTestDate","compareLevels","copyToClipboard","createCheckInActivity","createCheckInEntry","createDebtSnapshot","createTag","createTask","createTodayState","createValueUpdateActivity","deleteArchivedTask","deleteTag","detectCycleCompletion","distributeCheckInPoints","exportAllTasks","exportData","exportSingleTask","exportToClipboard","filterDailyViewTasks","filterDailyViewTasksEnhanced","forceCheckDateChange","formatDisplayNumber","formatExp","formatLargeNumber","formatNumber","formatNumberPrecision","generateCultivationId","getAllTags","getArchiveStats","getArchivedTasks","getCachedDailyTaskIds","getClaimedCycles","getCurrentDate","getCurrentExpCap","getCurrentLevelInfo","getDataStats","getDeveloperMode","getEffectiveCategory","getEffectiveMainlineType","getLastVisitedDate","getLevelDisplayName","getLevelIndex","getNextLevel","getNextTagColor","getPreviousLevel","getRandomColorScheme","getRealSystemDate","getRealmIconPath","getSafeAreaInsets","getSavedLocationFilter","getScreenSize","getSeclusionInfo","getSimulatedToday","getTagById","getTaskCheckInUnit","getTestDate","getTodayCheckInStatusForTask","getTodayCheckIns","getTodayCheckInsFromRecords","getTodayDateString","getTodayMustCompleteTaskIds","getWeekKey","handleLegacyDebtSnapshot","hasCycleRewardClaimed","hasDailyTargetTask","hasReachedFinalTarget","hasTestDate","hasTodayBeenSet","hasTodayDailyCompleteRewardClaimed","hasTodayRefreshed","hasTodaySetTasks","importAllTasks","importData","importSingleTask","isCrossRealmDemotion","isMobileDevice","isNearDeadline","isSmallScreen","isTaskTodayMustComplete","isTodayCheckedIn","loadTagsFromStorage","loadTodayMustCompleteState","markCycleRewardClaimed","markModalShown","markTodayDailyCompleteRewardClaimed","markTodayRefreshed","mergeCheckInProgressUpdate","mergeRewards","migrateOldArchivedTasks","migrateToNewFormat","needsProgressReset","performDailyReset","prefersReducedMotion","removeFromTodayMustComplete","repairTaskProgressData","resetTodayProgress","restoreFromArchive","saveArchivedTasks","saveDailyTaskIdsCache","saveLocationFilter","saveTagsToStorage","saveTodayMustCompleteState","selectFlexibleTasks","setDeveloperMode","setLastVisitedDate","setTestDate","setTodayMustCompleteTasks","shouldAdvanceCycle","shouldShowTodayMustCompleteModal","skipTodayMustComplete","toggleDeveloperMode","updateCheckInRecords","updateMainlineTaskProgress","updateTag","validateCheckIn"],
   },{
     path: 'dc/riv/DieCat',
     async lazy() {

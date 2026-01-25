@@ -103,8 +103,9 @@ export function validateCheckIn(
   } else if (unit === 'QUANTITY') {
     const dailyTarget = config.dailyTargetValue || 0;
     const todayTotal = todayCheckIns.reduce((sum, c) => sum + (c.value || 0), 0);
+    // QUANTITY 类型允许超过目标继续打卡（与 DURATION 一致）
     if (dailyTarget > 0 && todayTotal >= dailyTarget) {
-      return { allowed: false, reason: '今日已达到数值目标' };
+      console.log('今日已达到数值目标，但仍允许继续打卡');
     }
   }
 

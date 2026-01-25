@@ -174,10 +174,10 @@ export default function GoalDetailModal({
     return task.progress.totalPercentage || 0;
   }, [task]);
 
-  // 计算当前是周期第几天
+  // 计算当前是周期第几天（考虑调试偏移量）
   const currentDayInCycle = useMemo(() => {
     if (!currentCycle || !task) return 1;
-    const today = dayjs(getCurrentDate());
+    const today = dayjs(getCurrentDate(task));
     const cycleStart = dayjs(currentCycle.startDate);
     return Math.max(1, today.diff(cycleStart, 'day') + 1);
   }, [currentCycle, task]);
@@ -508,9 +508,12 @@ export default function GoalDetailModal({
   const isCheckInButtonDisabled = useMemo(() => {
     if (isPlanEnded) return false;
     if (taskCategory !== 'CHECK_IN') return false;
-    if (taskCategory === 'CHECK_IN' && task?.checkInConfig?.unit === "DURATION") {
+    const unit = task?.checkInConfig?.unit;
+    // DURATION 和 QUANTITY 类型允许继续打卡（可以超额完成）
+    if (unit === 'DURATION' || unit === 'QUANTITY') {
       return false;
     }
+    // TIMES 类型：达到每日上限后禁用
     return todayCheckInStatus.isCompleted;
   }, [isPlanEnded, taskCategory, todayCheckInStatus.isCompleted, task]);
   
@@ -619,10 +622,13 @@ export default function GoalDetailModal({
     }
   };
   
-  // 获取子页面标题
+  // 获取子页面标题（考虑调试偏移量）
   const getSubPageTitle = (): React.ReactNode => {
     switch (currentSubPage) {
-      case 'records': return <><Calendar size={18} style={{ marginRight: 12 }} /><span style={{position: 'relative', top: -3}}>{dayjs().format('YYYY-MM-DD')}</span></>;
+      case 'records': {
+        const simulatedDate = task ? getCurrentDate(task) : dayjs().format('YYYY-MM-DD');
+        return <><Calendar size={18} style={{ marginRight: 12 }} /><span style={{position: 'relative', top: -3}}>{simulatedDate}</span></>;
+      }
       case 'history': return '周期计划';
       case 'calendar': return '历史记录';
       default: return '';

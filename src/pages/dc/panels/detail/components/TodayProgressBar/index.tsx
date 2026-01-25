@@ -16,6 +16,8 @@ export interface TodayProgressBarProps {
   isCompleted?: boolean;
   /** 显示模式 */
   showLabel?: boolean;
+  /** 任务级调试日期偏移量 */
+  debugDayOffset?: number;
 }
 
 /**
@@ -28,7 +30,8 @@ export default function TodayProgressBar({
   targetValue,
   unit = '次',
   isCompleted = false,
-  showLabel = true
+  showLabel = true,
+  debugDayOffset
 }: TodayProgressBarProps) {
   // 限制进度在 0-100 之间
   const clampedProgress = Math.max(0, Math.min(100, progress));
@@ -38,10 +41,12 @@ export default function TodayProgressBar({
     return `${clampedProgress}%`;
   }, [clampedProgress]);
 
-  // 获取今日日期
+  // 获取今日日期（考虑调试偏移量）
   const todayDate = useMemo(() => {
-    return dayjs(getCurrentDate()).format('M月D日');
-  }, []);
+    // 使用模拟任务对象来获取正确的日期
+    const simulatedTask = debugDayOffset ? { debugDayOffset } : undefined;
+    return dayjs(getCurrentDate(simulatedTask)).format('M月D日');
+  }, [debugDayOffset]);
 
   return (
     <div className={styles.container}>

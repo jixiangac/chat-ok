@@ -3,9 +3,9 @@
  * 支持多种数据类型的导入导出
  */
 
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useRef } from 'react';
 import { Download, Upload, Database, Tag, Umbrella, Heart, Settings, Wrench, RefreshCw, Archive } from 'lucide-react';
-import { Toast, Dialog, TextArea } from 'antd-mobile';
+import { Toast, Dialog, TextArea, Input } from 'antd-mobile';
 import { SubPageLayout } from '../../components';
 import {
   DataType,
@@ -17,7 +17,14 @@ import {
   migrateToNewFormat,
 } from '@/pages/dc/utils/dataExportImport';
 import { migrateOldArchivedTasks, getArchiveStats } from '@/pages/dc/utils/archiveStorage';
+import { getDeveloperMode, setDeveloperMode } from '@/pages/dc/utils';
 import styles from './styles.module.css';
+
+// 解锁机制常量
+const REQUIRED_CLICKS = 10;
+const CLICK_TIMEOUT = 5000; // 5秒内完成点击
+const UNLOCK_PASSWORD = 'jixiangac';
+const MAX_PASSWORD_ATTEMPTS = 3;
 
 // 数据管理头图
 const DATA_HEADER_IMAGE = 'https://img.alicdn.com/imgextra/i4/O1CN01v4XwU51lD7taaUmq1_!!6000000004784-2-tps-1080-724.png';
@@ -46,6 +53,13 @@ const DataManagementPage: React.FC<DataManagementPageProps> = ({
   const [importDialogVisible, setImportDialogVisible] = useState(false);
   const [importDataType, setImportDataType] = useState<DataType | null>(null);
   const [importText, setImportText] = useState('');
+
+  // 解锁机制状态（偏好设置点击10次触发）
+  const clickCountRef = useRef(0);
+  const lastClickTimeRef = useRef(0);
+  const passwordAttemptsRef = useRef(0);
+  const [passwordDialogVisible, setPasswordDialogVisible] = useState(false);
+  const [passwordInput, setPasswordInput] = useState('');
 
   // 获取所有数据类型的统计信息
   const dataStats = useMemo(() => {
@@ -119,6 +133,66 @@ const DataManagementPage: React.FC<DataManagementPageProps> = ({
     setImportText('');
     setImportDataType(null);
   }, []);
+
+  // 处理「偏好设置」点击 - 解锁彩蛋
+  const handlePreferencesClick = useCallback((e: React.MouseEvent) => {
+    // 阻止事件冒泡，避免触发导出/导入按钮
+    if ((e.target as HTMLElement).closest('button')) {
+      return;
+    }
+
+    const now = Date.now();
+
+    // 如果距离上次点击超过 5 秒，重置计数
+    if (now - lastClickTimeRef.current > CLICK_TIMEOUT) {
+      clickCountRef.current = 0;
+    }
+
+    lastClickTimeRef.current = now;
+    clickCountRef.current += 1;
+
+    // 达到 10 次点击，触发解锁弹窗
+    if (clickCountRef.current >= REQUIRED_CLICKS) {
+      clickCountRef.current = 0;
+      passwordAttemptsRef.current = 0;
+      setPasswordInput('');
+      setPasswordDialogVisible(true);
+    }
+  }, []);
+
+  // 处理密码确认
+  const handlePasswordConfirm = useCallback(() => {
+    if (passwordInput === UNLOCK_PASSWORD) {
+      // 解锁成功，开启开发者模式
+      setDeveloperMode(true);
+      setPasswordDialogVisible(false);
+      setPasswordInput('');
+      Toast.show({
+        icon: 'success',
+        content: '开发者模式已开启',
+      });
+      onDataChanged?.(); // 通知外部刷新
+    } else {
+      // 密码错误
+      passwordAttemptsRef.current += 1;
+
+      if (passwordAttemptsRef.current >= MAX_PASSWORD_ATTEMPTS) {
+        // 超过 3 次，关闭弹窗
+        Toast.show({
+          icon: 'fail',
+          content: '尝试次数过多，请重试',
+        });
+        setPasswordDialogVisible(false);
+        setPasswordInput('');
+      } else {
+        Toast.show({
+          icon: 'fail',
+          content: '密码错误',
+        });
+        setPasswordInput('');
+      }
+    }
+  }, [passwordInput, onDataChanged]);
 
   // 处理一键修复数据
   const handleRepairData = useCallback(async () => {
@@ -219,9 +293,16 @@ const DataManagementPage: React.FC<DataManagementPageProps> = ({
         {(Object.keys(DATA_TYPE_CONFIG) as DataType[]).map(dataType => {
           const config = DATA_TYPE_CONFIG[dataType];
           const stats = dataStats[dataType];
+          // 偏好设置行可以触发隐藏彩蛋
+          const isPreferences = dataType === 'preferences';
 
           return (
-            <div key={dataType} className={styles.dataItem}>
+            <div
+              key={dataType}
+              className={styles.dataItem}
+              onClick={isPreferences ? handlePreferencesClick : undefined}
+              style={isPreferences ? { cursor: 'pointer' } : undefined}
+            >
               <div className={styles.dataInfo}>
                 <div className={styles.dataIcon}>
                   {DATA_TYPE_ICONS[dataType]}
@@ -334,6 +415,37 @@ const DataManagementPage: React.FC<DataManagementPageProps> = ({
             text: '导入',
             bold: true,
             onClick: handleConfirmImport,
+          },
+        ]}
+      />
+
+      {/* 密码输入弹窗 - 开发者模式解锁 */}
+      <Dialog
+        visible={passwordDialogVisible}
+        title="输入密码"
+        content={
+          <Input
+            placeholder="请输入密码"
+            type="password"
+            value={passwordInput}
+            onChange={setPasswordInput}
+            style={{ marginTop: 8 }}
+          />
+        }
+        actions={[
+          {
+            key: 'cancel',
+            text: '取消',
+            onClick: () => {
+              setPasswordDialogVisible(false);
+              setPasswordInput('');
+            },
+          },
+          {
+            key: 'confirm',
+            text: '确认',
+            bold: true,
+            onClick: handlePasswordConfirm,
           },
         ]}
       />

@@ -4,7 +4,8 @@
  * 标签选择独立显示：任务名称、标签、地点、心情
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import ReactDOM from 'react-dom';
 import { 
   X, Tag, MapPin, Smile, ChevronDown, Check,
   Home, Building2, Coffee, Dumbbell, Train, School, Hospital, ShoppingCart, Palmtree, TreePine,
@@ -76,6 +77,8 @@ interface TagFieldProps {
   onSelect: (tagId: string | undefined) => void;
 }
 
+const DROPDOWN_MAX_HEIGHT = 240; // 下拉菜单最大高度
+
 const TagField: React.FC<TagFieldProps> = ({
   label,
   icon,
@@ -84,13 +87,139 @@ const TagField: React.FC<TagFieldProps> = ({
   onSelect,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({});
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const tags = useMemo(() => getTagsByType(type), [type]);
   const selectedTag = useMemo(() => tags.find(t => t.id === selectedTagId), [tags, selectedTagId]);
+
+  // 计算下拉菜单位置（自适应：向上或向下）
+  const calculatePosition = useCallback(() => {
+    if (!buttonRef.current) return;
+
+    const rect = buttonRef.current.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+    const spaceBelow = viewportHeight - rect.bottom;
+    const spaceAbove = rect.top;
+
+    // 计算实际需要的高度
+    const itemCount = tags.length + 1; // +1 for "无" option
+    const estimatedHeight = Math.min(itemCount * 44 + 8, DROPDOWN_MAX_HEIGHT);
+
+    // 决定向上还是向下弹出
+    const shouldOpenUpward = spaceBelow < estimatedHeight && spaceAbove > spaceBelow;
+
+    const style: React.CSSProperties = {
+      position: 'fixed',
+      left: rect.right - 160, // 右对齐
+      minWidth: 160,
+      maxHeight: DROPDOWN_MAX_HEIGHT,
+      zIndex: 99999,
+    };
+
+    if (shouldOpenUpward) {
+      // 向上弹出
+      style.bottom = viewportHeight - rect.top + 4;
+    } else {
+      // 向下弹出
+      style.top = rect.bottom + 4;
+    }
+
+    // 确保不超出右边界
+    if (rect.right > window.innerWidth - 10) {
+      style.left = window.innerWidth - 170;
+    }
+
+    setDropdownStyle(style);
+  }, [tags.length]);
+
+  // 点击按钮时更新位置
+  const handleButtonClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!isOpen) {
+      calculatePosition();
+    }
+    setIsOpen(!isOpen);
+  };
+
+  // 监听窗口变化时关闭下拉菜单（滚动时不关闭，因为菜单内部需要滚动）
+  useEffect(() => {
+    if (isOpen) {
+      const handleResize = () => {
+        setIsOpen(false);
+      };
+      window.addEventListener('resize', handleResize);
+      return () => {
+        window.removeEventListener('resize', handleResize);
+      };
+    }
+  }, [isOpen]);
+
+  // 点击外部关闭
+  useEffect(() => {
+    if (isOpen) {
+      const handleClickOutside = (e: MouseEvent) => {
+        const target = e.target as Node;
+        const isClickOnButton = buttonRef.current?.contains(target);
+        const isClickOnDropdown = dropdownRef.current?.contains(target);
+
+        if (!isClickOnButton && !isClickOnDropdown) {
+          setIsOpen(false);
+        }
+      };
+
+      // 使用 mousedown 替代 click，响应更快
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }
+  }, [isOpen]);
 
   const handleSelect = (tagId: string | undefined) => {
     onSelect(tagId);
     setIsOpen(false);
   };
+
+  // 使用 Portal 渲染下拉菜单到 body
+  const dropdownContent = isOpen && ReactDOM.createPortal(
+    <div
+      ref={dropdownRef}
+      className={styles.tagDropdownPortal}
+      style={dropdownStyle}
+      onClick={(e) => e.stopPropagation()}
+      onMouseDown={(e) => e.stopPropagation()}
+    >
+      <div
+        className={`${styles.tagOption} ${!selectedTagId ? styles.tagOptionActive : ''}`}
+        onClick={() => handleSelect(undefined)}
+      >
+        <span>无</span>
+        {!selectedTagId && <Check size={14} />}
+      </div>
+      {tags.map(tag => (
+        <div
+          key={tag.id}
+          className={`${styles.tagOption} ${selectedTagId === tag.id ? styles.tagOptionActive : ''}`}
+          onClick={() => handleSelect(tag.id)}
+        >
+          <div className={styles.tagOptionLeft}>
+            {tag.icon && <span className={styles.tagIcon}>{getIconComponent(tag.icon)}</span>}
+            <span
+              className={styles.tagDot}
+              style={{ backgroundColor: tag.color }}
+            />
+            <span>{tag.name}</span>
+          </div>
+          {selectedTagId === tag.id && <Check size={14} />}
+        </div>
+      ))}
+      {tags.length === 0 && (
+        <div className={styles.tagEmpty}>暂无{label}</div>
+      )}
+    </div>,
+    document.body
+  );
 
   return (
     <div className={styles.tagField}>
@@ -100,13 +229,14 @@ const TagField: React.FC<TagFieldProps> = ({
       </div>
       <div className={styles.tagFieldValue}>
         <button
+          ref={buttonRef}
           className={styles.tagFieldButton}
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={handleButtonClick}
         >
           {selectedTag ? (
             <>
               {selectedTag.icon && <span className={styles.tagIcon}>{getIconComponent(selectedTag.icon)}</span>}
-              <span 
+              <span
                 className={styles.tagDot}
                 style={{ backgroundColor: selectedTag.color }}
               />
@@ -117,38 +247,7 @@ const TagField: React.FC<TagFieldProps> = ({
           )}
           <ChevronDown size={14} className={styles.tagChevron} />
         </button>
-
-        {isOpen && (
-          <div className={styles.tagDropdown}>
-            <div
-              className={`${styles.tagOption} ${!selectedTagId ? styles.tagOptionActive : ''}`}
-              onClick={() => handleSelect(undefined)}
-            >
-              <span>无</span>
-              {!selectedTagId && <Check size={14} />}
-            </div>
-            {tags.map(tag => (
-              <div
-                key={tag.id}
-                className={`${styles.tagOption} ${selectedTagId === tag.id ? styles.tagOptionActive : ''}`}
-                onClick={() => handleSelect(tag.id)}
-              >
-                <div className={styles.tagOptionLeft}>
-                  {tag.icon && <span className={styles.tagIcon}>{getIconComponent(tag.icon)}</span>}
-                  <span 
-                    className={styles.tagDot}
-                    style={{ backgroundColor: tag.color }}
-                  />
-                  <span>{tag.name}</span>
-                </div>
-                {selectedTagId === tag.id && <Check size={14} />}
-              </div>
-            ))}
-            {tags.length === 0 && (
-              <div className={styles.tagEmpty}>暂无{label}</div>
-            )}
-          </div>
-        )}
+        {dropdownContent}
       </div>
     </div>
   );

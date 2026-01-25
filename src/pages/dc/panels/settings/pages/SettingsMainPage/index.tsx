@@ -4,11 +4,11 @@
  * 支持列表项翻书动画
  */
 
-import React from 'react';
-import { Target, Palette, Tag, Sun, Umbrella, Heart, Flag, Database, CheckCircle2, Circle, Calendar, Archive } from 'lucide-react';
+import React, { useState, useCallback } from 'react';
+import { Target, Palette, Tag, Sun, Umbrella, Heart, Flag, Database, CheckCircle2, Circle, Calendar, Archive, Bug, Power } from 'lucide-react';
 import { SettingsSection, SettingsListItem } from '../../components';
-import { useUser, useApp } from '@/pages/dc/contexts';
-import { getCurrentDate } from '@/pages/dc/utils';
+import { useUser } from '@/pages/dc/contexts';
+import { getCurrentDate, getDeveloperMode, setDeveloperMode } from '@/pages/dc/utils';
 import styles from './styles.module.css';
 
 export interface SettingsMainPageProps {
@@ -23,6 +23,15 @@ const SettingsMainPage: React.FC<SettingsMainPageProps> = ({
   onOpenTodayMustComplete,
 }) => {
   const { todayMustComplete } = useUser();
+
+  // 开发者模式状态
+  const [isDeveloperMode, setIsDeveloperMode] = useState(() => getDeveloperMode());
+
+  // 处理关闭开发者模式
+  const handleCloseDeveloperMode = useCallback(() => {
+    setDeveloperMode(false);
+    setIsDeveloperMode(false);
+  }, []);
   
   // 判断是否是今天的数据
   const today = getCurrentDate();
@@ -84,7 +93,7 @@ const SettingsMainPage: React.FC<SettingsMainPageProps> = ({
     <div className={styles.container}>
       {/* 基础设置 */}
       <SettingsSection title="基础设置">
-        
+
         {/* 今日毕任务 - 特殊高亮样式 */}
         <SettingsListItem
           icon={<Target size={18} />}
@@ -96,7 +105,7 @@ const SettingsMainPage: React.FC<SettingsMainPageProps> = ({
           rightContent={getTodayMustCompleteStatusTag()}
           onClick={handleTodayMustCompleteClick}
         />
-        
+
         <SettingsListItem
           icon={<Palette size={18} />}
           title="主题设置"
@@ -105,7 +114,7 @@ const SettingsMainPage: React.FC<SettingsMainPageProps> = ({
           animationIndex={animationIndex++}
           onClick={() => onNavigate('theme', '主题设置')}
         />
-        
+
         <SettingsListItem
           icon={<Tag size={18} />}
           title="标签管理"
@@ -127,7 +136,7 @@ const SettingsMainPage: React.FC<SettingsMainPageProps> = ({
           animated
           animationIndex={animationIndex++}
         />
-        
+
         <SettingsListItem
           icon={<Umbrella size={18} />}
           title="度假模式"
@@ -137,7 +146,7 @@ const SettingsMainPage: React.FC<SettingsMainPageProps> = ({
           animated
           animationIndex={animationIndex++}
         />
-        
+
         <SettingsListItem
           icon={<Heart size={18} />}
           title="纪念日模式"
@@ -147,7 +156,7 @@ const SettingsMainPage: React.FC<SettingsMainPageProps> = ({
           animated
           animationIndex={animationIndex++}
         />
-        
+
         <SettingsListItem
           icon={<Flag size={18} />}
           title="OKR模式"
@@ -179,14 +188,41 @@ const SettingsMainPage: React.FC<SettingsMainPageProps> = ({
           onClick={() => onNavigate('data', '数据管理')}
         />
 
-        <SettingsListItem
-          icon={<Calendar size={18} />}
-          title="日期测试"
-          description="测试日期变更逻辑"
-          animated
-          animationIndex={animationIndex++}
-          onClick={() => onNavigate('dateTest', '日期测试')}
-        />
+        {/* 日期测试 - 仅开发者模式可见 */}
+        {isDeveloperMode && (
+          <SettingsListItem
+            icon={<Calendar size={18} />}
+            title="日期测试"
+            description="测试日期变更逻辑"
+            animated
+            animationIndex={animationIndex++}
+            onClick={() => onNavigate('dateTest', '日期测试')}
+          />
+        )}
+
+        {/* 调试 - 仅开发者模式可见 */}
+        {isDeveloperMode && (
+          <SettingsListItem
+            icon={<Bug size={18} />}
+            title="调试"
+            description="灵玉和修为调试"
+            animated
+            animationIndex={animationIndex++}
+            onClick={() => onNavigate('debug', '调试')}
+          />
+        )}
+
+        {/* 关闭调试 - 仅开发者模式可见 */}
+        {isDeveloperMode && (
+          <SettingsListItem
+            icon={<Power size={18} />}
+            title="关闭调试"
+            description="关闭开发者模式"
+            animated
+            animationIndex={animationIndex++}
+            onClick={handleCloseDeveloperMode}
+          />
+        )}
       </SettingsSection>
     </div>
   );

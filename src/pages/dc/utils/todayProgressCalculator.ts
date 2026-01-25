@@ -117,7 +117,12 @@ const calculateNumericTodayProgress = (
     };
   }
 
-  const dailyTarget = formatNumberPrecision(Math.abs(numericConfig.perDayAverage || 0));
+  // 每日目标 = perCycleTarget / cycleDays
+  const cycleDays = task?.cycle?.cycleDays || task?.cycleDays || 7;
+  const perCycleTarget = Math.abs(numericConfig.perCycleTarget || 0);
+  let dailyTarget = perCycleTarget > 0 ? perCycleTarget / cycleDays : 0;
+
+  dailyTarget = formatNumberPrecision(dailyTarget);
 
   // 计算今日记录的数值变化
   const activities = task.activities || [];

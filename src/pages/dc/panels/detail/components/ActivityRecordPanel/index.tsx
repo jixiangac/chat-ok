@@ -24,7 +24,9 @@ interface ActivityRecordPanelProps {
  */
 export default function ActivityRecordPanel({ goal, todayOnly = false }: ActivityRecordPanelProps) {
   const category = goal.category;
-  const today = getCurrentDate(goal);
+
+  // 获取模拟的今日日期（考虑调试偏移量）
+  const today = useMemo(() => getCurrentDate(goal), [goal]);
 
   // 计算今日奖励进度
   const rewardProgress = useMemo(() => {
@@ -34,8 +36,8 @@ export default function ActivityRecordPanel({ goal, todayOnly = false }: Activit
     // 获取每日上限
     const dailyCap = calculateDailyPointsCap(taskType, checkInUnit);
 
-    // 获取今日已获得的奖励
-    const todayReward = getTodayTaskReward(goal.id);
+    // 获取今日已获得的奖励（考虑调试偏移量）
+    const todayReward = getTodayTaskReward(goal.id, (goal as any).debugDayOffset);
 
     // 判断是否达到上限
     const isJadeComplete = todayReward.spiritJade >= dailyCap.spiritJade;
@@ -46,7 +48,7 @@ export default function ActivityRecordPanel({ goal, todayOnly = false }: Activit
       cultivation: { current: todayReward.cultivation, max: dailyCap.cultivation },
       isComplete: isJadeComplete && isCultivationComplete,
     };
-  }, [goal.id, goal.type, goal.checkInConfig?.unit]);
+  }, [goal.id, goal.type, goal.checkInConfig?.unit, (goal as any).debugDayOffset]);
   
   // 打卡类型：从 checkInConfig.records 中提取所有打卡记录
   const checkInRecords = useMemo(() => {

@@ -48,12 +48,19 @@ const SpiritJadePage: React.FC<SpiritJadePageProps> = ({
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
+  const [isReady, setIsReady] = useState(false); // 入场动画完成后的状态
 
   // 处理显示/隐藏动画
   useEffect(() => {
     if (visible) {
       setIsVisible(true);
       setIsExiting(false);
+      setIsReady(false);
+      // 入场动画完成后设置 ready 状态，以支持手势操作
+      const timer = setTimeout(() => {
+        setIsReady(true);
+      }, 400);
+      return () => clearTimeout(timer);
     }
   }, [visible]);
 
@@ -73,9 +80,10 @@ const SpiritJadePage: React.FC<SpiritJadePageProps> = ({
   }, [onClose]);
 
   // 使用 useSwipeBack hook 统一手势行为
+  // 只在入场动画完成后（isReady）才启用手势，避免与 CSS 动画冲突
   const { pageRef } = useSwipeBack({
     onBack: () => handleClose(true),
-    enabled: isVisible && !isExiting,
+    enabled: isReady && !isExiting,
   });
 
   // 将历史记录按时间倒序排列
@@ -96,10 +104,17 @@ const SpiritJadePage: React.FC<SpiritJadePageProps> = ({
 
   if (!isVisible) return null;
 
+  // 获取页面样式类
+  const getPageClassName = () => {
+    if (isExiting) return `${styles.page} ${styles.exiting}`;
+    if (isReady) return `${styles.page} ${styles.ready}`;
+    return `${styles.page} ${styles.visible}`;
+  };
+
   return createPortal(
     <div
       ref={pageRef}
-      className={`${styles.page} ${isExiting ? styles.exiting : styles.visible}`}
+      className={getPageClassName()}
     >
       {/* 头图区域 */}
       <div className={styles.headerImage} style={{ background: JADE_HEADER_BACKGROUND }}>

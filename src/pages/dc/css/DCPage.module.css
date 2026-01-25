@@ -39,7 +39,7 @@
 
 /* Header */
 .header {
-  padding: 16px 12px 16px 24px;
+  padding: 16px 12px 16px 12px;
   background-color: white;
   border-bottom: 1px solid #f0f0f0;
 }
@@ -48,6 +48,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  position: relative;
 }
 
 /* Tab 导航 */
@@ -94,6 +95,73 @@
 
 .tabIndicator.inactive {
   width: 0;
+}
+
+/* 返回按钮 */
+.backButton {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: none;
+  background-color: transparent;
+  color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-left: -8px;
+}
+
+.backButton:hover {
+  background-color: #f5f5f5;
+}
+
+/* 顶部左侧区域 */
+.headerLeftArea {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* 顶部标题 */
+.headerTitle {
+  font-size: 17px;
+  font-weight: 500;
+  color: #333;
+}
+
+/* 顶部居中标题 */
+.headerTitleCenter {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 17px;
+  font-weight: 500;
+  color: #333;
+}
+
+/* 顶部灵玉入口 */
+.headerJadeWrapper {
+  background: #f7f7f7;
+  padding: 4px 13px 5px 7px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.headerJadeCount {
+  font-size: 16px;
+  font-weight: 200;
+  color: #a7a1a1;
+}
+
+.headerLevelText {
+  font-size: 12px;
+  font-weight: 300;
+  color: #d0cbcb;
+  margin-left: 6px;
 }
 
 /* 右侧按钮区域 */
@@ -184,6 +252,16 @@
   font-size: 16px;
   font-weight: 200;
   color: #a7a1a1;
+}
+
+/* 纪念日入口 */
+.memorialWrapper {
+  position: absolute;
+  right: 13px;
+  top: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .spriteImage {

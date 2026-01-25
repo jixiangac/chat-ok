@@ -1,12 +1,12 @@
 import { useRef, useState, useCallback, useMemo } from 'react';
-import { Plus, Settings as SettingsIcon } from 'lucide-react';
+import { Plus, Settings as SettingsIcon, ChevronLeft } from 'lucide-react';
 import { SafeArea } from 'antd-mobile';
 
 // Agent Chat
 import { AgentChatPopup, type UserBaseInfo, type StructuredOutput, type TaskConfigData } from './agent';
 
 // Utils
-import { getCurrentLevelInfo } from './utils/cultivation';
+import { getCurrentLevelInfo, getLevelShortName } from './utils/cultivation';
 
 // Panels
 import { HappyPanel, UnifiedSettingsPanel, MemorialPanel, NormalPanel } from './panels';
@@ -93,10 +93,12 @@ function DCPageContent() {
   // 构建 AI 对话所需的用户基础信息
   const userInfo: UserBaseInfo = useMemo(() => {
     const levelInfo = getCurrentLevelInfo(cultivationData);
+    const levelShortName = getLevelShortName(cultivationData.realm, cultivationData.stage, cultivationData.layer);
     return {
       spiritJade: spiritJadeData.balance,
       cultivation: cultivationData.currentExp,
       cultivationLevel: levelInfo.displayName,
+      cultivationLevelShort: levelShortName,
     };
   }, [cultivationData, spiritJadeData.balance]);
 
@@ -254,7 +256,7 @@ function DCPageContent() {
         isPulling={isPulling}
         firstHint="查看等级修为"
         secondHint="查看等级修为"
-        triggeredHint="进入二层楼"
+        triggeredHint="进入苦海"
       />
 
       {/* 主内容区域 - 下拉时跟随移动 */}
@@ -262,37 +264,64 @@ function DCPageContent() {
         {/* Header */}
         <div className={styles.header}>
           <div className={styles.headerContent}>
-            {/* Tab 导航 */}
-            <div className={styles.tabNav}>
-              {displayTabs.map((tab) => (
+            {/* 纪念日模式：返回按钮 + 居中标题 + 新增按钮 */}
+            {activeTab === 'memorial' ? (
+              <>
                 <button
-                  key={tab.key}
-                  onClick={() => setActiveTab(tab.key as TabKey)}
-                  className={`${styles.tabButton} ${activeTab === tab.key ? styles.active : styles.inactive}`}
+                  onClick={() => setActiveTab('normal')}
+                  className={styles.backButton}
+                  title="返回"
                 >
-                  {tab.label}
-                  <span className={`${styles.tabIndicator} ${activeTab === tab.key ? styles.active : styles.inactive}`} />
+                  <ChevronLeft size={24} />
                 </button>
-              ))}
-            </div>
-
-            {/* 右侧按钮 */}
-            <div className={styles.headerActions}>
-              <button
-                onClick={handleAddClick}
-                className={styles.iconButton}
-                title="新增"
-              >
-                <Plus size={18} />
-              </button>
-              <button
-                onClick={openSettings}
-                className={styles.iconButton}
-                title="设置"
-              >
-                <SettingsIcon size={18} />
-              </button>
-            </div>
+                <span className={styles.headerTitleCenter}>纪念日</span>
+                <div className={styles.headerActions}>
+                  <button
+                    onClick={handleAddClick}
+                    className={styles.iconButton}
+                    title="新增"
+                  >
+                    <Plus size={18} />
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                {/* 左侧灵玉入口 */}
+                <div className={styles.headerLeftArea}>
+                  <div
+                    className={styles.headerJadeWrapper}
+                    onClick={() => setShowJadeHistory(true)}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <img
+                      src="https://gw.alicdn.com/imgextra/i1/O1CN01dUkd0B1UxywsCCzXY_!!6000000002585-2-tps-1080-992.png"
+                      alt="灵玉"
+                      style={{ width: 30, height: 25 }}
+                    />
+                    <span className={styles.headerJadeCount}>{spiritJadeData.balance}</span>
+                  </div>
+                  <span className={styles.headerLevelText}>{userInfo.cultivationLevelShort}</span>
+                </div>
+                {/* 右侧按钮 */}
+                <div className={styles.headerActions}>
+                  <button
+                    onClick={handleAddClick}
+                    className={styles.iconButton}
+                    title="新增"
+                  >
+                    <Plus size={18} />
+                  </button>
+                  <button
+                    onClick={openSettings}
+                    className={styles.iconButton}
+                    title="设置"
+                  >
+                    <SettingsIcon size={18} />
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
 
@@ -300,19 +329,20 @@ function DCPageContent() {
         <div className={`${styles.content} ${activeTab === 'normal' ? styles.contentWithBottomBar : ''}`}>
           {/* 小精灵区域 - 固定不滚动 */}
           <div className={styles.spriteSection}>
-            {/* 右上角灵玉 - 点击查看历史 */}
-            <div
-              className={styles.coinWrapper}
-              onClick={() => setShowJadeHistory(true)}
-              style={{ cursor: 'pointer' }}
-            >
-              <img
-                src="https://gw.alicdn.com/imgextra/i1/O1CN01dUkd0B1UxywsCCzXY_!!6000000002585-2-tps-1080-992.png"
-                alt="灵玉"
-                style={{ width: 30, height: 25 }}
-              />
-              <span className={styles.coinCount}>{spiritJadeData.balance}</span>
-            </div>
+            {/* 右上角纪念日入口 - 仅在非纪念日模式下显示 */}
+            {activeTab !== 'memorial' && (
+              <div
+                className={styles.memorialWrapper}
+                onClick={() => setActiveTab('memorial')}
+                style={{ cursor: 'pointer' }}
+              >
+                <img
+                  src="https://gw.alicdn.com/imgextra/i1/O1CN01GivT981sszPWatpbD_!!6000000005823-2-tps-1080-1055.png"
+                  alt="纪念日"
+                  style={{ width: 40, height: 40 }}
+                />
+              </div>
+            )}
             {/* 小精灵区域 - 点击唤起 AI 对话 */}
             {/* <div className={styles.moonPhaseWrapper}>
               <MoonPhase />

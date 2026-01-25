@@ -83,6 +83,7 @@ export {
 export {
   getDeveloperMode,
   setDeveloperMode,
+  toggleDeveloperMode,
   getSavedLocationFilter,
   saveLocationFilter,
   exportAllTasks,
@@ -178,7 +179,8 @@ export {
   generateCultivationId,
   getWeekKey,
   formatExp,
-  getRealmIconPath
+  getRealmIconPath,
+  calculateLevelFromExp,
 } from './cultivation';
 
 // 灵玉积分计算工具

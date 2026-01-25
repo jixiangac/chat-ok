@@ -33,6 +33,16 @@ export const setDeveloperMode = (enabled: boolean): void => {
 };
 
 /**
+ * 切换开发者模式状态
+ */
+export const toggleDeveloperMode = (): boolean => {
+  const current = getDeveloperMode();
+  const newState = !current;
+  setDeveloperMode(newState);
+  return newState;
+};
+
+/**
  * 获取保存的地点筛选
  */
 export const getSavedLocationFilter = (): string | null => {

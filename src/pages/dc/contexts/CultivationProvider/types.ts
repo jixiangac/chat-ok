@@ -167,4 +167,10 @@ export interface CultivationContextValue {
   exportData: () => string;
   /** 导入数据 */
   importData: (jsonString: string) => boolean;
+
+  // ========== 调试功能 ==========
+  /** 调试：直接设置灵玉数量 */
+  debugSetSpiritJade: (amount: number) => void;
+  /** 调试：直接设置修为数值（自动更新等级） */
+  debugSetExp: (amount: number) => void;
 }

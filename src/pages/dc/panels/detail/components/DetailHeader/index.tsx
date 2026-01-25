@@ -164,12 +164,12 @@ export default function DetailHeader({
                 归档任务
               </div>
             )}
-            {showDebug && onDebugNextDay && !isPlanEnded && (
+            {isDeveloperMode && showDebug && onDebugNextDay && !isPlanEnded && (
               <div className={styles.menuItem} onClick={handleDebugNextDay}>
                 🐛 Debug: 进入下一天
               </div>
             )}
-            {showDebug && onDebugNextCycle && !isPlanEnded && (
+            {isDeveloperMode && showDebug && onDebugNextCycle && !isPlanEnded && (
               <div className={styles.menuItem} onClick={handleDebugNextCycle}>
                 🐛 Debug: 进入下一周期
               </div>

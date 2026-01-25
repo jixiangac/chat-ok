@@ -59,18 +59,23 @@ const generateId = (): string => {
 
 // 注意：getSimulatedToday 已从 todayProgressCalculator 导入
 
-// 获取模拟的时间戳（优先使用全局测试日期）
+// 获取模拟的时间戳（优先使用全局测试日期 + 任务级偏移量）
 // 保留当前的时分秒信息，只调整日期部分
 const getSimulatedTimestamp = (task: Task): number => {
   const offset = (task as any).debugDayOffset || 0;
-  
+  // 获取全局测试日期（如果有设置的话）
+  const currentDate = getCurrentDate();
+  const baseTime = dayjs(currentDate);
+
   if (offset === 0) {
-    // 没有偏移量，直接返回当前时间戳
-    return Date.now();
+    // 没有偏移量，使用当前日期的时间戳（保留当前时分秒）
+    const now = dayjs();
+    return baseTime.hour(now.hour()).minute(now.minute()).second(now.second()).valueOf();
   }
-  
-  // 有偏移量时，在当前时间基础上调整日期，保留时分秒
-  return dayjs().add(offset, 'day').valueOf();
+
+  // 有偏移量时，在当前日期基础上调整，保留当前时分秒
+  const now = dayjs();
+  return baseTime.add(offset, 'day').hour(now.hour()).minute(now.minute()).second(now.second()).valueOf();
 };
 
 // 注意：getTodayCheckInsFromRecords 已从 checkInHelper 导入
@@ -663,7 +668,24 @@ export function TaskProvider({ children }: TaskProviderProps) {
             status: updates.status as any,
           };
           if (updates.status === 'COMPLETED') {
-            items[itemIndex].completedAt = dayjs().toISOString();
+            // 使用模拟日期（考虑调试偏移量），保留当前时间
+            const debugDayOffset = (task as any).debugDayOffset || 0;
+            if (debugDayOffset === 0) {
+              // 没有偏移量，使用当前真实时间
+              items[itemIndex].completedAt = dayjs().toISOString();
+            } else {
+              // 有偏移量，用当前时间的时分秒 + 模拟的日期
+              const now = dayjs();
+              const baseDate = getCurrentDate();
+              const simulatedDate = dayjs(baseDate).add(debugDayOffset, 'day');
+              // 保留当前时分秒，替换日期部分
+              const completedAt = simulatedDate
+                .hour(now.hour())
+                .minute(now.minute())
+                .second(now.second())
+                .millisecond(now.millisecond());
+              items[itemIndex].completedAt = completedAt.toISOString();
+            }
           }
         }
         if (updates.subProgress) {
@@ -933,8 +955,9 @@ export function TaskProvider({ children }: TaskProviderProps) {
       const currentCycle = task.cycle.currentCycle;
       const startDate = dayjs(task.time.startDate);
 
-      // 计算新的模拟日期
-      const newSimulatedDate = dayjs().add(newOffset, 'day');
+      // 计算新的模拟日期（考虑全局测试日期）
+      const currentDate = getCurrentDate();
+      const newSimulatedDate = dayjs(currentDate).add(newOffset, 'day');
       
       // 计算当前周期的结束日期
       // 当前周期开始日期 = startDate + (currentCycle - 1) * cycleDays
@@ -945,9 +968,17 @@ export function TaskProvider({ children }: TaskProviderProps) {
       // 如果新的模拟日期超过了当前周期的结束日期，需要进入下一周期
       const shouldEnterNextCycle = newSimulatedDate.isAfter(currentCycleEndDate, 'day');
 
+      // 计算当前周期的剩余天数
+      const newRemainingDays = Math.max(0, currentCycleEndDate.diff(newSimulatedDate, 'day'));
+
       // 构建更新对象
       let updates: Partial<Task> & { debugDayOffset?: number } = {
-        debugDayOffset: newOffset
+        debugDayOffset: newOffset,
+        // 更新周期剩余天数
+        cycle: {
+          ...task.cycle,
+          remainingDays: newRemainingDays,
+        },
       };
 
       if (shouldEnterNextCycle) {
@@ -1085,6 +1116,28 @@ export function TaskProvider({ children }: TaskProviderProps) {
           const newCycleStartDateStr = startDate.add((newCycleNumber - 1) * cycleDays, 'day').format('YYYY-MM-DD');
           const newCycleEndDateStr = startDate.add(newCycleNumber * cycleDays - 1, 'day').format('YYYY-MM-DD');
 
+          // 处理清单类型任务：将未完成的清单项迁移到新周期
+          let updatedChecklistConfig = task.checklistConfig;
+          if (task.category === 'CHECKLIST' && task.checklistConfig) {
+            const items = task.checklistConfig.items || [];
+            const updatedItems = items.map(item => {
+              // 只处理当前周期未完成的项
+              if (item.cycle === currentCycle && item.status !== 'COMPLETED') {
+                return {
+                  ...item,
+                  cycle: newCycleNumber,
+                  // 保留原始周期（如果还没有的话）
+                  originalCycle: item.originalCycle ?? currentCycle,
+                };
+              }
+              return item;
+            });
+            updatedChecklistConfig = {
+              ...task.checklistConfig,
+              items: updatedItems,
+            };
+          }
+
           updates = {
             ...updates,
             cycle: {
@@ -1107,7 +1160,9 @@ export function TaskProvider({ children }: TaskProviderProps) {
               compensationTargetValue: undefined,
               lastUpdatedAt: dayjs().toISOString()
             },
-            activities: [...task.activities, cycleAdvanceLog]
+            activities: [...task.activities, cycleAdvanceLog],
+            // 清单类型：更新清单配置（包含迁移后的清单项）
+            ...(updatedChecklistConfig && { checklistConfig: updatedChecklistConfig }),
           };
         }
       }

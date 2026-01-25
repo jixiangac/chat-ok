@@ -18,3 +18,6 @@ export type { DateTestPageProps } from './DateTestPage';
 
 export { default as ArchivePage } from './ArchivePage';
 export type { ArchivePageProps } from './ArchivePage';
+
+export { default as DebugPage } from './DebugPage';
+export type { DebugPageProps } from './DebugPage';

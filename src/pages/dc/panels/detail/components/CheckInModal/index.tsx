@@ -83,11 +83,11 @@ export default function CheckInModal({
         bodyStyle={{
           borderTopLeftRadius: '16px',
           borderTopRightRadius: '16px',
-          padding: '24px 24px 0',
           width: '100%',
           maxWidth: '100vw',
           boxSizing: 'border-box',
-          overflow: 'hidden'
+          overflow: 'hidden',
+          background: '#f7f7f5'
         }}
       >
         <div className={styles.container}>
@@ -128,11 +128,11 @@ export default function CheckInModal({
         bodyStyle={{
           borderTopLeftRadius: '16px',
           borderTopRightRadius: '16px',
-          padding: '24px 24px 0',
           width: '100%',
           maxWidth: '100vw',
           boxSizing: 'border-box',
-          overflow: 'hidden'
+          overflow: 'hidden',
+          background: '#f7f7f5'
         }}
       >
         <div className={styles.container}>
@@ -204,11 +204,11 @@ export default function CheckInModal({
       bodyStyle={{
         borderTopLeftRadius: '16px',
         borderTopRightRadius: '16px',
-        padding: '24px 24px 0',
         width: '100%',
         maxWidth: '100vw',
         boxSizing: 'border-box',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        background: '#f7f7f5'
       }}
     >
       <div className={styles.container}>

@@ -3057,6 +3057,7 @@
       "getCurrentLevelInfo",
       "getLevelDisplayName",
       "getLevelIndex",
+      "getLevelShortName",
       "getNextLevel",
       "getPreviousLevel",
       "getRealmIconPath",

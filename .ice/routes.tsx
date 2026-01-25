@@ -6460,7 +6460,7 @@ const createRoutes: CreateRoutes = ({
     index: undefined,
     id: 'dc/utils/cultivation',
     exact: true,
-    exports: ["CULTIVATION_IMAGES","calculateLevelFromExp","compareLevels","formatExp","generateCultivationId","getCultivationImage","getCultivationImageFromData","getCurrentExpCap","getCurrentLevelInfo","getLevelDisplayName","getLevelIndex","getNextLevel","getPreviousLevel","getRealmIconPath","getSeclusionInfo","getWeekKey","isCrossRealmDemotion"],
+    exports: ["CULTIVATION_IMAGES","calculateLevelFromExp","compareLevels","formatExp","generateCultivationId","getCultivationImage","getCultivationImageFromData","getCurrentExpCap","getCurrentLevelInfo","getLevelDisplayName","getLevelIndex","getLevelShortName","getNextLevel","getPreviousLevel","getRealmIconPath","getSeclusionInfo","getWeekKey","isCrossRealmDemotion"],
   },{
     path: 'dc/utils/dateTracker',
     async lazy() {

@@ -3,7 +3,8 @@
 
 .container {
   padding: 16px 20px;
-  background: white;
+  background: linear-gradient(135deg, rgba(241, 241, 232, 0.5) 0%, rgba(232, 240, 232, 0.5) 100%);
+  border: 1px solid rgba(55, 53, 47, 0.06);
   border-radius: 12px;
   margin: 0 16px;
 }

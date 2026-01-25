@@ -307,15 +307,18 @@ export const AllSidelineTasksList: React.FC<AllSidelineTasksListProps> = ({
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h2 className={styles.title}>{title || `所有支线任务 (${filteredTasks.length})`}</h2>
-        {showCloseButton && onClose && (
+        {showCloseButton && onClose ? (
           <button
             onClick={onClose}
             className={styles.closeButton}
           >
-            <X size={20} />
+            <X size={24} />
           </button>
+        ) : (
+          <div className={styles.headerSpacer} />
         )}
+        <h2 className={styles.title}>{title || `所有支线任务 (${filteredTasks.length})`}</h2>
+        <div className={styles.headerSpacer} />
       </div>
 
       {/* 筛选区域 */}
@@ -412,14 +415,15 @@ export const AllSidelineTasksPopup: React.FC<AllSidelineTasksPopupProps> = ({
       visible={visible}
       onMaskClick={onClose}
       position="bottom"
-      bodyStyle={{ 
-        borderTopLeftRadius: '16px', 
+      bodyStyle={{
+        borderTopLeftRadius: '16px',
         borderTopRightRadius: '16px',
-        height: '90vh',
+        height: '85vh',
         overflow: 'hidden',
         overflowX: 'hidden',
         display: 'flex',
-        flexDirection: 'column'
+        flexDirection: 'column',
+        background: '#f7f7f5'
       }}
     >
       <AllSidelineTasksList

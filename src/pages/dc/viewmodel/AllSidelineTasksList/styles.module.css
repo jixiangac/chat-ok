@@ -4,45 +4,61 @@
   flex-direction: column;
   height: 100%;
   overflow: hidden;
+  background: #f7f7f5;
 }
 
-/* 头部 */
+/* 头部 - 复刻创建任务弹窗风格 */
 .header {
-  padding: 20px 24px 16px;
+  padding: 12px 16px;
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-shrink: 0;
 }
 
-.title {
-  margin: 0;
-  font-size: 18px;
-  font-weight: normal;
-}
-
 .closeButton {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
   border: none;
-  background-color: transparent;
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background-color 0.2s;
+  color: rgb(55, 53, 47);
+  transition: all 0.2s;
+  margin-left: -8px;
 }
 
 .closeButton:hover {
-  background-color: #f5f5f5;
+  background: rgba(55, 53, 47, 0.06);
+}
+
+.closeButton:active {
+  transform: scale(0.95);
+}
+
+.title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  color: rgb(55, 53, 47);
+  flex: 1;
+  text-align: center;
+}
+
+.headerSpacer {
+  width: 40px;
+  height: 40px;
+  margin-right: -8px;
 }
 
 /* 筛选区域 */
 .filterSection {
-  padding: 0 24px 12px;
+  padding: 0 16px 12px;
   flex-shrink: 0;
-  border-bottom: 1px solid #f0f0f0;
 }
 
 .filterRow {
@@ -63,17 +79,17 @@
   border: none;
   background: none;
   font-size: 13px;
-  color: #999;
+  color: rgba(55, 53, 47, 0.5);
   cursor: pointer;
   transition: color 0.2s;
 }
 
 .filterButton:hover {
-  color: #666;
+  color: rgba(55, 53, 47, 0.65);
 }
 
 .filterActive {
-  color: #333;
+  color: rgb(55, 53, 47);
 }
 
 .filterDropdown {
@@ -83,7 +99,7 @@
   margin-top: 4px;
   min-width: 100px;
   background: white;
-  border-radius: 8px;
+  border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
   z-index: 100;
   overflow: hidden;
@@ -95,30 +111,30 @@
   gap: 8px;
   padding: 10px 12px;
   font-size: 13px;
-  color: #333;
+  color: rgb(55, 53, 47);
   cursor: pointer;
   transition: background 0.15s;
   white-space: nowrap;
 }
 
 .filterOption:hover {
-  background: #f5f5f5;
+  background: rgba(55, 53, 47, 0.04);
 }
 
 .filterOptionActive {
-  color: #1a1a1a;
+  color: rgb(55, 53, 47);
   font-weight: 500;
 }
 
 .filterOptionIcon {
   display: flex;
   align-items: center;
-  color: #666;
+  color: rgba(55, 53, 47, 0.65);
 }
 
 .filterOptionCheck {
   margin-left: auto;
-  color: #666;
+  color: rgba(55, 53, 47, 0.65);
 }
 
 /* 内容区 */
@@ -126,7 +142,7 @@
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 16px 24px;
+  padding: 8px 16px;
   -webkit-overflow-scrolling: touch;
   touch-action: pan-y;
 }

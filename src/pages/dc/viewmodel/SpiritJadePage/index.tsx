@@ -20,13 +20,22 @@ const JADE_HEADER_BACKGROUND = 'linear-gradient(135deg, #F0E6D8 0%, #E8DCD0 100%
 
 // 来源名称映射
 const SOURCE_LABELS: Record<string, string> = {
+  // 获取来源
   CHECK_IN: '任务打卡',
   CYCLE_COMPLETE: '周期完成奖励',
   DAILY_COMPLETE: '一日清单完成',
   ARCHIVE: '归档总结',
+  // 消耗来源
   CREATE_TASK: '创建任务',
   REFRESH_DAILY: '刷新一日清单',
   AI_CHAT: 'AI 对话',
+  CONVERT_TO_SIDELINE: '转为支线任务',
+  CREATE_MEMORIAL: '创建纪念碑',
+  // 清单操作
+  CHECKLIST_POSTPONE: '清单项延期',
+  CHECKLIST_ADD_TO_CURRENT: '加入当前周期',
+  // 调试
+  DEBUG_SET: '调试设置',
 };
 
 interface SpiritJadePageProps {

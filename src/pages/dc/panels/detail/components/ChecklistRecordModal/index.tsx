@@ -82,7 +82,7 @@ export default function ChecklistRecordModal({
       bodyStyle={{
         borderTopLeftRadius: '16px',
         borderTopRightRadius: '16px',
-        padding: '20px 24px 0',
+        padding: '0',
         boxSizing: 'border-box',
         maxWidth: '100vw',
         overflow: 'hidden'

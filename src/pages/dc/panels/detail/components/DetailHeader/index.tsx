@@ -125,7 +125,7 @@ export default function DetailHeader({
   return (
     <div className={styles.container}>
       <button className={styles.closeButton} onClick={onClose}>
-        <X size={20} />
+        <X size={24} />
       </button>
       
       <div className={styles.titleSection}>
@@ -135,7 +135,7 @@ export default function DetailHeader({
       
       <div className={styles.rightActions}>
         <button ref={buttonRef} className={styles.moreButton} onClick={() => setShowActions(!showActions)}>
-          <MoreHorizontal size={20} />
+          <MoreHorizontal size={24} />
         </button>
         
         {showActions && (

@@ -1,28 +1,28 @@
-/* GoalDetailModal 样式 - 咖啡杯视觉设计重构 */
-/* 参考设置界面风格 */
+/* GoalDetailModal 样式 - 参考创建任务弹窗风格 */
 
 /* 导入 CSS 变量 */
 @import './components/shared/variables.css';
 
+/* ==================== Popup 容器 ==================== */
 .popupBody {
   border-top-left-radius: 16px;
   border-top-right-radius: 16px;
-  height: 90vh;
+  height: 85vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   background: #f7f7f5;
 }
 
-/* ========== 页面栈容器 ========== */
+/* ==================== 页面栈容器 ==================== */
 .pageStack {
   position: relative;
   flex: 1;
   overflow: hidden;
-  perspective: 1000px;
+  background: #f7f7f5;
 }
 
-/* ========== 页面层级 ========== */
+/* ==================== 页面层级 ==================== */
 .pageLayer {
   position: absolute;
   top: 0;
@@ -76,7 +76,7 @@
   pointer-events: none;
 }
 
-/* ========== 动画关键帧 ========== */
+/* ==================== 动画关键帧 ==================== */
 @keyframes slideInFromRight {
   from {
     transform: translateX(100%);
@@ -98,10 +98,9 @@
   }
 }
 
-/* 移除 Tab 系统后的内容容器 */
+/* ==================== 内容容器 ==================== */
 .contentContainer {
   flex: 1;
-  /* overflow-y: auto; */
   overflow: hidden;
   -webkit-overflow-scrolling: touch;
   display: flex;
@@ -120,7 +119,6 @@
   justify-content: center;
   margin: 0 16px;
   border-radius: 12px;
-  /* 扁平设计：不使用阴影 */
 }
 
 /* 今日进度条区域 */
@@ -138,14 +136,14 @@
   /* SecondaryNav 组件自带样式 */
 }
 
-/* ========== 当日记录卡片 ========== */
+/* ==================== 当日记录卡片 ==================== */
 .todayRecordCard {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 20px;
+  padding: 14px 16px;
   margin: 0 16px;
-  background: #776c6c0f;
+  background: white;
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.2s;
@@ -153,7 +151,7 @@
 
 .todayRecordCard:active {
   transform: scale(0.98);
-  background: #f9f9f9;
+  background: rgba(55, 53, 47, 0.04);
 }
 
 .todayRecordLeft {
@@ -190,29 +188,30 @@
   color: rgba(55, 53, 47, 0.65);
 }
 
-/* 底部按钮容器 */
+/* ==================== 底部按钮容器 ==================== */
 .buttonContainer {
-  padding: 16px 20px;
-  background: white;
+  padding: 12px 16px 20px;
+  padding-bottom: calc(20px + env(safe-area-inset-bottom));
+  background: linear-gradient(to top, #f7f7f5 85%, transparent);
   flex-shrink: 0;
-  border-top: 1px solid rgba(55, 53, 47, 0.06);
 }
 
-/* CTA 按钮 - 支持换肤 */
+/* CTA 按钮 */
 .actionButton {
   width: 100%;
   height: 52px;
   color: #fff;
   border: none;
-  border-radius: 26px;
+  border-radius: 12px;
   font-size: 16px;
   font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  transition: all 0.2s;
-  background: var(--cta-orange, #F97316);
+  transition: all 0.15s ease;
+  background: rgb(55, 53, 47);
+  cursor: pointer;
 }
 
 .actionButton:active {
@@ -221,24 +220,19 @@
 }
 
 .actionButton:disabled {
-  background: #ccc !important;
+  background: #ccc;
   cursor: not-allowed;
   transform: none;
 }
 
-.actionButton:not(:disabled) {
-  cursor: pointer;
-}
-
-/* 已完成状态按钮 */
+/* 已完成状态按钮 - 仍可点击，保持深色 */
 .actionButton.completed {
-  opacity: 0.7;
+  background: rgb(55, 53, 47);
 }
 
-/* ========== 子页面头部 ========== */
+/* ==================== 子页面头部 ==================== */
 .subPageHeader {
   padding: 12px 16px;
-  padding-top: calc(12px + env(safe-area-inset-top));
   background: transparent;
   display: flex;
   align-items: center;
@@ -273,8 +267,8 @@
 /* 子页面标题居中 */
 .subPageTitle {
   margin: 0;
-  font-size: 16px;
-  font-weight: 300;
+  font-size: 17px;
+  font-weight: 600;
   color: rgb(55, 53, 47);
   flex: 1;
   text-align: center;
@@ -293,7 +287,7 @@
   align-items: center;
   justify-content: center;
   padding: 4px 12px;
-  background: linear-gradient(135deg, #E8F0E8, #F1F1E8);
+  background: linear-gradient(135deg, rgba(241, 241, 232, 0.6) 0%, rgba(232, 240, 232, 0.6) 100%);
   border-radius: 12px;
   min-width: 50px;
   margin-right: -8px;
@@ -312,7 +306,7 @@
   -webkit-overflow-scrolling: touch;
 }
 
-/* ========== 旧版 Tab 系统样式（保留兼容） ========== */
+/* ==================== 旧版 Tab 系统样式（保留兼容） ==================== */
 .tabsContainer {
   display: flex;
   gap: 12px;
@@ -321,7 +315,7 @@
   overflow-x: auto;
   border-bottom: 1px solid rgba(55, 53, 47, 0.06);
   border-top: 1px solid rgba(55, 53, 47, 0.06);
-  background: white;
+  background: transparent;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -335,7 +329,7 @@
   justify-content: center;
   cursor: pointer;
   flex-shrink: 0;
-  transition: all 0.3s;
+  transition: all 0.2s;
   background: transparent;
   color: rgba(55, 53, 47, 0.65);
 }
@@ -352,10 +346,11 @@
   color: rgba(55, 53, 47, 0.5);
 }
 
-/* ========== 计划结束总结视图 ========== */
+/* ==================== 计划结束总结视图 ==================== */
 .summaryContainer {
   padding: 24px 20px;
-  background: white;
+  background: linear-gradient(135deg, rgba(241, 241, 232, 0.5) 0%, rgba(232, 240, 232, 0.5) 100%);
+  border: 1px solid rgba(55, 53, 47, 0.06);
   margin: 0 16px;
   border-radius: 12px;
 }
@@ -375,7 +370,7 @@
 .summaryTitle {
   font-size: 20px;
   font-weight: 600;
-  color: var(--coffee-dark, #6F4E37);
+  color: rgb(55, 53, 47);
 }
 
 .summaryStats {
@@ -383,7 +378,7 @@
   justify-content: space-around;
   margin-top: 20px;
   padding-top: 16px;
-  border-top: 1px dashed #eee;
+  border-top: 1px dashed rgba(55, 53, 47, 0.1);
 }
 
 .statItem {
@@ -393,35 +388,44 @@
 .statValue {
   font-size: 24px;
   font-weight: 700;
-  color: var(--coffee-dark, #6F4E37);
+  color: rgb(55, 53, 47);
 }
 
 .statLabel {
   font-size: 12px;
-  color: #999;
+  color: rgba(55, 53, 47, 0.5);
   margin-top: 4px;
 }
 
-/* ========== 无障碍支持 ========== */
+/* ==================== 无障碍支持 ==================== */
 @media (prefers-reduced-motion: reduce) {
   .pageLayer {
     animation: none !important;
     transition: none !important;
   }
-  
+
   .pageLayerActive {
     transform: translateX(0);
   }
-  
+
   .pageLayerBackground {
     transform: scale(0.95) translateX(-5%);
   }
-  
+
   .pageLayerEntering {
     transform: translateX(0);
   }
-  
+
   .pageLayerExiting {
     transform: translateX(100%);
+  }
+}
+
+/* ==================== 桌面端样式 ==================== */
+@media (min-width: 768px) {
+  .popupBody {
+    max-width: 420px;
+    margin: 0 auto;
+    max-height: 700px;
   }
 }

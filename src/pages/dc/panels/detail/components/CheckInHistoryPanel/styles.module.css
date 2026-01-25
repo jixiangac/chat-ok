@@ -11,21 +11,21 @@
 /* 周期项 */
 .cycleItem {
   position: relative;
-  background: #fff;
-  border-radius: 10px;
+  background: white;
+  border-radius: 12px;
   overflow: hidden;
 }
 
 .currentCycle {
-  border: 2px solid #000;
+  border: 2px solid rgb(55, 53, 47);
 }
 
 .pastCycle {
-  border: 1px solid #e0e0e0;
+  border: 1px solid rgba(55, 53, 47, 0.1);
 }
 
 .futureCycle {
-  border: 1px solid #e0e0e0;
+  border: 1px solid rgba(55, 53, 47, 0.1);
   opacity: 0.5;
 }
 

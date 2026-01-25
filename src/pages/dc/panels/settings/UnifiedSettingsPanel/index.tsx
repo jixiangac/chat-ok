@@ -43,10 +43,13 @@ const UnifiedSettingsPanel: React.FC<UnifiedSettingsPanelProps> = ({
   const { currentPage, stack, push, pop, canGoBack, reset } = usePageStack();
   const { setTodayMustCompleteReadOnly } = useUser();
   const containerRef = useRef<HTMLDivElement>(null);
-  
+
   // 面板动画状态
   const [isExiting, setIsExiting] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+
+  // 设置页面刷新信号（用于开发者模式切换后刷新主设置页面）
+  const [settingsRefreshKey, setSettingsRefreshKey] = useState(0);
   
   // 页面切换动画状态
   const [pageAnimationState, setPageAnimationState] = useState<'idle' | 'entering' | 'exiting' | 'closing'>('idle');
@@ -143,7 +146,16 @@ const UnifiedSettingsPanel: React.FC<UnifiedSettingsPanelProps> = ({
       case 'tags':
         return <TagSettingsPage onBack={handleBack} onTagDeleted={onTagDeleted} />;
       case 'data':
-        return <DataManagementPage onBack={handleBack} onDataChanged={onDataChanged} />;
+        return (
+          <DataManagementPage
+            onBack={handleBack}
+            onDataChanged={() => {
+              // 刷新设置主页面（开发者模式状态）
+              setSettingsRefreshKey(prev => prev + 1);
+              onDataChanged?.();
+            }}
+          />
+        );
       case 'todayMustComplete':
         return (
           <TodayMustCompletePage
@@ -160,6 +172,7 @@ const UnifiedSettingsPanel: React.FC<UnifiedSettingsPanelProps> = ({
       default:
         return (
           <SettingsMainPage
+            key={settingsRefreshKey}
             onNavigate={handleNavigate}
             onOpenTodayMustComplete={handleOpenTodayMustComplete}
           />

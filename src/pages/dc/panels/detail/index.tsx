@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef, useCallback, useEffect } from 'react';
-import { Popup, Toast, SafeArea, Dialog } from 'antd-mobile';
+import { Popup, Toast, Dialog } from 'antd-mobile';
 import { ConvertToSidelinePopup } from '../../components';
 import { FileText, Check, Archive, Clock, Hash, ChevronLeft, ChevronRight, Droplets, Coffee, Calendar } from 'lucide-react';
 import dayjs from 'dayjs';
@@ -81,7 +81,7 @@ export default function GoalDetailModal({
   
   const checkInButtonRef = useRef<HTMLButtonElement>(null);
   const subPageRef = useRef<HTMLDivElement>(null);
-  const { themeColors } = useTheme();
+  useTheme(); // 保持 hook 调用但不再使用 themeColors
 
   const { triggerConfetti } = useConfetti(checkInButtonRef);
   const {
@@ -491,12 +491,23 @@ export default function GoalDetailModal({
       default: {
         const config = task?.checkInConfig;
         const unit = config?.unit || 'TIMES';
-        if (todayCheckInStatus.isCompleted) {
-          return <><Check size={16} style={{ marginRight: 6 }} /> 今日已完成打卡</>;
-        }
-        if (unit === 'DURATION') {
+        if (unit === 'TIMES') {
+          // 次数类型：完成后显示"今日已完成"
+          if (todayCheckInStatus.isCompleted) {
+            return <><Check size={16} style={{ marginRight: 6 }} /> 今日已完成</>;
+          }
+          return <><Check size={16} style={{ marginRight: 6 }} /> 立即打卡</>;
+        } else if (unit === 'DURATION') {
+          // 时长类型：完成后显示"今日已完成"但仍可继续
+          if (todayCheckInStatus.isCompleted) {
+            return <><Check size={16} style={{ marginRight: 6 }} /> 今日已完成</>;
+          }
           return <><Clock size={16} style={{ marginRight: 6 }} /> 记录时长</>;
         } else if (unit === 'QUANTITY') {
+          // 数量类型：完成后显示"今日已完成"但仍可继续
+          if (todayCheckInStatus.isCompleted) {
+            return <><Check size={16} style={{ marginRight: 6 }} /> 今日已完成</>;
+          }
           return <><Hash size={16} style={{ marginRight: 6 }} /> 记录数值</>;
         }
         return <><Check size={16} style={{ marginRight: 6 }} /> 立即打卡</>;
@@ -771,10 +782,13 @@ export default function GoalDetailModal({
                       ref={checkInButtonRef}
                       onClick={handleChecklistRecord}
                       disabled={checkInLoading || !pendingChecklistItems.length}
-                      className={`${styles.actionButton} ${!pendingChecklistItems.length ? styles.completed : ''}`}
-                      style={{ background: themeColors?.primary || undefined }}
+                      className={styles.actionButton}
                     >
-                      {checkInLoading ? '处理中...' : pendingChecklistItems.length ? '记录清单' : '已全部完成'}
+                      {checkInLoading ? '处理中...' : pendingChecklistItems.length ? (
+                        <><FileText size={16} style={{ marginRight: 6 }} /> 记录清单</>
+                      ) : (
+                        <><Check size={16} style={{ marginRight: 6 }} /> 已全部完成</>
+                      )}
                     </button>
                   ) : taskCategory === 'CHECKLIST' && isPlanEnded ? (
                     // 清单类型（已结束）：归档按钮
@@ -783,7 +797,6 @@ export default function GoalDetailModal({
                       onClick={handleArchive}
                       disabled={checkInLoading}
                       className={styles.actionButton}
-                      style={{ background: themeColors?.primary || undefined }}
                     >
                       {checkInLoading ? '处理中...' : <><Archive size={16} style={{ marginRight: 6 }} /> 归档总结</>}
                     </button>
@@ -793,14 +806,12 @@ export default function GoalDetailModal({
                       ref={checkInButtonRef}
                       onClick={buttonHandler}
                       disabled={checkInLoading || isCheckInButtonDisabled}
-                      className={`${styles.actionButton} ${todayCheckInStatus.isCompleted ? styles.completed : ''}`}
-                      style={{ background: themeColors?.primary || undefined }}
+                      className={`${styles.actionButton} ${todayCheckInStatus.isCompleted && !isCheckInButtonDisabled ? styles.completed : ''}`}
                     >
                       {checkInLoading ? '处理中...' : buttonText}
                     </button>
                   )}
                 </div>
-                <SafeArea position="bottom" />
               </>
             )}
           </div>

@@ -1,6 +1,6 @@
 # detail-panel Specification Delta
 
-## MODIFIED Requirements
+## ADDED Requirements
 
 ### Requirement: 任务详情调试功能
 

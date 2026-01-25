@@ -264,6 +264,16 @@
   justify-content: center;
 }
 
+/* 紫微斗数入口 - 紧贴纪念日图标下方 */
+.ziweiWrapper {
+  position: absolute;
+  right: 13px;
+  top: 101px; /* 纪念日图标(28px) + 图标高度(40px) + 间距(4px) */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .spriteImage {
   width: 100%;
   max-width: 350px;

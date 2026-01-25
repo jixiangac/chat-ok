@@ -45,6 +45,7 @@ import * as dc_panels_detail_components_HistoryRecordPanel from '@/pages/dc/pane
 import * as dc_panels_memorial_components_BackgroundPicker from '@/pages/dc/panels/memorial/components/BackgroundPicker/index';
 import * as dc_panels_settings_components_SettingsListItem from '@/pages/dc/panels/settings/components/SettingsListItem/index';
 import * as dc_panels_settings_pages_TodayMustCompletePage from '@/pages/dc/panels/settings/pages/TodayMustCompletePage/index';
+import * as dc_skills_ziwei_components_ZiweiAnalysisReport from '@/pages/dc/skills/ziwei/components/ZiweiAnalysisReport/index';
 import * as dc_panels_detail_components_CalendarViewPanel from '@/pages/dc/panels/detail/components/CalendarViewPanel/index';
 import * as dc_panels_detail_components_CheckInCyclePanel from '@/pages/dc/panels/detail/components/CheckInCyclePanel/index';
 import * as dc_panels_detail_components_CoffeeCupProgress from '@/pages/dc/panels/detail/components/CoffeeCupProgress/index';
@@ -85,6 +86,7 @@ import * as dc_components_CreateMainlineTaskModal from '@/pages/dc/components/Cr
 import * as dc_components_CreateMainlineTaskModal_types from '@/pages/dc/components/CreateMainlineTaskModal/types';
 import * as dc_panels_detail_components_CycleInfo from '@/pages/dc/panels/detail/components/CycleInfo/index';
 import * as dc_panels_settings_pages_DateTestPage from '@/pages/dc/panels/settings/pages/DateTestPage/index';
+import * as dc_skills_ziwei_components_ZiweiChart from '@/pages/dc/skills/ziwei/components/ZiweiChart/index';
 import * as dc_agent_components_FollowupQuestion from '@/pages/dc/agent/components/FollowupQuestion/index';
 import * as dc_components_ConvertToSidelinePopup from '@/pages/dc/components/ConvertToSidelinePopup/index';
 import * as dc_panels_settings_pages_ArchivePage from '@/pages/dc/panels/settings/pages/ArchivePage/index';
@@ -127,6 +129,7 @@ import * as dc_contexts_CultivationProvider_types from '@/pages/dc/contexts/Cult
 import * as dc_panels_memorial_hooks_useMemorials from '@/pages/dc/panels/memorial/hooks/useMemorials';
 import * as dc_panels_settings_hooks_usePageStack from '@/pages/dc/panels/settings/hooks/usePageStack';
 import * as dc_panels_settings_hooks_useSwipeBack from '@/pages/dc/panels/settings/hooks/useSwipeBack';
+import * as dc_skills_ziwei_pages_ChartResultPage from '@/pages/dc/skills/ziwei/pages/ChartResultPage';
 import * as dc_viewmodel_CultivationSection from '@/pages/dc/viewmodel/CultivationSection/index';
 import * as dc_components_CultivationEntry from '@/pages/dc/components/CultivationEntry/index';
 import * as dc_components_GroupDetailPopup from '@/pages/dc/components/GroupDetailPopup/index';
@@ -141,6 +144,7 @@ import * as dc_components_card_SidelineTaskCard from '@/pages/dc/components/card
 import * as dc_components_shared_StatCard from '@/pages/dc/components/shared/StatCard/index';
 import * as dc_panels_memorial_components from '@/pages/dc/panels/memorial/components/index';
 import * as dc_panels_settings_components from '@/pages/dc/panels/settings/components/index';
+import * as dc_skills_ziwei_pages_BirthFormPage from '@/pages/dc/skills/ziwei/pages/BirthFormPage';
 import * as dc_utils_dailyCompleteRewardStorage from '@/pages/dc/utils/dailyCompleteRewardStorage';
 import * as dc_viewmodel_RandomTaskPicker from '@/pages/dc/viewmodel/RandomTaskPicker/index';
 import * as dc_viewmodel_SidelineTaskGrid from '@/pages/dc/viewmodel/SidelineTaskGrid/index';
@@ -148,6 +152,7 @@ import * as dc_components_LocationFilter from '@/pages/dc/components/LocationFil
 import * as dc_components_MigrationModal from '@/pages/dc/components/MigrationModal/index';
 import * as dc_panels_memorial_constants_icons from '@/pages/dc/panels/memorial/constants/icons';
 import * as dc_panels_memorial_constants from '@/pages/dc/panels/memorial/constants/index';
+import * as dc_skills_ziwei_pages_AnalysisPage from '@/pages/dc/skills/ziwei/pages/AnalysisPage';
 import * as dc_viewmodel_CreateTaskModal from '@/pages/dc/viewmodel/CreateTaskModal/index';
 import * as dc_viewmodel_CreateTaskModal_types from '@/pages/dc/viewmodel/CreateTaskModal/types';
 import * as dc_components_DailyProgress from '@/pages/dc/components/DailyProgress/index';
@@ -175,6 +180,7 @@ import * as dc_contexts_SceneProvider from '@/pages/dc/contexts/SceneProvider/in
 import * as dc_contexts_SceneProvider_types from '@/pages/dc/contexts/SceneProvider/types';
 import * as dc_contexts_WorldProvider from '@/pages/dc/contexts/WorldProvider/index';
 import * as dc_contexts_WorldProvider_types from '@/pages/dc/contexts/WorldProvider/types';
+import * as dc_skills_ziwei_pages_IntroPage from '@/pages/dc/skills/ziwei/pages/IntroPage';
 import * as dc_contexts_TaskProvider from '@/pages/dc/contexts/TaskProvider/index';
 import * as dc_contexts_TaskProvider_types from '@/pages/dc/contexts/TaskProvider/types';
 import * as dc_contexts_UserProvider from '@/pages/dc/contexts/UserProvider/index';
@@ -206,6 +212,7 @@ import * as dc_contexts_UIProvider_keys from '@/pages/dc/contexts/UIProvider/key
 import * as dc_panels_cultivation from '@/pages/dc/panels/cultivation/index';
 import * as dc_panels_happy_hooks from '@/pages/dc/panels/happy/hooks/index';
 import * as dc_panels_happy_utils from '@/pages/dc/panels/happy/utils/index';
+import * as dc_skills_ziwei_pages from '@/pages/dc/skills/ziwei/pages/index';
 import * as dc_utils_cycleRewardStorage from '@/pages/dc/utils/cycleRewardStorage';
 import * as dc_utils_dailyRewardTracker from '@/pages/dc/utils/dailyRewardTracker';
 import * as dc_utils_mainlineTaskHelper from '@/pages/dc/utils/mainlineTaskHelper';
@@ -213,6 +220,7 @@ import * as dc_utils_progressCalculator from '@/pages/dc/utils/progressCalculato
 import * as dc_components_shared from '@/pages/dc/components/shared/index';
 import * as dc_panels_memorial_storage from '@/pages/dc/panels/memorial/storage';
 import * as dc_agent_components from '@/pages/dc/agent/components/index';
+import * as dc_skills_ziwei_constants from '@/pages/dc/skills/ziwei/constants';
 import * as dc_utils_dataExportImport from '@/pages/dc/utils/dataExportImport';
 import * as dc_utils_developerStorage from '@/pages/dc/utils/developerStorage';
 import * as dc_agent_constants from '@/pages/dc/agent/constants/index';
@@ -239,6 +247,9 @@ import * as dc_panels_normal from '@/pages/dc/panels/normal/index';
 import * as dc_utils_checkInHelper from '@/pages/dc/utils/checkInHelper';
 import * as dc_panels_happy from '@/pages/dc/panels/happy/index';
 import * as dc_panels_happy_types from '@/pages/dc/panels/happy/types';
+import * as dc_skills_ziwei from '@/pages/dc/skills/ziwei/index';
+import * as dc_skills_ziwei_types from '@/pages/dc/skills/ziwei/types';
+import * as dc_skills_ziwei_utils from '@/pages/dc/skills/ziwei/utils';
 import * as dc_agent_hooks from '@/pages/dc/agent/hooks/index';
 import * as dc_agent_types from '@/pages/dc/agent/types/index';
 import * as dc_constants_sprites from '@/pages/dc/constants/sprites';
@@ -1412,6 +1423,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["default"],
   },{
+    path: 'dc/skills/ziwei/components/ZiweiAnalysisReport',
+    async lazy() {
+      ;
+      return {
+        ...dc_skills_ziwei_components_ZiweiAnalysisReport,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/skills/ziwei/components/ZiweiAnalysisReport',
+          isLayout: false,
+          routeExports: dc_skills_ziwei_components_ZiweiAnalysisReport,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/skills/ziwei/components/ZiweiAnalysisReport',
+          requestContext,
+          renderMode,
+          module: dc_skills_ziwei_components_ZiweiAnalysisReport,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-skills-ziwei-components-ziweianalysisreport-index',
+    index: true,
+    id: 'dc/skills/ziwei/components/ZiweiAnalysisReport',
+    exact: true,
+    exports: ["default"],
+  },{
     path: 'dc/panels/detail/components/CalendarViewPanel',
     async lazy() {
       ;
@@ -2409,6 +2445,31 @@ const createRoutes: CreateRoutes = ({
     componentName: 'dc-panels-settings-pages-datetestpage-index',
     index: true,
     id: 'dc/panels/settings/pages/DateTestPage',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'dc/skills/ziwei/components/ZiweiChart',
+    async lazy() {
+      ;
+      return {
+        ...dc_skills_ziwei_components_ZiweiChart,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/skills/ziwei/components/ZiweiChart',
+          isLayout: false,
+          routeExports: dc_skills_ziwei_components_ZiweiChart,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/skills/ziwei/components/ZiweiChart',
+          requestContext,
+          renderMode,
+          module: dc_skills_ziwei_components_ZiweiChart,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-skills-ziwei-components-ziweichart-index',
+    index: true,
+    id: 'dc/skills/ziwei/components/ZiweiChart',
     exact: true,
     exports: ["default"],
   },{
@@ -3462,6 +3523,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["default","useSwipeBack"],
   },{
+    path: 'dc/skills/ziwei/pages/ChartResultPage',
+    async lazy() {
+      ;
+      return {
+        ...dc_skills_ziwei_pages_ChartResultPage,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/skills/ziwei/pages/ChartResultPage',
+          isLayout: false,
+          routeExports: dc_skills_ziwei_pages_ChartResultPage,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/skills/ziwei/pages/ChartResultPage',
+          requestContext,
+          renderMode,
+          module: dc_skills_ziwei_pages_ChartResultPage,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-skills-ziwei-pages-chartresultpage',
+    index: undefined,
+    id: 'dc/skills/ziwei/pages/ChartResultPage',
+    exact: true,
+    exports: ["default"],
+  },{
     path: 'dc/viewmodel/CultivationSection',
     async lazy() {
       ;
@@ -3812,6 +3898,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["BottomFixedButton","SettingsListItem","SettingsSection","SubPageLayout"],
   },{
+    path: 'dc/skills/ziwei/pages/BirthFormPage',
+    async lazy() {
+      ;
+      return {
+        ...dc_skills_ziwei_pages_BirthFormPage,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/skills/ziwei/pages/BirthFormPage',
+          isLayout: false,
+          routeExports: dc_skills_ziwei_pages_BirthFormPage,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/skills/ziwei/pages/BirthFormPage',
+          requestContext,
+          renderMode,
+          module: dc_skills_ziwei_pages_BirthFormPage,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-skills-ziwei-pages-birthformpage',
+    index: undefined,
+    id: 'dc/skills/ziwei/pages/BirthFormPage',
+    exact: true,
+    exports: ["default"],
+  },{
     path: 'dc/utils/dailyCompleteRewardStorage',
     async lazy() {
       ;
@@ -3986,6 +4097,31 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/panels/memorial/constants',
     exact: true,
     exports: [],
+  },{
+    path: 'dc/skills/ziwei/pages/AnalysisPage',
+    async lazy() {
+      ;
+      return {
+        ...dc_skills_ziwei_pages_AnalysisPage,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/skills/ziwei/pages/AnalysisPage',
+          isLayout: false,
+          routeExports: dc_skills_ziwei_pages_AnalysisPage,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/skills/ziwei/pages/AnalysisPage',
+          requestContext,
+          renderMode,
+          module: dc_skills_ziwei_pages_AnalysisPage,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-skills-ziwei-pages-analysispage',
+    index: undefined,
+    id: 'dc/skills/ziwei/pages/AnalysisPage',
+    exact: true,
+    exports: ["default"],
   },{
     path: 'dc/viewmodel/CreateTaskModal',
     async lazy() {
@@ -4661,6 +4797,31 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/contexts/WorldProvider/types',
     exact: true,
     exports: ["defaultWorldData"],
+  },{
+    path: 'dc/skills/ziwei/pages/IntroPage',
+    async lazy() {
+      ;
+      return {
+        ...dc_skills_ziwei_pages_IntroPage,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/skills/ziwei/pages/IntroPage',
+          isLayout: false,
+          routeExports: dc_skills_ziwei_pages_IntroPage,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/skills/ziwei/pages/IntroPage',
+          requestContext,
+          renderMode,
+          module: dc_skills_ziwei_pages_IntroPage,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-skills-ziwei-pages-intropage',
+    index: undefined,
+    id: 'dc/skills/ziwei/pages/IntroPage',
+    exact: true,
+    exports: ["default"],
   },{
     path: 'dc/contexts/TaskProvider',
     async lazy() {
@@ -5437,6 +5598,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: [],
   },{
+    path: 'dc/skills/ziwei/pages',
+    async lazy() {
+      ;
+      return {
+        ...dc_skills_ziwei_pages,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/skills/ziwei/pages',
+          isLayout: false,
+          routeExports: dc_skills_ziwei_pages,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/skills/ziwei/pages',
+          requestContext,
+          renderMode,
+          module: dc_skills_ziwei_pages,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-skills-ziwei-pages-index',
+    index: true,
+    id: 'dc/skills/ziwei/pages',
+    exact: true,
+    exports: ["AnalysisPage","BirthFormPage","ChartResultPage","IntroPage"],
+  },{
     path: 'dc/utils/cycleRewardStorage',
     async lazy() {
       ;
@@ -5611,6 +5797,31 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/agent/components',
     exact: true,
     exports: ["ActionPreview","AgentChatPopup","ChatInput","FollowupQuestion","LoadingText","MessageBubble","MessageList","SuggestedQuestions"],
+  },{
+    path: 'dc/skills/ziwei/constants',
+    async lazy() {
+      ;
+      return {
+        ...dc_skills_ziwei_constants,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/skills/ziwei/constants',
+          isLayout: false,
+          routeExports: dc_skills_ziwei_constants,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/skills/ziwei/constants',
+          requestContext,
+          renderMode,
+          module: dc_skills_ziwei_constants,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-skills-ziwei-constants',
+    index: undefined,
+    id: 'dc/skills/ziwei/constants',
+    exact: true,
+    exports: ["ANALYSIS_TABS","CITY_COORDINATES","CITY_LIST","EARTHLY_BRANCHES","HEAVENLY_STEMS","HOUR_NAMES","HOUR_TO_BRANCH","HUA_STARS","MAJOR_STARS","MINOR_STARS","PAGE_STEP_MAP","PALACE_NAMES","PALACE_ORDER","STAR_BRIGHTNESS","STORAGE_KEY","WUXING_JU","YEAR_RANGE","ZIWEI_ICON_URL","ZODIACS"],
   },{
     path: 'dc/utils/dataExportImport',
     async lazy() {
@@ -6261,6 +6472,81 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/panels/happy/types',
     exact: true,
     exports: [],
+  },{
+    path: 'dc/skills/ziwei',
+    async lazy() {
+      ;
+      return {
+        ...dc_skills_ziwei,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/skills/ziwei',
+          isLayout: false,
+          routeExports: dc_skills_ziwei,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/skills/ziwei',
+          requestContext,
+          renderMode,
+          module: dc_skills_ziwei,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-skills-ziwei-index',
+    index: true,
+    id: 'dc/skills/ziwei',
+    exact: true,
+    exports: ["ZiweiPanel","default"],
+  },{
+    path: 'dc/skills/ziwei/types',
+    async lazy() {
+      ;
+      return {
+        ...dc_skills_ziwei_types,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/skills/ziwei/types',
+          isLayout: false,
+          routeExports: dc_skills_ziwei_types,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/skills/ziwei/types',
+          requestContext,
+          renderMode,
+          module: dc_skills_ziwei_types,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-skills-ziwei-types',
+    index: undefined,
+    id: 'dc/skills/ziwei/types',
+    exact: true,
+    exports: [],
+  },{
+    path: 'dc/skills/ziwei/utils',
+    async lazy() {
+      ;
+      return {
+        ...dc_skills_ziwei_utils,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/skills/ziwei/utils',
+          isLayout: false,
+          routeExports: dc_skills_ziwei_utils,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/skills/ziwei/utils',
+          requestContext,
+          renderMode,
+          module: dc_skills_ziwei_utils,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-skills-ziwei-utils',
+    index: undefined,
+    id: 'dc/skills/ziwei/utils',
+    exact: true,
+    exports: ["calculateTrueSolarTime","formatChartForAI","generateChart","getPalaceSummary"],
   },{
     path: 'dc/agent/hooks',
     async lazy() {

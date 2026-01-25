@@ -1,0 +1,961 @@
+/* 紫微斗数面板样式 - 完全参考 CreateTaskModal 样式 */
+
+/* ==================== Popup 容器 ==================== */
+.popupBody {
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  height: 85vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #f7f7f5;
+}
+
+/* ==================== 顶部 Header ==================== */
+.header {
+  padding: 12px 16px;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.headerButton {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: rgb(55, 53, 47);
+  transition: all 0.2s;
+  margin-left: -8px;
+}
+
+.headerButton:hover {
+  background: rgba(55, 53, 47, 0.06);
+}
+
+.headerButton:active {
+  transform: scale(0.95);
+}
+
+.title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  color: rgb(55, 53, 47);
+  flex: 1;
+  text-align: center;
+}
+
+.headerSpacer {
+  width: 40px;
+  height: 40px;
+  margin-right: -8px;
+}
+
+/* ==================== 长条形进度条（参考 StepProgressBar） ==================== */
+.progressBar {
+  padding: 4px 20px 16px;
+}
+
+.progressSegments {
+  display: flex;
+  gap: 6px;
+}
+
+.progressSegment {
+  flex: 1;
+  height: 4px;
+  background: rgba(55, 53, 47, 0.1);
+  border-radius: 2px;
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  position: relative;
+  overflow: hidden;
+}
+
+.progressSegment.completed {
+  background: rgb(55, 53, 47);
+}
+
+.progressSegment.current {
+  background: linear-gradient(
+    90deg,
+    rgb(55, 53, 47) 0%,
+    rgb(55, 53, 47) 50%,
+    rgba(55, 53, 47, 0.3) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  50% {
+    background-position: 0% 0;
+  }
+  100% {
+    background-position: 100% 0;
+  }
+}
+
+/* ==================== 内容区域 ==================== */
+.contentWrapper {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+}
+
+.pageStack {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  background: #f7f7f5;
+}
+
+.pageLayer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #f7f7f5;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  visibility: hidden;
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              visibility 0s linear 0.3s;
+  will-change: transform;
+}
+
+.pageLayerActive {
+  visibility: visible;
+  transform: translateX(0);
+  z-index: 2;
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              visibility 0s linear 0s;
+}
+
+.pageLayerBackground {
+  visibility: visible;
+  transform: translateX(-30%);
+  z-index: 1;
+  pointer-events: none;
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              visibility 0s linear 0s;
+}
+
+.pageLayerEntering {
+  visibility: visible;
+  transform: translateX(0);
+  z-index: 3;
+  box-shadow: -4px 0 16px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              visibility 0s linear 0s;
+}
+
+.pageLayerExiting {
+  visibility: visible;
+  transform: translateX(100%);
+  z-index: 3;
+  box-shadow: -4px 0 16px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              visibility 0s linear 0s;
+}
+
+.pageLayerHidden {
+  visibility: hidden;
+  transform: translateX(-50%);
+  z-index: 0;
+}
+
+/* ==================== 页面内容容器 ==================== */
+.pageContent {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 10px 5px;
+  /* padding-bottom: 120px; */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ==================== 介绍页 ==================== */
+.introPage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  text-align: center;
+  /* height: 100%; */
+}
+
+.introImage {
+  width: 180px;
+  height: 180px;
+  margin-bottom: 24px;
+  object-fit: contain;
+}
+
+.introTitle {
+  font-size: 24px;
+  font-weight: 700;
+  color: rgb(55, 53, 47);
+  margin: 0 0 12px;
+}
+
+.introDesc {
+  font-size: 15px;
+  color: rgba(55, 53, 47, 0.65);
+  line-height: 1.6;
+  margin: 0 0 32px;
+  max-width: 300px;
+}
+
+.introFeatures {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 40px;
+}
+
+.featureTag {
+  padding: 8px 16px;
+  background: rgba(55, 53, 47, 0.06);
+  border-radius: 20px;
+  font-size: 13px;
+  color: rgb(55, 53, 47);
+}
+
+/* ==================== 表单页（参考 ConfigPage） ==================== */
+.formPage {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.formContent {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-top: 8px;
+  padding-bottom: 120px;
+}
+
+.inputGroup {
+  padding: 0 16px;
+  margin-bottom: 16px;
+}
+
+.sectionTitle {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(55, 53, 47, 0.5);
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+  padding-left: 4px;
+}
+
+/* 严格复刻任务配置的 sectionTitle 样式 */
+.inputLabel {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(55, 53, 47, 0.5);
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+  padding-left: 4px;
+  display: block;
+}
+
+.inputLabelHint {
+  font-weight: 400;
+  color: rgba(55, 53, 47, 0.5);
+  font-size: 12px;
+  margin-left: 4px;
+}
+
+/* 按钮切换组（严格复刻任务配置样式） */
+.buttonGroup {
+  display: flex;
+  gap: 8px;
+}
+
+.toggleButton {
+  flex: 1;
+  padding: 16px 12px;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  background: white;
+  font-size: 15px;
+  font-weight: 600;
+  color: rgb(55, 53, 47);
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.toggleButton:hover {
+  background: rgba(55, 53, 47, 0.04);
+}
+
+.toggleButton:active {
+  transform: scale(0.98);
+}
+
+/* 选中效果 - 浅灰背景 + 深色边框（严格复刻图片样式） */
+.toggleButton.active {
+  background: rgba(55, 53, 47, 0.06);
+  color: rgb(55, 53, 47);
+  border-color: rgb(55, 53, 47);
+}
+
+/* 选择器入口 */
+.selectorEntry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.selectorEntry:hover {
+  background: rgba(55, 53, 47, 0.02);
+}
+
+.selectorEntry:active {
+  transform: scale(0.99);
+}
+
+.selectorValue {
+  font-size: 15px;
+  color: rgb(55, 53, 47);
+}
+
+.selectorPlaceholder {
+  color: rgba(55, 53, 47, 0.4);
+}
+
+.selectorArrow {
+  color: rgba(55, 53, 47, 0.4);
+}
+
+.datePickerRow {
+  display: flex;
+  gap: 8px;
+}
+
+.datePickerItem {
+  flex: 1;
+}
+
+/* ==================== 命盘图（严格参考截图样式） ==================== */
+.chartContainer {
+  padding: 0 16px 16px;
+}
+
+.chartTitle {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(55, 53, 47, 0.5);
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+  padding-left: 4px;
+}
+
+/* 免责声明 - 居中显示 */
+.chartDisclaimer {
+  font-size: 12px;
+  color: rgba(55, 53, 47, 0.45);
+  text-align: center;
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  background: rgba(55, 53, 47, 0.03);
+  border-radius: 8px;
+}
+
+.chartGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, minmax(80px, 1fr));
+  gap: 6px;
+  background: transparent;
+}
+
+/* 宫位格子 - 渐变背景（参考表单背景色） */
+.palaceCell {
+  background: linear-gradient(135deg, rgba(241, 241, 232, 0.6) 0%, rgba(232, 240, 232, 0.6) 100%);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  min-height: 80px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-radius: 10px;
+  border: 1px solid rgba(55, 53, 47, 0.06);
+}
+
+.palaceCell:hover {
+  background: linear-gradient(135deg, rgba(241, 241, 232, 0.8) 0%, rgba(232, 240, 232, 0.8) 100%);
+}
+
+.palaceCell:active {
+  transform: scale(0.98);
+  border-color: rgb(55, 53, 47);
+}
+
+.palaceCellHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 4px;
+}
+
+.palaceName {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgb(55, 53, 47);
+}
+
+.palaceBranch {
+  font-size: 10px;
+  color: rgba(55, 53, 47, 0.5);
+}
+
+.starsList {
+  flex: 1;
+  overflow: hidden;
+}
+
+.starItem {
+  font-size: 10px;
+  color: rgba(55, 53, 47, 0.65);
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.starItem.major {
+  color: #d4a24c;
+  font-weight: 600;
+  font-size: 11px;
+}
+
+.starItem.hua {
+  font-size: 9px;
+}
+
+.starItem.huaLu {
+  color: #16a34a;
+}
+
+.starItem.huaQuan {
+  color: #db2777;
+}
+
+.starItem.huaKe {
+  color: #7c3aed;
+}
+
+.starItem.huaJi {
+  color: rgba(55, 53, 47, 0.4);
+}
+
+.centerInfo {
+  grid-column: 2 / 4;
+  grid-row: 2 / 4;
+  background: linear-gradient(135deg, #f8f4e8 0%, #e8d4a8 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  border-radius: 12px;
+}
+
+.centerIcon {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 8px;
+}
+
+.centerTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: rgb(55, 53, 47);
+  margin-bottom: 6px;
+}
+
+.centerDetail {
+  font-size: 11px;
+  color: rgba(55, 53, 47, 0.65);
+  text-align: center;
+  line-height: 1.5;
+}
+
+.chartHint {
+  font-size: 12px;
+  color: rgba(55, 53, 47, 0.5);
+  text-align: center;
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+/* ==================== 分析报告 Tab ==================== */
+.reportTabs {
+  display: flex;
+  gap: 8px;
+  padding: 16px;
+  border-bottom: 1px solid rgba(55, 53, 47, 0.08);
+}
+
+.reportTab {
+  flex: 1;
+  padding: 10px 12px;
+  border: none;
+  background: rgba(55, 53, 47, 0.06);
+  border-radius: 10px;
+  font-size: 13px;
+  color: rgba(55, 53, 47, 0.65);
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.reportTab:hover {
+  background: rgba(55, 53, 47, 0.1);
+}
+
+.reportTab:active {
+  transform: scale(0.98);
+}
+
+.reportTab.active {
+  background: rgb(55, 53, 47);
+  color: white;
+}
+
+.reportContent {
+  padding: 16px;
+}
+
+.reportSection {
+  margin-bottom: 20px;
+}
+
+.reportSectionTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: rgb(55, 53, 47);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.reportSectionContent {
+  font-size: 14px;
+  color: rgba(55, 53, 47, 0.8);
+  line-height: 1.7;
+  background: white;
+  padding: 12px 16px;
+  border-radius: 12px;
+}
+
+/* ==================== 底部导航（固定在底部） ==================== */
+.bottomNav {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 12px 16px;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom));
+  background: #f7f7f5;
+  border-top: 1px solid rgba(55, 53, 47, 0.06);
+  display: flex;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.navButton {
+  flex: 1;
+  padding: 14px 20px;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.navButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.navButtonPrimary {
+  background: rgb(55, 53, 47);
+  color: white;
+}
+
+.navButtonPrimary:hover:not(:disabled) {
+  background: rgba(55, 53, 47, 0.9);
+}
+
+.navButtonPrimary:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.navButtonSecondary {
+  background: rgba(55, 53, 47, 0.08);
+  color: rgb(55, 53, 47);
+}
+
+.navButtonSecondary:hover:not(:disabled) {
+  background: rgba(55, 53, 47, 0.12);
+}
+
+.navButtonSecondary:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* ==================== AI 分析页 ==================== */
+.analysisPage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.analysisChat {
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ==================== 结果页 ==================== */
+.resultPage {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.resultScroll {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 100px;
+}
+
+/* ==================== 宫位详情弹窗（参考 RewardToast 图2样式） ==================== */
+.palaceModalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.palaceModalOverlay.leaving {
+  animation: fadeOut 0.3s ease-in forwards;
+}
+
+.palaceModalContent {
+  background: #f9f8f6;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 320px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.3s ease-out;
+  max-height: 80vh;
+}
+
+/* 弹窗头部 - 参考 RewardToast 浅色风格 */
+.palaceModalHeader {
+  width: 100%;
+  height: 120px;
+  overflow: hidden;
+  position: relative;
+  background: linear-gradient(135deg, #f8f4e8 0%, #e8d4a8 100%);
+}
+
+.palaceModalHeaderImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.palaceModalCloseBtn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: rgba(55, 53, 47, 0.65);
+  transition: all 0.2s;
+  z-index: 1;
+}
+
+.palaceModalCloseBtn:hover {
+  background: rgba(255, 255, 255, 1);
+  color: rgb(55, 53, 47);
+}
+
+.palaceModalCloseBtn:active {
+  transform: scale(0.95);
+}
+
+/* 弹窗标题区 */
+.palaceModalTitleSection {
+  padding: 12px 16px 8px;
+  text-align: center;
+}
+
+.palaceModalTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: rgb(55, 53, 47);
+  margin: 0 0 4px;
+}
+
+.palaceModalBranch {
+  font-size: 12px;
+  color: rgba(55, 53, 47, 0.65);
+  margin: 0;
+}
+
+/* 弹窗内容 */
+.palaceModalBody {
+  padding: 20px;
+  overflow-y: auto;
+  height: 300px;
+}
+
+.palaceSection {
+  margin-bottom: 20px;
+}
+
+.palaceSectionTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(55, 53, 47, 0.5);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.starTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.starTag {
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.starTagMajor {
+  background: linear-gradient(135deg, #fef3c7 0%, #fcd34d 100%);
+  color: #92400e;
+}
+
+.starTagMinor {
+  background: rgba(55, 53, 47, 0.08);
+  color: rgb(55, 53, 47);
+}
+
+.starTagHuaLu {
+  background: linear-gradient(135deg, #d1fae5 0%, #6ee7b7 100%);
+  color: #065f46;
+}
+
+.starTagHuaQuan {
+  background: linear-gradient(135deg, #fce7f3 0%, #f9a8d4 100%);
+  color: #9d174d;
+}
+
+.starTagHuaKe {
+  background: linear-gradient(135deg, #ede9fe 0%, #c4b5fd 100%);
+  color: #5b21b6;
+}
+
+.starTagHuaJi {
+  background: rgba(55, 53, 47, 0.15);
+  color: rgba(55, 53, 47, 0.7);
+}
+
+/* 宫位解读 */
+.palaceInterpretation {
+  font-size: 14px;
+  line-height: 1.7;
+  color: rgba(55, 53, 47, 0.8);
+  background: rgba(0, 0, 0, 0.02);
+  padding: 12px 16px;
+  border-radius: 10px;
+}
+
+/* 命盘说明区块 */
+.chartLegend {
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 10px;
+}
+
+.legendTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgb(55, 53, 47);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legendList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: rgba(55, 53, 47, 0.7);
+}
+
+.legendDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legendDotMajor {
+  background: #fcd34d;
+}
+
+.legendDotMinor {
+  background: #a0aec0;
+}
+
+.legendDotHuaLu {
+  background: #6ee7b7;
+}
+
+.legendDotHuaQuan {
+  background: #f9a8d4;
+}
+
+.legendDotHuaKe {
+  background: #c4b5fd;
+}
+
+.legendDotHuaJi {
+  background: rgba(55, 53, 47, 0.4);
+}
+
+/* ==================== 动画 ==================== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* ==================== 无障碍支持 ==================== */
+@media (prefers-reduced-motion: reduce) {
+  .pageLayer,
+  .pageLayerActive,
+  .pageLayerBackground,
+  .pageLayerEntering,
+  .pageLayerExiting,
+  .progressSegment {
+    transition: none !important;
+  }
+
+  .progressSegment.current {
+    animation: none;
+    background: rgb(55, 53, 47);
+  }
+
+  .palaceModalOverlay,
+  .palaceModalContent {
+    animation: none;
+  }
+}
+
+/* ==================== 桌面端样式 ==================== */
+@media (min-width: 768px) {
+  .popupBody {
+    max-width: 420px;
+    margin: 0 auto;
+    max-height: 700px;
+  }
+}

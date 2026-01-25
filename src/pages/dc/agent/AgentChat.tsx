@@ -21,6 +21,7 @@ const ROLE_TITLES: Record<string, string> = {
   taskCreator: '任务助手',
   checklistHelper: '清单助手',
   taskConfigHelper: '配置助手',
+  ziweiAnalyst: '命理分析师',
 };
 
 /**
@@ -92,6 +93,7 @@ export function AgentChat({
   initialMessage,
   userInfo,
   taskContext: externalTaskContext,
+  extraContext,
 }: AgentChatProps) {
   const listRef = useRef<HTMLDivElement>(null);
 
@@ -150,10 +152,11 @@ export function AgentChat({
     role,
     userInfo,
     taskContext: role === 'general' ? taskContext : undefined,
+    extraContext,
   });
 
   // Token 消耗管理
-  const { canChat, addCompletionTokens, accumulatedTokens } = useAITokenCost({
+  const { canChat, addCompletionTokens } = useAITokenCost({
     spiritJadeBalance: spiritJadeData.balance,
     spendSpiritJade,
   });

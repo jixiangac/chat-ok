@@ -484,6 +484,17 @@
     ]
   },
   {
+    "path": "dc/skills/ziwei/components/ZiweiAnalysisReport",
+    "index": true,
+    "id": "dc/skills/ziwei/components/ZiweiAnalysisReport",
+    "file": "dc/skills/ziwei/components/ZiweiAnalysisReport/index.tsx",
+    "componentName": "dc-skills-ziwei-components-ziweianalysisreport-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
     "path": "dc/panels/detail/components/CalendarViewPanel",
     "index": true,
     "id": "dc/panels/detail/components/CalendarViewPanel",
@@ -946,6 +957,17 @@
     "id": "dc/panels/settings/pages/DateTestPage",
     "file": "dc/panels/settings/pages/DateTestPage/index.tsx",
     "componentName": "dc-panels-settings-pages-datetestpage-index",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
+    "path": "dc/skills/ziwei/components/ZiweiChart",
+    "index": true,
+    "id": "dc/skills/ziwei/components/ZiweiChart",
+    "file": "dc/skills/ziwei/components/ZiweiChart/index.tsx",
+    "componentName": "dc-skills-ziwei-components-ziweichart-index",
     "layout": false,
     "exports": [
       "default"
@@ -1465,6 +1487,16 @@
     ]
   },
   {
+    "path": "dc/skills/ziwei/pages/ChartResultPage",
+    "id": "dc/skills/ziwei/pages/ChartResultPage",
+    "file": "dc/skills/ziwei/pages/ChartResultPage.tsx",
+    "componentName": "dc-skills-ziwei-pages-chartresultpage",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
     "path": "dc/viewmodel/CultivationSection",
     "index": true,
     "id": "dc/viewmodel/CultivationSection",
@@ -1634,6 +1666,16 @@
     ]
   },
   {
+    "path": "dc/skills/ziwei/pages/BirthFormPage",
+    "id": "dc/skills/ziwei/pages/BirthFormPage",
+    "file": "dc/skills/ziwei/pages/BirthFormPage.tsx",
+    "componentName": "dc-skills-ziwei-pages-birthformpage",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
     "path": "dc/utils/dailyCompleteRewardStorage",
     "id": "dc/utils/dailyCompleteRewardStorage",
     "file": "dc/utils/dailyCompleteRewardStorage.ts",
@@ -1711,6 +1753,16 @@
     "componentName": "dc-panels-memorial-constants-index",
     "layout": false,
     "exports": []
+  },
+  {
+    "path": "dc/skills/ziwei/pages/AnalysisPage",
+    "id": "dc/skills/ziwei/pages/AnalysisPage",
+    "file": "dc/skills/ziwei/pages/AnalysisPage.tsx",
+    "componentName": "dc-skills-ziwei-pages-analysispage",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
   },
   {
     "path": "dc/viewmodel/CreateTaskModal",
@@ -2079,6 +2131,16 @@
     "layout": false,
     "exports": [
       "defaultWorldData"
+    ]
+  },
+  {
+    "path": "dc/skills/ziwei/pages/IntroPage",
+    "id": "dc/skills/ziwei/pages/IntroPage",
+    "file": "dc/skills/ziwei/pages/IntroPage.tsx",
+    "componentName": "dc-skills-ziwei-pages-intropage",
+    "layout": false,
+    "exports": [
+      "default"
     ]
   },
   {
@@ -2466,6 +2528,20 @@
     "exports": []
   },
   {
+    "path": "dc/skills/ziwei/pages",
+    "index": true,
+    "id": "dc/skills/ziwei/pages",
+    "file": "dc/skills/ziwei/pages/index.ts",
+    "componentName": "dc-skills-ziwei-pages-index",
+    "layout": false,
+    "exports": [
+      "AnalysisPage",
+      "BirthFormPage",
+      "ChartResultPage",
+      "IntroPage"
+    ]
+  },
+  {
     "path": "dc/utils/cycleRewardStorage",
     "id": "dc/utils/cycleRewardStorage",
     "file": "dc/utils/cycleRewardStorage.ts",
@@ -2576,6 +2652,34 @@
       "MessageBubble",
       "MessageList",
       "SuggestedQuestions"
+    ]
+  },
+  {
+    "path": "dc/skills/ziwei/constants",
+    "id": "dc/skills/ziwei/constants",
+    "file": "dc/skills/ziwei/constants.ts",
+    "componentName": "dc-skills-ziwei-constants",
+    "layout": false,
+    "exports": [
+      "ANALYSIS_TABS",
+      "CITY_COORDINATES",
+      "CITY_LIST",
+      "EARTHLY_BRANCHES",
+      "HEAVENLY_STEMS",
+      "HOUR_NAMES",
+      "HOUR_TO_BRANCH",
+      "HUA_STARS",
+      "MAJOR_STARS",
+      "MINOR_STARS",
+      "PAGE_STEP_MAP",
+      "PALACE_NAMES",
+      "PALACE_ORDER",
+      "STAR_BRIGHTNESS",
+      "STORAGE_KEY",
+      "WUXING_JU",
+      "YEAR_RANGE",
+      "ZIWEI_ICON_URL",
+      "ZODIACS"
     ]
   },
   {
@@ -2955,6 +3059,39 @@
     "componentName": "dc-panels-happy-types",
     "layout": false,
     "exports": []
+  },
+  {
+    "path": "dc/skills/ziwei",
+    "index": true,
+    "id": "dc/skills/ziwei",
+    "file": "dc/skills/ziwei/index.tsx",
+    "componentName": "dc-skills-ziwei-index",
+    "layout": false,
+    "exports": [
+      "ZiweiPanel",
+      "default"
+    ]
+  },
+  {
+    "path": "dc/skills/ziwei/types",
+    "id": "dc/skills/ziwei/types",
+    "file": "dc/skills/ziwei/types.ts",
+    "componentName": "dc-skills-ziwei-types",
+    "layout": false,
+    "exports": []
+  },
+  {
+    "path": "dc/skills/ziwei/utils",
+    "id": "dc/skills/ziwei/utils",
+    "file": "dc/skills/ziwei/utils.ts",
+    "componentName": "dc-skills-ziwei-utils",
+    "layout": false,
+    "exports": [
+      "calculateTrueSolarTime",
+      "formatChartForAI",
+      "generateChart",
+      "getPalaceSummary"
+    ]
   },
   {
     "path": "dc/agent/hooks",

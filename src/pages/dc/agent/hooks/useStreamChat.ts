@@ -354,6 +354,8 @@ interface UseStreamChatOptions {
   userInfo?: UserBaseInfo;
   /** 用户任务上下文，用于 AI 了解任务进度（仅 general 角色使用） */
   taskContext?: UserTaskContext;
+  /** 额外上下文（附加到系统提示词末尾，如紫微命盘数据） */
+  extraContext?: string;
 }
 
 /**
@@ -478,7 +480,7 @@ ${mainlineSection}${sidelineSection}${dailySection}
 }
 
 export function useStreamChat(options: UseStreamChatOptions) {
-  const { role, customPrompt, onStructuredOutput, userInfo, taskContext } = options;
+  const { role, customPrompt, onStructuredOutput, userInfo, taskContext, extraContext } = options;
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
@@ -495,7 +497,9 @@ export function useStreamChat(options: UseStreamChatOptions) {
   const basePrompt = customPrompt ?? ROLE_PROMPTS[role];
   // 任务上下文仅在 general 角色时注入
   const taskContextPrompt = role === 'general' ? generateTaskContextPrompt(taskContext) : '';
-  const systemPrompt = basePrompt + generateUserInfoPrompt(userInfo) + taskContextPrompt;
+  // 额外上下文（如紫微命盘数据）
+  const extraContextPrompt = extraContext ? `\n\n${extraContext}` : '';
+  const systemPrompt = basePrompt + generateUserInfoPrompt(userInfo) + taskContextPrompt + extraContextPrompt;
   /**
    * 处理工具调用结果
    */

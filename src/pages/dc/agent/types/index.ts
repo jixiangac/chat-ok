@@ -179,6 +179,8 @@ export interface AgentChatProps {
   userInfo?: UserBaseInfo;
   /** 用户任务上下文，用于 AI 了解任务进度（仅 general 角色使用） */
   taskContext?: UserTaskContext;
+  /** 额外上下文（附加到系统提示词末尾，如紫微命盘数据） */
+  extraContext?: string;
 }
 
 // 聊天输入组件 Props

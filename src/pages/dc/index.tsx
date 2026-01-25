@@ -43,6 +43,10 @@ import {
 // Cultivation
 import SecondFloorPanel from './panels/cultivation/SecondFloorPanel';
 
+// Skills
+import { ZiweiPanel } from './skills/ziwei';
+import { ZIWEI_ICON_URL } from './skills/ziwei/constants';
+
 // Styles
 import styles from './css/DCPage.module.css';
 
@@ -113,6 +117,9 @@ function DCPageContent() {
 
   // AI 小精灵对话状态
   const [showSpriteChat, setShowSpriteChat] = useState(false);
+
+  // 紫微斗数面板
+  const [showZiweiPanel, setShowZiweiPanel] = useState(false);
 
   // 下拉进度回调
   const handlePullProgress = useCallback((progress: number, stage: 'idle' | 'first' | 'second') => {
@@ -344,6 +351,18 @@ function DCPageContent() {
                 />
               </div>
             )}
+            {/* 紫微斗数入口 - 紧贴纪念日图标下方 */}
+            <div
+              className={styles.ziweiWrapper}
+              onClick={() => setShowZiweiPanel(true)}
+              style={{ cursor: 'pointer' }}
+            >
+              <img
+                src={ZIWEI_ICON_URL}
+                alt="紫微斗数"
+                style={{ width: 43, height: 40 }}
+              />
+            </div>
             {/* 小精灵区域 - 点击唤起 AI 对话 */}
             {/* <div className={styles.moonPhaseWrapper}>
               <MoonPhase />
@@ -389,6 +408,12 @@ function DCPageContent() {
         placeholder="和小精灵聊聊天吧..."
         userInfo={userInfo}
         onStructuredOutput={handleGeneralStructuredOutput}
+      />
+
+      {/* 紫微斗数面板 */}
+      <ZiweiPanel
+        visible={showZiweiPanel}
+        onClose={() => setShowZiweiPanel(false)}
       />
 
       {/* 底部安全区域 */}

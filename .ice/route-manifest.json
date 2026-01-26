@@ -1865,6 +1865,16 @@
     ]
   },
   {
+    "path": "dc/skills/ziwei/pages/LoadingPage",
+    "id": "dc/skills/ziwei/pages/LoadingPage",
+    "file": "dc/skills/ziwei/pages/LoadingPage.tsx",
+    "componentName": "dc-skills-ziwei-pages-loadingpage",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
     "path": "dc/utils/todayMustCompleteStorage",
     "id": "dc/utils/todayMustCompleteStorage",
     "file": "dc/utils/todayMustCompleteStorage.ts",
@@ -2538,7 +2548,8 @@
       "AnalysisPage",
       "BirthFormPage",
       "ChartResultPage",
-      "IntroPage"
+      "IntroPage",
+      "LoadingPage"
     ]
   },
   {
@@ -2664,8 +2675,11 @@
       "ANALYSIS_TABS",
       "CITY_COORDINATES",
       "CITY_LIST",
+      "CITY_MAP",
       "EARTHLY_BRANCHES",
+      "FLAT_CITY_LIST",
       "HEAVENLY_STEMS",
+      "HOUR_DATA",
       "HOUR_NAMES",
       "HOUR_TO_BRANCH",
       "HUA_STARS",
@@ -2674,12 +2688,15 @@
       "PAGE_STEP_MAP",
       "PALACE_NAMES",
       "PALACE_ORDER",
+      "PROVINCE_CITY_DATA",
       "STAR_BRIGHTNESS",
       "STORAGE_KEY",
       "WUXING_JU",
       "YEAR_RANGE",
       "ZIWEI_ICON_URL",
-      "ZODIACS"
+      "ZODIACS",
+      "getCityInfo",
+      "searchCities"
     ]
   },
   {
@@ -2797,6 +2814,20 @@
     "componentName": "dc-panels-memorial-types",
     "layout": false,
     "exports": []
+  },
+  {
+    "path": "dc/skills/ziwei/cityData",
+    "id": "dc/skills/ziwei/cityData",
+    "file": "dc/skills/ziwei/cityData.ts",
+    "componentName": "dc-skills-ziwei-citydata",
+    "layout": false,
+    "exports": [
+      "CITY_MAP",
+      "FLAT_CITY_LIST",
+      "PROVINCE_CITY_DATA",
+      "getCityInfo",
+      "searchCities"
+    ]
   },
   {
     "path": "dc/utils/cycleCalculator",

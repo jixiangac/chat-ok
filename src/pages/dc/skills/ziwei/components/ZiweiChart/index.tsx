@@ -1,9 +1,10 @@
 /**
  * 紫微斗数命盘图组件
  * 传统十二宫格布局，支持点击查看宫位详情
+ * 支持十二宫格随机顺序弹出动画
  */
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import type { ZiweiChartProps, PalaceKey, Palace } from '../../types';
@@ -224,9 +225,45 @@ function PalaceModal({ palace, palaceKey, visible, onClose }: PalaceModalProps) 
   );
 }
 
-export default function ZiweiChart({ chartData }: ZiweiChartProps) {
+export default function ZiweiChart({ chartData, skipAnimation = false }: ZiweiChartProps) {
   const { palaces, lunarDate, solarDate, yearGanZhi, wuxingju, birthInfo, mingGongIndex } = chartData;
   const [selectedPalace, setSelectedPalace] = useState<{ palace: Palace; key: PalaceKey } | null>(null);
+
+  // 宫位动画状态
+  const [visiblePalaces, setVisiblePalaces] = useState<Set<number>>(() => {
+    // 如果跳过动画，初始就全部显示
+    if (skipAnimation) {
+      return new Set(Array.from({ length: 12 }, (_, i) => i));
+    }
+    return new Set();
+  });
+  const [centerVisible, setCenterVisible] = useState(skipAnimation);
+  const animationInitialized = useRef(skipAnimation);
+
+  // 随机顺序弹出动画（仅在需要动画时执行）
+  useEffect(() => {
+    if (animationInitialized.current) return;
+    animationInitialized.current = true;
+
+    // 生成随机顺序的宫位索引（0-11）
+    const indices = Array.from({ length: 12 }, (_, i) => i);
+    for (let i = indices.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [indices[i], indices[j]] = [indices[j], indices[i]];
+    }
+
+    // 先显示中心区域
+    setTimeout(() => {
+      setCenterVisible(true);
+    }, 100);
+
+    // 依次显示每个宫位
+    indices.forEach((palaceIndex, order) => {
+      setTimeout(() => {
+        setVisiblePalaces(prev => new Set([...prev, palaceIndex]));
+      }, 200 + order * 80); // 每个宫位间隔 80ms
+    });
+  }, []);
 
   // 格式化日期显示
   const formatDateDisplay = () => {
@@ -259,40 +296,52 @@ export default function ZiweiChart({ chartData }: ZiweiChartProps) {
   }, [palaces, mingGongIndex]);
 
   // 渲染宫位单元格
-  const renderPalaceCell = (branchIndex: number) => {
+  const renderPalaceCell = (branchIndex: number, gridIndex: number) => {
     const palaceInfo = getPalaceAtBranch(branchIndex);
     if (!palaceInfo) return null;
 
     const { palace, key } = palaceInfo;
+    const isVisible = visiblePalaces.has(gridIndex);
+
+    // 辅星和四化合并显示
+    const minorAndHua = [
+      ...palace.stars.minor.slice(0, 2),
+      ...palace.stars.hua,
+    ];
 
     return (
       <div
-        className={styles.palaceCell}
+        className={`${styles.palaceCell} ${isVisible ? styles.palaceCellVisible : styles.palaceCellHidden}`}
         onClick={() => setSelectedPalace(palaceInfo)}
       >
         <div className={styles.palaceCellHeader}>
           <span className={styles.palaceName}>{palace.name}</span>
           <span className={styles.palaceBranch}>{palace.earthlyBranch}</span>
         </div>
-        <div className={styles.starsList}>
-          {/* 主星 */}
-          {palace.stars.major.slice(0, 2).map((star) => (
-            <div key={star} className={`${styles.starItem} ${styles.major}`}>
-              {star}
+        <div className={styles.starsContainer}>
+          {/* 左侧：主星 */}
+          <div className={styles.starsLeft}>
+            {palace.stars.major.slice(0, 2).map((star) => (
+              <div key={star} className={`${styles.starItem} ${styles.major}`}>
+                {star}
+              </div>
+            ))}
+          </div>
+          {/* 右侧：辅星 + 四化 */}
+          {minorAndHua.length > 0 && (
+            <div className={styles.starsRight}>
+              {palace.stars.minor.slice(0, 2).map((star) => (
+                <div key={star} className={styles.starItemSmall}>
+                  {star}
+                </div>
+              ))}
+              {palace.stars.hua.map((hua) => (
+                <div key={hua} className={`${styles.starItemSmall} ${getHuaClass(hua)}`}>
+                  {hua}
+                </div>
+              ))}
             </div>
-          ))}
-          {/* 辅星（只显示前两个） */}
-          {palace.stars.minor.slice(0, 2).map((star) => (
-            <div key={star} className={styles.starItem}>
-              {star}
-            </div>
-          ))}
-          {/* 四化 */}
-          {palace.stars.hua.map((hua) => (
-            <div key={hua} className={`${styles.starItem} ${styles.hua} ${getHuaClass(hua)}`}>
-              {hua}
-            </div>
-          ))}
+          )}
         </div>
       </div>
     );
@@ -301,6 +350,7 @@ export default function ZiweiChart({ chartData }: ZiweiChartProps) {
   // 生成 4x4 网格
   const renderGrid = () => {
     const cells: (JSX.Element | null)[] = [];
+    let palaceGridIndex = 0; // 用于追踪宫位的网格索引
 
     for (let row = 0; row < 4; row++) {
       for (let col = 0; col < 4; col++) {
@@ -309,9 +359,12 @@ export default function ZiweiChart({ chartData }: ZiweiChartProps) {
         // 中间 2x2 区域
         if ((row === 1 || row === 2) && (col === 1 || col === 2)) {
           if (row === 1 && col === 1) {
-            // 渲染中心信息
+            // 渲染中心信息（带动画）
             cells.push(
-              <div key={key} className={styles.centerInfo}>
+              <div
+                key={key}
+                className={`${styles.centerInfo} ${centerVisible ? styles.centerInfoVisible : styles.centerInfoHidden}`}
+              >
                 <img src={TAIJI_ICON} alt="太极" className={styles.centerIcon} />
                 <div className={styles.centerTitle}>紫微命盘</div>
                 <div className={styles.centerDetail}>
@@ -331,9 +384,11 @@ export default function ZiweiChart({ chartData }: ZiweiChartProps) {
         // 找到这个位置对应的地支
         const posInfo = PALACE_GRID_POSITIONS.find(p => p.row === row && p.col === col);
         if (posInfo) {
+          const currentGridIndex = palaceGridIndex;
+          palaceGridIndex++;
           cells.push(
             <div key={key}>
-              {renderPalaceCell(posInfo.branchIndex)}
+              {renderPalaceCell(posInfo.branchIndex, currentGridIndex)}
             </div>
           );
         } else {

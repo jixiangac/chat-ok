@@ -822,7 +822,6 @@ const ConfigPage: React.FC<ConfigPageProps> = ({
               value={state.taskTitle}
               onChange={(e) => setState(s => ({ ...s, taskTitle: e.target.value }))}
               className={styles.nameInput}
-              autoFocus
             />
             {/* 输入名称后延迟显示 AI 提示，配置完成后隐藏，无名称时隐藏按钮 */}
             {!isConfigComplete && state.taskTitle.trim() && (

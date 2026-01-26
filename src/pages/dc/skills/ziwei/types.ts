@@ -80,13 +80,14 @@ export interface ChartData {
 export type AnalysisTab = 'wealth' | 'emotion' | 'career';
 
 // 页面步骤
-export type ZiweiStep = 'intro' | 'input' | 'result' | 'analysis';
+export type ZiweiStep = 'intro' | 'input' | 'loading' | 'result' | 'analysis';
 
 // 本地存储结构
 export interface ZiweiStorage {
-  birthInfo: BirthInfo | null;
-  chartData: ChartData | null;
-  lastGeneratedAt: string | null;
+  birthInfo: BirthInfo | null;           // 表单数据（持久化）
+  chartData: ChartData | null;           // 命盘数据
+  lastGeneratedBirthInfo: BirthInfo | null; // 上次生成命盘时的表单数据（用于比较是否需要重新生成）
+  lastUpdatedAt: string | null;          // 最后更新时间
 }
 
 // 面板属性
@@ -106,6 +107,14 @@ export interface BirthFormPageProps {
   onSubmit: (birthInfo: BirthInfo) => void;
   onBack: () => void;
   loading?: boolean;
+  /** 消耗灵玉数量 */
+  costAmount?: number;
+  /** 当前灵玉余额 */
+  jadeBalance?: number;
+  /** 是否已有命盘（用于判断是否可以直接查看） */
+  hasExistingChart?: boolean;
+  /** 上次生成命盘的出生信息（用于比较表单是否变化） */
+  lastGeneratedInfo?: BirthInfo | null;
 }
 
 // 命盘结果页属性
@@ -113,6 +122,8 @@ export interface ChartResultPageProps {
   chartData: ChartData;
   onAIAnalysis: () => void;
   onBack: () => void;
+  /** 是否跳过动画（已生成过命盘且数据未变时跳过） */
+  skipAnimation?: boolean;
 }
 
 // AI 分析页属性
@@ -124,6 +135,8 @@ export interface AnalysisPageProps {
 // 命盘图属性
 export interface ZiweiChartProps {
   chartData: ChartData;
+  /** 是否跳过动画 */
+  skipAnimation?: boolean;
 }
 
 // 分析报告属性
@@ -131,4 +144,6 @@ export interface ZiweiAnalysisReportProps {
   chartData: ChartData;
   activeTab: AnalysisTab;
   onTabChange: (tab: AnalysisTab) => void;
+  /** 是否跳过动画 */
+  skipAnimation?: boolean;
 }

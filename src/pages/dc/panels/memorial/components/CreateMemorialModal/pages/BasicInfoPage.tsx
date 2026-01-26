@@ -133,7 +133,6 @@ export function BasicInfoPage({
               value={name}
               onChange={(e) => onNameChange(e.target.value)}
               maxLength={50}
-              autoFocus
             />
           </div>
         </div>

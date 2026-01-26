@@ -19,6 +19,8 @@ export interface UseSwipeBackOptions {
 export interface UseSwipeBackReturn {
   /** 绑定到页面容器的 ref */
   pageRef: React.RefObject<HTMLDivElement | null>;
+  /** 手动绑定事件的回调（用于动态 ref 场景） */
+  bindEvents: (element: HTMLDivElement | null) => void;
 }
 
 /**
@@ -108,6 +110,37 @@ export function useSwipeBack({
     currentX.current = 0;
   }, [enabled, threshold, onBack]);
 
+  // 用于追踪当前绑定的元素，支持动态绑定
+  const boundElement = useRef<HTMLDivElement | null>(null);
+
+  // 手动绑定事件的方法（用于动态 ref 场景）
+  const bindEvents = useCallback((element: HTMLDivElement | null) => {
+    // 清理旧的绑定
+    if (boundElement.current) {
+      boundElement.current.removeEventListener('touchstart', handleTouchStart);
+      boundElement.current.removeEventListener('touchmove', handleTouchMove);
+      boundElement.current.removeEventListener('touchend', handleTouchEnd);
+      boundElement.current.removeEventListener('touchcancel', handleTouchEnd);
+      boundElement.current = null;
+    }
+
+    // 绑定新元素
+    if (element && enabled) {
+      element.addEventListener('touchstart', handleTouchStart, { passive: true });
+      element.addEventListener('touchmove', handleTouchMove, { passive: false });
+      element.addEventListener('touchend', handleTouchEnd);
+      element.addEventListener('touchcancel', handleTouchEnd);
+      boundElement.current = element;
+    }
+  }, [handleTouchStart, handleTouchMove, handleTouchEnd, enabled]);
+
+  // 当 enabled 状态改变时，重新绑定事件
+  useEffect(() => {
+    if (boundElement.current) {
+      bindEvents(boundElement.current);
+    }
+  }, [enabled, bindEvents]);
+
   useEffect(() => {
     const element = pageRef.current;
     if (!element || !enabled) return;
@@ -126,7 +159,19 @@ export function useSwipeBack({
     };
   }, [handleTouchStart, handleTouchMove, handleTouchEnd, enabled]);
 
-  return { pageRef };
+  // 组件卸载时清理动态绑定
+  useEffect(() => {
+    return () => {
+      if (boundElement.current) {
+        boundElement.current.removeEventListener('touchstart', handleTouchStart);
+        boundElement.current.removeEventListener('touchmove', handleTouchMove);
+        boundElement.current.removeEventListener('touchend', handleTouchEnd);
+        boundElement.current.removeEventListener('touchcancel', handleTouchEnd);
+      }
+    };
+  }, [handleTouchStart, handleTouchMove, handleTouchEnd]);
+
+  return { pageRef, bindEvents };
 }
 
 export default useSwipeBack;

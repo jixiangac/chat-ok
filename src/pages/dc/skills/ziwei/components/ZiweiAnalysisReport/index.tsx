@@ -1,8 +1,10 @@
 /**
  * 紫微斗数分析报告组件
  * Tab 分类展示：财运/感情/事业
+ * 支持延迟显示动画（在命盘动画完成后出现）
  */
 
+import { useState, useEffect, useRef } from 'react';
 import type { ZiweiAnalysisReportProps, AnalysisTab } from '../../types';
 import { ANALYSIS_TABS } from '../../constants';
 import { getPalaceSummary } from '../../utils';
@@ -27,12 +29,33 @@ const TAB_PALACES: Record<AnalysisTab, Array<{ key: string; label: string }>> = 
   ],
 };
 
+// 命盘动画总时长（等待命盘动画完成后再显示报告）
+// 中心 100ms + 12个宫位 * 80ms = 约 1060ms，加上一点缓冲
+const CHART_ANIMATION_DURATION = 1200;
+
 export default function ZiweiAnalysisReport({
   chartData,
   activeTab,
   onTabChange,
+  skipAnimation = false,
 }: ZiweiAnalysisReportProps) {
   const { palaces } = chartData;
+
+  // 控制报告区域是否可见（跳过动画时直接显示）
+  const [isVisible, setIsVisible] = useState(skipAnimation);
+  const hasAnimated = useRef(skipAnimation);
+
+  // 延迟显示报告区域（仅在需要动画时执行）
+  useEffect(() => {
+    if (hasAnimated.current) return;
+    hasAnimated.current = true;
+
+    const timer = setTimeout(() => {
+      setIsVisible(true);
+    }, CHART_ANIMATION_DURATION);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const renderTabContent = () => {
     const palaceConfigs = TAB_PALACES[activeTab];
@@ -65,14 +88,15 @@ export default function ZiweiAnalysisReport({
   };
 
   return (
-    <div>
+    <div className={`${styles.analysisReportContainer} ${isVisible ? styles.analysisReportVisible : ''}`}>
       {/* Tab 切换 */}
       <div className={styles.reportTabs}>
-        {ANALYSIS_TABS.map((tab) => (
+        {ANALYSIS_TABS.map((tab, index) => (
           <button
             key={tab.key}
             className={`${styles.reportTab} ${activeTab === tab.key ? styles.active : ''}`}
             onClick={() => onTabChange(tab.key as AnalysisTab)}
+            style={{ animationDelay: isVisible ? `${index * 0.1}s` : '0s' }}
           >
             <span>{tab.icon}</span>
             <span>{tab.label}</span>

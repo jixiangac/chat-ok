@@ -148,7 +148,7 @@ function DCPageContent() {
   }, [activeTab, setActiveTab, openCreateTaskModal]);
 
   // 判断是否有弹窗打开，有弹窗时禁用下拉进入二楼
-  // 包括：设置面板、今日必完成弹窗、任务详情页、创建任务弹窗、度假模式弹窗、纪念日弹窗、一日清单弹窗、灵玉明细
+  // 包括：设置面板、今日必完成弹窗、任务详情页、创建任务弹窗、度假模式弹窗、纪念日弹窗、一日清单弹窗、灵玉明细、紫微斗数
   const hasModalOpen = showSettings ||
     showTodayMustCompleteModal ||
     !!selectedTaskId ||
@@ -159,7 +159,8 @@ function DCPageContent() {
     showDailyView ||
     showSpriteChat ||
     showAllSideline ||
-    showJadeHistory;
+    showJadeHistory ||
+    showZiweiPanel;
 
   // 下拉进入二楼 Hook
   const {
@@ -351,18 +352,20 @@ function DCPageContent() {
                 />
               </div>
             )}
-            {/* 紫微斗数入口 - 紧贴纪念日图标下方 */}
-            <div
-              className={styles.ziweiWrapper}
-              onClick={() => setShowZiweiPanel(true)}
-              style={{ cursor: 'pointer' }}
-            >
-              <img
-                src={ZIWEI_ICON_URL}
-                alt="紫微斗数"
-                style={{ width: 43, height: 40 }}
-              />
-            </div>
+            {/* 紫微斗数入口 - 仅在非纪念日模式下显示 */}
+            {activeTab !== 'memorial' && (
+              <div
+                className={styles.ziweiWrapper}
+                onClick={() => setShowZiweiPanel(true)}
+                style={{ cursor: 'pointer' }}
+              >
+                <img
+                  src={ZIWEI_ICON_URL}
+                  alt="紫微斗数"
+                  style={{ width: 43, height: 40 }}
+                />
+              </div>
+            )}
             {/* 小精灵区域 - 点击唤起 AI 对话 */}
             {/* <div className={styles.moonPhaseWrapper}>
               <MoonPhase />

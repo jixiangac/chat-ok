@@ -127,21 +127,17 @@ export function CreateMemorialModal({
     }
   }, [canGoBack, pop, onClose]);
 
-  // 手势返回支持
-  const { pageRef: subPageRef } = useSwipeBack({
+  // 手势返回支持 - 只有子页面支持手势返回，第一个页面禁用手势（防止误关闭）
+  const { pageRef: subPageRef, bindEvents: bindSubPageEvents } = useSwipeBack({
     onBack: () => handleBack(true),
     enabled: canGoBack,
   });
 
-  const { pageRef: mainPageRef } = useSwipeBack({
-    onBack: () => onClose(),
-    enabled: !canGoBack && visible,
-  });
-
-  // 获取页面 ref
+  // 获取页面 ref - 只有子页面需要绑定手势 ref
   const getPageRef = (index: number, pageId: string) => {
     if (index !== stack.length - 1) return undefined;
-    return pageId === 'basic' ? mainPageRef : subPageRef;
+    // 第一个页面 'basic' 不绑定手势，返回 undefined
+    return pageId === 'basic' ? undefined : subPageRef;
   };
 
   // 提交表单
@@ -327,6 +323,11 @@ export function CreateMemorialModal({
                     el.style.transition = '';
                     el.style.transform = '';
                     pendingEnterPageId.current = null;
+                  }
+
+                  // 为子页面绑定手势事件（第一个页面 'basic' 不绑定手势）
+                  if (index === stack.length - 1 && page.id !== 'basic') {
+                    bindSubPageEvents(el);
                   }
                 }
                 const originalRef = getPageRef(index, page.id);

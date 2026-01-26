@@ -51,9 +51,11 @@ function SecondFloorPanelComponent({
   const { visible: isMemorialCreateOpen } = useModal(UI_KEYS.MODAL_MEMORIAL_CREATE_VISIBLE);
   // 一日清单弹窗状态
   const { visible: isDailyViewOpen } = useModal(UI_KEYS.MODAL_DAILY_VIEW_VISIBLE);
-  
+  // 紫微斗数弹窗状态
+  const { visible: isZiweiOpen } = useModal(UI_KEYS.MODAL_ZIWEI_VISIBLE);
+
   // 判断是否有任何创建弹窗打开
-  const hasAnyModalOpen = isCreateTaskModalOpen || isVacationCreateTripOpen || isVacationAddGoalOpen || isMemorialCreateOpen || isDailyViewOpen;
+  const hasAnyModalOpen = isCreateTaskModalOpen || isVacationCreateTripOpen || isVacationAddGoalOpen || isMemorialCreateOpen || isDailyViewOpen || isZiweiOpen;
   
   // 上滑关闭相关状态
   const [translateY, setTranslateY] = useState(0);

@@ -26,6 +26,8 @@ export const UI_KEYS = {
   MODAL_MEMORIAL_DETAIL_VISIBLE: 'modal.memorial.detail.visible',
   // 支线任务弹窗
   MODAL_ALL_SIDELINE_VISIBLE: 'modal.allSideline.visible',
+  // 紫微斗数弹窗
+  MODAL_ZIWEI_VISIBLE: 'modal.ziwei.visible',
   
   // 滚动位置
   SCROLL_NORMAL: 'scroll.normal',

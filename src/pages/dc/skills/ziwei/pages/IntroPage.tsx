@@ -11,7 +11,7 @@ const FEATURES = [
   '真太阳时校正',
   '十二宫位分析',
   '十四主星排盘',
-  'AI 智能解读',
+  'AI 命理问答',
 ];
 
 export default function IntroPage({ onStart }: IntroPageProps) {
@@ -37,14 +37,12 @@ export default function IntroPage({ onStart }: IntroPageProps) {
         ))}
       </div>
 
-      <div className={styles.bottomNav}>
-        <button
-          className={`${styles.navButton} ${styles.navButtonPrimary}`}
-          onClick={onStart}
-        >
-          开始排盘
-        </button>
-      </div>
+      <button
+        className={styles.introStartButton}
+        onClick={onStart}
+      >
+        开始排盘
+      </button>
 
       <SafeArea position="bottom" />
     </div>

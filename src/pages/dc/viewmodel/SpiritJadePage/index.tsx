@@ -37,6 +37,8 @@ const SOURCE_LABELS: Record<string, string> = {
   CHECKLIST_ADD_TO_CURRENT: '加入当前周期',
   // 调试
   DEBUG_SET: '调试设置',
+  // 紫微斗数
+  ZIWEI_CHART: '紫微斗数',
 };
 
 interface SpiritJadePageProps {

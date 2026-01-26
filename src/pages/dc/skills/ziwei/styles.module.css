@@ -159,20 +159,34 @@
 
 .pageLayerEntering {
   visibility: visible;
-  transform: translateX(0);
   z-index: 3;
   box-shadow: -4px 0 16px rgba(0, 0, 0, 0.08);
-  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-              visibility 0s linear 0s;
+  animation: slideInFromRight 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+@keyframes slideInFromRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
 }
 
 .pageLayerExiting {
   visibility: visible;
-  transform: translateX(100%);
   z-index: 3;
   box-shadow: -4px 0 16px rgba(0, 0, 0, 0.08);
-  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-              visibility 0s linear 0s;
+  animation: slideOutToRight 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+@keyframes slideOutToRight {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
 }
 
 .pageLayerHidden {
@@ -225,19 +239,42 @@
 }
 
 .introFeatures {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  gap: 10px 12px;
   justify-content: center;
   margin-bottom: 40px;
 }
 
 .featureTag {
-  padding: 8px 16px;
+  padding: 10px 20px;
   background: rgba(55, 53, 47, 0.06);
   border-radius: 20px;
   font-size: 13px;
   color: rgb(55, 53, 47);
+  text-align: center;
+}
+
+/* IntroPage 开始排盘按钮（居中显示，跟随内容流） */
+.introStartButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px 98px;
+  border-radius: 14px;
+  font-size: 17px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: none;
+  background: rgb(55, 53, 47);
+  color: white;
+  margin-top: 28px;
+}
+
+.introStartButton:active {
+  transform: scale(0.98);
+  opacity: 0.9;
 }
 
 /* ==================== 表单页（参考 ConfigPage） ==================== */
@@ -407,9 +444,20 @@
   min-height: 80px;
   overflow: hidden;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   border-radius: 10px;
   border: 1px solid rgba(55, 53, 47, 0.06);
+}
+
+/* 宫位弹出动画 */
+.palaceCellHidden {
+  opacity: 0;
+  transform: scale(0.3) translateY(20px);
+}
+
+.palaceCellVisible {
+  opacity: 1;
+  transform: scale(1) translateY(0);
 }
 
 .palaceCell:hover {
@@ -439,9 +487,26 @@
   color: rgba(55, 53, 47, 0.5);
 }
 
-.starsList {
+/* 星曜容器 - 左右布局 */
+.starsContainer {
   flex: 1;
+  display: flex;
+  gap: 4px;
   overflow: hidden;
+}
+
+.starsLeft {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.starsRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  flex: 1;
+  min-width: 0;
 }
 
 .starItem {
@@ -459,23 +524,32 @@
   font-size: 11px;
 }
 
-.starItem.hua {
+/* 右侧小字样式 */
+.starItemSmall {
   font-size: 9px;
+  color: rgba(55, 53, 47, 0.5);
+  line-height: 1.3;
+  white-space: nowrap;
 }
 
-.starItem.huaLu {
+/* 四化颜色 - 适用于 starItem 和 starItemSmall */
+.starItem.huaLu,
+.starItemSmall.huaLu {
   color: #16a34a;
 }
 
-.starItem.huaQuan {
+.starItem.huaQuan,
+.starItemSmall.huaQuan {
   color: #db2777;
 }
 
-.starItem.huaKe {
+.starItem.huaKe,
+.starItemSmall.huaKe {
   color: #7c3aed;
 }
 
-.starItem.huaJi {
+.starItem.huaJi,
+.starItemSmall.huaJi {
   color: rgba(55, 53, 47, 0.4);
 }
 
@@ -489,6 +563,18 @@
   justify-content: center;
   padding: 12px;
   border-radius: 12px;
+  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* 中心区域弹出动画 */
+.centerInfoHidden {
+  opacity: 0;
+  transform: scale(0.5);
+}
+
+.centerInfoVisible {
+  opacity: 1;
+  transform: scale(1);
 }
 
 .centerIcon {
@@ -522,7 +608,19 @@
   gap: 4px;
 }
 
-/* ==================== 分析报告 Tab ==================== */
+/* ==================== 分析报告区域 ==================== */
+.analysisReportContainer {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.analysisReportVisible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Tab 按钮容器 */
 .reportTabs {
   display: flex;
   gap: 8px;
@@ -559,6 +657,36 @@
   color: white;
 }
 
+/* AI 入口区域 - 简洁淡雅风格（复刻 TypeSelectPage） */
+.aiEntrySection {
+  display: flex;
+  justify-content: center;
+  padding: 8px 20px 16px;
+}
+
+.aiEntryButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background: transparent;
+  border: 1px dashed rgba(55, 53, 47, 0.2);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+  color: rgba(55, 53, 47, 0.6);
+}
+
+.aiEntryButton:active {
+  background: rgba(55, 53, 47, 0.04);
+  border-color: rgba(55, 53, 47, 0.3);
+}
+
+.aiEntryButton svg {
+  color: rgba(55, 53, 47, 0.5);
+}
+
 .reportContent {
   padding: 16px;
 }
@@ -586,61 +714,104 @@
   border-radius: 12px;
 }
 
-/* ==================== 底部导航（固定在底部） ==================== */
+/* ==================== 底部导航（完全复刻 BottomNavigation） ==================== */
 .bottomNav {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 12px 16px;
-  padding-bottom: calc(12px + env(safe-area-inset-bottom));
-  background: #f7f7f5;
-  border-top: 1px solid rgba(55, 53, 47, 0.06);
+  background: linear-gradient(to top, #f7f7f5 85%, transparent);
+  padding: 12px 16px 20px;
+  padding-bottom: calc(20px + env(safe-area-inset-bottom));
+}
+
+/* 灵玉消耗提示（复刻 CycleSettingsPage 的 costHint） */
+.costHintRow {
+  text-align: center;
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: rgba(55, 53, 47, 0.6);
+}
+
+.costHint {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: rgb(55, 53, 47);
+  font-weight: 500;
+}
+
+.costIcon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+.costAmount {
+  color: #e74c3c;
+  font-weight: 600;
+}
+
+.insufficientHint {
+  color: #e74c3c;
+  font-size: 12px;
+  font-weight: 500;
+  margin-left: 4px;
+}
+
+/* 导航按钮行 */
+.navButtonRow {
   display: flex;
   gap: 12px;
-  flex-shrink: 0;
 }
 
 .navButton {
   flex: 1;
-  padding: 14px 20px;
-  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 15px 24px;
   border-radius: 12px;
-  font-size: 15px;
-  font-weight: 500;
+  font-size: 16px;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.15s ease;
 }
 
 .navButton:disabled {
-  opacity: 0.5;
+  opacity: 0.35;
   cursor: not-allowed;
 }
 
+.navButton:disabled:active {
+  transform: none;
+}
+
 .navButtonPrimary {
+  border: none;
   background: rgb(55, 53, 47);
   color: white;
 }
 
-.navButtonPrimary:hover:not(:disabled) {
-  background: rgba(55, 53, 47, 0.9);
-}
-
 .navButtonPrimary:active:not(:disabled) {
   transform: scale(0.98);
+  opacity: 0.9;
+}
+
+/* 全宽按钮（单按钮时使用） */
+.navButtonFull {
+  width: 100%;
 }
 
 .navButtonSecondary {
-  background: rgba(55, 53, 47, 0.08);
+  border: 1.5px solid rgba(55, 53, 47, 0.15);
+  background: white;
   color: rgb(55, 53, 47);
-}
-
-.navButtonSecondary:hover:not(:disabled) {
-  background: rgba(55, 53, 47, 0.12);
 }
 
 .navButtonSecondary:active:not(:disabled) {
   transform: scale(0.98);
+  background: rgba(55, 53, 47, 0.04);
 }
 
 /* ==================== AI 分析页 ==================== */
@@ -667,7 +838,7 @@
   flex: 1;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  padding-bottom: 100px;
+  padding-bottom: 30px;
 }
 
 /* ==================== 宫位详情弹窗（参考 RewardToast 图2样式） ==================== */
@@ -897,6 +1068,173 @@
 
 .legendDotHuaJi {
   background: rgba(55, 53, 47, 0.4);
+}
+
+/* ==================== Loading 页面（八卦太极风格） ==================== */
+.loadingPage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 40px 24px;
+  background: linear-gradient(180deg, #f8f6f0 0%, #ebe6d9 100%);
+}
+
+.loadingContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+}
+
+/* 宇宙容器 - 八卦环绕太极 */
+.cosmicContainer {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 八卦符号环 */
+.baguaRing {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  animation: baguaRotate 12s linear infinite;
+}
+
+.baguaSymbol {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-left: -12px;
+  margin-top: -12px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: rgba(139, 69, 19, 0.4);
+  transition: all 0.3s ease;
+}
+
+.baguaSymbol.baguaActive {
+  color: #8b4513;
+  transform: rotate(var(--rotate)) translateY(-60px) rotate(calc(-1 * var(--rotate))) scale(1.3) !important;
+  text-shadow: 0 0 8px rgba(212, 162, 76, 0.6);
+}
+
+@keyframes baguaRotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* 中心太极 */
+.taijiCenter {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  z-index: 2;
+}
+
+.taijiSpinning {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  animation: taijiSpin 4s ease-in-out infinite;
+  filter: drop-shadow(0 4px 12px rgba(139, 69, 19, 0.25));
+}
+
+@keyframes taijiSpin {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.05); }
+}
+
+/* 光晕效果 */
+.cosmicGlow {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(212, 162, 76, 0.15) 0%, transparent 70%);
+  animation: glowPulse 2s ease-in-out infinite;
+  z-index: 1;
+}
+
+@keyframes glowPulse {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.2); opacity: 1; }
+}
+
+/* 提示文字容器 */
+.loadingTipContainer {
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.loadingTipText {
+  font-size: 15px;
+  color: #8b4513;
+  text-align: center;
+  font-weight: 500;
+  animation: tipSlideIn 0.4s ease-out;
+}
+
+@keyframes tipSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 进度指示 */
+.progressContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.progressDots {
+  display: flex;
+  gap: 8px;
+}
+
+.progressDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #d4a24c;
+  animation: dotBounce 0.8s ease-in-out infinite;
+}
+
+@keyframes dotBounce {
+  0%, 80%, 100% {
+    transform: scale(0.6);
+    opacity: 0.4;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.progressPercent {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(139, 69, 19, 0.6);
+  font-variant-numeric: tabular-nums;
 }
 
 /* ==================== 动画 ==================== */

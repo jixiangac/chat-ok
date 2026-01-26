@@ -160,6 +160,7 @@ import * as dc_components_PullIndicator from '@/pages/dc/components/PullIndicato
 import * as dc_contexts_SceneProvider_storage from '@/pages/dc/contexts/SceneProvider/storage';
 import * as dc_panels_detail_components from '@/pages/dc/panels/detail/components/index';
 import * as dc_panels_happy_hooks_useSchedule from '@/pages/dc/panels/happy/hooks/useSchedule';
+import * as dc_skills_ziwei_pages_LoadingPage from '@/pages/dc/skills/ziwei/pages/LoadingPage';
 import * as dc_utils_todayMustCompleteStorage from '@/pages/dc/utils/todayMustCompleteStorage';
 import * as dc_viewmodel_DailyViewPopup from '@/pages/dc/viewmodel/DailyViewPopup/index';
 import * as dc_viewmodel_SpiritJadePage from '@/pages/dc/viewmodel/SpiritJadePage/index';
@@ -229,6 +230,7 @@ import * as dc_constants_cultivation from '@/pages/dc/constants/cultivation';
 import * as dc_hooks_usePullToReveal from '@/pages/dc/hooks/usePullToReveal';
 import * as dc_panels_memorial from '@/pages/dc/panels/memorial/index';
 import * as dc_panels_memorial_types from '@/pages/dc/panels/memorial/types';
+import * as dc_skills_ziwei_cityData from '@/pages/dc/skills/ziwei/cityData';
 import * as dc_utils_cycleCalculator from '@/pages/dc/utils/cycleCalculator';
 import * as dc_utils_dailyViewFilter from '@/pages/dc/utils/dailyViewFilter';
 import * as dc_agent_hooks_useAgent from '@/pages/dc/agent/hooks/useAgent';
@@ -4298,6 +4300,31 @@ const createRoutes: CreateRoutes = ({
     exact: true,
     exports: ["default","useSchedule"],
   },{
+    path: 'dc/skills/ziwei/pages/LoadingPage',
+    async lazy() {
+      ;
+      return {
+        ...dc_skills_ziwei_pages_LoadingPage,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/skills/ziwei/pages/LoadingPage',
+          isLayout: false,
+          routeExports: dc_skills_ziwei_pages_LoadingPage,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/skills/ziwei/pages/LoadingPage',
+          requestContext,
+          renderMode,
+          module: dc_skills_ziwei_pages_LoadingPage,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-skills-ziwei-pages-loadingpage',
+    index: undefined,
+    id: 'dc/skills/ziwei/pages/LoadingPage',
+    exact: true,
+    exports: ["default"],
+  },{
     path: 'dc/utils/todayMustCompleteStorage',
     async lazy() {
       ;
@@ -5621,7 +5648,7 @@ const createRoutes: CreateRoutes = ({
     index: true,
     id: 'dc/skills/ziwei/pages',
     exact: true,
-    exports: ["AnalysisPage","BirthFormPage","ChartResultPage","IntroPage"],
+    exports: ["AnalysisPage","BirthFormPage","ChartResultPage","IntroPage","LoadingPage"],
   },{
     path: 'dc/utils/cycleRewardStorage',
     async lazy() {
@@ -5821,7 +5848,7 @@ const createRoutes: CreateRoutes = ({
     index: undefined,
     id: 'dc/skills/ziwei/constants',
     exact: true,
-    exports: ["ANALYSIS_TABS","CITY_COORDINATES","CITY_LIST","EARTHLY_BRANCHES","HEAVENLY_STEMS","HOUR_NAMES","HOUR_TO_BRANCH","HUA_STARS","MAJOR_STARS","MINOR_STARS","PAGE_STEP_MAP","PALACE_NAMES","PALACE_ORDER","STAR_BRIGHTNESS","STORAGE_KEY","WUXING_JU","YEAR_RANGE","ZIWEI_ICON_URL","ZODIACS"],
+    exports: ["ANALYSIS_TABS","CITY_COORDINATES","CITY_LIST","CITY_MAP","EARTHLY_BRANCHES","FLAT_CITY_LIST","HEAVENLY_STEMS","HOUR_DATA","HOUR_NAMES","HOUR_TO_BRANCH","HUA_STARS","MAJOR_STARS","MINOR_STARS","PAGE_STEP_MAP","PALACE_NAMES","PALACE_ORDER","PROVINCE_CITY_DATA","STAR_BRIGHTNESS","STORAGE_KEY","WUXING_JU","YEAR_RANGE","ZIWEI_ICON_URL","ZODIACS","getCityInfo","searchCities"],
   },{
     path: 'dc/utils/dataExportImport',
     async lazy() {
@@ -6022,6 +6049,31 @@ const createRoutes: CreateRoutes = ({
     id: 'dc/panels/memorial/types',
     exact: true,
     exports: [],
+  },{
+    path: 'dc/skills/ziwei/cityData',
+    async lazy() {
+      ;
+      return {
+        ...dc_skills_ziwei_cityData,
+        Component: () => WrapRouteComponent({
+          routeId: 'dc/skills/ziwei/cityData',
+          isLayout: false,
+          routeExports: dc_skills_ziwei_cityData,
+        }),
+        loader: createRouteLoader({
+          routeId: 'dc/skills/ziwei/cityData',
+          requestContext,
+          renderMode,
+          module: dc_skills_ziwei_cityData,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'dc-skills-ziwei-citydata',
+    index: undefined,
+    id: 'dc/skills/ziwei/cityData',
+    exact: true,
+    exports: ["CITY_MAP","FLAT_CITY_LIST","PROVINCE_CITY_DATA","getCityInfo","searchCities"],
   },{
     path: 'dc/utils/cycleCalculator',
     async lazy() {

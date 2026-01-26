@@ -43,6 +43,8 @@ export const SPIRIT_JADE_COST = {
   CREATE_MAINLINE_TASK: 500,
   /** 刷新一日清单 */
   REFRESH_DAILY_VIEW: 25,
+  /** 生成紫微命盘 */
+  GENERATE_ZIWEI_CHART: 50,
 } as const;
 
 // ============ 奖励配置 ============
@@ -95,4 +97,5 @@ export const POINTS_SOURCE_LABEL: Record<string, string> = {
   ARCHIVE: '归档奖励',
   CREATE_TASK: '创建任务',
   REFRESH_DAILY: '刷新一日清单',
+  ZIWEI_CHART: '紫微命盘',
 };

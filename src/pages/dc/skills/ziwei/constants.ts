@@ -70,70 +70,44 @@ export const HOUR_TO_BRANCH: Record<number, number> = {
   21: 11, 22: 11, // 亥时 21:00-23:00
 };
 
-// 时辰名称
-export const HOUR_NAMES = [
-  '子时 (23:00-01:00)',
-  '丑时 (01:00-03:00)',
-  '寅时 (03:00-05:00)',
-  '卯时 (05:00-07:00)',
-  '辰时 (07:00-09:00)',
-  '巳时 (09:00-11:00)',
-  '午时 (11:00-13:00)',
-  '未时 (13:00-15:00)',
-  '申时 (15:00-17:00)',
-  '酉时 (17:00-19:00)',
-  '戌时 (19:00-21:00)',
-  '亥时 (21:00-23:00)',
+// 时辰数据（名称 + 时间范围）
+export const HOUR_DATA = [
+  { name: '子时', time: '23:00-01:00', alias: '夜半' },
+  { name: '丑时', time: '01:00-03:00', alias: '鸡鸣' },
+  { name: '寅时', time: '03:00-05:00', alias: '平旦' },
+  { name: '卯时', time: '05:00-07:00', alias: '日出' },
+  { name: '辰时', time: '07:00-09:00', alias: '食时' },
+  { name: '巳时', time: '09:00-11:00', alias: '隅中' },
+  { name: '午时', time: '11:00-13:00', alias: '日中' },
+  { name: '未时', time: '13:00-15:00', alias: '日昳' },
+  { name: '申时', time: '15:00-17:00', alias: '晡时' },
+  { name: '酉时', time: '17:00-19:00', alias: '日入' },
+  { name: '戌时', time: '19:00-21:00', alias: '黄昏' },
+  { name: '亥时', time: '21:00-23:00', alias: '人定' },
 ];
 
-// 主要城市经纬度（用于真太阳时校正）
-export const CITY_COORDINATES: Record<string, { lng: number; lat: number; name: string }> = {
-  // 直辖市
-  beijing: { lng: 116.4074, lat: 39.9042, name: '北京' },
-  shanghai: { lng: 121.4737, lat: 31.2304, name: '上海' },
-  tianjin: { lng: 117.1901, lat: 39.1256, name: '天津' },
-  chongqing: { lng: 106.5516, lat: 29.5630, name: '重庆' },
+// 时辰名称（兼容旧接口）
+export const HOUR_NAMES = HOUR_DATA.map(h => `${h.name} ${h.time}`);
 
-  // 省会城市
-  guangzhou: { lng: 113.2644, lat: 23.1291, name: '广州' },
-  shenzhen: { lng: 114.0579, lat: 22.5431, name: '深圳' },
-  hangzhou: { lng: 120.1551, lat: 30.2741, name: '杭州' },
-  nanjing: { lng: 118.7969, lat: 32.0603, name: '南京' },
-  wuhan: { lng: 114.3055, lat: 30.5928, name: '武汉' },
-  chengdu: { lng: 104.0665, lat: 30.5723, name: '成都' },
-  xian: { lng: 108.9402, lat: 34.3416, name: '西安' },
-  changsha: { lng: 112.9388, lat: 28.2282, name: '长沙' },
-  zhengzhou: { lng: 113.6254, lat: 34.7466, name: '郑州' },
-  jinan: { lng: 117.1205, lat: 36.6512, name: '济南' },
-  shenyang: { lng: 123.4315, lat: 41.8057, name: '沈阳' },
-  harbin: { lng: 126.5358, lat: 45.8038, name: '哈尔滨' },
-  changchun: { lng: 125.3245, lat: 43.8868, name: '长春' },
-  shijiazhuang: { lng: 114.5149, lat: 38.0428, name: '石家庄' },
-  taiyuan: { lng: 112.5489, lat: 37.8706, name: '太原' },
-  hohhot: { lng: 111.6708, lat: 40.8183, name: '呼和浩特' },
-  hefei: { lng: 117.2272, lat: 31.8206, name: '合肥' },
-  fuzhou: { lng: 119.2965, lat: 26.0745, name: '福州' },
-  nanchang: { lng: 115.8579, lat: 28.6829, name: '南昌' },
-  kunming: { lng: 102.8329, lat: 24.8801, name: '昆明' },
-  guiyang: { lng: 106.6302, lat: 26.6477, name: '贵阳' },
-  nanning: { lng: 108.3200, lat: 22.8240, name: '南宁' },
-  haikou: { lng: 110.1999, lat: 20.0444, name: '海口' },
-  lanzhou: { lng: 103.8343, lat: 36.0611, name: '兰州' },
-  xining: { lng: 101.7782, lat: 36.6171, name: '西宁' },
-  yinchuan: { lng: 106.2309, lat: 38.4872, name: '银川' },
-  urumqi: { lng: 87.6168, lat: 43.8256, name: '乌鲁木齐' },
-  lhasa: { lng: 91.1409, lat: 29.6500, name: '拉萨' },
+// 城市数据已迁移到 cityData.ts，这里导出兼容接口
+export { PROVINCE_CITY_DATA, FLAT_CITY_LIST, CITY_MAP, getCityInfo, searchCities } from './cityData';
+export type { CityInfo, ProvinceData } from './cityData';
 
-  // 特别行政区和台湾
-  hongkong: { lng: 114.1694, lat: 22.3193, name: '香港' },
-  macau: { lng: 113.5439, lat: 22.1987, name: '澳门' },
-  taipei: { lng: 121.5654, lat: 25.0330, name: '台北' },
-};
+// 兼容旧接口：城市坐标映射
+import { FLAT_CITY_LIST } from './cityData';
+export const CITY_COORDINATES: Record<string, { lng: number; lat: number; name: string }> = 
+  FLAT_CITY_LIST.reduce((acc, city) => {
+    // 使用城市名作为key（兼容旧代码）
+    const key = city.name;
+    acc[key] = { lng: city.lng, lat: city.lat, name: city.name };
+    return acc;
+  }, {} as Record<string, { lng: number; lat: number; name: string }>);
 
-// 城市列表（用于下拉选择）
-export const CITY_LIST = Object.entries(CITY_COORDINATES).map(([key, value]) => ({
-  key,
-  name: value.name,
+// 城市列表（用于下拉选择，兼容旧接口）
+export const CITY_LIST = FLAT_CITY_LIST.map((city) => ({
+  key: city.name,
+  name: city.name,
+  province: city.province,
 }));
 
 // 年份范围
@@ -143,9 +117,10 @@ export const YEAR_RANGE = {
 };
 
 // 步骤进度映射
-export const PAGE_STEP_MAP = {
+export const PAGE_STEP_MAP: Record<string, number> = {
   intro: 1,
   input: 2,
+  loading: 2, // loading 属于 input 步骤的一部分
   result: 3,
   analysis: 4,
 };

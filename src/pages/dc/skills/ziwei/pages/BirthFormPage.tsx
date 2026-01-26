@@ -2,12 +2,30 @@
  * 紫微斗数出生信息输入页
  */
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { Picker, SafeArea } from 'antd-mobile';
 import { ChevronRight } from 'lucide-react';
 import type { BirthFormPageProps, BirthInfo, DateType, Gender } from '../types';
-import { CITY_LIST, YEAR_RANGE, HOUR_NAMES } from '../constants';
+import { YEAR_RANGE, HOUR_DATA, PROVINCE_CITY_DATA, getCityInfo } from '../constants';
 import styles from '../styles.module.css';
+
+// 比较当前表单数据和上次生成的数据是否相同
+function isFormDataSame(
+  formData: { dateType: DateType; year: number; month: number; day: number; hourIndex: number; city: string; gender: Gender },
+  lastInfo: BirthInfo | null | undefined,
+  hourIndexToHour: (index: number) => number
+): boolean {
+  if (!lastInfo) return false;
+  return (
+    formData.dateType === lastInfo.dateType &&
+    formData.year === lastInfo.year &&
+    formData.month === lastInfo.month &&
+    formData.day === lastInfo.day &&
+    hourIndexToHour(formData.hourIndex) === lastInfo.hour &&
+    formData.city === lastInfo.city &&
+    formData.gender === lastInfo.gender
+  );
+}
 
 // 生成年份选项
 const yearColumns = [
@@ -33,27 +51,41 @@ const dayColumns = [
   })),
 ];
 
-// 生成时辰选项
+// 生成时辰选项（简洁单行：时辰名 + 时间范围）
 const hourColumns = [
-  HOUR_NAMES.map((name, index) => ({
-    label: name,
+  HOUR_DATA.map((hour, index) => ({
+    label: `${hour.name} ${hour.time}`,
     value: index,
   })),
 ];
 
-// 城市选项
-const cityColumns = [
-  CITY_LIST.map((city) => ({
-    label: city.name,
-    value: city.key,
-  })),
-];
+// 生成省份-城市两级联动选项
+const generateCityColumns = (provinceIndex: number) => {
+  const provinceColumn = PROVINCE_CITY_DATA.map((p, idx) => ({
+    label: p.name,
+    value: idx,
+  }));
+  
+  const cityColumn = PROVINCE_CITY_DATA[provinceIndex]?.cities.map((c) => ({
+    label: c.name,
+    value: c.name,
+  })) || [];
+  
+  return [provinceColumn, cityColumn];
+};
+
+// 灵玉图标
+const SPIRIT_JADE_ICON = 'https://gw.alicdn.com/imgextra/i1/O1CN01dUkd0B1UxywsCCzXY_!!6000000002585-2-tps-1080-992.png';
 
 export default function BirthFormPage({
   initialValues,
   onSubmit,
   onBack,
   loading = false,
+  costAmount = 0,
+  jadeBalance = 0,
+  hasExistingChart = false,
+  lastGeneratedInfo = null,
 }: BirthFormPageProps) {
   const currentYear = new Date().getFullYear();
 
@@ -66,7 +98,17 @@ export default function BirthFormPage({
       ? Math.floor(((initialValues.hour + 1) % 24) / 2)
       : 0
   );
-  const [city, setCity] = useState<string>(initialValues?.city || 'beijing');
+  const [city, setCity] = useState<string>(initialValues?.city || '北京');
+  // 省份索引（用于两级联动）
+  const [provinceIndex, setProvinceIndex] = useState<number>(() => {
+    // 根据当前城市查找省份索引
+    const cityInfo = getCityInfo(initialValues?.city || '北京');
+    if (cityInfo) {
+      const idx = PROVINCE_CITY_DATA.findIndex(p => p.name === cityInfo.province);
+      return idx >= 0 ? idx : 0;
+    }
+    return 0;
+  });
   const [gender, setGender] = useState<Gender>(initialValues?.gender || 'male');
 
   // Picker 可见状态
@@ -76,9 +118,13 @@ export default function BirthFormPage({
   const [hourPickerVisible, setHourPickerVisible] = useState(false);
   const [cityPickerVisible, setCityPickerVisible] = useState(false);
 
-  // 获取城市名称
-  const getCityName = useCallback((cityKey: string) => {
-    return CITY_LIST.find((c) => c.key === cityKey)?.name || '北京';
+  // 获取城市显示名称（带省份）
+  const getCityDisplayName = useCallback((cityName: string) => {
+    const cityInfo = getCityInfo(cityName);
+    if (cityInfo) {
+      return `${cityInfo.province} - ${cityInfo.name}`;
+    }
+    return cityName || '北京';
   }, []);
 
   // 时辰索引转换为小时
@@ -87,6 +133,23 @@ export default function BirthFormPage({
     if (index === 0) return 23;
     return index * 2 - 1;
   };
+
+  // 判断当前表单数据是否和上次生成的数据相同
+  const isDataUnchanged = useMemo(() => {
+    if (!hasExistingChart || !lastGeneratedInfo) return false;
+    return isFormDataSame(
+      { dateType, year, month, day, hourIndex, city, gender },
+      lastGeneratedInfo,
+      hourIndexToHour
+    );
+  }, [hasExistingChart, lastGeneratedInfo, dateType, year, month, day, hourIndex, city, gender]);
+
+  // 是否需要消耗灵玉（数据变化时需要）
+  const needCost = !isDataUnchanged;
+  // 灵玉是否足够
+  const hasEnoughJade = jadeBalance >= costAmount;
+  // 按钮文案
+  const buttonText = loading ? '正在生成...' : (isDataUnchanged ? '查看命盘' : '生成命盘');
 
   // 提交表单
   const handleSubmit = useCallback(() => {
@@ -169,7 +232,9 @@ export default function BirthFormPage({
             className={styles.selectorEntry}
             onClick={() => setHourPickerVisible(true)}
           >
-            <span className={styles.selectorValue}>{HOUR_NAMES[hourIndex]}</span>
+            <span className={styles.selectorValue}>
+              {HOUR_DATA[hourIndex].name} {HOUR_DATA[hourIndex].time}
+            </span>
             <ChevronRight size={18} className={styles.selectorArrow} />
           </div>
         </div>
@@ -184,7 +249,7 @@ export default function BirthFormPage({
             className={styles.selectorEntry}
             onClick={() => setCityPickerVisible(true)}
           >
-            <span className={styles.selectorValue}>{getCityName(city)}</span>
+            <span className={styles.selectorValue}>{getCityDisplayName(city)}</span>
             <ChevronRight size={18} className={styles.selectorArrow} />
           </div>
         </div>
@@ -209,21 +274,29 @@ export default function BirthFormPage({
         </div>
       </div>
 
-      {/* 底部导航 */}
+      {/* 底部导航（完全复刻 BottomNavigation） */}
       <div className={styles.bottomNav}>
-        <button
-          className={`${styles.navButton} ${styles.navButtonSecondary}`}
-          onClick={onBack}
-        >
-          返回
-        </button>
-        <button
-          className={`${styles.navButton} ${styles.navButtonPrimary}`}
-          onClick={handleSubmit}
-          disabled={loading}
-        >
-          {loading ? '正在生成...' : '生成命盘'}
-        </button>
+        {/* 灵玉消耗提示（仅在需要消耗且数据有变化时显示） */}
+        {needCost && costAmount > 0 && (
+          <div className={styles.costHintRow}>
+            <span className={styles.costHint}>
+              <img src={SPIRIT_JADE_ICON} alt="灵玉" className={styles.costIcon} />
+              生成需消耗 <span className={styles.costAmount}>{costAmount}</span> 灵玉
+              {!hasEnoughJade && (
+                <span className={styles.insufficientHint}>（灵玉不足）</span>
+              )}
+            </span>
+          </div>
+        )}
+        <div className={styles.navButtonRow}>
+          <button
+            className={`${styles.navButton} ${styles.navButtonPrimary} ${styles.navButtonFull}`}
+            onClick={handleSubmit}
+            disabled={loading || (needCost && !hasEnoughJade)}
+          >
+            {buttonText}
+          </button>
+        </div>
       </div>
 
       <SafeArea position="bottom" />
@@ -268,10 +341,18 @@ export default function BirthFormPage({
       <Picker
         visible={cityPickerVisible}
         onClose={() => setCityPickerVisible(false)}
-        columns={cityColumns}
-        value={[city]}
+        columns={generateCityColumns(provinceIndex)}
+        value={[provinceIndex, city]}
+        onSelect={(val) => {
+          // 当省份变化时，更新城市列表
+          const newProvinceIndex = val[0] as number;
+          if (newProvinceIndex !== provinceIndex) {
+            setProvinceIndex(newProvinceIndex);
+          }
+        }}
         onConfirm={(val) => {
-          setCity(val[0] as string);
+          setProvinceIndex(val[0] as number);
+          setCity(val[1] as string);
         }}
       />
     </div>

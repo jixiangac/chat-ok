@@ -192,7 +192,7 @@ export function calculateTrueSolarTime(
   city: string,
   date: Date
 ): { hour: number; minute: number } {
-  const coords = CITY_COORDINATES[city] || CITY_COORDINATES.beijing;
+  const coords = CITY_COORDINATES[city] || CITY_COORDINATES['\u5317\u4eac'] || { lng: 116.4074, lat: 39.9042 };
 
   // 经度差异时间校正（每15度差1小时，每度差4分钟）
   // 标准时区为东八区（120度）

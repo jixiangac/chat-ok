@@ -4,6 +4,7 @@
 
 import { useState } from 'react';
 import { SafeArea } from 'antd-mobile';
+import { Sparkles } from 'lucide-react';
 import type { ChartResultPageProps, AnalysisTab } from '../types';
 import ZiweiChart from '../components/ZiweiChart';
 import ZiweiAnalysisReport from '../components/ZiweiAnalysisReport';
@@ -13,6 +14,7 @@ export default function ChartResultPage({
   chartData,
   onAIAnalysis,
   onBack,
+  skipAnimation = false,
 }: ChartResultPageProps) {
   const [activeTab, setActiveTab] = useState<AnalysisTab>('wealth');
 
@@ -20,33 +22,26 @@ export default function ChartResultPage({
     <div className={styles.resultPage}>
       <div className={styles.resultScroll}>
         {/* 命盘图 */}
-        <ZiweiChart chartData={chartData} />
+        <ZiweiChart chartData={chartData} skipAnimation={skipAnimation} />
 
         {/* 分类报告 */}
         <ZiweiAnalysisReport
           chartData={chartData}
           activeTab={activeTab}
           onTabChange={setActiveTab}
+          skipAnimation={skipAnimation}
         />
-      </div>
 
-      {/* 底部导航 */}
-      <div className={styles.bottomNav}>
-        <button
-          className={`${styles.navButton} ${styles.navButtonSecondary}`}
-          onClick={onBack}
-        >
-          上一步
-        </button>
-        <button
-          className={`${styles.navButton} ${styles.navButtonPrimary}`}
-          onClick={onAIAnalysis}
-        >
-          AI 深度分析
-        </button>
-      </div>
+        {/* AI 入口 - 简洁淡雅风格 */}
+        <div className={styles.aiEntrySection}>
+          <button className={styles.aiEntryButton} onClick={onAIAnalysis}>
+            <Sparkles size={14} />
+            <span>AI 参详命盘</span>
+          </button>
+        </div>
 
-      <SafeArea position="bottom" />
+        <SafeArea position="bottom" />
+      </div>
     </div>
   );
 }

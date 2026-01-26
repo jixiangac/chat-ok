@@ -33,37 +33,45 @@ function taskToSummary(task: Task, isTodayCompleted: (t: Task) => boolean): Task
   // 构建今日进度描述
   let todayProgressDesc = '';
   if (task.todayProgress) {
-    if (task.category === 'CHECK_IN' && task.todayProgress.checkInCount !== undefined) {
-      todayProgressDesc = `已打卡 ${task.todayProgress.checkInCount} 次`;
-    } else if (task.category === 'CHECKLIST' && task.todayProgress.completedItems !== undefined) {
-      todayProgressDesc = `已完成 ${task.todayProgress.completedItems} 项`;
-    } else if (task.category === 'NUMERIC' && task.todayProgress.value !== undefined) {
+    if (task.category === 'CHECK_IN') {
+      todayProgressDesc = `已打卡 ${task.todayProgress.todayCount} 次`;
+    } else if (task.category === 'CHECKLIST') {
+      // 清单型使用 todayCount 表示已完成项数
+      todayProgressDesc = `已完成 ${task.todayProgress.todayCount} 项`;
+    } else if (task.category === 'NUMERIC') {
       const unit = task.numericConfig?.unit || '';
-      todayProgressDesc = `当前 ${task.todayProgress.value}${unit}`;
+      todayProgressDesc = `当前 ${task.todayProgress.todayValue}${unit}`;
     }
   }
 
   // 构建数值型进度描述
   let numericProgress = '';
   if (task.category === 'NUMERIC' && task.numericConfig) {
-    const { startValue, targetValue, unit, direction } = task.numericConfig;
-    const currentValue = task.progress?.currentValue ?? startValue;
+    const { startValue, targetValue, unit, direction, currentValue } = task.numericConfig;
     const arrow = direction === 'DECREASE' ? '→' : '→';
-    numericProgress = `${currentValue}${unit} ${arrow} ${targetValue}${unit}`;
+    numericProgress = `${currentValue ?? startValue}${unit} ${arrow} ${targetValue}${unit}`;
   }
 
   // 计算总体进度百分比
   let overallProgressPercent: number | undefined;
-  if (task.progress?.percentage !== undefined) {
-    overallProgressPercent = Math.round(task.progress.percentage);
+  if (task.progress?.totalPercentage !== undefined) {
+    overallProgressPercent = Math.round(task.progress.totalPercentage);
   }
 
   // 当前周期信息
   let currentCycleInfo = '';
   if (task.cycle) {
-    const currentCycle = task.progress?.currentCycle ?? 1;
-    const cycleDay = task.progress?.cycleDay ?? 1;
-    currentCycleInfo = `第${currentCycle}周期 第${cycleDay}天`;
+    // 根据开始日期和周期天数计算当前周期和天数
+    const startDate = task.time?.startDate;
+    if (startDate) {
+      const start = new Date(startDate);
+      const now = new Date();
+      const daysPassed = Math.floor((now.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+      const cycleDays = task.cycle.cycleDays || 10;
+      const currentCycle = Math.floor(daysPassed / cycleDays) + 1;
+      const cycleDay = (daysPassed % cycleDays) + 1;
+      currentCycleInfo = `第${currentCycle}周期 第${cycleDay}天`;
+    }
   }
 
   return {

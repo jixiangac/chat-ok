@@ -106,6 +106,10 @@ const AlgoList = (props)=>{
 
     const [starFilter, setStarFilter] = useState([]);
 
+    const [bollFilter, setBollFilter] = useState([]);
+
+    const [searchKeyword, setSearchKeyword] = useState('');
+
     const [show, setShow] = useState(false);
 
     const [operationMode, setOperationMode] = useState(false);
@@ -144,13 +148,22 @@ const AlgoList = (props)=>{
         return { level: 0, label: '0星', color: '#1677ff' };
     };
 
-    // 星级选项
+    // Z分数星级选项
     const starOptions = [
         { label: '5星', value: '5' },
         { label: '4星', value: '4' },
         { label: '3星', value: '3' },
         { label: '2星', value: '2' },
         { label: '1星', value: '1' },
+    ];
+
+    // 布林带星级选项
+    const bollOptions = [
+        { label: '5星', value: '5' },
+        { label: '4星', value: '4' },
+        { label: '2星', value: '2' },
+        { label: '1星', value: '1' },
+        { label: '0星', value: '0' },
     ];
 
 
@@ -329,12 +342,104 @@ const AlgoList = (props)=>{
 
         if ( res?.data?.success ) {
            const pdatas = res?.data?.data;
-           await localforage.setItem('rtime', JSON.stringify(pdatas));
+
+           // 获取pdatas.xlist里的，以逗号分隔 ins_id（去重），然后请求batch-algo-settings API
+           const instIds = [...new Set(pdatas.xlist.map((item: any) => item.ins_id))].join(',');
+           console.log(instIds,'instIds')
+           let algoSettingsMap: Record<string, any> = {};
+
+           // 缓存键名和过期时间（30分钟）
+           const ALGO_CACHE_KEY = 'algo_settings_cache';
+           const CACHE_EXPIRY_MS = 30 * 60 * 1000;
+
+           try {
+             // 尝试从缓存获取
+             const cachedData: any = await localforage.getItem(ALGO_CACHE_KEY);
+             if (cachedData) {
+               const { data, timestamp } = JSON.parse(cachedData);
+               const isExpired = Date.now() - timestamp > CACHE_EXPIRY_MS;
+               if (!isExpired && data) {
+                 console.log('Using cached algo settings');
+                 algoSettingsMap = data;
+               } else {
+                 // 缓存过期，重新请求
+                 const algoRes = await axios(`https://newdemo.jixiang.chat/proxyhttp?apitag=CHATGPT&apitype=batch-algo-settings&instIds=${encodeURIComponent(instIds)}`, {
+                   method: 'get'
+                 });
+                 if (algoRes?.data?.success) {
+                   algoSettingsMap = algoRes.data.data || {};
+                   // 存入缓存
+                   await localforage.setItem(ALGO_CACHE_KEY, JSON.stringify({
+                     data: algoSettingsMap,
+                     timestamp: Date.now()
+                   }));
+                 }
+               }
+             } else {
+               // 无缓存，请求 API
+               const algoRes = await axios(`https://newdemo.jixiang.chat/proxyhttp?apitag=CHATGPT&apitype=batch-algo-settings&instIds=${encodeURIComponent(instIds)}`, {
+                 method: 'get'
+               });
+               if (algoRes?.data?.success) {
+                 algoSettingsMap = algoRes.data.data || {};
+                 // 存入缓存
+                 await localforage.setItem(ALGO_CACHE_KEY, JSON.stringify({
+                   data: algoSettingsMap,
+                   timestamp: Date.now()
+                 }));
+               }
+             }
+           } catch (e) {
+             console.error('Failed to fetch algo settings:', e);
+           }
+
+           // 计算布林带强弱星级
+           // 逻辑:
+           // 1. 1H/4H/1D 标记的方向和 pos_side 一样（全部一致），则是 5星
+           // 2. 如果 1H/4H 一致，标记 4星
+           // 3. 如果和 4H 不一致，和 1D 一致，2星
+           // 4. 如果只和 1H 一致，标记 1星
+           // 5. 否则 0星
+           const calcBollStrength = (posSide: string, algoSettings: any): number => {
+             if (!algoSettings) return 0;
+
+             const side1H = algoSettings['1H']?.side;
+             const side4H = algoSettings['4H']?.side;
+             const side1D = algoSettings['1D']?.side;
+
+             const match1H = side1H === posSide;
+             const match4H = side4H === posSide;
+             const match1D = side1D === posSide;
+
+             // 全部一致：5星
+             if (match1H && match4H && match1D) return 5;
+             // 1H和4H一致：4星
+             if (match1H && match4H) return 4;
+             // 和4H不一致，和1D一致：2星
+             if (!match4H && match1D) return 2;
+             // 只和1H一致：1星
+             if (match1H && !match4H && !match1D) return 1;
+             // 否则0星
+             return 0;
+           };
+
+           // 将布林带强弱数据合并到 xlist
+           const enrichedXlist = pdatas.xlist.map((item: any) => {
+             const algoData = algoSettingsMap[item.ins_id];
+             const bollStrength = calcBollStrength(item.pos_side, algoData?.algo_settings);
+             return {
+               ...item,
+               boll_strength: bollStrength,
+               algo_data: algoData
+             };
+           });
+
+           await localforage.setItem('rtime', JSON.stringify({ ...pdatas, xlist: enrichedXlist }));
            setApp({
             isLoading: false,
             loaded: true,
             time: pdatas.time,
-            data: pdatas.xlist,
+            data: enrichedXlist,
             needPay: false
            });
            if ( counts !== undefined && counts !== 0 || count !== 0 ) {
@@ -609,36 +714,80 @@ const AlgoList = (props)=>{
          );
 
          xcon.push(
-          <p>
-            <span style={{marginLeft: '20px'}}>
-                <span style={{display: 'inline-flex', alignItems: 'center', gap: '5px'}}><Selector
-                  options={starOptions}
-                  value={starFilter}
-                  onChange={(arr) => {
-                    setStarFilter(arr);
-                  }}
-                  multiple={true}
-                  style={{ '--border': 'none', '--padding': '4px 8px', fontSize: '12px' }}
-                >
-                  星级筛选
-                </Selector>
-                {starFilter.length > 0 && (
-                  <Button 
-                    size='mini' 
-                    color='default'
-                    onClick={() => setStarFilter([])}>
-                    清空
-                  </Button>
-                )}</span>
-              </span>
-              {location.href.indexOf('jiyang') !==-1 ? <span style={{marginLeft: '12px', position: 'relative',top: '4px'}}>
-                  <Button 
-                      size='mini' 
-                      color={operationMode ? 'danger' : 'default'}
-                      onClick={() => setOperationMode(!operationMode)}>
-                      {operationMode ? '退出操作' : '操作模式'}
-                  </Button>
-              </span> : null}
+          <p style={{display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px', marginLeft: '20px'}}>
+            {/* 搜索框 */}
+            <span style={{display: 'inline-flex', alignItems: 'center', gap: '5px'}}>
+              <Input
+                placeholder="搜索币种"
+                value={searchKeyword}
+                onChange={(val) => setSearchKeyword(val)}
+                style={{width: '120px', fontSize: '12px'}}
+                clearable
+              />
+            </span>
+            {/* Z星级下拉 */}
+            <span style={{display: 'inline-flex', alignItems: 'center', gap: '5px'}}>
+              <select
+                value={starFilter[0] || ''}
+                onChange={(e) => {
+                  setStarFilter(e.target.value ? [e.target.value] : []);
+                }}
+                style={{
+                  padding: '4px 8px',
+                  fontSize: '12px',
+                  borderRadius: '4px',
+                  border: '1px solid #ddd',
+                  background: '#fff'
+                }}
+              >
+                <option value="">Z星级</option>
+                {starOptions.map(opt => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+            </span>
+            {/* 布林带下拉 */}
+            <span style={{display: 'inline-flex', alignItems: 'center', gap: '5px'}}>
+              <select
+                value={bollFilter[0] || ''}
+                onChange={(e) => {
+                  setBollFilter(e.target.value ? [e.target.value] : []);
+                }}
+                style={{
+                  padding: '4px 8px',
+                  fontSize: '12px',
+                  borderRadius: '4px',
+                  border: '1px solid #ddd',
+                  background: '#fff'
+                }}
+              >
+                <option value="">布林带</option>
+                {bollOptions.map(opt => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+            </span>
+            {/* 清空按钮 */}
+            {(starFilter.length > 0 || bollFilter.length > 0 || searchKeyword) && (
+              <Button
+                size='mini'
+                color='default'
+                onClick={() => {
+                  setStarFilter([]);
+                  setBollFilter([]);
+                  setSearchKeyword('');
+                }}>
+                清空
+              </Button>
+            )}
+            {location.href.indexOf('jiyang') !==-1 ? <span style={{marginLeft: '8px'}}>
+                <Button
+                    size='mini'
+                    color={operationMode ? 'danger' : 'default'}
+                    onClick={() => setOperationMode(!operationMode)}>
+                    {operationMode ? '退出操作' : '操作模式'}
+                </Button>
+            </span> : null}
           </p>
          )
       }
@@ -646,6 +795,15 @@ const AlgoList = (props)=>{
       let xindex = 0;
       const x_tabList = tabList.map((item, index)=>{
         const targetList = (app?.data||[]).filter(it=>{
+          // 模糊搜索 ins_id
+          if (searchKeyword) {
+            const keyword = searchKeyword.toLowerCase();
+            const insId = (it.inst_id || it.ins_id || '').toLowerCase();
+            if (!insId.includes(keyword)) {
+              return false; // 过滤掉不匹配搜索关键词的数据
+            }
+          }
+
           // 如果开启了 zScore 筛选，先检查 zScore 条件
           if (enableZScoreFilter && it.z_score) {
             const zScoreValue = Math.abs(Number(it.z_score));
@@ -653,7 +811,7 @@ const AlgoList = (props)=>{
               return false; // 过滤掉 zScore 绝对值小于等于 2.31 的数据
             }
           }
-          
+
           // 如果开启了星级筛选，检查星级条件
           if (starFilter.length > 0 && it.z_score) {
             const zScoreInfo = getZScoreLevel(it.z_score);
@@ -662,7 +820,15 @@ const AlgoList = (props)=>{
               return false; // 过滤掉不符合星级筛选条件的数据
             }
           }
-          
+
+          // 如果开启了布林带星级筛选，检查布林带条件
+          if (bollFilter.length > 0) {
+            const bollStrength = it.boll_strength ?? 0;
+            if (!bollFilter.includes(String(bollStrength))) {
+              return false; // 过滤掉不符合布林带星级筛选条件的数据
+            }
+          }
+
           if ( item.title === '全部' ) {
             return true;
           }
@@ -735,8 +901,6 @@ const AlgoList = (props)=>{
                                       const hours = calculateHours(user.gmt_modified);
 
                                       let zScoreList = [];
-
-                                      console.log(user,'user')
                                       
                                       try{
                                         zScoreList = JSON.parse(user?.z_score_history || '{}').list
@@ -832,6 +996,45 @@ const AlgoList = (props)=>{
                                                       <Tag color={user.pos_side === 'long' ? 'danger' : '#87d068'} fill='outline'>
                                                         {user.pos_side === 'long' ? '做多' : '做空'}
                                                       </Tag>
+                                                  </p>
+                                                  <p>
+                                                      <label>布林带：</label>
+                                                      {(() => {
+                                                          const strength = user.boll_strength ?? 0;
+                                                          const starColors = {
+                                                              5: '#ff4d4f', // 红色 - 最强
+                                                              4: '#fa8c16', // 橙色
+                                                              3: '#fadb14', // 黄色
+                                                              2: '#52c41a', // 绿色
+                                                              1: '#1890ff', // 蓝色
+                                                              0: '#d9d9d9'  // 灰色 - 最弱
+                                                          };
+                                                          const algoSettings = user.algo_data?.algo_settings;
+                                                          const side1H = algoSettings?.['1H']?.side;
+                                                          const side4H = algoSettings?.['4H']?.side;
+                                                          const side1D = algoSettings?.['1D']?.side;
+                                                          const getSideSpan = (side: string, label: string) => {
+                                                              const hasDirection = side === 'long' || side === 'short';
+                                                              const text = side === 'long' ? '多' : side === 'short' ? '空' : '无';
+                                                              return (
+                                                                  <span style={hasDirection ? {borderBottom: '1px dashed #999'} : {}}>
+                                                                      {label}:{text}
+                                                                  </span>
+                                                              );
+                                                          };
+                                                          return (
+                                                              <>
+                                                                  <Tag color={starColors[strength]} fill='outline'>
+                                                                      {strength}星
+                                                                  </Tag>
+                                                                  {strength > 0 && (
+                                                                      <span style={{marginLeft: 8, fontSize: 11, color: '#999'}}>
+                                                                          {getSideSpan(side1H, '1H')} / {getSideSpan(side4H, '4H')} / {getSideSpan(side1D, '1D')}
+                                                                      </span>
+                                                                  )}
+                                                              </>
+                                                          );
+                                                      })()}
                                                   </p>
                                                   <p>
                                                       <label>次数：</label>

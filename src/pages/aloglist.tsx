@@ -31,6 +31,8 @@ import { saveUuid, setPageInfo, getPageInfo } from '@/utils';
 import { imagelist } from './image';
 
 import AITrend from './aitrend';
+import AIWatchPanel from './ai_watch';
+import { Brain } from 'lucide-react';
 
 // const prefix = location.href.indexOf('localhost') !== -1 ? '' : 'https://api.jixiang.chat';
 const prefix = 'https://api.jixiang.chat';
@@ -113,6 +115,8 @@ const AlgoList = (props)=>{
     const [show, setShow] = useState(false);
 
     const [operationMode, setOperationMode] = useState(false);
+
+    const [showAIWatch, setShowAIWatch] = useState(false);
 
     const [payLoading, setPayLoading] = useState(false);
 
@@ -627,6 +631,14 @@ const AlgoList = (props)=>{
                   }
               }
             }}><RedoOutline style={{marginLeft: 20}}/><span style={{fontSize: 10}}>刷新</span></span>
+            {location.href.indexOf('jiyang') !== -1 && (
+              <span
+                onClick={() => setShowAIWatch(true)}
+                style={{ float: 'right', cursor: 'pointer' }}
+              >
+                <Brain size={18} style={{ verticalAlign: 'middle' }} />
+              </span>
+            )}
         </div>
       );
 
@@ -1169,6 +1181,7 @@ const AlgoList = (props)=>{
 
     return <>
             {cons}
+            <AIWatchPanel visible={showAIWatch} onClose={() => setShowAIWatch(false)} />
           </>
 };
 

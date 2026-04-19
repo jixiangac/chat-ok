@@ -282,6 +282,7 @@ import * as dc_utils from '@/pages/dc/utils/index';
 import * as dc_riv_DieCat from '@/pages/dc/riv/DieCat';
 import * as dc_riv from '@/pages/dc/riv/index';
 import * as stock_self from '@/pages/stock_self';
+import * as ai_watch from '@/pages/ai_watch';
 import * as aloglist from '@/pages/aloglist';
 import * as dc from '@/pages/dc/index';
 import * as aitrend from '@/pages/aitrend';
@@ -7347,6 +7348,31 @@ const createRoutes: CreateRoutes = ({
     componentName: 'stock_self',
     index: undefined,
     id: 'stock_self',
+    exact: true,
+    exports: ["default"],
+  },{
+    path: 'ai_watch',
+    async lazy() {
+      ;
+      return {
+        ...ai_watch,
+        Component: () => WrapRouteComponent({
+          routeId: 'ai_watch',
+          isLayout: false,
+          routeExports: ai_watch,
+        }),
+        loader: createRouteLoader({
+          routeId: 'ai_watch',
+          requestContext,
+          renderMode,
+          module: ai_watch,
+        }),
+      };
+    },
+    errorElement: <RouteErrorComponent />,
+    componentName: 'ai_watch',
+    index: undefined,
+    id: 'ai_watch',
     exact: true,
     exports: ["default"],
   },{

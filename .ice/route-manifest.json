@@ -3782,6 +3782,16 @@
     ]
   },
   {
+    "path": "ai_watch",
+    "id": "ai_watch",
+    "file": "ai_watch.tsx",
+    "componentName": "ai_watch",
+    "layout": false,
+    "exports": [
+      "default"
+    ]
+  },
+  {
     "path": "aloglist",
     "id": "aloglist",
     "file": "aloglist.tsx",

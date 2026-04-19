@@ -352,9 +352,10 @@ const AIWatchPanel = ({ visible, onClose }) => {
       onMaskClick={onClose}
       position="bottom"
       bodyStyle={{
-        height: '100vh',
+        height: '100dvh',
         display: 'flex',
         flexDirection: 'column',
+        paddingTop: 'env(safe-area-inset-top)',
       }}
       destroyOnClose
     >
